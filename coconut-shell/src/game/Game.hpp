@@ -21,7 +21,7 @@ private:
 
 	std::shared_ptr<milk::system::Window> window_;
 
-	std::shared_ptr<milk::graphics::Device> device_;
+	std::shared_ptr<milk::graphics::Device> graphicsDevice_;
 
 };
 

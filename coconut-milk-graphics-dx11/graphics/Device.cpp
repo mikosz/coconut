@@ -124,11 +124,42 @@ void createD3DDevice(
 	}
 }
 
+void extractBackBuffer(
+	IDXGISwapChain* swapChain,
+	Texture2d* backBuffer
+	) {
+	system::COMWrapper<ID3D11Texture2D> texture;
+	if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&texture.get())))) {
+		throw std::runtime_error("Failed to extract the back buffer texture");
+	}
+
+	*backBuffer = texture;
+}
+
 } // anonymous namespace
 
-Device::Device(system::Window& window, const Configuration& configuration) {
+Device::Device(system::Window& window, const Configuration& configuration) :
+	configuration_(configuration)
+{
 	DXGI_RATIONAL refreshRate;
 	queryAdapterAndRefreshRate(window, &adapter_, &refreshRate);
 
 	createD3DDevice(window, configuration, refreshRate, &swapChain_, &d3dDevice_, &d3dDeviceContext_);
+
+	extractBackBuffer(swapChain_, &backBuffer_);
+	setRenderTarget(backBuffer_);
+}
+
+void Device::setRenderTarget(Texture2d& texture) {
+	ID3D11RenderTargetView* renderTargetView = texture.asRenderTargetView(*this);
+	d3dDeviceContext_->OMSetRenderTargets(0, &renderTargetView, 0);
+}
+
+void Device::beginScene() {
+	float colour[] = { 1.0f, 0.0f, 1.0f, 1.0f };
+	d3dDeviceContext_->ClearRenderTargetView(backBuffer_.asRenderTargetView(*this), colour);
+}
+
+void Device::endScene() {
+	swapChain_->Present(configuration_.vsync, 0);
 }

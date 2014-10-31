@@ -26,7 +26,7 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 		configuration.debugDevice = DEBUG;
 		configuration.vsync = false;
 
-		device_.reset(new milk::graphics::Device(*window_, configuration));
+		graphicsDevice_.reset(new milk::graphics::Device(*window_, configuration));
 	}
 }
 
@@ -37,5 +37,8 @@ void Game::loop() {
 		if (app_->closeRequested()) {
 			break;
 		}
+
+		graphicsDevice_->beginScene();
+		graphicsDevice_->endScene();
 	}
 }

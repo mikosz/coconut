@@ -3,6 +3,7 @@
 
 #include <d3d11.h>
 
+#include "Texture2d.hpp"
 #include "system/COMWrapper.hpp"
 #include "system/Window.hpp"
 
@@ -26,7 +27,27 @@ public:
 
 	Device(system::Window& window, const Configuration& configuration);
 
+	void beginScene();
+
+	void endScene();
+
+	void setRenderTarget(Texture2d& texture);
+
+	ID3D11Device* d3dDevice() {
+		return d3dDevice_;
+	}
+
+	ID3D11DeviceContext* d3dDeviceContext() {
+		return d3dDeviceContext_;
+	}
+
+	Texture2d& backBuffer() {
+		return backBuffer_;
+	}
+
 private:
+
+	Configuration configuration_;
 
 	system::COMWrapper<IDXGIAdapter> adapter_;
 
@@ -35,6 +56,8 @@ private:
 	system::COMWrapper<ID3D11DeviceContext> d3dDeviceContext_;
 
 	system::COMWrapper<IDXGISwapChain> swapChain_;
+
+	Texture2d backBuffer_;
 
 };
 
