@@ -1,5 +1,5 @@
-#ifndef _COCONUT_MILK_GRAPHICS_DX11_DEVICE_APP_HPP_
-#define _COCONUT_MILK_GRAPHICS_DX11_DEVICE_APP_HPP_
+#ifndef _COCONUT_MILK_SYSTEM_WIN32_APP_HPP_
+#define _COCONUT_MILK_SYSTEM_WIN32_APP_HPP_
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -8,8 +8,7 @@
 
 namespace coconut {
 namespace milk {
-namespace graphics {
-namespace device {
+namespace system {
 
 class App {
 public:
@@ -42,9 +41,8 @@ private:
 
 };
 
-} // namespace device
-} // namespace graphics
+} // namespace system
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_GRAPHICS_DX11_DEVICE_APP_HPP_ */
+#endif /* _COCONUT_MILK_SYSTEM_WIN32_APP_HPP_ */

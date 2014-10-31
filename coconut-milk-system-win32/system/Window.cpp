@@ -8,8 +8,7 @@
 
 using namespace coconut;
 using namespace coconut::milk;
-using namespace coconut::milk::graphics;
-using namespace coconut::milk::graphics::device;
+using namespace coconut::milk::system;
 
 Window::Window(const Configuration& configuration, std::shared_ptr<App> app) :
 	configuration_(configuration),
@@ -104,4 +103,26 @@ LRESULT CALLBACK Window::messageHandler(HWND window, UINT message, WPARAM wparam
 			return instance->app_->systemCallback(window, message, wparam, lparam);
 		}
 	}
+}
+
+size_t Window::clientWidth() const {
+	RECT clientRect;
+	if (!GetClientRect(handle_, &clientRect)) {
+		throw std::runtime_error("Failed to retrieve client width");
+	}
+
+	return clientRect.right - clientRect.left;
+}
+
+size_t Window::clientHeight() const {
+	RECT clientRect;
+	if (!GetClientRect(handle_, &clientRect)) {
+		throw std::runtime_error("Failed to retrieve client height");
+	}
+
+	return clientRect.bottom - clientRect.top;
+}
+
+bool Window::fullscreen() const {
+	return configuration_.fullscreen;
 }

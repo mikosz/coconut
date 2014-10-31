@@ -1,5 +1,5 @@
-#ifndef _COCONUT_MILK_GRAPHICS_DX11_DEVICE_WINDOW_HPP_
-#define _COCONUT_MILK_GRAPHICS_DX11_DEVICE_WINDOW_HPP_
+#ifndef _COCONUT_MILK_SYSTEM_WIN32_WINDOW_HPP_
+#define _COCONUT_MILK_SYSTEM_WIN32_WINDOW_HPP_
 
 #include <memory>
 #include <string>
@@ -9,8 +9,7 @@
 
 namespace coconut {
 namespace milk {
-namespace graphics {
-namespace device {
+namespace system {
 
 class App;
 
@@ -35,6 +34,16 @@ public:
 
 	~Window();
 
+	size_t clientWidth() const;
+
+	size_t clientHeight() const;
+
+	bool fullscreen() const;
+
+	HWND handle() {
+		return handle_;
+	}
+
 private:
 
 	Configuration configuration_;
@@ -47,9 +56,8 @@ private:
 
 };
 
-} // namespace device
-} // namespace graphics
+} // namespace system
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_GRAPHICS_DX11_DEVICE_WINDOW_HPP_ */
+#endif /* _COCONUT_MILK_SYSTEM_WIN32_WINDOW_HPP_ */

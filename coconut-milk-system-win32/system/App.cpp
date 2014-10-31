@@ -2,8 +2,7 @@
 
 using namespace coconut;
 using namespace coconut::milk;
-using namespace coconut::milk::graphics;
-using namespace coconut::milk::graphics::device;
+using namespace coconut::milk::system;
 
 App::App(HINSTANCE instance, LPSTR commandLine, int showCommand) :
 	instance_(instance),

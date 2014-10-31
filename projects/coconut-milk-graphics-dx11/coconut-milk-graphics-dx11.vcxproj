@@ -11,12 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\coconut-milk-graphics-dx11\src\device\App.cpp" />
-    <ClCompile Include="..\..\coconut-milk-graphics-dx11\src\device\Window.cpp" />
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\Device.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\coconut-milk-graphics-dx11\src\device\App.hpp" />
-    <ClInclude Include="..\..\coconut-milk-graphics-dx11\src\device\Window.hpp" />
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\Device.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F5F4B806-D62A-4240-B9E1-417E1187A5C0}</ProjectGuid>
@@ -48,7 +46,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)coconut-milk-system-win32/;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>

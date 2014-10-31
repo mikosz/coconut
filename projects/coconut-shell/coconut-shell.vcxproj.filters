@@ -25,5 +25,8 @@
     <ClInclude Include="..\..\coconut-shell\src\game\Game.hpp">
       <Filter>Source Files\game</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\coconut-shell\src\game\globals.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
