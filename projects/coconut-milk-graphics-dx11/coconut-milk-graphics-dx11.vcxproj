@@ -12,9 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\Device.hpp" />
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\PixelFormat.hpp" />
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\Texture2d.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\Device.cpp" />
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\Texture2d.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F5F4B806-D62A-4240-B9E1-417E1187A5C0}</ProjectGuid>

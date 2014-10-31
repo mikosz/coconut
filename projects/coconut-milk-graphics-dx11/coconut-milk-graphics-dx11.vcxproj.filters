@@ -14,9 +14,18 @@
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\Device.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\Texture2d.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\PixelFormat.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\Device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\Texture2d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
