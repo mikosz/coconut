@@ -9,5 +9,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\model">
+      <UniqueIdentifier>{036228ea-9679-462d-9e32-6594b1d9d072}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\coconut-pulp\pulp\model\Model.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\coconut-pulp\pulp\model\Model.hpp">
+      <Filter>Source Files\model</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

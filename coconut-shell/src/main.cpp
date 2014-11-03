@@ -3,6 +3,7 @@
 #include "system/App.hpp"
 #include "game/Game.hpp"
 
+#pragma comment(lib, "coconut-pulp.lib")
 #pragma comment(lib, "coconut-milk-graphics-dx11.lib")
 #pragma comment(lib, "coconut-milk-system-win32.lib")
 

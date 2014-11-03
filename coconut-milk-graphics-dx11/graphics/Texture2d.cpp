@@ -54,7 +54,8 @@ Texture2d::Texture2d(Device& device, const Configuration& configuration, void* i
 
 void* Texture2d::lock(Device& device, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	if (FAILED(device.d3dDeviceContext()->Map(texture_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource))) {
+	if (FAILED(
+		device.d3dDeviceContext()->Map(texture_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource))) {
 		throw std::runtime_error("Failed to map resource");
 	}
 	

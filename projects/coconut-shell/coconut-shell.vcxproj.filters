@@ -5,12 +5,21 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Source Files\game">
+      <UniqueIdentifier>{5cead56c-87cf-4d4a-a6f6-fdeda0e2fd20}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\game">
-      <UniqueIdentifier>{5cead56c-87cf-4d4a-a6f6-fdeda0e2fd20}</UniqueIdentifier>
+    <Filter Include="Resource Files\shaders">
+      <UniqueIdentifier>{b09e1b75-49b3-4a2d-89ea-337d5dd1d423}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\shaders\vertex">
+      <UniqueIdentifier>{c4590950-35e6-4613-b30c-7a22308bbd92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\shaders\pixel">
+      <UniqueIdentifier>{f356a024-1042-41c9-ac42-e8543102fbb2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -28,5 +37,13 @@
     <ClInclude Include="..\..\coconut-shell\src\game\globals.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\coconut-shell\resources\shaders\pixel\sprite.p.hlsl">
+      <Filter>Resource Files\shaders\pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\coconut-shell\resources\shaders\vertex\sprite.v.hlsl">
+      <Filter>Resource Files\shaders\vertex</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

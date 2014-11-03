@@ -20,12 +20,39 @@
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\PixelFormat.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\Buffer.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\VertexShader.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\InputLayoutDescription.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\FlexibleInputLayoutDescription.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\graphics\PixelShader.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\Device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\Texture2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\Buffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\VertexShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\FlexibleInputLayoutDescription.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\graphics\PixelShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
