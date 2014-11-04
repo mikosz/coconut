@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "Device.hpp"
+#include "DirectXError.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
@@ -47,17 +48,18 @@ Texture2d::Texture2d(Device& device, const Configuration& configuration, void* i
 	
 	subresourceData.pSysMem = initialData;
 
-	if (FAILED(device.d3dDevice()->CreateTexture2D(&desc, &subresourceData, &texture_.get()))) {
-		throw std::runtime_error("Failed to create a 2D texture");
-	}
+	checkDirectXCall(
+		device.d3dDevice()->CreateTexture2D(&desc, &subresourceData, &texture_.get()),
+		"Failed to create a 2D texture"
+		);
 }
 
 void* Texture2d::lock(Device& device, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	if (FAILED(
-		device.d3dDeviceContext()->Map(texture_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource))) {
-		throw std::runtime_error("Failed to map resource");
-	}
+	checkDirectXCall(
+		device.d3dDeviceContext()->Map(texture_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		"Failed to map resource"
+		);
 	
 	return mappedResource.pData;
 }

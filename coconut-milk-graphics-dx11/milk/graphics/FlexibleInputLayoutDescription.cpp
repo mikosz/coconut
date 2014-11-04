@@ -1,5 +1,6 @@
 #include "FlexibleInputLayoutDescription.hpp"
 
+#include "DirectXError.hpp"
 #include "Device.hpp"
 
 using namespace coconut;
@@ -35,15 +36,16 @@ system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout
 	}
 
 	system::COMWrapper<ID3D11InputLayout> layout;
-	if (FAILED(device.d3dDevice()->CreateInputLayout(
-		&descs.front(),
-		descs.size(),
-		shaderData,
-		shaderSize,
-		&layout.get()
-		))) {
-		throw std::runtime_error("Failed to create an input layout");
-	}
+	checkDirectXCall(
+		device.d3dDevice()->CreateInputLayout(
+			&descs.front(),
+			descs.size(),
+			shaderData,
+			shaderSize,
+			&layout.get()
+			),
+		"Failed to create an input layout"
+		);
 
 	return layout;
 }

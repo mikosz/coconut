@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "DirectXError.hpp"
+
 using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
@@ -13,40 +15,30 @@ void queryAdapterAndRefreshRate(
 	system::COMWrapper<IDXGIAdapter>* adapter,
 	DXGI_RATIONAL* refreshRate
 	) {
-	HRESULT result;
-
 	system::COMWrapper<IDXGIFactory> factory;
-	if (FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory.get())))) {
-		throw std::runtime_error("Failed to create a DXGIFactory");
-	}
+	checkDirectXCall(
+		CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory.get())),
+		"Failed to create a DXGIFactory"
+		);
 
-	result = factory->EnumAdapters(0, &adapter->get());
-	if (result == DXGI_ERROR_NOT_FOUND) {
-		throw std::runtime_error("No video cards found");
-	} else if (FAILED(result)) {
-		throw std::runtime_error("Failed to enumerate video cards");
-	}
+	checkDirectXCall(factory->EnumAdapters(0, &adapter->get()), "Failed to enumerate video cards");
 
 	system::COMWrapper<IDXGIOutput> output;
-	result = (*adapter)->EnumOutputs(0, &output.get());
-	if (result == DXGI_ERROR_NOT_FOUND) {
-		throw std::runtime_error("No video outputs found");
-	} else if (FAILED(result)) {
-		throw std::runtime_error("Failed to enumerate outputs");
-	}
+	checkDirectXCall((*adapter)->EnumOutputs(0, &output.get()), "Failed to enumerate outputs");
 
 	std::vector<DXGI_MODE_DESC> displayModes;
 	UINT modeCount;
-	result = output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, 0);
-	if (FAILED(result)) {
-		throw std::runtime_error("Failed to get display modes");
-	}
+	checkDirectXCall(
+		output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, 0),
+		"Failed to get display modes"
+		);
 
 	displayModes.resize(modeCount);
-	result = output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, &displayModes.front());
-	if (FAILED(result)) {
-		throw std::runtime_error("Failed to get display modes");
-	}
+	checkDirectXCall(
+		output->GetDisplayModeList(
+			DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, &displayModes.front()),
+		"Failed to get display modes"
+		);
 
 	assert(modeCount == displayModes.size());
 
@@ -105,23 +97,23 @@ void createD3DDevice(
 		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	}
 
-	HRESULT result = D3D11CreateDeviceAndSwapChain(
-		0,
-		D3D_DRIVER_TYPE_HARDWARE,
-		0,
-		creationFlags,
-		0,
-		0,
-		D3D11_SDK_VERSION,
-		&swapChainDesc,
-		&swapChain->get(),
-		&device->get(),
-		0,
-		&deviceContext->get()
+	checkDirectXCall(
+		D3D11CreateDeviceAndSwapChain(
+			0,
+			D3D_DRIVER_TYPE_HARDWARE,
+			0,
+			creationFlags,
+			0,
+			0,
+			D3D11_SDK_VERSION,
+			&swapChainDesc,
+			&swapChain->get(),
+			&device->get(),
+			0,
+			&deviceContext->get()
+			),
+		"Failed to create a directx device"
 		);
-	if (FAILED(result)) {
-		throw std::runtime_error("Failed to create a directx device");
-	}
 }
 
 void extractBackBuffer(
@@ -129,9 +121,10 @@ void extractBackBuffer(
 	Texture2d* backBuffer
 	) {
 	system::COMWrapper<ID3D11Texture2D> texture;
-	if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&texture.get())))) {
-		throw std::runtime_error("Failed to extract the back buffer texture");
-	}
+	checkDirectXCall(
+		swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&texture.get())),
+		"Failed to extract the back buffer texture"
+		);
 
 	*backBuffer = texture;
 }
@@ -148,6 +141,17 @@ Device::Device(system::Window& window, const Configuration& configuration) :
 
 	extractBackBuffer(swapChain_, &backBuffer_);
 	setRenderTarget(backBuffer_);
+
+	D3D11_VIEWPORT viewport;
+	viewport.Height = window.clientHeight();
+	viewport.Width = window.clientWidth();
+	viewport.MaxDepth = D3D11_MAX_DEPTH;
+	viewport.MinDepth = D3D11_MIN_DEPTH;
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	d3dDeviceContext_->RSSetViewports(1, &viewport);
+
+	d3dDeviceContext_->Rast
 }
 
 void Device::setRenderTarget(Texture2d& texture) {

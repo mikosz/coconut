@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Buffer.cpp" />
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Device.cpp" />
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\DirectXError.cpp" />
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\FlexibleInputLayoutDescription.cpp" />
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PixelShader.cpp" />
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Texture2d.cpp" />
@@ -21,6 +22,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Buffer.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Device.hpp" />
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\DirectXError.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\FlexibleInputLayoutDescription.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\InputLayoutDescription.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PixelFormat.hpp" />

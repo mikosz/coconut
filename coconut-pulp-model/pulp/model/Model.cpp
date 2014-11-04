@@ -19,6 +19,7 @@ milk::graphics::Buffer::Configuration conf() {
 	c.allowModifications = true;
 	c.size = 3 * sizeof(V);
 	c.stride = sizeof(V);
+	c.purpose = milk::graphics::Buffer::VERTEX_BUFFER;
 
 	return c;
 }
@@ -30,6 +31,7 @@ milk::graphics::Buffer::Configuration iconf() {
 	c.allowModifications = true;
 	c.size = 3 * sizeof(std::uint16_t);
 	c.stride = sizeof(std::uint16_t);
+	c.purpose = milk::graphics::Buffer::INDEX_BUFFER;
 
 	return c;
 }
@@ -55,6 +57,18 @@ Model::Model(milk::graphics::Device& device, std::shared_ptr<milk::graphics::Ver
 		vs[2].pos.y = -0.5f;
 		vs[2].pos.z = 0.0f;
 
+/*		vs[0].pos.x = 200.0f;
+		vs[0].pos.y = 100.0f;
+		vs[0].pos.z = 0.0f;
+
+		vs[1].pos.x = 300.0f;
+		vs[1].pos.y = 300.0f;
+		vs[1].pos.z = 0.0f;
+
+		vs[2].pos.x = 400.0f;
+		vs[2].pos.y = 100.0f;
+		vs[2].pos.z = 0.0f; */
+
 		vertexBuffer_.unlock(device);
 	}
 
@@ -75,4 +89,7 @@ void Model::render(milk::graphics::Device& device) {
 
 	vertexShader_->bind(device);
 	pixelShader_->bind(device);
+
+	device.d3dDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	device.d3dDeviceContext()->DrawIndexed(3, 0, 0);
 }

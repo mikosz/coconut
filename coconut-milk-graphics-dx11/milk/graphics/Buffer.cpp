@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "Device.hpp"
+#include "DirectXError.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
@@ -40,23 +41,24 @@ Buffer::Buffer(Device& device, const Configuration& configuration, void* initial
 		}
 	}
 
+	D3D11_SUBRESOURCE_DATA* dataPtr = 0;
 	D3D11_SUBRESOURCE_DATA data;
-	std::memset(&data, 0, sizeof(data));
-
-	data.pSysMem = initialData;
-
-	if (FAILED(device.d3dDevice()->CreateBuffer(&desc, &data, &buffer_.get()))) {
-		throw std::runtime_error("Failed to create a buffer");
+	if (initialData) {
+		std::memset(&data, 0, sizeof(data));
+		data.pSysMem = initialData;
+		dataPtr = &data;
 	}
+
+	checkDirectXCall(device.d3dDevice()->CreateBuffer(&desc, dataPtr, &buffer_.get()),
+		"Failed to create a buffer");
 }
 
 void* Buffer::lock(Device& device, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	if (FAILED(
-		device.d3dDeviceContext()->Map(buffer_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource))
-		) {
-		throw std::runtime_error("Failed to lock a buffer");
-	}
+	checkDirectXCall(
+		device.d3dDeviceContext()->Map(buffer_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		"Failed to lock a buffer"
+		);
 
 	return mappedResource.pData;
 }

@@ -3,8 +3,9 @@
 #include <fstream>
 #include <vector>
 #include <cstdint>
-#include <filesystem>
 #include <memory>
+
+#include <boost/filesystem.hpp>
 
 #include "milk/graphics/FlexibleInputLayoutDescription.hpp"
 #include "milk/graphics/VertexShader.hpp"
@@ -43,28 +44,53 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 }
 
 void Game::loop() {
-	std::ifstream ifs("sprite.v.cso", std::ios::binary);
-	if (!ifs) {
-		throw std::runtime_error("Failed to read the vertex shader");
+	std::shared_ptr<milk::graphics::VertexShader> vertexShader;
+
+	{
+		std::ifstream ifs("sprite.v.cso", std::ios::binary);
+		if (!ifs) {
+			throw std::runtime_error("Failed to open the vertex shader");
+		}
+
+		size_t shaderSize = boost::filesystem::file_size("sprite.v.cso");
+		std::vector<char> vdata;
+		vdata.resize(shaderSize);
+
+		ifs.read(&vdata.front(), shaderSize);
+
+		if (!ifs) {
+			throw std::runtime_error("Failed to read the vertex shader");
+		}
+
+		milk::graphics::FlexibleInputLayoutDescription inputLayoutDesc;
+		inputLayoutDesc.push(std::shared_ptr<milk::graphics::FlexibleInputLayoutDescription::PositionElement>(
+			new milk::graphics::FlexibleInputLayoutDescription::PositionElement(0, milk::graphics::FlexibleInputLayoutDescription::R32G32B32_FLOAT)));
+
+		vertexShader.reset(new milk::graphics::VertexShader(*graphicsDevice_, &vdata.front(), vdata.size(), inputLayoutDesc));
 	}
-	std::vector<char> vdata;
-	vdata.push_back(' ');
-	ifs.read(&vdata.back(), 1);
 
-	milk::graphics::FlexibleInputLayoutDescription inputLayoutDesc;
-	inputLayoutDesc.push(std::shared_ptr<milk::graphics::FlexibleInputLayoutDescription::PositionElement>(
-		new milk::graphics::FlexibleInputLayoutDescription::PositionElement(0, milk::graphics::FlexibleInputLayoutDescription::R32G32B32_FLOAT)));
+	std::shared_ptr<milk::graphics::PixelShader> pixelShader;
 
-	std::shared_ptr<milk::graphics::VertexShader> vertexShader(new milk::graphics::VertexShader(*graphicsDevice_, &vdata.front(), vdata.size(), inputLayoutDesc));
+	{
+		std::ifstream ifs("sprite.p.cso", std::ios::binary);
+		if (!ifs) {
+			throw std::runtime_error("Failed to open the pixel shader");
+		}
 
-	/* std::vector<std::uint16_t> idata;
-	idata.push_back(0);
-	idata.push_back(1);
-	idata.push_back(2);
+		size_t shaderSize = boost::filesystem::file_size("sprite.p.cso");
+		std::vector<char> pdata;
+		pdata.resize(shaderSize);
 
-	std::shared_ptr<milk::graphics::PixelShader> pixelShader(new milk::graphics::PixelShader(*graphicsDevice_, &idata.front(), idata.size()));
+		ifs.read(&pdata.front(), shaderSize);
 
-	pulp::model::Model m(*graphicsDevice_, vertexShader, pixelShader); */
+		if (!ifs) {
+			throw std::runtime_error("Failed to read the pixel shader");
+		}
+
+		pixelShader.reset(new milk::graphics::PixelShader(*graphicsDevice_, &pdata.front(), pdata.size()));
+	}
+
+	pulp::model::Model m(*graphicsDevice_, vertexShader, pixelShader);
 
 	for (;;) {
 		app_->update();
@@ -74,7 +100,7 @@ void Game::loop() {
 		}
 
 		graphicsDevice_->beginScene();
-		// m.render(*graphicsDevice_);
+		m.render(*graphicsDevice_);
 		graphicsDevice_->endScene();
 	}
 }

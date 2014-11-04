@@ -29,6 +29,9 @@
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\VertexShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\DirectXError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Buffer.hpp">
@@ -53,6 +56,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\VertexShader.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\DirectXError.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
