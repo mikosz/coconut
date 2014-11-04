@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "system/App.hpp"
+#include "milk/system/App.hpp"
 #include "game/Game.hpp"
 
 #pragma comment(lib, "coconut-pulp.lib")

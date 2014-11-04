@@ -6,14 +6,14 @@
 #include <filesystem>
 #include <memory>
 
-#include "graphics/FlexibleInputLayoutDescription.hpp"
-#include "graphics/VertexShader.hpp"
-#include "graphics/PixelShader.hpp"
+#include "milk/graphics/FlexibleInputLayoutDescription.hpp"
+#include "milk/graphics/VertexShader.hpp"
+#include "milk/graphics/PixelShader.hpp"
 
 #include "pulp/model/Model.hpp"
 
 #include "globals.hpp"
-#include "system/Window.hpp"
+#include "milk/system/Window.hpp"
 
 using namespace coconut;
 using namespace coconut::shell;

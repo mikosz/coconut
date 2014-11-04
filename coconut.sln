@@ -1,26 +1,23 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-graphics-dx11", "projects\coconut-milk-graphics-dx11\coconut-milk-graphics-dx11.vcxproj", "{F5F4B806-D62A-4240-B9E1-417E1187A5C0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423} = {1ACABE20-DE5F-4D60-8A91-61B60CB60423}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-pulp", "projects\coconut-pulp\coconut-pulp.vcxproj", "{A6A01475-0DC4-437E-8057-EE54A068A5CB}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-shell", "projects\coconut-shell\coconut-shell.vcxproj", "{CF1AB2B0-605A-4A9A-B915-3377EDD95527}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F5F4B806-D62A-4240-B9E1-417E1187A5C0} = {F5F4B806-D62A-4240-B9E1-417E1187A5C0}
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423} = {1ACABE20-DE5F-4D60-8A91-61B60CB60423}
-		{A6A01475-0DC4-437E-8057-EE54A068A5CB} = {A6A01475-0DC4-437E-8057-EE54A068A5CB}
 		{1E975AFA-0FFF-4AEE-96F1-262539ED8CDB} = {1E975AFA-0FFF-4AEE-96F1-262539ED8CDB}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-system-win32", "projects\coconut-milk-system-win32\coconut-milk-system-win32.vcxproj", "{1E975AFA-0FFF-4AEE-96F1-262539ED8CDB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-utils", "projects\coconut-milk-utils\coconut-milk-utils.vcxproj", "{1ACABE20-DE5F-4D60-8A91-61B60CB60423}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-pulp-model", "projects\coconut-pulp-model\coconut-pulp-model.vcxproj", "{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,10 +29,6 @@ Global
 		{F5F4B806-D62A-4240-B9E1-417E1187A5C0}.Debug|Win32.Build.0 = Debug|Win32
 		{F5F4B806-D62A-4240-B9E1-417E1187A5C0}.Release|Win32.ActiveCfg = Release|Win32
 		{F5F4B806-D62A-4240-B9E1-417E1187A5C0}.Release|Win32.Build.0 = Release|Win32
-		{A6A01475-0DC4-437E-8057-EE54A068A5CB}.Debug|Win32.ActiveCfg = Debug|Win32
-		{A6A01475-0DC4-437E-8057-EE54A068A5CB}.Debug|Win32.Build.0 = Debug|Win32
-		{A6A01475-0DC4-437E-8057-EE54A068A5CB}.Release|Win32.ActiveCfg = Release|Win32
-		{A6A01475-0DC4-437E-8057-EE54A068A5CB}.Release|Win32.Build.0 = Release|Win32
 		{CF1AB2B0-605A-4A9A-B915-3377EDD95527}.Debug|Win32.ActiveCfg = Debug|Win32
 		{CF1AB2B0-605A-4A9A-B915-3377EDD95527}.Debug|Win32.Build.0 = Debug|Win32
 		{CF1AB2B0-605A-4A9A-B915-3377EDD95527}.Release|Win32.ActiveCfg = Release|Win32
@@ -48,6 +41,10 @@ Global
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423}.Debug|Win32.Build.0 = Debug|Win32
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423}.Release|Win32.ActiveCfg = Release|Win32
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423}.Release|Win32.Build.0 = Release|Win32
+		{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}.Debug|Win32.Build.0 = Debug|Win32
+		{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}.Release|Win32.ActiveCfg = Release|Win32
+		{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

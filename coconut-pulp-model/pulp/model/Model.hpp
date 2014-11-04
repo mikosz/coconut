@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include "graphics/Buffer.hpp"
-#include "graphics/Device.hpp"
-#include "graphics/VertexShader.hpp"
-#include "graphics/PixelShader.hpp"
+#include "milk/graphics/Buffer.hpp"
+#include "milk/graphics/Device.hpp"
+#include "milk/graphics/VertexShader.hpp"
+#include "milk/graphics/PixelShader.hpp"
 
 namespace coconut {
 namespace pulp {

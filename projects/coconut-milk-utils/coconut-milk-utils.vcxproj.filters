@@ -11,7 +11,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\coconut-milk-utils\utils\IntOfSize.hpp">
+    <ClInclude Include="..\..\coconut-milk-utils\milk\utils\IntOfSize.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

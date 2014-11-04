@@ -11,21 +11,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\coconut-milk-system-win32\system\App.cpp">
+    <ClCompile Include="..\..\coconut-milk-system-win32\milk\system\App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\coconut-milk-system-win32\system\Window.cpp">
+    <ClCompile Include="..\..\coconut-milk-system-win32\milk\system\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\coconut-milk-system-win32\system\App.hpp">
+    <ClInclude Include="..\..\coconut-milk-system-win32\milk\system\App.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\coconut-milk-system-win32\system\COMWrapper.hpp">
+    <ClInclude Include="..\..\coconut-milk-system-win32\milk\system\COMWrapper.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\coconut-milk-system-win32\system\Window.hpp">
+    <ClInclude Include="..\..\coconut-milk-system-win32\milk\system\Window.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,8 +1,8 @@
 #ifndef _COCONUT_SHELL_GAME_GAME_HPP_
 #define _COCONUT_SHELL_GAME_GAME_HPP_
 
-#include "system/App.hpp"
-#include "graphics/Device.hpp"
+#include "milk/system/App.hpp"
+#include "milk/graphics/Device.hpp"
 
 namespace coconut {
 namespace shell {

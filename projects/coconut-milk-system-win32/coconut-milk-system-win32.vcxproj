@@ -11,13 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\coconut-milk-system-win32\system\App.cpp" />
-    <ClCompile Include="..\..\coconut-milk-system-win32\system\Window.cpp" />
+    <ClCompile Include="..\..\coconut-milk-system-win32\milk\system\App.cpp" />
+    <ClCompile Include="..\..\coconut-milk-system-win32\milk\system\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\coconut-milk-system-win32\system\App.hpp" />
-    <ClInclude Include="..\..\coconut-milk-system-win32\system\COMWrapper.hpp" />
-    <ClInclude Include="..\..\coconut-milk-system-win32\system\Window.hpp" />
+    <ClInclude Include="..\..\coconut-milk-system-win32\milk\system\App.hpp" />
+    <ClInclude Include="..\..\coconut-milk-system-win32\milk\system\COMWrapper.hpp" />
+    <ClInclude Include="..\..\coconut-milk-system-win32\milk\system\Window.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1E975AFA-0FFF-4AEE-96F1-262539ED8CDB}</ProjectGuid>

@@ -7,7 +7,7 @@
 #include <d3d11.h>
 
 #include "Buffer.hpp"
-#include "system/COMWrapper.hpp"
+#include "milk/system/COMWrapper.hpp"
 
 namespace coconut {
 namespace milk {

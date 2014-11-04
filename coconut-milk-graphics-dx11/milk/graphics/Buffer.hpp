@@ -3,8 +3,8 @@
 
 #include <d3d11.h>
 
-#include "system/COMWrapper.hpp"
-#include "utils/IntOfSize.hpp"
+#include "milk/system/COMWrapper.hpp"
+#include "milk/utils/IntOfSize.hpp"
 
 namespace coconut {
 namespace milk {
