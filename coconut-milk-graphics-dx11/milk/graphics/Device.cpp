@@ -143,20 +143,26 @@ Device::Device(system::Window& window, const Configuration& configuration) :
 	setRenderTarget(backBuffer_);
 
 	D3D11_VIEWPORT viewport;
-	viewport.Height = window.clientHeight();
-	viewport.Width = window.clientWidth();
+	viewport.Height = static_cast<float>(window.clientHeight());
+	viewport.Width = static_cast<float>(window.clientWidth());
 	viewport.MaxDepth = D3D11_MAX_DEPTH;
 	viewport.MinDepth = D3D11_MIN_DEPTH;
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
 	d3dDeviceContext_->RSSetViewports(1, &viewport);
 
-	d3dDeviceContext_->Rast
+	D3D11_RASTERIZER_DESC rasterizer;
+	std::memset(&rasterizer, 0, sizeof(rasterizer));
+	rasterizer.CullMode = D3D11_CULL_NONE;
+	rasterizer.FillMode = D3D11_FILL_SOLID;
+	d3dDevice_->CreateRasterizerState(&rasterizer, &rasterizer_.get());
+
+	d3dDeviceContext_->RSSetState(rasterizer_);
 }
 
 void Device::setRenderTarget(Texture2d& texture) {
 	ID3D11RenderTargetView* renderTargetView = texture.asRenderTargetView(*this);
-	d3dDeviceContext_->OMSetRenderTargets(0, &renderTargetView, 0);
+	d3dDeviceContext_->OMSetRenderTargets(1, &renderTargetView, 0);
 }
 
 void Device::beginScene() {

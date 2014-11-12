@@ -47,27 +47,15 @@ Model::Model(milk::graphics::Device& device, std::shared_ptr<milk::graphics::Ver
 
 		vs[0].pos.x = -0.5f;
 		vs[0].pos.y = -0.5f;
-		vs[0].pos.z = 0.0f;
+		vs[0].pos.z = -0.5f;
 
 		vs[1].pos.x = 0.0f;
 		vs[1].pos.y = 0.5f;
-		vs[1].pos.z = 0.0f;
+		vs[1].pos.z = -0.5f;
 
 		vs[2].pos.x = 0.5f;
 		vs[2].pos.y = -0.5f;
-		vs[2].pos.z = 0.0f;
-
-/*		vs[0].pos.x = 200.0f;
-		vs[0].pos.y = 100.0f;
-		vs[0].pos.z = 0.0f;
-
-		vs[1].pos.x = 300.0f;
-		vs[1].pos.y = 300.0f;
-		vs[1].pos.z = 0.0f;
-
-		vs[2].pos.x = 400.0f;
-		vs[2].pos.y = 100.0f;
-		vs[2].pos.z = 0.0f; */
+		vs[2].pos.z = -0.5f;
 
 		vertexBuffer_.unlock(device);
 	}

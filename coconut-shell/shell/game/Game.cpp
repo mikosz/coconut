@@ -52,7 +52,7 @@ void Game::loop() {
 			throw std::runtime_error("Failed to open the vertex shader");
 		}
 
-		size_t shaderSize = boost::filesystem::file_size("sprite.v.cso");
+		auto shaderSize = boost::filesystem::file_size("sprite.v.cso");
 		std::vector<char> vdata;
 		vdata.resize(shaderSize);
 

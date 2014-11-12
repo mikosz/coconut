@@ -59,6 +59,8 @@ private:
 
 	Texture2d backBuffer_;
 
+	system::COMWrapper<ID3D11RasterizerState> rasterizer_;
+
 };
 
 } // namespace graphics
