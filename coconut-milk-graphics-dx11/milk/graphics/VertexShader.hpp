@@ -7,6 +7,7 @@
 #include <d3d11.h>
 
 #include "Buffer.hpp"
+#include "ShaderParametersDescription.hpp"
 #include "milk/system/COMWrapper.hpp"
 
 namespace coconut {
@@ -26,7 +27,7 @@ public:
 		InputLayoutDescription& inputLayout
 		);
 
-	void bind(Device& device);
+	void bind(Device& device /*, const ShaderParametersDescription& shaderConstants */);
 
 private:
 

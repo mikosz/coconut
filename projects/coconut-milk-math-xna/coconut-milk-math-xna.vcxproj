@@ -14,6 +14,9 @@
     <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Matrix.hpp" />
     <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Vector.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Matrix.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C7AFB126-13BA-4D2B-A9E4-2A13144CC117}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

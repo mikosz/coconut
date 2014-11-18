@@ -23,7 +23,7 @@ VertexShader::VertexShader(
 	}
 }
 
-void VertexShader::bind(Device& device) {
+void VertexShader::bind(Device& device/*, const ShaderParametersDescription& shaderConstants*/) {
 	device.d3dDeviceContext()->IASetInputLayout(inputLayout_);
 	device.d3dDeviceContext()->VSSetShader(shader_, 0, 0);
 }

@@ -79,8 +79,21 @@ void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
 			break;
 		}
 	case Buffer::INDEX_BUFFER:
-		device.d3dDeviceContext()->IASetIndexBuffer(buffer, DXGI_FORMAT_R16_UINT, 0);
-		break;
+		{
+			DXGI_FORMAT format;
+			switch (configuration_.stride) {
+			case 2:
+				format = DXGI_FORMAT_R16_UINT;
+				break;
+			case 4:
+				format = DXGI_FORMAT_R32_UINT;
+				break;
+			default:
+				throw std::runtime_error("Invalid index buffer stride. Allowed strides are 2B and 4B.");
+			}
+			device.d3dDeviceContext()->IASetIndexBuffer(buffer, format, 0);
+			break;
+		}
 	case Buffer::CONSTANT_BUFFER:
 		{
 			switch (shaderType) {

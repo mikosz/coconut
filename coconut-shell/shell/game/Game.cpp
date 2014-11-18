@@ -100,7 +100,13 @@ void Game::loop() {
 		}
 
 		graphicsDevice_->beginScene();
+
+		m.setRotation(milk::math::Vector3d(0.0f, 0.0f, 3.14f / 4.0f));
+		m.setTranslation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
+		m.setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
+
 		m.render(*graphicsDevice_);
+
 		graphicsDevice_->endScene();
 	}
 }

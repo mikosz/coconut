@@ -7,16 +7,24 @@ namespace coconut {
 namespace milk {
 namespace math {
 
+class Vector3d;
+
 class Matrix {
 public:
+
+	static Matrix translation(const Vector3d& translationVector);
 
 	static Matrix translation(float x, float y, float z) {
 		return DirectX::XMMatrixTranslation(x, y, z);
 	}
 
+	static Matrix scale(const Vector3d& scaleVector);
+
 	static Matrix scale(float x, float y, float z) {
 		return DirectX::XMMatrixScaling(x, y, z);
 	}
+
+	static Matrix rotation(const Vector3d& rotationVector);
 
 	static Matrix rotation(float roll, float pitch, float yaw) {
 		return DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);

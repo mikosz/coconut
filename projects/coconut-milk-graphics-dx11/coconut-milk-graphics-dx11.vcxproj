@@ -16,6 +16,7 @@
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\DirectXError.cpp" />
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\FlexibleInputLayoutDescription.cpp" />
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PixelShader.cpp" />
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\ShaderParametersDescription.cpp" />
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Texture2d.cpp" />
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\VertexShader.cpp" />
   </ItemGroup>
@@ -27,6 +28,8 @@
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\InputLayoutDescription.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PixelFormat.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PixelShader.hpp" />
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Renderable.hpp" />
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\ShaderParametersDescription.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Texture2d.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\VertexShader.hpp" />
   </ItemGroup>
@@ -61,7 +64,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)coconut-milk-system-win32/;$(SolutionDir)coconut-milk-utils/;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)coconut-milk-system-win32/;$(SolutionDir)coconut-milk-math-xna/;$(SolutionDir)coconut-milk-utils/;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -60,7 +60,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)coconut-milk-graphics-dx11/;$(SolutionDir)coconut-milk-utils/;$(SolutionDir)coconut-milk-system-win32/;$(SolutionDir)coconut-pulp-model/;C:\Boost\include\boost-1_56;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)coconut-milk-math-xna/;$(SolutionDir)coconut-milk-graphics-dx11/;$(SolutionDir)coconut-milk-utils/;$(SolutionDir)coconut-milk-system-win32/;$(SolutionDir)coconut-pulp-model/;C:\Boost\include\boost-1_56;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration);C:\Boost\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

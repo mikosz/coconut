@@ -32,6 +32,9 @@
     <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\DirectXError.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-graphics-dx11\milk\graphics\ShaderParametersDescription.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Buffer.hpp">
@@ -59,6 +62,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\DirectXError.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\ShaderParametersDescription.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Renderable.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
