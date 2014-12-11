@@ -5,6 +5,9 @@
 #include <vector>
 #include <memory>
 
+#include <d3d11.h>
+
+#include "Buffer.hpp"
 #include "Renderable.hpp"
 #include "milk/math/Matrix.hpp"
 
@@ -25,20 +28,22 @@ public:
 	class Element {
 	public:
 
+		Element(Device& device, size_t size);
+
 		virtual ~Element() {
 		}
 		
-		ID3D11Buffer* data(const Renderable& renderable) {
-			return buffer_;
+		ID3D11Buffer* buffer(const Renderable& renderable) {
+			return buffer_.resource();
 		}
 
-	protected:
-
-		virtual void update(const Renderable& renderable) = 0;
+		void update(Device& device, const Renderable& renderable);
 
 	private:
 
-		ID3D11Buffer* buffer_;
+		Buffer buffer_;
+
+		virtual void doUpdate(void* buffer, const Renderable& renderable) = 0;
 
 	};
 
@@ -47,18 +52,17 @@ public:
 
 		typedef std::function<const milk::math::Matrix& (const Renderable&)> RetrievalCallback;
 
-		MatrixElement(RetrievalCallback retrievalCallback) :
+		MatrixElement(Device& device, RetrievalCallback retrievalCallback) :
+			Element(device, sizeof(math::Matrix)),
 			retrievalCallback_(retrievalCallback)
 		{
 		}
 
-	protected:
-
-		void update(const Renderable& renderable) override;
-
 	private:
 
 		 RetrievalCallback retrievalCallback_;
+
+		 void doUpdate(void* buffer, const Renderable& renderable);
 
 	};
 
@@ -66,6 +70,8 @@ public:
 		shaderType_(shaderType)
 	{
 	}
+
+	void update(Device& device, const Renderable& renderable);
 
 	void bind(Device& device, const Renderable& renderable);
 

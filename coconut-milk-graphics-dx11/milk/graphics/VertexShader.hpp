@@ -16,6 +16,7 @@ namespace graphics {
 
 class Device;
 class InputLayoutDescription;
+class Renderable;
 
 class VertexShader {
 public:
@@ -24,16 +25,21 @@ public:
 		Device& device,
 		void* data,
 		size_t size,
-		InputLayoutDescription& inputLayout
+		InputLayoutDescription& inputLayout,
+		std::shared_ptr<ShaderParametersDescription> shaderParameters
 		);
 
-	void bind(Device& device /*, const ShaderParametersDescription& shaderConstants */);
+	void update(Device& device, const Renderable& renderable);
+
+	void bind(Device& device, const Renderable& renderable);
 
 private:
 
 	system::COMWrapper<ID3D11VertexShader> shader_;
 
 	system::COMWrapper<ID3D11InputLayout> inputLayout_;
+
+	std::shared_ptr<ShaderParametersDescription> shaderParameters_;
 
 };
 

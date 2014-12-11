@@ -54,7 +54,7 @@ void Game::loop() {
 
 		auto shaderSize = boost::filesystem::file_size("sprite.v.cso");
 		std::vector<char> vdata;
-		vdata.resize(shaderSize);
+		vdata.resize(static_cast<size_t>(shaderSize));
 
 		ifs.read(&vdata.front(), shaderSize);
 
@@ -66,7 +66,29 @@ void Game::loop() {
 		inputLayoutDesc.push(std::shared_ptr<milk::graphics::FlexibleInputLayoutDescription::PositionElement>(
 			new milk::graphics::FlexibleInputLayoutDescription::PositionElement(0, milk::graphics::FlexibleInputLayoutDescription::R32G32B32_FLOAT)));
 
-		vertexShader.reset(new milk::graphics::VertexShader(*graphicsDevice_, &vdata.front(), vdata.size(), inputLayoutDesc));
+		std::shared_ptr<milk::graphics::ShaderParametersDescription> shaderParameters(
+			new milk::graphics::ShaderParametersDescription(milk::graphics::ShaderParametersDescription::VERTEX_SHADER)
+			);
+		shaderParameters->push(
+			std::shared_ptr<milk::graphics::ShaderParametersDescription::MatrixElement>(
+				new milk::graphics::ShaderParametersDescription::MatrixElement(
+					*graphicsDevice_,
+					[](const milk::graphics::Renderable& renderable) {
+						return renderable.worldTransformation();
+					}
+					)
+				)
+			);
+
+		vertexShader.reset(
+			new milk::graphics::VertexShader(
+				*graphicsDevice_,
+				&vdata.front(),
+				vdata.size(),
+				inputLayoutDesc,
+				shaderParameters
+				)
+			);
 	}
 
 	std::shared_ptr<milk::graphics::PixelShader> pixelShader;
@@ -77,9 +99,9 @@ void Game::loop() {
 			throw std::runtime_error("Failed to open the pixel shader");
 		}
 
-		size_t shaderSize = boost::filesystem::file_size("sprite.p.cso");
+		auto shaderSize = boost::filesystem::file_size("sprite.p.cso");
 		std::vector<char> pdata;
-		pdata.resize(shaderSize);
+		pdata.resize(static_cast<size_t>(shaderSize));
 
 		ifs.read(&pdata.front(), shaderSize);
 
@@ -101,10 +123,11 @@ void Game::loop() {
 
 		graphicsDevice_->beginScene();
 
-		m.setRotation(milk::math::Vector3d(0.0f, 0.0f, 3.14f / 4.0f));
+		m.setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
 		m.setTranslation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
 		m.setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
+		vertexShader->update(*graphicsDevice_, m);
 		m.render(*graphicsDevice_);
 
 		graphicsDevice_->endScene();

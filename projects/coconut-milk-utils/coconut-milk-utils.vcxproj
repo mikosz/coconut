@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\coconut-milk-utils\milk\utils\IntOfSize.hpp" />
     <ClInclude Include="..\..\coconut-milk-utils\milk\utils\Lazy.hpp" />
+    <ClInclude Include="..\..\coconut-milk-utils\milk\utils\RAIIHelper.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1ACABE20-DE5F-4D60-8A91-61B60CB60423}</ProjectGuid>

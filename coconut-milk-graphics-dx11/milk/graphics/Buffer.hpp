@@ -48,6 +48,26 @@ public:
 
 		CreationPurpose purpose;
 
+		Configuration() {
+		}
+
+		Configuration(
+			size_t size,
+			size_t stride,
+			bool allowModifications,
+			bool allowCPURead,
+			bool allowGPUWrite,
+			CreationPurpose purpose
+			) :
+			size(size),
+			stride(stride),
+			allowModifications(allowModifications),
+			allowCPURead(allowCPURead),
+			allowGPUWrite(allowGPUWrite),
+			purpose(purpose)
+		{
+		}
+
 	};
 
 	Buffer(Device& device, const Configuration& configuration, void* initialData = 0);

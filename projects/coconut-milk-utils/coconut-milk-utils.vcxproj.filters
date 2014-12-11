@@ -17,5 +17,8 @@
     <ClInclude Include="..\..\coconut-milk-utils\milk\utils\Lazy.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-utils\milk\utils\RAIIHelper.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
