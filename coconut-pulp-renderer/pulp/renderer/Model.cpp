@@ -6,7 +6,7 @@
 
 using namespace coconut;
 using namespace coconut::pulp;
-using namespace coconut::pulp::model;
+using namespace coconut::pulp::renderer;
 
 struct V {
 	DirectX::XMFLOAT3 pos;
@@ -36,12 +36,15 @@ milk::graphics::Buffer::Configuration iconf() {
 	return c;
 }
 
-Model::Model(milk::graphics::Device& device, std::shared_ptr<milk::graphics::VertexShader> vertexShader, std::shared_ptr<milk::graphics::PixelShader> pixelShader) :
+Model::Model(
+	milk::graphics::Device& device,
+	std::shared_ptr<milk::graphics::VertexShader> vertexShader,
+	std::shared_ptr<milk::graphics::PixelShader> pixelShader
+	) :
 	vertexBuffer_(device, conf(), 0),
 	indexBuffer_(device, iconf(), 0),
 	vertexShader_(vertexShader),
-	pixelShader_(pixelShader),
-	worldMatrix_(std::bind(&Model::calculateWorldTransformation, this, std::placeholders::_1))
+	pixelShader_(pixelShader)
 {
 	{
 		V* vs = (V*)vertexBuffer_.lock(device, milk::graphics::Buffer::WRITE_DISCARD);
@@ -49,7 +52,7 @@ Model::Model(milk::graphics::Device& device, std::shared_ptr<milk::graphics::Ver
 		vs[0].pos.x = -0.5f;
 		vs[0].pos.y = -0.5f;
 		vs[0].pos.z = -0.5f;
-
+		
 		vs[1].pos.x = 0.0f;
 		vs[1].pos.y = 0.5f;
 		vs[1].pos.z = -0.5f;
@@ -81,16 +84,4 @@ void Model::render(milk::graphics::Device& device) {
 
 	device.d3dDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	device.d3dDeviceContext()->DrawIndexed(3, 0, 0);
-}
-
-const milk::math::Matrix& Model::worldTransformation() const {
-	return worldMatrix_.get();
-}
-
-void Model::calculateWorldTransformation(milk::math::Matrix& matrix) {
-	matrix =
-		milk::math::Matrix::rotation(rotation_.z(), rotation_.x(), rotation_.y()) *
-		milk::math::Matrix::scale(scale_.x(), scale_.y(), scale_.z()) *
-		milk::math::Matrix::translation(translation_.x(), translation_.y(), translation_.z())
-		;
 }

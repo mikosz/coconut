@@ -11,7 +11,7 @@
 #include "milk/graphics/VertexShader.hpp"
 #include "milk/graphics/PixelShader.hpp"
 
-#include "pulp/model/Model.hpp"
+#include "pulp/renderer/Model.hpp"
 
 #include "globals.hpp"
 #include "milk/system/Window.hpp"
@@ -73,7 +73,7 @@ void Game::loop() {
 			std::shared_ptr<milk::graphics::ShaderParametersDescription::MatrixElement>(
 				new milk::graphics::ShaderParametersDescription::MatrixElement(
 					*graphicsDevice_,
-					[](const milk::graphics::Renderable& renderable) {
+					[]() {
 						return renderable.worldTransformation();
 					}
 					)
@@ -112,7 +112,7 @@ void Game::loop() {
 		pixelShader.reset(new milk::graphics::PixelShader(*graphicsDevice_, &pdata.front(), pdata.size()));
 	}
 
-	pulp::model::Model m(*graphicsDevice_, vertexShader, pixelShader);
+	pulp::renderer::Model m(*graphicsDevice_, vertexShader, pixelShader);
 
 	for (;;) {
 		app_->update();

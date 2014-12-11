@@ -16,7 +16,6 @@ namespace graphics {
 
 class Device;
 class InputLayoutDescription;
-class Renderable;
 
 class VertexShader {
 public:
@@ -29,9 +28,9 @@ public:
 		std::shared_ptr<ShaderParametersDescription> shaderParameters
 		);
 
-	void update(Device& device, const Renderable& renderable);
+	void update(Device& device);
 
-	void bind(Device& device, const Renderable& renderable);
+	void bind(Device& device);
 
 private:
 

@@ -1,7 +1,11 @@
 #ifndef _COCONUT_MILK_MATH_MATRIX_HPP_
 #define _COCONUT_MILK_MATH_MATRIX_HPP_
 
+#include <stdexcept>
+
 #include <DirectXMath.h>
+
+#include "Handedness.hpp"
 
 namespace coconut {
 namespace milk {
@@ -28,6 +32,18 @@ public:
 
 	static Matrix rotation(float roll, float pitch, float yaw) {
 		return DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
+	}
+
+	static Matrix orthographicProjection(
+		Handedness handedness, float width, float height, float nearZ, float farZ) {
+		switch (handedness) {
+		case Handedness::LEFT:
+			return DirectX::XMMatrixOrthographicLH(width, height, nearZ, farZ);
+		case Handedness::RIGHT:
+			return DirectX::XMMatrixOrthographicRH(width, height, nearZ, farZ);
+		default:
+			throw std::logic_error("Unknown handedness value");
+		}
 	}
 
 	Matrix() {

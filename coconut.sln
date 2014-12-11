@@ -17,9 +17,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-system-win32",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-utils", "projects\coconut-milk-utils\coconut-milk-utils.vcxproj", "{1ACABE20-DE5F-4D60-8A91-61B60CB60423}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-pulp-model", "projects\coconut-pulp-model\coconut-pulp-model.vcxproj", "{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-math-xna", "projects\coconut-milk-math-xna\coconut-milk-math-xna.vcxproj", "{C7AFB126-13BA-4D2B-A9E4-2A13144CC117}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-pulp-renderer", "projects\coconut-pulp-renderer\coconut-pulp-renderer.vcxproj", "{7398C67C-597A-4599-A120-401F02B8C2EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,14 +43,14 @@ Global
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423}.Debug|Win32.Build.0 = Debug|Win32
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423}.Release|Win32.ActiveCfg = Release|Win32
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423}.Release|Win32.Build.0 = Release|Win32
-		{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}.Debug|Win32.Build.0 = Debug|Win32
-		{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}.Release|Win32.ActiveCfg = Release|Win32
-		{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}.Release|Win32.Build.0 = Release|Win32
 		{C7AFB126-13BA-4D2B-A9E4-2A13144CC117}.Debug|Win32.ActiveCfg = Debug|Win32
 		{C7AFB126-13BA-4D2B-A9E4-2A13144CC117}.Debug|Win32.Build.0 = Debug|Win32
 		{C7AFB126-13BA-4D2B-A9E4-2A13144CC117}.Release|Win32.ActiveCfg = Release|Win32
 		{C7AFB126-13BA-4D2B-A9E4-2A13144CC117}.Release|Win32.Build.0 = Release|Win32
+		{7398C67C-597A-4599-A120-401F02B8C2EB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7398C67C-597A-4599-A120-401F02B8C2EB}.Debug|Win32.Build.0 = Debug|Win32
+		{7398C67C-597A-4599-A120-401F02B8C2EB}.Release|Win32.ActiveCfg = Release|Win32
+		{7398C67C-597A-4599-A120-401F02B8C2EB}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

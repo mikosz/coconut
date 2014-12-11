@@ -16,31 +16,31 @@ ShaderParametersDescription::Element::Element(Device& device, size_t size) :
 	assert(size % 16 == 0);
 }
 
-void ShaderParametersDescription::Element::update(Device& device, const Renderable& renderable) {
+void ShaderParametersDescription::Element::update(Device& device) {
 	auto data = buffer_.lock(device, Buffer::LockPurpose::WRITE_DISCARD);
 	// TODO: is this replaceable with a lambda?
 	utils::RAIIHelper unlockGuard(std::bind(&Buffer::unlock, &buffer_, std::ref(device)));
 
-	doUpdate(data, renderable);
+	doUpdate(data);
 }
 
-void ShaderParametersDescription::MatrixElement::doUpdate(void* buffer, const Renderable& renderable) {
+void ShaderParametersDescription::MatrixElement::doUpdate(void* buffer) {
 	math::Matrix& matrix = *reinterpret_cast<math::Matrix*>(buffer);
 	
-	matrix = retrievalCallback_(renderable);
+	matrix = retrievalCallback_();
 }
 
-void ShaderParametersDescription::update(Device& device, const Renderable& renderable) {
+void ShaderParametersDescription::update(Device& device) {
 	std::for_each(
 		elements_.begin(),
 		elements_.end(),
-		[&device, &renderable](std::shared_ptr<Element> element) { element->update(device, renderable); }
+		[&device](std::shared_ptr<Element> element) { element->update(device); }
 	);
 }
 
-void ShaderParametersDescription::bind(Device& device, const Renderable& renderable) {
+void ShaderParametersDescription::bind(Device& device) {
 	for (size_t i = 0; i < elements_.size(); ++i) {
-		ID3D11Buffer* buffer = elements_[i]->buffer(renderable);
+		ID3D11Buffer* buffer = elements_[i]->buffer();
 		switch (shaderType_) {
 		case VERTEX_SHADER:
 			device.d3dDeviceContext()->VSSetConstantBuffers(i, 1, &buffer);

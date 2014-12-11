@@ -11,15 +11,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\coconut-pulp-model\pulp\model\Model.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\OrthographicLens.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\coconut-pulp-model\pulp\model\Model.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Camera.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Lens.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Oriented.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\OrthographicLens.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Renderable.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Scene.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{C7A38455-FED4-43C4-AD93-8C252E3BC2EC}</ProjectGuid>
+    <ProjectGuid>{7398C67C-597A-4599-A120-401F02B8C2EB}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>coconutpulpmodel</RootNamespace>
+    <RootNamespace>coconutpulprenderer</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -46,7 +54,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)coconut-milk-graphics-dx11/;$(SolutionDir)coconut-milk-math-xna/;$(SolutionDir)coconut-milk-utils/;$(SolutionDir)coconut-milk-system-win32/;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)coconut-milk-system-win32/;$(SolutionDir)coconut-milk-math-xna/;$(SolutionDir)coconut-milk-graphics-dx11/;$(SolutionDir)coconut-milk-utils/;C:\Boost\include\boost-1_56;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

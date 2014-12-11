@@ -8,7 +8,6 @@
 #include <d3d11.h>
 
 #include "Buffer.hpp"
-#include "Renderable.hpp"
 #include "milk/math/Matrix.hpp"
 
 namespace coconut {
@@ -33,24 +32,24 @@ public:
 		virtual ~Element() {
 		}
 		
-		ID3D11Buffer* buffer(const Renderable& renderable) {
+		ID3D11Buffer* buffer() {
 			return buffer_.resource();
 		}
 
-		void update(Device& device, const Renderable& renderable);
+		void update(Device& device);
 
 	private:
 
 		Buffer buffer_;
 
-		virtual void doUpdate(void* buffer, const Renderable& renderable) = 0;
+		virtual void doUpdate(void* buffer) = 0;
 
 	};
 
 	class MatrixElement : public Element {
 	public:
 
-		typedef std::function<const milk::math::Matrix& (const Renderable&)> RetrievalCallback;
+		typedef std::function<const milk::math::Matrix& ()> RetrievalCallback;
 
 		MatrixElement(Device& device, RetrievalCallback retrievalCallback) :
 			Element(device, sizeof(math::Matrix)),
@@ -62,7 +61,7 @@ public:
 
 		 RetrievalCallback retrievalCallback_;
 
-		 void doUpdate(void* buffer, const Renderable& renderable);
+		 void doUpdate(void* buffer);
 
 	};
 
@@ -71,9 +70,9 @@ public:
 	{
 	}
 
-	void update(Device& device, const Renderable& renderable);
+	void update(Device& device);
 
-	void bind(Device& device, const Renderable& renderable);
+	void bind(Device& device);
 
 	void push(std::shared_ptr<Element> element);
 
