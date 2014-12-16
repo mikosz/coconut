@@ -20,6 +20,9 @@
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\ObserverAwareShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp">
@@ -41,6 +44,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Oriented.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Shader.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\ObserverAwareShader.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

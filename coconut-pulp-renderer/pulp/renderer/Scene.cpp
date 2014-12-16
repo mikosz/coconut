@@ -7,6 +7,6 @@ using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
-void Scene::render(milk::graphics::Device& device, Model& model, const Lens& lens) {
+void Scene::render(milk::graphics::Device& device, Model& model) {
 	model.render(device);
 }

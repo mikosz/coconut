@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_RENDERER_CAMERA_HPP_
 
 #include "milk/math/Matrix.hpp"
+#include "milk/utils/MakePointerDefinitionsMacro.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -12,7 +13,14 @@ public:
 
 	virtual const milk::math::Matrix& viewTransformation() const = 0;
 
+protected:
+
+	virtual ~Camera() {
+	}
+
 };
+
+MAKE_POINTER_DEFINITIONS(Camera);
 
 } // namespace renderer
 } // namespace pulp

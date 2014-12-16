@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\ObserverAwareShader.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\OrthographicLens.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Scene.cpp" />
   </ItemGroup>
@@ -19,10 +20,12 @@
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Camera.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Lens.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\ObserverAwareShader.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Oriented.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\OrthographicLens.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Renderable.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Scene.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Shader.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7398C67C-597A-4599-A120-401F02B8C2EB}</ProjectGuid>
@@ -33,7 +36,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

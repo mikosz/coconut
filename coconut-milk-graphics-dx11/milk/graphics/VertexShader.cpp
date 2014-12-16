@@ -15,11 +15,9 @@ VertexShader::VertexShader(
 	Device& device,
 	void* data,
 	size_t size,
-	InputLayoutDescription& inputLayout,
-	std::shared_ptr<ShaderParametersDescription> shaderParameters
+	InputLayoutDescription& inputLayout
 	) :
-	inputLayout_(inputLayout.makeLayout(device, data, size)),
-	shaderParameters_(shaderParameters)
+	inputLayout_(inputLayout.makeLayout(device, data, size))
 {
 	checkDirectXCall(
 		device.d3dDevice()->CreateVertexShader(data, size, 0, &shader_.get()),
@@ -27,12 +25,7 @@ VertexShader::VertexShader(
 		);
 }
 
-void VertexShader::update(Device& device) {
-	shaderParameters_->update(device);
-}
-
 void VertexShader::bind(Device& device) {
 	device.d3dDeviceContext()->IASetInputLayout(inputLayout_);
 	device.d3dDeviceContext()->VSSetShader(shader_, 0, 0);
-	shaderParameters_->bind(device);
 }

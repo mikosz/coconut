@@ -6,9 +6,9 @@
 
 #include <d3d11.h>
 
-#include "Buffer.hpp"
-#include "ShaderParametersDescription.hpp"
 #include "milk/system/COMWrapper.hpp"
+#include "Buffer.hpp"
+#include "Shader.hpp"
 
 namespace coconut {
 namespace milk {
@@ -17,28 +17,23 @@ namespace graphics {
 class Device;
 class InputLayoutDescription;
 
-class VertexShader {
+class VertexShader : public Shader {
 public:
 
 	VertexShader(
 		Device& device,
 		void* data,
 		size_t size,
-		InputLayoutDescription& inputLayout,
-		std::shared_ptr<ShaderParametersDescription> shaderParameters
+		InputLayoutDescription& inputLayout
 		);
 
-	void update(Device& device);
-
-	void bind(Device& device);
+	void bind(Device& device) override;
 
 private:
 
 	system::COMWrapper<ID3D11VertexShader> shader_;
 
 	system::COMWrapper<ID3D11InputLayout> inputLayout_;
-
-	std::shared_ptr<ShaderParametersDescription> shaderParameters_;
 
 };
 

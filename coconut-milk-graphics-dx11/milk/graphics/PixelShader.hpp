@@ -6,6 +6,7 @@
 #include <d3d11.h>
 
 #include "milk/system/COMWrapper.hpp"
+#include "Shader.hpp"
 
 namespace coconut {
 namespace milk {
@@ -13,12 +14,12 @@ namespace graphics {
 
 class Device;
 
-class PixelShader {
+class PixelShader : public Shader {
 public:
 
 	PixelShader(Device& device, void* data, size_t size);
 
-	void bind(Device& device);
+	void bind(Device& device) override;
 
 private:
 

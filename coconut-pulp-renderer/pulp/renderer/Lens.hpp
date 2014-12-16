@@ -1,8 +1,6 @@
 #ifndef _COCONUT_PULP_RENDERER_LENS_HPP_
 #define _COCONUT_PULP_RENDERER_LENS_HPP_
 
-#include <memory>
-
 #include "milk/math/Matrix.hpp"
 #include "milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -14,6 +12,11 @@ class Lens {
 public:
 
 	virtual const milk::math::Matrix& projectionTransformation() const = 0;
+
+protected:
+
+	virtual ~Lens() {
+	}
 
 };
 

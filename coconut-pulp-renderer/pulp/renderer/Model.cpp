@@ -79,7 +79,7 @@ void Model::render(milk::graphics::Device& device) {
 	vertexBuffer_.bind(device, milk::graphics::Buffer::VERTEX_SHADER, 0);
 	indexBuffer_.bind(device, milk::graphics::Buffer::VERTEX_SHADER, 0);
 
-	vertexShader_->bind(device, *this);
+	vertexShader_->bind(device);
 	pixelShader_->bind(device);
 
 	device.d3dDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
