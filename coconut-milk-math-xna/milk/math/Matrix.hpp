@@ -16,6 +16,8 @@ class Vector3d;
 class Matrix {
 public:
 
+	static const Matrix IDENTITY;
+
 	static Matrix translation(const Vector3d& translationVector);
 
 	static Matrix translation(float x, float y, float z) {
@@ -63,7 +65,7 @@ public:
 		return *this;
 	}
 
-	DirectX::XMMATRIX transposed() const {
+	Matrix transposed() const {
 		return DirectX::XMMatrixTranspose(internal_);
 	}
 

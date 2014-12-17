@@ -9,6 +9,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\shader">
+      <UniqueIdentifier>{6e3da32b-742b-4745-8d98-4754f29abdf6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.cpp">
@@ -20,8 +23,20 @@
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\ObserverAwareShader.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterList.cpp">
+      <Filter>Source Files\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObserverAwareParameterWriter.cpp">
+      <Filter>Source Files\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterWriterList.cpp">
+      <Filter>Source Files\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterId.cpp">
+      <Filter>Source Files\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObjectAwareParameterWriter.cpp">
+      <Filter>Source Files\shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -46,11 +61,26 @@
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Oriented.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Shader.hpp">
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterList.hpp">
+      <Filter>Source Files\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterId.hpp">
+      <Filter>Source Files\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterWriter.hpp">
+      <Filter>Source Files\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterWriterList.hpp">
+      <Filter>Source Files\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObserverAwareParameterWriter.hpp">
+      <Filter>Source Files\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\StaticCamera.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\ObserverAwareShader.hpp">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObjectAwareParameterWriter.hpp">
+      <Filter>Source Files\shader</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

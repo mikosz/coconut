@@ -2,9 +2,9 @@ cbuffer WorldTransformations {
 	matrix worldMatrix;
 }
 
-/* cbuffer ViewTransformations {
+cbuffer ViewTransformations {
 	matrix viewMatrix;
-} */
+}
 
 cbuffer ProjectionTransformations {
 	matrix projectionMatrix;

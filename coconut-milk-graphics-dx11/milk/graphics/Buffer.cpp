@@ -71,14 +71,14 @@ void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
 	ID3D11Buffer* buffer = *buffer_;
 
 	switch (configuration_.purpose) {
-	case Buffer::VERTEX_BUFFER:
+	case CreationPurpose::VERTEX_BUFFER:
 		{
 			UINT stride = configuration_.stride;
 			UINT offset = 0;
 			device.d3dDeviceContext()->IASetVertexBuffers(slot, 1, &buffer, &stride, &offset);
 			break;
 		}
-	case Buffer::INDEX_BUFFER:
+	case CreationPurpose::INDEX_BUFFER:
 		{
 			DXGI_FORMAT format;
 			switch (configuration_.stride) {
@@ -94,13 +94,13 @@ void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
 			device.d3dDeviceContext()->IASetIndexBuffer(buffer, format, 0);
 			break;
 		}
-	case Buffer::CONSTANT_BUFFER:
+	case CreationPurpose::CONSTANT_BUFFER:
 		{
 			switch (shaderType) {
-			case VERTEX_SHADER:
+			case ShaderType::VERTEX:
 				device.d3dDeviceContext()->VSSetConstantBuffers(slot, 1, &buffer);
 				break;
-			case PIXEL_SHADER:
+			case ShaderType::PIXEL:
 				device.d3dDeviceContext()->PSGetConstantBuffers(slot, 1, &buffer);
 				break;
 			default:

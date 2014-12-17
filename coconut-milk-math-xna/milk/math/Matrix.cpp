@@ -6,6 +6,8 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::math;
 
+const Matrix Matrix::IDENTITY(DirectX::XMMatrixIdentity());
+
 Matrix Matrix::translation(const Vector3d& translationVector) {
 	return Matrix::translation(translationVector.x(), translationVector.y(), translationVector.z());
 }

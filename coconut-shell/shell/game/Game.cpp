@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <memory>
+#include <chrono>
 
 #include <boost/filesystem.hpp>
 
@@ -12,6 +13,12 @@
 #include "milk/graphics/PixelShader.hpp"
 
 #include "pulp/renderer/Model.hpp"
+#include "pulp/renderer/OrthographicLens.hpp"
+#include "pulp/renderer/StaticCamera.hpp"
+#include "pulp/renderer/shader/ParameterList.hpp"
+#include "pulp/renderer/shader/ParameterWriterList.hpp"
+#include "pulp/renderer/shader/ObserverAwareParameterWriter.hpp"
+#include "pulp/renderer/shader/ObjectAwareParameterWriter.hpp"
 
 #include "globals.hpp"
 #include "milk/system/Window.hpp"
@@ -63,8 +70,14 @@ void Game::loop() {
 		}
 
 		milk::graphics::FlexibleInputLayoutDescription inputLayoutDesc;
-		inputLayoutDesc.push(std::shared_ptr<milk::graphics::FlexibleInputLayoutDescription::PositionElement>(
-			new milk::graphics::FlexibleInputLayoutDescription::PositionElement(0, milk::graphics::FlexibleInputLayoutDescription::R32G32B32_FLOAT)));
+		inputLayoutDesc.push(
+			std::shared_ptr<milk::graphics::FlexibleInputLayoutDescription::PositionElement>(
+				new milk::graphics::FlexibleInputLayoutDescription::PositionElement(
+					0,
+					milk::graphics::FlexibleInputLayoutDescription::R32G32B32_FLOAT
+					)
+				)
+			);
 
 		vertexShader.reset(
 			new milk::graphics::VertexShader(
@@ -97,9 +110,48 @@ void Game::loop() {
 		pixelShader.reset(new milk::graphics::PixelShader(*graphicsDevice_, &pdata.front(), pdata.size()));
 	}
 
-	pulp::renderer::Model m(*graphicsDevice_, vertexShader, pixelShader);
+	pulp::renderer::shader::ParameterWriterList writerList;
+
+	{
+		pulp::renderer::CameraSharedPtr camera(new pulp::renderer::StaticCamera);
+		pulp::renderer::LensSharedPtr lens(new pulp::renderer::OrthographicLens(milk::math::Handedness::LEFT, 1.0f, 1.0f, 0.1f, 100.0f));
+		pulp::renderer::shader::ParameterWriterSharedPtr writer(new pulp::renderer::shader::ObserverAwareParameterWriter(camera, lens));
+		writerList.add(pulp::renderer::shader::ParameterId::VIEW_MATRIX, writer);
+		writerList.add(pulp::renderer::shader::ParameterId::PROJECTION_MATRIX, writer);
+	}
+
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, vertexShader, pixelShader));
+
+	{
+		pulp::renderer::shader::ParameterWriterSharedPtr writer(new pulp::renderer::shader::ObjectAwareParameterWriter(m));
+		writerList.add(pulp::renderer::shader::ParameterId::WORLD_MATRIX, writer);
+	}
+
+	pulp::renderer::shader::ParameterList parameterList;
+
+	{
+		pulp::renderer::shader::ParameterList::BufferDescription desc;
+		desc.parameterIds.push_back(pulp::renderer::shader::ParameterId::WORLD_MATRIX);
+		parameterList.add(*graphicsDevice_, desc);
+	}
+
+	{
+		pulp::renderer::shader::ParameterList::BufferDescription desc;
+		desc.parameterIds.push_back(pulp::renderer::shader::ParameterId::VIEW_MATRIX);
+		parameterList.add(*graphicsDevice_, desc);
+	}
+
+	{
+		pulp::renderer::shader::ParameterList::BufferDescription desc;
+		desc.parameterIds.push_back(pulp::renderer::shader::ParameterId::PROJECTION_MATRIX);
+		parameterList.add(*graphicsDevice_, desc);
+	}
+
+	std::chrono::monotonic_clock::time_point start = std::chrono::monotonic_clock::now();
 
 	for (;;) {
+		std::chrono::monotonic_clock::time_point now = std::chrono::monotonic_clock::now();
+
 		app_->update();
 
 		if (app_->closeRequested()) {
@@ -108,11 +160,16 @@ void Game::loop() {
 
 		graphicsDevice_->beginScene();
 
-		m.setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
-		m.setTranslation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
-		m.setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
+		std::chrono::monotonic_clock::duration dt = now - start;
+		float secs = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(dt).count()) / 1000.0f;
 
-		m.render(*graphicsDevice_);
+		m->setRotation(milk::math::Vector3d(0.0f, 0.0f, 3.14f * secs));
+		m->setTranslation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
+		m->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
+
+		parameterList.bind(*graphicsDevice_, writerList, milk::graphics::Buffer::ShaderType::VERTEX);
+
+		m->render(*graphicsDevice_);
 
 		graphicsDevice_->endScene();
 	}

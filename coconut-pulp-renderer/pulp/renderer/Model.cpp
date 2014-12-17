@@ -19,7 +19,7 @@ milk::graphics::Buffer::Configuration conf() {
 	c.allowModifications = true;
 	c.size = 3 * sizeof(V);
 	c.stride = sizeof(V);
-	c.purpose = milk::graphics::Buffer::VERTEX_BUFFER;
+	c.purpose = milk::graphics::Buffer::CreationPurpose::VERTEX_BUFFER;
 
 	return c;
 }
@@ -31,7 +31,7 @@ milk::graphics::Buffer::Configuration iconf() {
 	c.allowModifications = true;
 	c.size = 3 * sizeof(std::uint16_t);
 	c.stride = sizeof(std::uint16_t);
-	c.purpose = milk::graphics::Buffer::INDEX_BUFFER;
+	c.purpose = milk::graphics::Buffer::CreationPurpose::INDEX_BUFFER;
 
 	return c;
 }
@@ -47,7 +47,7 @@ Model::Model(
 	pixelShader_(pixelShader)
 {
 	{
-		V* vs = (V*)vertexBuffer_.lock(device, milk::graphics::Buffer::WRITE_DISCARD);
+		V* vs = (V*)vertexBuffer_.lock(device, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
 
 		vs[0].pos.x = -0.5f;
 		vs[0].pos.y = -0.5f;
@@ -65,7 +65,7 @@ Model::Model(
 	}
 
 	{
-		std::uint16_t* is = (std::uint16_t*)indexBuffer_.lock(device, milk::graphics::Buffer::WRITE_DISCARD);
+		std::uint16_t* is = (std::uint16_t*)indexBuffer_.lock(device, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
 
 		is[0] = 0;
 		is[1] = 1;
@@ -76,8 +76,8 @@ Model::Model(
 }
 
 void Model::render(milk::graphics::Device& device) {
-	vertexBuffer_.bind(device, milk::graphics::Buffer::VERTEX_SHADER, 0);
-	indexBuffer_.bind(device, milk::graphics::Buffer::VERTEX_SHADER, 0);
+	vertexBuffer_.bind(device, milk::graphics::Buffer::ShaderType::VERTEX, 0);
+	indexBuffer_.bind(device, milk::graphics::Buffer::ShaderType::VERTEX, 0);
 
 	vertexShader_->bind(device);
 	pixelShader_->bind(device);

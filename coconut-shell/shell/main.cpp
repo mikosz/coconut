@@ -5,6 +5,7 @@
 
 #pragma comment(lib, "coconut-pulp-renderer.lib")
 #pragma comment(lib, "coconut-milk-graphics-dx11.lib")
+#pragma comment(lib, "coconut-milk-math-xna.lib")
 #pragma comment(lib, "coconut-milk-system-win32.lib")
 
 using namespace coconut;

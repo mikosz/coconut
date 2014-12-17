@@ -1,7 +1,5 @@
 #include "PixelShader.hpp"
 
-#include <stdexcept>
-
 #include "DirectXError.hpp"
 #include "Device.hpp"
 

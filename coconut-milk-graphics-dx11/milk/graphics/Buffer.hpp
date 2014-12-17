@@ -5,6 +5,7 @@
 
 #include "milk/system/COMWrapper.hpp"
 #include "milk/utils/IntOfSize.hpp"
+#include "milk/utils/MakePointerDefinitionsMacro.hpp"
 
 namespace coconut {
 namespace milk {
@@ -15,13 +16,13 @@ class Device;
 class Buffer {
 public:
 
-	enum CreationPurpose {
+	enum class CreationPurpose {
 		VERTEX_BUFFER = D3D11_BIND_VERTEX_BUFFER,
 		INDEX_BUFFER = D3D11_BIND_INDEX_BUFFER,
 		CONSTANT_BUFFER = D3D11_BIND_CONSTANT_BUFFER,
 	};
 
-	enum LockPurpose {
+	enum class LockPurpose {
 		READ = D3D11_MAP_READ,
 		WRITE = D3D11_MAP_WRITE,
 		READ_WRITE = D3D11_MAP_READ_WRITE,
@@ -29,9 +30,9 @@ public:
 		WRITE_NO_OVERWRITE = D3D11_MAP_WRITE_NO_OVERWRITE,
 	};
 
-	enum ShaderType {
-		VERTEX_SHADER,
-		PIXEL_SHADER
+	enum class ShaderType {
+		VERTEX,
+		PIXEL
 	};
 
 	struct Configuration {
@@ -89,6 +90,8 @@ private:
 	system::COMWrapper<ID3D11Buffer> buffer_;
 
 };
+
+MAKE_POINTER_DEFINITIONS(Buffer);
 
 } // namespace graphics
 } // namespace milk

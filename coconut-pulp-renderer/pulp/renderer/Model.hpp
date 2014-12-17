@@ -7,6 +7,7 @@
 #include "milk/graphics/Device.hpp"
 #include "milk/graphics/VertexShader.hpp"
 #include "milk/graphics/PixelShader.hpp"
+#include "milk/utils/MakePointerDefinitionsMacro.hpp"
 #include "Renderable.hpp"
 #include "Oriented.hpp"
 
@@ -36,6 +37,8 @@ private:
 	std::shared_ptr<milk::graphics::PixelShader> pixelShader_;
 
 };
+
+MAKE_POINTER_DEFINITIONS(Model);
 
 } // namespace renderer
 } // namespace pulp
