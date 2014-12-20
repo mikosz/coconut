@@ -51,31 +51,39 @@ public:
 	Matrix() {
 	}
 
-	Matrix(const DirectX::XMMATRIX& xmMatrix) :
-		internal_(xmMatrix)
-	{
+	Matrix(const DirectX::XMMATRIX& xmMatrix) {
+		DirectX::XMStoreFloat4x4(&internal_, xmMatrix);
 	}
 
 	Matrix operator *(const Matrix& other) {
-		return DirectX::XMMatrixMultiply(internal_, other.internal_);
+		return DirectX::XMMatrixMultiply(
+			DirectX::XMLoadFloat4x4(&internal_),
+			DirectX::XMLoadFloat4x4(&other.internal_)
+			);
 	}
 
 	Matrix& operator *=(const Matrix& other) {
-		internal_ = DirectX::XMMatrixMultiply(internal_, other.internal_);
+		DirectX::XMStoreFloat4x4(
+			&internal_,
+			DirectX::XMMatrixMultiply(
+				DirectX::XMLoadFloat4x4(&internal_),
+				DirectX::XMLoadFloat4x4(&other.internal_)
+				)
+			);
 		return *this;
 	}
 
 	Matrix transposed() const {
-		return DirectX::XMMatrixTranspose(internal_);
+		return DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&internal_));
 	}
 
-	const DirectX::XMMATRIX& internal() const {
-		return internal_;
+	DirectX::XMMATRIX internal() const {
+		return DirectX::XMLoadFloat4x4(&internal_);
 	}
 
 private:
 
-	DirectX::XMMATRIX internal_;
+	DirectX::XMFLOAT4X4 internal_;
 
 };
 

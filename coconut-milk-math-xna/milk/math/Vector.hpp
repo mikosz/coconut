@@ -14,132 +14,93 @@ namespace math {
 class Vector4d {
 public:
 
-	struct Proxy {
-	public:
-
-		operator float() {
-			return value_;
-		}
-
-		void operator =(float value) {
-			value_ = value;
-		}
-
-		~Proxy() {
-			vector_ = callback_(vector_, value_);
-		}
-
-	private:
-
-		typedef std::function<DirectX::XMVECTOR(DirectX::XMVECTOR, float)> SetCallback;
-
-		Proxy(SetCallback callback, DirectX::XMVECTOR& vector, float value) :
-			callback_(callback),
-			vector_(vector),
-			value_(value)
-		{
-		}
-
-		// Private copy constructor so that the client doesn't copy this instance
-		Proxy(const Proxy& other) :
-			callback_(other.callback_),
-			vector_(other.vector_),
-			value_(other.value_)
-		{
-		}
-
-		Proxy& operator=(const Proxy& other);
-
-		SetCallback callback_;
-
-		DirectX::XMVECTOR& vector_;
-
-		float value_;
-
-		friend class Vector2d;
-
-		friend class Vector3d;
-
-		friend class Vector4d;
-
-	};
-
 	Vector4d() {
 	}
 
-	Vector4d(const DirectX::XMVECTOR& xmVector) :
-		internal_(xmVector)
-	{
+	Vector4d(const DirectX::XMVECTOR& xmVector) {
+		DirectX::XMStoreFloat4(&internal_, xmVector);
 	}
 
 	Vector4d(float x, float y, float z, float w) :
-		internal_(DirectX::XMVectorSet(x, y, z, w))
+		internal_(x, y, z, w)
 	{
 	}
 
-	operator const DirectX::XMVECTOR&() {
-		return internal_;
-	}
+	/* operator const DirectX::XMVECTOR&() {
+		return DirectX::XMLoadFloat4(&internal_);
+	} */
 
 	Vector4d operator *(const Matrix& matrix) {
-		return DirectX::XMVector4Transform(internal_, matrix.internal());
+		return DirectX::XMVector4Transform(
+			DirectX::XMLoadFloat4(&internal_),
+			matrix.internal()
+			);
 	}
 
 	Vector4d& operator *=(const Matrix& matrix) {
-		internal_ = DirectX::XMVector4Transform(internal_, matrix.internal());
+		DirectX::XMStoreFloat4(
+			&internal_,
+			DirectX::XMVector4Transform(
+				DirectX::XMLoadFloat4(&internal_),
+				matrix.internal()
+				)
+			);
 		return *this;
 	}
 
 	float dot(const Vector4d& other) const {
-		DirectX::XMVECTOR result = DirectX::XMVector3Dot(internal_, other.internal_);
+		DirectX::XMVECTOR result = DirectX::XMVector3Dot(
+			DirectX::XMLoadFloat4(&internal_),
+			DirectX::XMLoadFloat4(&other.internal_)
+			);
 		return DirectX::XMVectorGetX(result);
 	}
 
-	Proxy x() {
-		return Proxy(&DirectX::XMVectorSetX, internal_, DirectX::XMVectorGetX(internal_));
+	float& x() {
+		return internal_.x;
 	}
 
 	float x() const {
-		return DirectX::XMVectorGetX(internal_);
+		return internal_.x;
 	}
 
-	Proxy y() {
-		return Proxy(&DirectX::XMVectorSetY, internal_, DirectX::XMVectorGetY(internal_));
+	float& y() {
+		return internal_.y;
 	}
 
 	float y() const {
-		return DirectX::XMVectorGetY(internal_);
+		return internal_.y;
 	}
 
-	Proxy z() {
-		return Proxy(&DirectX::XMVectorSetZ, internal_, DirectX::XMVectorGetZ(internal_));
+	float& z() {
+		return internal_.z;
 	}
 
 	float z() const {
-		return DirectX::XMVectorGetZ(internal_);
+		return internal_.z;
 	}
 
-	Proxy w() {
-		return Proxy(&DirectX::XMVectorSetW, internal_, DirectX::XMVectorGetW(internal_));
+	float& w() {
+		return internal_.w;
 	}
 
 	float w() const {
-		return DirectX::XMVectorGetW(internal_);
+		return internal_.w;
 	}
 
-	const DirectX::XMVECTOR& internal() const {
-		return internal_;
+	const DirectX::XMVECTOR internal() const {
+		return DirectX::XMLoadFloat4(&internal_);
 	}
 
 protected:
 
-	DirectX::XMVECTOR& internal() {
+	DirectX::XMFLOAT4& internal() {
 		return internal_;
 	}
 
 private:
 
-	DirectX::XMVECTOR internal_;
+	DirectX::XMFLOAT4 internal_;
 
 };
 
@@ -159,16 +120,19 @@ public:
 	{
 	}
 
-	operator const DirectX::XMVECTOR&() {
+	/* operator const DirectX::XMVECTOR&() {
 		return internal();
-	}
+	} */
 
-	Vector3d operator *(const Matrix& matrix) {
-		return DirectX::XMVector3Transform(internal(), matrix.internal());
+	Vector3d operator *(const Matrix& matrix) const {
+		return DirectX::XMVector3Transform(internal(),matrix.internal());
 	}
 
 	Vector3d& operator *=(const Matrix& matrix) {
-		internal() = DirectX::XMVector3Transform(internal(), matrix.internal());
+		DirectX::XMStoreFloat4(
+			&internal(),
+			DirectX::XMVector3Transform(const_cast<const Vector3d*>(this)->internal(), matrix.internal())
+			);
 		return *this;
 	}
 
@@ -181,29 +145,11 @@ public:
 		return DirectX::XMVector3Cross(internal(), other.internal());
 	}
 
-	Proxy x() {
-		return Proxy(&DirectX::XMVectorSetX, internal(), DirectX::XMVectorGetX(internal()));
-	}
+	using Vector4d::x;
 
-	float x() const {
-		return DirectX::XMVectorGetX(internal());
-	}
+	using Vector4d::y;
 
-	Proxy y() {
-		return Proxy(&DirectX::XMVectorSetY, internal(), DirectX::XMVectorGetY(internal()));
-	}
-
-	float y() const {
-		return DirectX::XMVectorGetY(internal());
-	}
-
-	Proxy z() {
-		return Proxy(&DirectX::XMVectorSetZ, internal(), DirectX::XMVectorGetZ(internal()));
-	}
-
-	float z() const {
-		return DirectX::XMVectorGetZ(internal());
-	}
+	using Vector4d::z;
 
 };
 
@@ -223,16 +169,19 @@ public:
 	{
 	}
 
-	operator const DirectX::XMVECTOR&() {
+	/* operator const DirectX::XMVECTOR&() {
 		return internal();
-	}
+	} */
 
-	Vector2d operator *(const Matrix& matrix) {
+	Vector2d operator *(const Matrix& matrix) const {
 		return DirectX::XMVector2Transform(internal(), matrix.internal());
 	}
 
 	Vector2d& operator *=(const Matrix& matrix) {
-		internal() = DirectX::XMVector2Transform(internal(), matrix.internal());
+		DirectX::XMStoreFloat4(
+			&internal(),
+			DirectX::XMVector2Transform(const_cast<const Vector2d*>(this)->internal(), matrix.internal())
+			);
 		return *this;
 	}
 
@@ -241,21 +190,9 @@ public:
 		return DirectX::XMVectorGetX(result);
 	}
 
-	Proxy x() {
-		return Proxy(&DirectX::XMVectorSetX, internal(), DirectX::XMVectorGetX(internal()));
-	}
+	using Vector4d::x;
 
-	float x() const {
-		return DirectX::XMVectorGetX(internal());
-	}
-
-	Proxy y() {
-		return Proxy(&DirectX::XMVectorSetY, internal(), DirectX::XMVectorGetY(internal()));
-	}
-
-	float y() const {
-		return DirectX::XMVectorGetY(internal());
-	}
+	using Vector4d::y;
 
 };
 
