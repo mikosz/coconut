@@ -47,7 +47,8 @@ Model::Model(
 	pixelShader_(pixelShader)
 {
 	{
-		V* vs = (V*)vertexBuffer_.lock(device, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
+		milk::graphics::Buffer::LockedData data = vertexBuffer_.lock(device, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
+		V* vs = (V*)data.data;
 
 		vs[0].pos.x = -0.5f;
 		vs[0].pos.y = -0.5f;
@@ -60,18 +61,15 @@ Model::Model(
 		vs[2].pos.x = 0.5f;
 		vs[2].pos.y = -0.5f;
 		vs[2].pos.z = -0.5f;
-
-		vertexBuffer_.unlock(device);
 	}
 
 	{
-		std::uint16_t* is = (std::uint16_t*)indexBuffer_.lock(device, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
+		milk::graphics::Buffer::LockedData data = indexBuffer_.lock(device, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
+		std::uint16_t* is = (std::uint16_t*)data.data;
 
 		is[0] = 0;
 		is[1] = 1;
 		is[2] = 2;
-
-		indexBuffer_.unlock(device);
 	}
 }
 

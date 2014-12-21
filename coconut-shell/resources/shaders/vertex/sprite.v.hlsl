@@ -13,5 +13,5 @@ cbuffer ProjectionTransformations {
 float4 main( float4 pos : POSITION ) : SV_POSITION
 {
 	pos.w = 1.0f;
-	return mul(mul(pos, worldMatrix), projectionMatrix);
+	return mul(mul(mul(pos, worldMatrix), viewMatrix), projectionMatrix);
 }

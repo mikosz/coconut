@@ -12,15 +12,31 @@ public:
 
 	typedef std::function<void ()> Callback;
 
+	RAIIHelper() {
+	}
+
 	RAIIHelper(Callback callback) :
 		callback_(callback)
 	{
+	}
+
+	// TODO: probably the way copying is done should be handled by a template parameter
+	RAIIHelper(RAIIHelper& other) {
+		callback_.swap(other.callback_);
 	}
 
 	~RAIIHelper() {
 		if (callback_) {
 			callback_();
 		}
+	}
+
+	// TODO: probably the way copying is done should be handled by a template parameter
+	RAIIHelper& operator=(RAIIHelper& other) {
+		if (this != &other) {
+			callback_.swap(other.callback_);
+		}
+		return *this;
 	}
 
 	void reset() {

@@ -6,6 +6,7 @@
 #include "milk/system/COMWrapper.hpp"
 #include "milk/utils/IntOfSize.hpp"
 #include "milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "milk/utils/RAIIHelper.hpp"
 
 namespace coconut {
 namespace milk {
@@ -71,11 +72,26 @@ public:
 
 	};
 
+	struct LockedData {
+
+		void* data;
+
+	private:
+
+		utils::RAIIHelper unlocker_;
+
+		LockedData() :
+			data(0)
+		{
+		}
+
+		friend class Buffer;
+
+	};
+
 	Buffer(Device& device, const Configuration& configuration, void* initialData = 0);
 
-	void* lock(Device& device, LockPurpose lockPurpose);
-
-	void unlock(Device& device);
+	LockedData lock(Device& device, LockPurpose lockPurpose);
 
 	void bind(Device& device, ShaderType shaderType, size_t slot);
 

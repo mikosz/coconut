@@ -26,11 +26,7 @@ public:
 	{
 	}
 
-	/* operator const DirectX::XMVECTOR&() {
-		return DirectX::XMLoadFloat4(&internal_);
-	} */
-
-	Vector4d operator *(const Matrix& matrix) {
+	const Vector4d operator *(const Matrix& matrix) const {
 		return DirectX::XMVector4Transform(
 			DirectX::XMLoadFloat4(&internal_),
 			matrix.internal()
@@ -120,10 +116,6 @@ public:
 	{
 	}
 
-	/* operator const DirectX::XMVECTOR&() {
-		return internal();
-	} */
-
 	Vector3d operator *(const Matrix& matrix) const {
 		return DirectX::XMVector3Transform(internal(),matrix.internal());
 	}
@@ -168,10 +160,6 @@ public:
 		Vector4d(x, y, 1.0f, 1.0f)
 	{
 	}
-
-	/* operator const DirectX::XMVECTOR&() {
-		return internal();
-	} */
 
 	Vector2d operator *(const Matrix& matrix) const {
 		return DirectX::XMVector2Transform(internal(), matrix.internal());

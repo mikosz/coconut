@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <stdexcept>
+#include <functional>
 
 #include "Device.hpp"
 #include "DirectXError.hpp"
@@ -53,18 +54,20 @@ Buffer::Buffer(Device& device, const Configuration& configuration, void* initial
 		"Failed to create a buffer");
 }
 
-void* Buffer::lock(Device& device, LockPurpose lockPurpose) {
+Buffer::LockedData Buffer::lock(Device& device, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
 		device.d3dDeviceContext()->Map(buffer_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
 		"Failed to lock a buffer"
 		);
 
-	return mappedResource.pData;
-}
+	Buffer::LockedData result;
+	result.data = mappedResource.pData;
+	result.unlocker_ = utils::RAIIHelper(
+		std::bind(&ID3D11DeviceContext::Unmap, device.d3dDeviceContext(), buffer_.get(), 0)
+		);
 
-void Buffer::unlock(Device& device) {
-	device.d3dDeviceContext()->Unmap(buffer_, 0);
+	return result;
 }
 
 void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {

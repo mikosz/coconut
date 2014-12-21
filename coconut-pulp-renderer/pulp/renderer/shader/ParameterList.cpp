@@ -40,7 +40,8 @@ void ParameterList::bind(
 	) {
 	for (size_t bufferIndex = 0; bufferIndex < buffers_.size(); ++bufferIndex) {
 		{
-			void* data = buffers_[bufferIndex]->lock(device, Buffer::LockPurpose::WRITE_DISCARD);		
+			Buffer::LockedData locked = buffers_[bufferIndex]->lock(device, Buffer::LockPurpose::WRITE_DISCARD);
+			void* data = locked.data;		
 			for (auto parameterId : bufferDescriptions_[bufferIndex].parameterIds) {
 				data = writer.write(data, parameterId);
 			}
