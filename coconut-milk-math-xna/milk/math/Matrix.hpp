@@ -32,8 +32,8 @@ public:
 
 	static Matrix rotation(const Vector3d& rotationVector);
 
-	static Matrix rotation(float roll, float pitch, float yaw) {
-		return DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
+	static Matrix rotation(float x, float y, float z) {
+		return DirectX::XMMatrixRotationRollPitchYaw(x, y, z);
 	}
 
 	static Matrix orthographicProjection(

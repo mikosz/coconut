@@ -19,9 +19,6 @@ public:
 	{
 	}
 
-	virtual ~Oriented() {
-	}
-
 	const milk::math::Matrix& worldTransformation() const {
 		return worldMatrix_.get();
 	}
@@ -45,7 +42,7 @@ public:
 	}
 
 	void setRotation(const milk::math::Vector3d& rotation) {
-		rotation_ =  rotation;
+		rotation_ = rotation;
 		worldMatrix_.invalidate();
 	}
 
@@ -65,7 +62,7 @@ private:
 
 	void calculateWorldTransformation(milk::math::Matrix& matrix) {
 		matrix =
-			milk::math::Matrix::rotation(rotation_.z(), rotation_.x(), rotation_.y()) *
+			milk::math::Matrix::rotation(rotation_.x(), rotation_.y(), rotation_.z()) *
 			milk::math::Matrix::scale(scale_.x(), scale_.y(), scale_.z()) *
 			milk::math::Matrix::translation(translation_.x(), translation_.y(), translation_.z())
 			;

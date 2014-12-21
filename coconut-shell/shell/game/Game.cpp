@@ -14,7 +14,7 @@
 
 #include "pulp/renderer/Model.hpp"
 #include "pulp/renderer/OrthographicLens.hpp"
-#include "pulp/renderer/StaticCamera.hpp"
+#include "pulp/renderer/OrientedCamera.hpp"
 #include "pulp/renderer/shader/ParameterList.hpp"
 #include "pulp/renderer/shader/ParameterWriterList.hpp"
 #include "pulp/renderer/shader/ObserverAwareParameterWriter.hpp"
@@ -112,8 +112,9 @@ void Game::loop() {
 
 	pulp::renderer::shader::ParameterWriterList writerList;
 
+	pulp::renderer::OrientedCameraSharedPtr camera(new pulp::renderer::OrientedCamera);
+
 	{
-		pulp::renderer::CameraSharedPtr camera(new pulp::renderer::StaticCamera);
 		pulp::renderer::LensSharedPtr lens(new pulp::renderer::OrthographicLens(milk::math::Handedness::LEFT, 1.0f, 1.0f, 0.1f, 100.0f));
 		pulp::renderer::shader::ParameterWriterSharedPtr writer(new pulp::renderer::shader::ObserverAwareParameterWriter(camera, lens));
 		writerList.add(pulp::renderer::shader::ParameterId::VIEW_MATRIX, writer);
@@ -149,6 +150,8 @@ void Game::loop() {
 
 	std::chrono::monotonic_clock::time_point start = std::chrono::monotonic_clock::now();
 
+	camera->setTranslation(milk::math::Vector3d(0.0f, 0.0f, 10.0f));
+
 	for (;;) {
 		std::chrono::monotonic_clock::time_point now = std::chrono::monotonic_clock::now();
 
@@ -162,6 +165,8 @@ void Game::loop() {
 
 		std::chrono::monotonic_clock::duration dt = now - start;
 		float secs = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(dt).count()) / 1000.0f;
+
+		camera->setRotation(milk::math::Vector3d(0.0f, 3.14f * secs, 0.0f));
 
 		m->setRotation(milk::math::Vector3d(0.0f, 0.0f, 3.14f * secs));
 		m->setTranslation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));

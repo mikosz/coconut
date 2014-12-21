@@ -82,5 +82,8 @@
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObjectAwareParameterWriter.hpp">
       <Filter>Source Files\shader</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\OrientedCamera.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

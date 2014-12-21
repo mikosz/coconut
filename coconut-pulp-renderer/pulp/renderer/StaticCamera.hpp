@@ -16,6 +16,8 @@ public:
 
 };
 
+MAKE_POINTER_DEFINITIONS(StaticCamera);
+
 } // namespace renderer
 } // namespace pulp
 } // namespace coconut

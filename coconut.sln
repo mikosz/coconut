@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-graphics-dx11", "projects\coconut-milk-graphics-dx11\coconut-milk-graphics-dx11.vcxproj", "{F5F4B806-D62A-4240-B9E1-417E1187A5C0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423} = {1ACABE20-DE5F-4D60-8A91-61B60CB60423}
@@ -10,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-shell", "projects\c
 	ProjectSection(ProjectDependencies) = postProject
 		{F5F4B806-D62A-4240-B9E1-417E1187A5C0} = {F5F4B806-D62A-4240-B9E1-417E1187A5C0}
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423} = {1ACABE20-DE5F-4D60-8A91-61B60CB60423}
+		{C7AFB126-13BA-4D2B-A9E4-2A13144CC117} = {C7AFB126-13BA-4D2B-A9E4-2A13144CC117}
+		{7398C67C-597A-4599-A120-401F02B8C2EB} = {7398C67C-597A-4599-A120-401F02B8C2EB}
 		{1E975AFA-0FFF-4AEE-96F1-262539ED8CDB} = {1E975AFA-0FFF-4AEE-96F1-262539ED8CDB}
 	EndProjectSection
 EndProject

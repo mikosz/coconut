@@ -26,14 +26,7 @@ public:
 	{
 	}
 
-	const Vector4d operator *(const Matrix& matrix) const {
-		return DirectX::XMVector4Transform(
-			DirectX::XMLoadFloat4(&internal_),
-			matrix.internal()
-			);
-	}
-
-	Vector4d& operator *=(const Matrix& matrix) {
+	Vector4d& operator*=(const Matrix& matrix) {
 		DirectX::XMStoreFloat4(
 			&internal_,
 			DirectX::XMVector4Transform(
@@ -42,6 +35,33 @@ public:
 				)
 			);
 		return *this;
+	}
+
+	const Vector4d operator*(const Matrix& matrix) const {
+		Vector4d result = *this;
+		result *= matrix;
+		return result;
+	}
+
+	Vector4d& operator*=(float scalar) {
+		DirectX::XMStoreFloat4(
+			&internal_,
+			DirectX::XMVectorScale(
+				DirectX::XMLoadFloat4(&internal_),
+				scalar
+				)
+			);
+		return *this;
+	}
+
+	const Vector4d operator*(float scalar) const {
+		Vector4d result = *this;
+		result *= scalar;
+		return result;
+	}
+
+	const Vector4d operator-() const {
+		return *this * -1.0f;
 	}
 
 	float dot(const Vector4d& other) const {
@@ -116,21 +136,34 @@ public:
 	{
 	}
 
-	Vector3d operator *(const Matrix& matrix) const {
-		return DirectX::XMVector3Transform(internal(),matrix.internal());
-	}
-
-	Vector3d& operator *=(const Matrix& matrix) {
-		DirectX::XMStoreFloat4(
-			&internal(),
-			DirectX::XMVector3Transform(const_cast<const Vector3d*>(this)->internal(), matrix.internal())
-			);
+	Vector3d& operator*=(const Matrix& matrix) {
+		Vector4d::operator*=(matrix);
 		return *this;
 	}
 
+	const Vector3d operator*(const Matrix& matrix) const {
+		Vector3d result = *this;
+		result *= matrix;
+		return result;
+	}
+
+	Vector3d& operator*=(float scalar) {
+		Vector4d::operator*=(scalar);
+		return *this;
+	}
+
+	const Vector3d operator*(float scalar) const {
+		Vector3d result = *this;
+		result *= scalar;
+		return result;
+	}
+
+	Vector3d operator-() const {
+		return *this * -1.0f;
+	}
+
 	float dot(const Vector3d& other) const {
-		DirectX::XMVECTOR result = DirectX::XMVector3Dot(internal(), other.internal());
-		return DirectX::XMVectorGetX(result);
+		return Vector4d::dot(other);
 	}
 
 	Vector3d cross(const Vector3d& other) const {
@@ -161,21 +194,34 @@ public:
 	{
 	}
 
-	Vector2d operator *(const Matrix& matrix) const {
-		return DirectX::XMVector2Transform(internal(), matrix.internal());
-	}
-
-	Vector2d& operator *=(const Matrix& matrix) {
-		DirectX::XMStoreFloat4(
-			&internal(),
-			DirectX::XMVector2Transform(const_cast<const Vector2d*>(this)->internal(), matrix.internal())
-			);
+	Vector2d& operator*=(const Matrix& matrix) {
+		Vector4d::operator*=(matrix);
 		return *this;
 	}
 
+	const Vector2d operator*(const Matrix& matrix) const {
+		Vector2d result = *this;
+		result *= matrix;
+		return result;
+	}
+
+	Vector2d& operator*=(float scalar) {
+		Vector4d::operator*=(scalar);
+		return *this;
+	}
+
+	const Vector2d operator*(float scalar) const {
+		Vector2d result = *this;
+		result *= scalar;
+		return result;
+	}
+
+	Vector2d operator-() const {
+		return *this * -1.0f;
+	}
+
 	float dot(const Vector2d& other) const {
-		DirectX::XMVECTOR result = DirectX::XMVector2Dot(internal(), other.internal());
-		return DirectX::XMVectorGetX(result);
+		return Vector4d::dot(other);
 	}
 
 	using Vector4d::x;
