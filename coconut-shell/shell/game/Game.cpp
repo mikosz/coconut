@@ -13,7 +13,7 @@
 #include "milk/graphics/PixelShader.hpp"
 
 #include "pulp/renderer/Model.hpp"
-#include "pulp/renderer/OrthographicLens.hpp"
+#include "pulp/renderer/PerspectiveLens.hpp"
 #include "pulp/renderer/OrientedCamera.hpp"
 #include "pulp/renderer/shader/ParameterList.hpp"
 #include "pulp/renderer/shader/ParameterWriterList.hpp"
@@ -115,7 +115,7 @@ void Game::loop() {
 	pulp::renderer::OrientedCameraSharedPtr camera(new pulp::renderer::OrientedCamera);
 
 	{
-		pulp::renderer::LensSharedPtr lens(new pulp::renderer::OrthographicLens(milk::math::Handedness::LEFT, 1.0f, 1.0f, 0.1f, 100.0f));
+		pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 3.14f / 2.0f, 800.0f / 600.0f, 0.1f, 100.0f));
 		pulp::renderer::shader::ParameterWriterSharedPtr writer(new pulp::renderer::shader::ObserverAwareParameterWriter(camera, lens));
 		writerList.add(pulp::renderer::shader::ParameterId::VIEW_MATRIX, writer);
 		writerList.add(pulp::renderer::shader::ParameterId::PROJECTION_MATRIX, writer);
@@ -150,7 +150,7 @@ void Game::loop() {
 
 	std::chrono::monotonic_clock::time_point start = std::chrono::monotonic_clock::now();
 
-	camera->setTranslation(milk::math::Vector3d(0.0f, 0.0f, 10.0f));
+	camera->setTranslation(milk::math::Vector3d(0.0f, 0.0f, -5.0f));
 
 	for (;;) {
 		std::chrono::monotonic_clock::time_point now = std::chrono::monotonic_clock::now();

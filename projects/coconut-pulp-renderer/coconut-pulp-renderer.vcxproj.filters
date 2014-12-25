@@ -38,6 +38,9 @@
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObjectAwareParameterWriter.cpp">
       <Filter>Source Files\shader</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\PerspectiveLens.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp">
@@ -83,6 +86,9 @@
       <Filter>Source Files\shader</Filter>
     </ClInclude>
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\OrientedCamera.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\PerspectiveLens.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -48,6 +48,19 @@ public:
 		}
 	}
 
+	// TODO: change float fov to a Angle type
+	static Matrix perspectiveProjection(
+		Handedness handedness, float fov, float aspectRatio, float nearZ, float farZ) {
+		switch (handedness) {
+		case Handedness::LEFT:
+			return DirectX::XMMatrixPerspectiveFovLH(fov, aspectRatio, nearZ, farZ);
+		case Handedness::RIGHT:
+			return DirectX::XMMatrixPerspectiveFovRH(fov, aspectRatio, nearZ, farZ);
+		default:
+			throw std::logic_error("Unknown handedness value");
+		}
+	}
+
 	Matrix() {
 	}
 
