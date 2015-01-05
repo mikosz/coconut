@@ -41,6 +41,9 @@
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ShaderFactory.cpp">
       <Filter>Source Files\shader</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp">
@@ -99,6 +102,9 @@
     </ClInclude>
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ShaderFactory.hpp">
       <Filter>Source Files\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Material.hpp">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -9,7 +9,6 @@ class Scene;
 class Actor;
 class Model;
 class Material;
-class SmoothingGroup;
 
 struct RenderingContext {
 
@@ -21,14 +20,11 @@ struct RenderingContext {
 
 	Material* material;
 
-	SmoothingGroup* smoothingGroup;
-
 	RenderingContext() :
 		scene(nullptr),
 		actor(nullptr),
 		model(nullptr),
-		material(nullptr),
-		smoothingGroup(nullptr)
+		material(nullptr)
 	{
 	}
 

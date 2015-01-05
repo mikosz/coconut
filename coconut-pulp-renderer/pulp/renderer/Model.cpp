@@ -68,9 +68,12 @@ Model::Model(milk::graphics::Device& device) :
 		is[2] = 2;
 	}
 
-	shader::ShaderFactory factory;
-	vertexShader_ = factory.createShader(device, "VS");
-	pixelShader_ = factory.createShader(device, "PS");
+	MaterialSharedPtr material(new Material(device));
+	SmoothingGroup group;
+	group.firstIndex = 0;
+	group.indexCount = 3;
+
+	smoothingGroupsByMaterial_.insert(std::make_pair(material, group));
 }
 
 void Model::render(milk::graphics::Device& device, RenderingContext renderingContext) {
@@ -79,9 +82,10 @@ void Model::render(milk::graphics::Device& device, RenderingContext renderingCon
 	vertexBuffer_.bind(device, milk::graphics::Buffer::ShaderType::VERTEX, 0);
 	indexBuffer_.bind(device, milk::graphics::Buffer::ShaderType::VERTEX, 0);
 
-	vertexShader_->bind(device, renderingContext);
-	pixelShader_->bind(device, renderingContext);
+	for (auto smoothingGroup : smoothingGroupsByMaterial_) {
+		smoothingGroup.first->bind(device, renderingContext);
 
-	device.d3dDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	device.d3dDeviceContext()->DrawIndexed(3, 0, 0);
+		device.d3dDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		device.d3dDeviceContext()->DrawIndexed(smoothingGroup.second.indexCount, smoothingGroup.second.firstIndex, 0);
+	}
 }

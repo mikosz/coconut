@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Actor.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Material.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\OrthographicLens.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\PerspectiveLens.cpp" />
@@ -25,6 +26,7 @@
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Actor.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Camera.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Lens.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Material.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Orientation.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\OrientedCamera.hpp" />
