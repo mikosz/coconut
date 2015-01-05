@@ -1,23 +1,45 @@
 #ifndef _COCONUT_PULP_RENDERER_SCENE_HPP_
 #define _COCONUT_PULP_RENDERER_SCENE_HPP_
 
+#include <vector>
+
 #include "milk/utils/MakePointerDefinitionsMacro.hpp"
 #include "milk/graphics/Device.hpp"
+
+#include "Actor.hpp"
+#include "Camera.hpp"
+#include "Lens.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
 
-class Lens;
-class Model;
-
 class Scene {
 public:
 
-	// TODO: model needs to be added to the scene in some other function
-	void render(milk::graphics::Device& device, Model& model);
+	void add(ActorSharedPtr actor);
+
+	void setCamera(CameraSharedPtr camera);
+
+	void setLens(LensSharedPtr lens);
+
+	void render(milk::graphics::Device& device);
+
+	const Camera& camera() const {
+		return *camera_;
+	}
+
+	const Lens& lens() const {
+		return *lens_;
+	}
 
 private:
+
+	std::vector<ActorSharedPtr> actors_;
+
+	CameraSharedPtr camera_;
+
+	LensSharedPtr lens_;
 
 };
 

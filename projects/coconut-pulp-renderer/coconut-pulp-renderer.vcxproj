@@ -11,32 +11,35 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Actor.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\OrthographicLens.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\PerspectiveLens.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Renderer.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Scene.cpp" />
-    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObjectAwareParameterWriter.cpp" />
-    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObserverAwareParameterWriter.cpp" />
-    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterId.cpp" />
-    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterList.cpp" />
-    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterWriterList.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\Parameter.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\Shader.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ShaderFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Actor.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Camera.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Lens.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp" />
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Oriented.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Orientation.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\OrientedCamera.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\OrthographicLens.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\PerspectiveLens.hpp" />
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Renderable.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Renderer.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\RenderingContext.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Scene.hpp" />
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObjectAwareParameterWriter.hpp" />
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ObserverAwareParameterWriter.hpp" />
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterId.hpp" />
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterList.hpp" />
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterWriter.hpp" />
-    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ParameterWriterList.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ActorParameter.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\CallbackUpdateableParameter.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\Parameter.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\SceneParameter.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\Shader.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ShaderFactory.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\UpdateableParameter.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\StaticCamera.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

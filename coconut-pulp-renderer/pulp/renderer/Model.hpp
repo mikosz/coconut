@@ -5,26 +5,20 @@
 
 #include "milk/graphics/Buffer.hpp"
 #include "milk/graphics/Device.hpp"
-#include "milk/graphics/VertexShader.hpp"
-#include "milk/graphics/PixelShader.hpp"
 #include "milk/utils/MakePointerDefinitionsMacro.hpp"
-#include "Renderable.hpp"
-#include "Oriented.hpp"
+#include "RenderingContext.hpp"
+#include "shader/Shader.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
 
-class Model : public Renderable, public Oriented {
+class Model {
 public:
 
-	Model(
-		milk::graphics::Device& device,
-		std::shared_ptr<milk::graphics::VertexShader> vertexShader,
-		std::shared_ptr<milk::graphics::PixelShader> pixelShader
-		);
+	Model(milk::graphics::Device& device);
 
-	void render(milk::graphics::Device& device) override;
+	void render(milk::graphics::Device& devices, RenderingContext renderingContext);
 
 private:
 
@@ -32,9 +26,9 @@ private:
 
 	milk::graphics::Buffer indexBuffer_;
 
-	std::shared_ptr<milk::graphics::VertexShader> vertexShader_;
-	
-	std::shared_ptr<milk::graphics::PixelShader> pixelShader_;
+	shader::ShaderSharedPtr vertexShader_;
+
+	shader::ShaderSharedPtr pixelShader_;
 
 };
 

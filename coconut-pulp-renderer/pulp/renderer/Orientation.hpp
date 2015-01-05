@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_RENDERER_ORIENTED_HPP_
-#define _COCONUT_PULP_RENDERER_ORIENTED_HPP_
+#ifndef _COCONUT_PULP_RENDERER_ORIENTATION_HPP_
+#define _COCONUT_PULP_RENDERER_ORIENTATION_HPP_
 
 #include <functional>
 
@@ -11,11 +11,11 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-class Oriented {
+class Orientation {
 public:
 
-	Oriented() :
-		worldMatrix_(std::bind(&Oriented::calculateWorldTransformation, this, std::placeholders::_1))
+	Orientation() :
+		worldMatrix_(std::bind(&Orientation::calculateWorldTransformation, this, std::placeholders::_1))
 	{
 	}
 
@@ -74,4 +74,4 @@ private:
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_ORIENTED_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_ORIENTATION_HPP_ */

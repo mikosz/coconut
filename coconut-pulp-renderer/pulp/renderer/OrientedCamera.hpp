@@ -4,7 +4,7 @@
 #include "milk/utils/Lazy.hpp"
 
 #include "Camera.hpp"
-#include "Oriented.hpp"
+#include "Orientation.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -14,32 +14,32 @@ class OrientedCamera : public Camera {
 public:
 
 	OrientedCamera() {
-		oriented_.setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
+		orientation_.setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 	}
 
 	const milk::math::Matrix& viewTransformation() const override {
-		return oriented_.worldTransformation();
+		return orientation_.worldTransformation();
 	}
 
 	void setTranslation(const milk::math::Vector3d& translation) {
-		oriented_.setTranslation(-translation);
+		orientation_.setTranslation(-translation);
 	}
 
 	milk::math::Vector3d getTranslation() const {
-		return -oriented_.getTranslation();
+		return -orientation_.getTranslation();
 	}
 
 	void setRotation(const milk::math::Vector3d& rotation) {
-		oriented_.setRotation(-rotation);
+		orientation_.setRotation(-rotation);
 	}
 
 	milk::math::Vector3d getRotation() const {
-		return -oriented_.getRotation();
+		return -orientation_.getRotation();
 	}
 
 private:
 
-	Oriented oriented_;
+	Orientation orientation_;
 
 };
 
