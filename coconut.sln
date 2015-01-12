@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-graphics-dx11", "projects\coconut-milk-graphics-dx11\coconut-milk-graphics-dx11.vcxproj", "{F5F4B806-D62A-4240-B9E1-417E1187A5C0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1ACABE20-DE5F-4D60-8A91-61B60CB60423} = {1ACABE20-DE5F-4D60-8A91-61B60CB60423}
@@ -24,6 +22,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-math-xna", "projects\coconut-milk-math-xna\coconut-milk-math-xna.vcxproj", "{C7AFB126-13BA-4D2B-A9E4-2A13144CC117}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-pulp-renderer", "projects\coconut-pulp-renderer\coconut-pulp-renderer.vcxproj", "{7398C67C-597A-4599-A120-401F02B8C2EB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coconut-milk-math-test", "projects\coconut-milk-math-test\coconut-milk-math-test.vcxproj", "{608F01A9-5082-4392-83B0-E9F2A475C995}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +55,10 @@ Global
 		{7398C67C-597A-4599-A120-401F02B8C2EB}.Debug|Win32.Build.0 = Debug|Win32
 		{7398C67C-597A-4599-A120-401F02B8C2EB}.Release|Win32.ActiveCfg = Release|Win32
 		{7398C67C-597A-4599-A120-401F02B8C2EB}.Release|Win32.Build.0 = Release|Win32
+		{608F01A9-5082-4392-83B0-E9F2A475C995}.Debug|Win32.ActiveCfg = Debug|Win32
+		{608F01A9-5082-4392-83B0-E9F2A475C995}.Debug|Win32.Build.0 = Debug|Win32
+		{608F01A9-5082-4392-83B0-E9F2A475C995}.Release|Win32.ActiveCfg = Release|Win32
+		{608F01A9-5082-4392-83B0-E9F2A475C995}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

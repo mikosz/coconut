@@ -1,234 +1,272 @@
 #ifndef _COCONUT_MILK_MATH_VECTOR_HPP_
 #define _COCONUT_MILK_MATH_VECTOR_HPP_
 
-#include <functional>
+#include <type_traits>
+#include <iosfwd>
+#include <cassert>
+
+#include <boost/operators.hpp>
 
 #include <DirectXMath.h>
-
-#include "Matrix.hpp"
 
 namespace coconut {
 namespace milk {
 namespace math {
 
-class Vector4d {
+template <
+	size_t DIMENSION_PARAM,
+	typename std::enable_if<(DIMENSION_PARAM >= 1)>::type* = nullptr,
+	typename std::enable_if<(DIMENSION_PARAM <= 4)>::type* = nullptr
+	>
+class Vector : public boost::equality_comparable<Vector<DIMENSION_PARAM>, Vector<DIMENSION_PARAM> > {
 public:
 
-	Vector4d() {
+	static const size_t DIMENSION = DIMENSION_PARAM;
+
+	Vector() {
 	}
 
-	Vector4d(const DirectX::XMVECTOR& xmVector) {
-		DirectX::XMStoreFloat4(&internal_, xmVector);
+	template <size_t INDEX>
+	float& get() {
+		IndexChecker<INDEX> checker;
+		checker.check();
+		return (&data_.x)[INDEX];
 	}
 
-	Vector4d(float x, float y, float z, float w) :
-		internal_(x, y, z, w)
-	{
+	template <size_t INDEX>
+	const float& get() const {
+		IndexChecker<INDEX> checker;
+		checker.check();
+		return (&data_.x)[INDEX];
 	}
 
-	Vector4d& operator*=(const Matrix& matrix) {
-		DirectX::XMStoreFloat4(
-			&internal_,
-			DirectX::XMVector4Transform(
-				DirectX::XMLoadFloat4(&internal_),
-				matrix.internal()
-				)
-			);
-		return *this;
+	float& get(size_t index) {
+		assert(index < DIMENSION);
+
+		if (index == 0) {
+			return get<0>();
+		} else if (index == 1) {
+			return get<1>();
+		} else if (index == 2) {
+			return get<2>();
+		} else if (index == 3) {
+			return get<3>();
+		}
+
+		throw std::runtime_error("get() only accepts indices up to 3");
 	}
 
-	const Vector4d operator*(const Matrix& matrix) const {
-		Vector4d result = *this;
-		result *= matrix;
-		return result;
+	const float& get(size_t index) const {
+		assert(index < DIMENSION);
+
+		if (index == 0) {
+			return get<0>();
+		} else if (index == 1) {
+			return get<1>();
+		} else if (index == 2) {
+			return get<2>();
+		} else if (index == 3) {
+			return get<3>();
+		}
+
+		throw std::runtime_error("get() only accepts indices up to 3");
 	}
 
-	Vector4d& operator*=(float scalar) {
-		DirectX::XMStoreFloat4(
-			&internal_,
-			DirectX::XMVectorScale(
-				DirectX::XMLoadFloat4(&internal_),
-				scalar
-				)
-			);
-		return *this;
-	}
+	bool operator==(const Vector& other) const {
+		for (size_t i = 0; i < DIMENSION; ++i) {
+			if (get(i) != other.get(i)) {
+				return false;
+			}
+		}
 
-	const Vector4d operator*(float scalar) const {
-		Vector4d result = *this;
-		result *= scalar;
-		return result;
-	}
-
-	const Vector4d operator-() const {
-		return *this * -1.0f;
-	}
-
-	float dot(const Vector4d& other) const {
-		DirectX::XMVECTOR result = DirectX::XMVector3Dot(
-			DirectX::XMLoadFloat4(&internal_),
-			DirectX::XMLoadFloat4(&other.internal_)
-			);
-		return DirectX::XMVectorGetX(result);
-	}
-
-	float& x() {
-		return internal_.x;
-	}
-
-	float x() const {
-		return internal_.x;
-	}
-
-	float& y() {
-		return internal_.y;
-	}
-
-	float y() const {
-		return internal_.y;
-	}
-
-	float& z() {
-		return internal_.z;
-	}
-
-	float z() const {
-		return internal_.z;
-	}
-
-	float& w() {
-		return internal_.w;
-	}
-
-	float w() const {
-		return internal_.w;
-	}
-
-	const DirectX::XMVECTOR internal() const {
-		return DirectX::XMLoadFloat4(&internal_);
+		return true;
 	}
 
 protected:
 
-	DirectX::XMFLOAT4& internal() {
-		return internal_;
+	Vector(float x, float y, float z, float w) {
+		DirectX::XMVectorSet(x, y, z, w);
 	}
 
 private:
 
-	DirectX::XMFLOAT4 internal_;
+	template <size_t INDEX, typename std::enable_if<(INDEX < DIMENSION)>::type* = nullptr>
+	struct IndexChecker {
+
+		void check() {
+		}
+
+	};
+
+	DirectX::XMFLOAT4 data_;
+
+	DirectX::XMVECTOR load() const {
+		return DirectX::XMLoadFloat4(&data_);
+	}
+
+	void store(const DirectX::XMVECTOR& vector) {
+		DirectX::XMStoreFloat4(&data_, vector);
+	}
 
 };
 
-class Vector3d : private Vector4d {
+class Vector1d : public Vector<1> {
 public:
 
-	Vector3d() {
+	Vector1d() {
 	}
 
-	Vector3d(const DirectX::XMVECTOR& other) :
-		Vector4d(other)
-	{
+	Vector1d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
 	}
 
-	Vector3d(float x, float y, float z) :
-		Vector4d(x, y, z, 1.0f)
-	{
+	float& x() {
+		return get<0>();
 	}
 
-	Vector3d& operator*=(const Matrix& matrix) {
-		Vector4d::operator*=(matrix);
-		return *this;
+	const float& x() const {
+		return get<0>();
 	}
-
-	const Vector3d operator*(const Matrix& matrix) const {
-		Vector3d result = *this;
-		result *= matrix;
-		return result;
-	}
-
-	Vector3d& operator*=(float scalar) {
-		Vector4d::operator*=(scalar);
-		return *this;
-	}
-
-	const Vector3d operator*(float scalar) const {
-		Vector3d result = *this;
-		result *= scalar;
-		return result;
-	}
-
-	Vector3d operator-() const {
-		return *this * -1.0f;
-	}
-
-	float dot(const Vector3d& other) const {
-		return Vector4d::dot(other);
-	}
-
-	Vector3d cross(const Vector3d& other) const {
-		return DirectX::XMVector3Cross(internal(), other.internal());
-	}
-
-	using Vector4d::x;
-
-	using Vector4d::y;
-
-	using Vector4d::z;
 
 };
 
-class Vector2d : private Vector4d {
+std::ostream& operator<<(std::ostream& os, const Vector1d& vector) {
+	return os << "<" << vector.x() << ">";
+}
+
+class Vector2d : public Vector<2> {
 public:
 
 	Vector2d() {
 	}
 
-	Vector2d(const DirectX::XMVECTOR& other) :
-		Vector4d(other)
-	{
+	Vector2d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
 	}
 
-	Vector2d(float x, float y) :
-		Vector4d(x, y, 1.0f, 1.0f)
-	{
+	Vector2d(float x, float y) : Vector(x, y, 0.0f, 0.0f) {
 	}
 
-	Vector2d& operator*=(const Matrix& matrix) {
-		Vector4d::operator*=(matrix);
-		return *this;
+	float& x() {
+		return get<0>();
 	}
 
-	const Vector2d operator*(const Matrix& matrix) const {
-		Vector2d result = *this;
-		result *= matrix;
-		return result;
+	const float& x() const {
+		return get<0>();
 	}
 
-	Vector2d& operator*=(float scalar) {
-		Vector4d::operator*=(scalar);
-		return *this;
+	float& y() {
+		return get<1>();
 	}
 
-	const Vector2d operator*(float scalar) const {
-		Vector2d result = *this;
-		result *= scalar;
-		return result;
+	const float& y() const {
+		return get<1>();
 	}
-
-	Vector2d operator-() const {
-		return *this * -1.0f;
-	}
-
-	float dot(const Vector2d& other) const {
-		return Vector4d::dot(other);
-	}
-
-	using Vector4d::x;
-
-	using Vector4d::y;
 
 };
+
+std::ostream& operator<<(std::ostream& os, const Vector2d& vector) {
+	return os << "<" << vector.x() << ", " << vector.y() << ">";
+}
+
+class Vector3d : public Vector<3> {
+public:
+
+	Vector3d() {
+	}
+
+	Vector3d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
+	}
+
+	Vector3d(float x, float y) : Vector(x, y, 0.0f, 0.0f) {
+	}
+
+	Vector3d(float x, float y, float z) : Vector(x, y, z, 0.0f) {
+	}
+
+	float& x() {
+		return get<0>();
+	}
+
+	const float& x() const {
+		return get<0>();
+	}
+
+	float& y() {
+		return get<1>();
+	}
+
+	const float& y() const {
+		return get<1>();
+	}
+
+	float& z() {
+		return get<2>();
+	}
+
+	const float& z() const {
+		return get<2>();
+	}
+
+};
+
+std::ostream& operator<<(std::ostream& os, const Vector3d& vector) {
+	return os << "<" << vector.x() << ", " << vector.y() << ", " << vector.z() << ">";
+}
+
+class Vector4d : public Vector<4> {
+public:
+
+	Vector4d() {
+	}
+
+	Vector4d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
+	}
+
+	Vector4d(float x, float y) : Vector(x, y, 0.0f, 0.0f) {
+	}
+
+	Vector4d(float x, float y, float z) : Vector(x, y, z, 0.0f) {
+	}
+
+	Vector4d(float x, float y, float z, float w) : Vector(x, y, z, w) {
+	}
+
+	float& x() {
+		return get<0>();
+	}
+
+	const float& x() const {
+		return get<0>();
+	}
+
+	float& y() {
+		return get<1>();
+	}
+
+	const float& y() const {
+		return get<1>();
+	}
+
+	float& z() {
+		return get<2>();
+	}
+
+	const float& z() const {
+		return get<2>();
+	}
+
+	float& w() {
+		return get<3>();
+	}
+
+	const float& w() const {
+		return get<3>();
+	}
+
+};
+
+std::ostream& operator<<(std::ostream& os, const Vector4d& vector) {
+	return os << "<" << vector.x() << ", " << vector.y() << ", " << vector.z() << ", " << vector.w() << ">";
+}
 
 }
 } // namespace milk

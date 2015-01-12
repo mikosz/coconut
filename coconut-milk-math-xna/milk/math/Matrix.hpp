@@ -6,12 +6,11 @@
 #include <DirectXMath.h>
 
 #include "Handedness.hpp"
+#include "Vector.hpp"
 
 namespace coconut {
 namespace milk {
 namespace math {
-
-class Vector3d;
 
 class Matrix {
 public:
