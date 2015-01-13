@@ -134,23 +134,106 @@ BOOST_AUTO_TEST_CASE(Vectors4dAreMultiplicativeByScalar) {
 	BOOST_CHECK_EQUAL(-vector, Vector4d(-1.0f, -2.0f, -3.0f, -4.0f));
 }
 
-BOOST_AUTO_TEST_CASE(VectorMultiplicationPerformance) {
-	Vector4d vec1(1.0f, 1.0f, 1.0f, 1.0f);
+BOOST_AUTO_TEST_CASE(Vectors1dAreDotMultiplicative) {
+	Vector1d lhs(2.0f);
+	Vector1d rhs(3.0f);
 
-	size_t times = 100000000;
+	BOOST_CHECK_EQUAL(lhs.dot(rhs), 6.0f);
+}
 
-	auto start = std::chrono::monotonic_clock::now();
+BOOST_AUTO_TEST_CASE(Vectors2dAreDotMultiplicative) {
+	Vector2d lhs(2.0f, 3.0f);
+	Vector2d rhs(3.0f, 4.0f);
 
-	for (size_t i = 0; i < times; ++i) {
-		vec1 *= 10.0f;
-		vec1 *= 0.1f;
-	}
+	BOOST_CHECK_EQUAL(lhs.dot(rhs), 18.0f);
+	BOOST_CHECK_EQUAL(dot(lhs, rhs), 18.0f);
+}
 
-	auto dt = std::chrono::monotonic_clock::now() - start;
-	auto millis = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(dt).count()) / 1000.0f;
+BOOST_AUTO_TEST_CASE(Vectors3dAreDotMultiplicative) {
+	Vector3d lhs(2.0f, 3.0f, 4.0f);
+	Vector3d rhs(3.0f, 4.0f, 5.0f);
 
-	std::cerr << "result = " << vec1 << '\n';
-	std::cerr << times << " tries took " << millis << '\n';
+	BOOST_CHECK_EQUAL(lhs.dot(rhs), 38.0f);
+	BOOST_CHECK_EQUAL(dot(lhs, rhs), 38.0f);
+}
+
+BOOST_AUTO_TEST_CASE(Vectors4dAreDotMultiplicative) {
+	Vector4d lhs(2.0f, 3.0f, 4.0f, 5.0f);
+	Vector4d rhs(3.0f, 4.0f, 5.0f, 6.0f);
+
+	BOOST_CHECK_EQUAL(lhs.dot(rhs), 68.0f);
+	BOOST_CHECK_EQUAL(dot(lhs, rhs), 68.0f);
+}
+
+BOOST_AUTO_TEST_CASE(Vectors3dAreCrossMultiplicative) {
+	Vector3d lhs(2.0f, 3.0f, 4.0f);
+	Vector3d rhs(0.4f, 0.3f, 0.2f);
+
+	BOOST_CHECK_EQUAL(lhs.cross(rhs), Vector3d(-0.6f, 1.2f, -0.6f));
+	BOOST_CHECK_EQUAL(cross(lhs, rhs), Vector3d(-0.6f, 1.2f, -0.6f));
+
+	BOOST_CHECK_EQUAL(lhs.crossEq(rhs), Vector3d(-0.6f, 1.2f, -0.6f));
+	BOOST_CHECK_EQUAL(lhs, Vector3d(-0.6f, 1.2f, -0.6f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors1dAreAdditive) {
+	Vector1d lhs(1.0f);
+	Vector1d rhs(2.0f);
+
+	BOOST_CHECK_EQUAL(lhs + rhs, Vector1d(3.0f));
+	BOOST_CHECK_EQUAL(lhs - rhs, Vector1d(-1.0f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors2dAreAdditive) {
+	Vector2d lhs(1.0f, 2.0f);
+	Vector2d rhs(2.0f, 3.0f);
+
+	BOOST_CHECK_EQUAL(lhs + rhs, Vector2d(3.0f, 5.0f));
+	BOOST_CHECK_EQUAL(lhs - rhs, Vector2d(-1.0f, -1.0f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors3dAreAdditive) {
+	Vector3d lhs(1.0f, 2.0f, 3.0f);
+	Vector3d rhs(2.0f, 3.0f, 4.0f);
+
+	BOOST_CHECK_EQUAL(lhs + rhs, Vector3d(3.0f, 5.0f, 7.0f));
+	BOOST_CHECK_EQUAL(lhs - rhs, Vector3d(-1.0f, -1.0f, -1.0f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors4dAreAdditive) {
+	Vector4d lhs(1.0f, 2.0f, 3.0f, 4.0f);
+	Vector4d rhs(2.0f, 3.0f, 4.0f, 5.0f);
+
+	BOOST_CHECK_EQUAL(lhs + rhs, Vector4d(3.0f, 5.0f, 7.0f, 9.0f));
+	BOOST_CHECK_EQUAL(lhs - rhs, Vector4d(-1.0f, -1.0f, -1.0f, -1.0f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors1dAreMeasurable) {
+	Vector1d vector(1.0f);
+	
+	BOOST_CHECK_EQUAL(vector.length(), 1.0f);
+	BOOST_CHECK_EQUAL(length(vector), 1.0f);
+}
+
+BOOST_AUTO_TEST_CASE(Vectors2dAreMeasurable) {
+	Vector2d vector(1.0f, 2.0f);
+
+	BOOST_CHECK_EQUAL(vector.length(), std::sqrt(5.0f));
+	BOOST_CHECK_EQUAL(length(vector), std::sqrt(5.0f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors3dAreMeasurable) {
+	Vector3d vector(1.0f, 2.0f, 3.0f);
+
+	BOOST_CHECK_EQUAL(vector.length(), std::sqrt(14.0f));
+	BOOST_CHECK_EQUAL(length(vector), std::sqrt(14.0f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors4dAreMeasurable) {
+	Vector4d vector(1.0f, 2.0f, 3.0f, 4.0f);
+
+	BOOST_CHECK_EQUAL(vector.length(), std::sqrt(30.0f));
+	BOOST_CHECK_EQUAL(length(vector), std::sqrt(30.0f));
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* MilkMathVectorTestSuite */);

@@ -20,6 +20,7 @@ template <
 	>
 class Vector :
 	boost::equality_comparable<Vector<DIMENSION_PARAM> >,
+	boost::additive<Vector<DIMENSION_PARAM> >,
 	boost::multiplicative<Vector<DIMENSION_PARAM>, float>
 {
 public:
@@ -75,6 +76,10 @@ public:
 		throw std::runtime_error("get() only accepts indices up to 3");
 	}
 
+	float length() const {
+		return DirectX::XMVectorGetX(DirectX::XMVector4Length(load()));
+	}
+
 	bool operator==(const Vector& other) const {
 		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
 			if (get(i) != other.get(i)) {
@@ -87,15 +92,25 @@ public:
 
 	Vector& operator*=(float scalar) {
 		store(DirectX::XMVectorMultiply(load(), DirectX::XMVectorReplicate(scalar)));
-
 		return *this;
 	}
 
 	Vector& operator/=(float scalar) {
-		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
-			get(i) /= scalar;
-		}
+		store(DirectX::XMVectorDivide(load(), DirectX::XMVectorReplicate(scalar)));
+		return *this;
+	}
 
+	float dot(const Vector& other) const {
+		return DirectX::XMVectorGetX(DirectX::XMVector4Dot(load(), other.load()));
+	}
+
+	Vector& operator+=(const Vector& other) {
+		store(DirectX::XMVectorAdd(load(), other.load()));
+		return *this;
+	}
+
+	Vector& operator-=(const Vector& other) {
+		store(DirectX::XMVectorSubtract(load(), other.load()));
 		return *this;
 	}
 
@@ -120,6 +135,14 @@ protected:
 	{
 	}
 
+	DirectX::XMVECTOR load() const {
+		return DirectX::XMLoadFloat4(&data_);
+	}
+
+	void store(const DirectX::XMVECTOR& vector) {
+		DirectX::XMStoreFloat4(&data_, vector);
+	}
+
 private:
 
 	template <bool valid>
@@ -137,15 +160,17 @@ private:
 
 	DirectX::XMFLOAT4 data_;
 
-	DirectX::XMVECTOR load() const {
-		return DirectX::XMLoadFloat4(&data_);
-	}
-
-	void store(const DirectX::XMVECTOR& vector) {
-		DirectX::XMStoreFloat4(&data_, vector);
-	}
-
 };
+
+template <class VectorType>
+float dot(const VectorType& lhs, const VectorType& rhs) {
+	return lhs.dot(rhs);
+}
+
+template <class VectorType>
+float length(const VectorType& vector) {
+	return vector.length();
+}
 
 class Vector1d : public Vector<1> {
 public:
@@ -211,6 +236,17 @@ public:
 	Vector3d(float x, float y, float z) : Vector(x, y, z, 0.0f) {
 	}
 
+	Vector3d& crossEq(const Vector3d& rhs) {
+		store(DirectX::XMVector3Cross(load(), rhs.load()));
+		return *this;
+	}
+
+	Vector3d cross(const Vector3d& rhs) const {
+		Vector3d result = *this;
+		result.crossEq(rhs);
+		return result;
+	}
+
 	float& x() {
 		return get<0>();
 	}
@@ -236,6 +272,10 @@ public:
 	}
 
 };
+
+Vector3d cross(const Vector3d& lhs, const Vector3d& rhs) {
+	return lhs.cross(rhs);
+}
 
 class Vector4d : public Vector<4> {
 public:
