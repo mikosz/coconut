@@ -18,7 +18,10 @@ template <
 	typename std::enable_if<(DIMENSION_PARAM >= 1)>::type* = nullptr,
 	typename std::enable_if<(DIMENSION_PARAM <= 4)>::type* = nullptr
 	>
-class Vector : public boost::equality_comparable<Vector<DIMENSION_PARAM>, Vector<DIMENSION_PARAM> > {
+class Vector :
+	boost::equality_comparable<Vector<DIMENSION_PARAM> >,
+	boost::multiplicative<Vector<DIMENSION_PARAM>, float>
+{
 public:
 
 	static const size_t DIMENSION = DIMENSION_PARAM;
@@ -28,15 +31,15 @@ public:
 
 	template <size_t INDEX>
 	float& get() {
-		IndexChecker<INDEX> checker;
-		checker.check();
+		IndexChecker<(INDEX < DIMENSION)> checker;
+		checker.checkVectorIndexInRange();
 		return (&data_.x)[INDEX];
 	}
 
 	template <size_t INDEX>
 	const float& get() const {
-		IndexChecker<INDEX> checker;
-		checker.check();
+		IndexChecker<(INDEX < DIMENSION)> checker;
+		checker.checkVectorIndexInRange();
 		return (&data_.x)[INDEX];
 	}
 
@@ -44,13 +47,13 @@ public:
 		assert(index < DIMENSION);
 
 		if (index == 0) {
-			return get<0>();
+			return data_.x;
 		} else if (index == 1) {
-			return get<1>();
+			return data_.y;
 		} else if (index == 2) {
-			return get<2>();
+			return data_.z;
 		} else if (index == 3) {
-			return get<3>();
+			return data_.w;
 		}
 
 		throw std::runtime_error("get() only accepts indices up to 3");
@@ -60,20 +63,20 @@ public:
 		assert(index < DIMENSION);
 
 		if (index == 0) {
-			return get<0>();
+			return data_.x;
 		} else if (index == 1) {
-			return get<1>();
+			return data_.y;
 		} else if (index == 2) {
-			return get<2>();
+			return data_.z;
 		} else if (index == 3) {
-			return get<3>();
+			return data_.w;
 		}
 
 		throw std::runtime_error("get() only accepts indices up to 3");
 	}
 
 	bool operator==(const Vector& other) const {
-		for (size_t i = 0; i < DIMENSION; ++i) {
+		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
 			if (get(i) != other.get(i)) {
 				return false;
 			}
@@ -82,18 +85,52 @@ public:
 		return true;
 	}
 
+	Vector& operator*=(float scalar) {
+		store(DirectX::XMVectorMultiply(load(), DirectX::XMVectorReplicate(scalar)));
+
+		return *this;
+	}
+
+	Vector& operator/=(float scalar) {
+		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
+			get(i) /= scalar;
+		}
+
+		return *this;
+	}
+
+	Vector operator-() const {
+		return -1.0f * (*this);
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const Vector& vector) {
+		os << "<" << vector.get<0>();
+		for (size_t i = 1; i < DIMENSION; ++i) {
+			os << ", " << vector.get(i);
+		}
+		os << ">";
+
+		return os;
+	}
+
 protected:
 
-	Vector(float x, float y, float z, float w) {
-		DirectX::XMVectorSet(x, y, z, w);
+	Vector(float x, float y, float z, float w) :
+		data_(x, y, z, w)
+	{
 	}
 
 private:
 
-	template <size_t INDEX, typename std::enable_if<(INDEX < DIMENSION)>::type* = nullptr>
+	template <bool valid>
 	struct IndexChecker {
+	};
 
-		void check() {
+	template <>
+	struct IndexChecker<true> {
+
+		// this function will be missing if get<i>() is called with too large "i"
+		void checkVectorIndexInRange() {
 		}
 
 	};
@@ -129,10 +166,6 @@ public:
 
 };
 
-std::ostream& operator<<(std::ostream& os, const Vector1d& vector) {
-	return os << "<" << vector.x() << ">";
-}
-
 class Vector2d : public Vector<2> {
 public:
 
@@ -162,10 +195,6 @@ public:
 	}
 
 };
-
-std::ostream& operator<<(std::ostream& os, const Vector2d& vector) {
-	return os << "<" << vector.x() << ", " << vector.y() << ">";
-}
 
 class Vector3d : public Vector<3> {
 public:
@@ -207,10 +236,6 @@ public:
 	}
 
 };
-
-std::ostream& operator<<(std::ostream& os, const Vector3d& vector) {
-	return os << "<" << vector.x() << ", " << vector.y() << ", " << vector.z() << ">";
-}
 
 class Vector4d : public Vector<4> {
 public:
@@ -263,10 +288,6 @@ public:
 	}
 
 };
-
-std::ostream& operator<<(std::ostream& os, const Vector4d& vector) {
-	return os << "<" << vector.x() << ", " << vector.y() << ", " << vector.z() << ", " << vector.w() << ">";
-}
 
 }
 } // namespace milk

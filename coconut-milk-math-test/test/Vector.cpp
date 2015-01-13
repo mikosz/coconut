@@ -1,5 +1,8 @@
 #include <boost/test/auto_unit_test.hpp>
 
+#include <chrono>
+#include <iostream>
+
 #include "milk/math/Vector.hpp"
 
 using namespace coconut;
@@ -97,6 +100,57 @@ BOOST_AUTO_TEST_CASE(Vectors4AreComparable) {
 
 	BOOST_CHECK_EQUAL(vector, equal);
 	BOOST_CHECK_NE(vector, notEqual);
+}
+
+BOOST_AUTO_TEST_CASE(Vectors1dAreMultiplicativeByScalar) {
+	Vector1d vector(1.0f);
+
+	BOOST_CHECK_EQUAL(vector * 3.0f, Vector1d(3.0f));
+	BOOST_CHECK_EQUAL(vector / 3.0f, Vector1d(1.0f / 3.0f));
+	BOOST_CHECK_EQUAL(-vector, Vector1d(-1.0f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors2dAreMultiplicativeByScalar) {
+	Vector2d vector(1.0f, 2.0f);
+
+	BOOST_CHECK_EQUAL(vector * 3.0f, Vector2d(3.0f, 6.0f));
+	BOOST_CHECK_EQUAL(vector / 3.0f, Vector2d(1.0f / 3.0f, 2.0f / 3.0f));
+	BOOST_CHECK_EQUAL(-vector, Vector2d(-1.0f, -2.0f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors3dAreMultiplicativeByScalar) {
+	Vector3d vector(1.0f, 2.0f, 3.0f);
+
+	BOOST_CHECK_EQUAL(vector * 3.0f, Vector3d(3.0f, 6.0f, 9.0f));
+	BOOST_CHECK_EQUAL(vector / 3.0f, Vector3d(1.0f / 3.0f, 2.0f / 3.0f, 3.0f / 3.0f));
+	BOOST_CHECK_EQUAL(-vector, Vector3d(-1.0f, -2.0f, -3.0f));
+}
+
+BOOST_AUTO_TEST_CASE(Vectors4dAreMultiplicativeByScalar) {
+	Vector4d vector(1.0f, 2.0f, 3.0f, 4.0f);
+
+	BOOST_CHECK_EQUAL(vector * 3.0f, Vector4d(3.0f, 6.0f, 9.0f, 12.0f));
+	BOOST_CHECK_EQUAL(vector / 3.0f, Vector4d(1.0f / 3.0f, 2.0f / 3.0f, 3.0f / 3.0f, 4.0f / 3.0f));
+	BOOST_CHECK_EQUAL(-vector, Vector4d(-1.0f, -2.0f, -3.0f, -4.0f));
+}
+
+BOOST_AUTO_TEST_CASE(VectorMultiplicationPerformance) {
+	Vector4d vec1(1.0f, 1.0f, 1.0f, 1.0f);
+
+	size_t times = 100000000;
+
+	auto start = std::chrono::monotonic_clock::now();
+
+	for (size_t i = 0; i < times; ++i) {
+		vec1 *= 10.0f;
+		vec1 *= 0.1f;
+	}
+
+	auto dt = std::chrono::monotonic_clock::now() - start;
+	auto millis = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(dt).count()) / 1000.0f;
+
+	std::cerr << "result = " << vec1 << '\n';
+	std::cerr << times << " tries took " << millis << '\n';
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* MilkMathVectorTestSuite */);
