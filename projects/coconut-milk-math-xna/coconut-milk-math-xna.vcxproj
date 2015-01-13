@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Angle.hpp" />
     <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Handedness.hpp" />
     <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Matrix.hpp" />
     <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Vector.hpp" />
