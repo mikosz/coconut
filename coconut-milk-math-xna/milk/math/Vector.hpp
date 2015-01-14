@@ -30,6 +30,10 @@ public:
 	Vector() {
 	}
 
+	explicit Vector(DirectX::XMVECTOR xmvector) {
+		store(xmvector);
+	}
+
 	template <size_t INDEX>
 	float& get() {
 		IndexChecker<(INDEX < DIMENSION)> checker;
@@ -80,6 +84,16 @@ public:
 		return DirectX::XMVectorGetX(DirectX::XMVector4Length(load()));
 	}
 
+	float near(const Vector& other, float epsilon) const {
+		Vector difference = other - *this;
+		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
+			if ((difference.get(i) > epsilon) || (difference.get(i) < -epsilon)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	bool operator==(const Vector& other) const {
 		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
 			if (get(i) != other.get(i)) {
@@ -116,6 +130,10 @@ public:
 
 	Vector operator-() const {
 		return -1.0f * (*this);
+	}
+
+	DirectX::XMVECTOR toXMVECTOR() const {
+		return load();
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Vector& vector) {
@@ -178,7 +196,10 @@ public:
 	Vector1d() {
 	}
 
-	Vector1d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
+	explicit Vector1d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
+	}
+
+	explicit Vector1d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
 	}
 
 	float& x() {
@@ -197,10 +218,13 @@ public:
 	Vector2d() {
 	}
 
-	Vector2d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
+	explicit Vector2d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
 	}
 
 	Vector2d(float x, float y) : Vector(x, y, 0.0f, 0.0f) {
+	}
+
+	explicit Vector2d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
 	}
 
 	float& x() {
@@ -227,13 +251,16 @@ public:
 	Vector3d() {
 	}
 
-	Vector3d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
+	explicit Vector3d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
 	}
 
 	Vector3d(float x, float y) : Vector(x, y, 0.0f, 0.0f) {
 	}
 
 	Vector3d(float x, float y, float z) : Vector(x, y, z, 0.0f) {
+	}
+
+	explicit Vector3d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
 	}
 
 	Vector3d& crossEq(const Vector3d& rhs) {
@@ -273,7 +300,7 @@ public:
 
 };
 
-Vector3d cross(const Vector3d& lhs, const Vector3d& rhs) {
+inline Vector3d cross(const Vector3d& lhs, const Vector3d& rhs) {
 	return lhs.cross(rhs);
 }
 
@@ -283,7 +310,7 @@ public:
 	Vector4d() {
 	}
 
-	Vector4d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
+	explicit Vector4d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
 	}
 
 	Vector4d(float x, float y) : Vector(x, y, 0.0f, 0.0f) {
@@ -293,6 +320,9 @@ public:
 	}
 
 	Vector4d(float x, float y, float z, float w) : Vector(x, y, z, w) {
+	}
+
+	explicit Vector4d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
 	}
 
 	float& x() {

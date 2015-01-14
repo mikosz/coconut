@@ -1,8 +1,5 @@
 #include <boost/test/auto_unit_test.hpp>
 
-#include <chrono>
-#include <iostream>
-
 #include "milk/math/Vector.hpp"
 
 using namespace coconut;

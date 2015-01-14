@@ -17,5 +17,11 @@
     <ClCompile Include="..\..\coconut-milk-math-test\test\Vector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-math-test\test\Angle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-math-test\test\Rotation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

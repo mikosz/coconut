@@ -11,7 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\coconut-milk-math-test\test\Angle.cpp" />
     <ClCompile Include="..\..\coconut-milk-math-test\test\main.cpp" />
+    <ClCompile Include="..\..\coconut-milk-math-test\test\Rotation.cpp" />
     <ClCompile Include="..\..\coconut-milk-math-test\test\Vector.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -46,7 +48,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)coconut-milk-math-xna/;C:\Boost\include\boost-1_56;$(IncludePath)</IncludePath>
-    <LibraryPath>%(AdditionalLibraryDirectories);C:\Boost\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);%(AdditionalLibraryDirectories);C:\Boost\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

@@ -14,10 +14,13 @@
     <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Angle.hpp" />
     <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Handedness.hpp" />
     <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Matrix.hpp" />
+    <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Rotation.hpp" />
     <ClInclude Include="..\..\coconut-milk-math-xna\milk\math\Vector.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Angle.cpp" />
     <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Matrix.cpp" />
+    <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Rotation.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C7AFB126-13BA-4D2B-A9E4-2A13144CC117}</ProjectGuid>
@@ -49,6 +52,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Boost\include\boost-1_56;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Boost\include\boost-1_56;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
