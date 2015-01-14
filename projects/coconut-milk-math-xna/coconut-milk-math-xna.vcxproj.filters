@@ -31,6 +31,9 @@
     <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Vector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Angle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -12,6 +12,7 @@
 #include "milk/graphics/VertexShader.hpp"
 #include "milk/graphics/PixelShader.hpp"
 
+#include "pulp/renderer/model_loader/ObjModelLoader.hpp"
 #include "pulp/renderer/Model.hpp"
 #include "pulp/renderer/PerspectiveLens.hpp"
 #include "pulp/renderer/OrientedCamera.hpp"
@@ -53,7 +54,15 @@ void Game::loop() {
 
 	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_));
+	pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj"));
+	if (!modelIS->good()) {
+		throw std::runtime_error("Failed to open model file");
+	}
+
+	pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/Daniel/craig chemise bleu"));
+	pulp::renderer::model_loader::ObjModelLoader loader(modelIS, opener);
+
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, loader));
 
 	auto start = std::chrono::monotonic_clock::now();
 
@@ -61,13 +70,13 @@ void Game::loop() {
 
 	pulp::renderer::Scene scene;
 
-	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(*graphicsDevice_));
+	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
 
 	scene.add(actor);
 	scene.setCamera(camera);
 	scene.setLens(lens);
 
-	pulp::renderer::ActorSharedPtr actor2(new pulp::renderer::Actor(*graphicsDevice_));
+	pulp::renderer::ActorSharedPtr actor2(new pulp::renderer::Actor(m));
 
 	scene.add(actor2);
 	actor2->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));

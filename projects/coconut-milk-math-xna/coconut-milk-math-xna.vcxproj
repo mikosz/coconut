@@ -20,6 +20,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Angle.cpp" />
     <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Matrix.cpp" />
+    <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Vector.cpp" />
     <ClCompile Include="..\..\coconut-milk-math-xna\milk\math\Rotation.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -31,7 +32,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

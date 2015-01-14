@@ -27,6 +27,7 @@
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\InputLayoutDescription.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PixelFormat.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PixelShader.hpp" />
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PrimitiveTopology.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Shader.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Texture2d.hpp" />
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\VertexShader.hpp" />

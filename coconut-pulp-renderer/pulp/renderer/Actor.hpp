@@ -17,8 +17,8 @@ namespace renderer {
 class Actor {
 public:
 
-	Actor(milk::graphics::Device& graphicsDevice) :
-		model_(graphicsDevice)
+	Actor(ModelSharedPtr model) :
+		model_(model)
 	{
 	}
 
@@ -55,7 +55,7 @@ public:
 
 private:
 
-	Model model_;
+	ModelSharedPtr model_;
 
 	Orientation orientation_;
 

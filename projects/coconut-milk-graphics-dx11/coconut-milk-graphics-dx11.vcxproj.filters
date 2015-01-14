@@ -64,5 +64,8 @@
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\Shader.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PrimitiveTopology.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

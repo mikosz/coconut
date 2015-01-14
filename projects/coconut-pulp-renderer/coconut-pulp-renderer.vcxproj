@@ -14,6 +14,9 @@
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Actor.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Material.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjMaterialLibParser.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjModelLoader.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjModelParser.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\OrthographicLens.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\PerspectiveLens.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Renderer.cpp" />
@@ -28,6 +31,11 @@
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Lens.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Material.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ModelDataListener.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ModelLoader.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjMaterialLibParser.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjModelLoader.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjModelParser.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Orientation.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\OrientedCamera.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\OrthographicLens.hpp" />

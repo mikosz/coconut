@@ -26,6 +26,8 @@ class Vector :
 public:
 
 	static const size_t DIMENSION = DIMENSION_PARAM;
+	
+	static const Vector ZERO;
 
 	Vector() {
 	}
@@ -84,6 +86,10 @@ public:
 		return DirectX::XMVectorGetX(DirectX::XMVector4Length(load()));
 	}
 
+	float dot(const Vector& other) const {
+		return DirectX::XMVectorGetX(DirectX::XMVector4Dot(load(), other.load()));
+	}
+
 	float near(const Vector& other, float epsilon) const {
 		Vector difference = other - *this;
 		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
@@ -112,10 +118,6 @@ public:
 	Vector& operator/=(float scalar) {
 		store(DirectX::XMVectorDivide(load(), DirectX::XMVectorReplicate(scalar)));
 		return *this;
-	}
-
-	float dot(const Vector& other) const {
-		return DirectX::XMVectorGetX(DirectX::XMVector4Dot(load(), other.load()));
 	}
 
 	Vector& operator+=(const Vector& other) {
@@ -190,7 +192,11 @@ float length(const VectorType& vector) {
 	return vector.length();
 }
 
-class Vector1d : public Vector<1> {
+class Vector1d :
+	public Vector<1>,
+	boost::additive<Vector1d>,
+	boost::multiplicative<Vector1d, float>
+{
 public:
 
 	Vector1d() {
@@ -210,9 +216,37 @@ public:
 		return get<0>();
 	}
 
+	Vector1d& operator*=(float scalar) {
+		Vector<1>::operator*=(scalar);
+		return *this;
+	}
+
+	Vector1d& operator/=(float scalar) {
+		Vector<1>::operator/=(scalar);
+		return *this;
+	}
+
+	Vector1d& operator+=(const Vector& other) {
+		Vector<1>::operator+=(other);
+		return *this;
+	}
+
+	Vector1d& operator-=(const Vector& other) {
+		Vector<1>::operator-=(other);
+		return *this;
+	}
+
+	Vector1d operator-() const {
+		return -1.0f * (*this);
+	}
+
 };
 
-class Vector2d : public Vector<2> {
+class Vector2d :
+	public Vector<2>,
+	boost::additive<Vector2d>,
+	boost::multiplicative<Vector2d, float>
+{
 public:
 
 	Vector2d() {
@@ -243,9 +277,37 @@ public:
 		return get<1>();
 	}
 
+	Vector2d& operator*=(float scalar) {
+		Vector<2>::operator*=(scalar);
+		return *this;
+	}
+
+	Vector2d& operator/=(float scalar) {
+		Vector<2>::operator/=(scalar);
+		return *this;
+	}
+
+	Vector2d& operator+=(const Vector& other) {
+		Vector<2>::operator+=(other);
+		return *this;
+	}
+
+	Vector2d& operator-=(const Vector& other) {
+		Vector<2>::operator-=(other);
+		return *this;
+	}
+
+	Vector2d operator-() const {
+		return -1.0f * (*this);
+	}
+
 };
 
-class Vector3d : public Vector<3> {
+class Vector3d :
+	public Vector<3>,
+	boost::additive<Vector3d>,
+	boost::multiplicative<Vector3d, float>
+{
 public:
 
 	Vector3d() {
@@ -298,13 +360,41 @@ public:
 		return get<2>();
 	}
 
+	Vector3d& operator*=(float scalar) {
+		Vector<3>::operator*=(scalar);
+		return *this;
+	}
+
+	Vector3d& operator/=(float scalar) {
+		Vector<3>::operator/=(scalar);
+		return *this;
+	}
+
+	Vector3d& operator+=(const Vector& other) {
+		Vector<3>::operator+=(other);
+		return *this;
+	}
+
+	Vector3d& operator-=(const Vector& other) {
+		Vector<3>::operator-=(other);
+		return *this;
+	}
+
+	Vector3d operator-() const {
+		return -1.0f * (*this);
+	}
+
 };
 
 inline Vector3d cross(const Vector3d& lhs, const Vector3d& rhs) {
 	return lhs.cross(rhs);
 }
 
-class Vector4d : public Vector<4> {
+class Vector4d :
+	public Vector<4>,
+	boost::additive<Vector4d>,
+	boost::multiplicative<Vector4d, float>
+{
 public:
 
 	Vector4d() {
@@ -355,6 +445,30 @@ public:
 
 	const float& w() const {
 		return get<3>();
+	}
+
+	Vector4d& operator*=(float scalar) {
+		Vector<4>::operator*=(scalar);
+		return *this;
+	}
+
+	Vector4d& operator/=(float scalar) {
+		Vector<4>::operator/=(scalar);
+		return *this;
+	}
+
+	Vector4d& operator+=(const Vector& other) {
+		Vector<4>::operator+=(other);
+		return *this;
+	}
+
+	Vector4d& operator-=(const Vector& other) {
+		Vector<4>::operator-=(other);
+		return *this;
+	}
+
+	Vector4d operator-() const {
+		return -1.0f * (*this);
 	}
 
 };

@@ -38,11 +38,11 @@ milk::graphics::Buffer::Configuration iconf() {
 	return c;
 }
 
-Model::Model(milk::graphics::Device& device) :
+Model::Model(milk::graphics::Device& device, model_loader::ModelLoader& loader) :
 	vertexBuffer_(device, conf(), 0),
 	indexBuffer_(device, iconf(), 0)
 {
-	{
+	/* {
 		milk::graphics::Buffer::LockedData data = vertexBuffer_.lock(device, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
 		V* vs = (V*)data.data;
 
@@ -73,7 +73,10 @@ Model::Model(milk::graphics::Device& device) :
 	group.firstIndex = 0;
 	group.indexCount = 3;
 
-	smoothingGroupsByMaterial_.insert(std::make_pair(material, group));
+	smoothingGroupsByMaterial_.insert(std::make_pair(material, group)); */
+
+	DataListener listener(*this);
+	loader.load(listener);
 }
 
 void Model::render(milk::graphics::Device& device, RenderingContext renderingContext) {
@@ -85,7 +88,39 @@ void Model::render(milk::graphics::Device& device, RenderingContext renderingCon
 	for (auto smoothingGroup : smoothingGroupsByMaterial_) {
 		smoothingGroup.first->bind(device, renderingContext);
 
-		device.d3dDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		device.d3dDeviceContext()->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(smoothingGroup.second.primitiveTopology));
 		device.d3dDeviceContext()->DrawIndexed(smoothingGroup.second.indexCount, smoothingGroup.second.firstIndex, 0);
 	}
+}
+
+Model::DataListener::DataListener(Model& model) :
+	model_(model)
+{
+}
+
+void Model::DataListener::newObject() {
+}
+
+void Model::DataListener::newSmoothingGroup(milk::graphics::PrimitiveTopology primitiveTopology) {
+}
+
+void Model::DataListener::newFace() {
+}
+
+void Model::DataListener::newVertex() {
+}
+
+void Model::DataListener::setVertexPosition(const milk::math::Vector3d& position) {
+}
+
+void Model::DataListener::setVertexTextureCoordinate(const milk::math::Vector2d& textureCoordinate) {
+}
+
+void Model::DataListener::setVertexNormal(const milk::math::Vector3d& normal) {
+}
+
+void Model::DataListener::setVertexNormalNeedsCalculation() {
+}
+
+void Model::DataListener::endModel() {
 }

@@ -64,7 +64,7 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 				vdata.size(),
 				inputLayoutDesc
 				)
-				);
+			);
 
 		{
 			ActorParameterSharedPtr actorParameter(
