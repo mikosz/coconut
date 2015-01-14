@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(InterpolatedRotationFactor0IsFirstRotation) {
 
 	Rotation interpolated = interpolate(rotation1, rotation2, 0.0f);
 
-	BOOST_CHECK(interpolated.rotationQuaternion().near(rotation1.rotationQuaternion(), 0.00001f));
+	BOOST_CHECK(interpolated.rotationQuaternion().almostEqual(rotation1.rotationQuaternion(), 0.00001f));
 }
 
 BOOST_AUTO_TEST_CASE(InterpolatedRotationFactor1IsSecondRotation) {
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(InterpolatedRotationFactor1IsSecondRotation) {
 
 	Rotation interpolated = interpolate(rotation1, rotation2, 1.0f);
 
-	BOOST_CHECK(interpolated.rotationQuaternion().near(rotation2.rotationQuaternion(), 0.00001f));
+	BOOST_CHECK(interpolated.rotationQuaternion().almostEqual(rotation2.rotationQuaternion(), 0.00001f));
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* MilkMathRotationTestSuite */);

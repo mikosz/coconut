@@ -90,7 +90,7 @@ public:
 		return DirectX::XMVectorGetX(DirectX::XMVector4Dot(load(), other.load()));
 	}
 
-	float near(const Vector& other, float epsilon) const {
+	bool almostEqual(const Vector& other, float epsilon) const {
 		Vector difference = other - *this;
 		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
 			if ((difference.get(i) > epsilon) || (difference.get(i) < -epsilon)) {
