@@ -11,6 +11,15 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
+namespace /* anonymous */ {
+
+// Visual studio 2012 needs this indirection, calling ID3D11DeviceContext::Unbind through std::bind won't work
+void unmap(ID3D11DeviceContext* deviceContext, ID3D11Resource* resource, UINT subresourceIndex) {
+	deviceContext->Unmap(resource, subresourceIndex);
+}
+
+} // anonymous namespace
+
 Buffer::Buffer(Device& device, const Configuration& configuration, void* initialData) :
 	configuration_(configuration)
 {
@@ -64,9 +73,9 @@ Buffer::LockedData Buffer::lock(Device& device, LockPurpose lockPurpose) {
 	Buffer::LockedData result;
 	result.data = mappedResource.pData;
 	result.unlocker_ = utils::RAIIHelper(
-		std::bind(&ID3D11DeviceContext::Unmap, device.d3dDeviceContext(), buffer_.get(), 0)
+		std::bind(&unmap, device.d3dDeviceContext(), buffer_.get(), 0)
 		);
-
+	
 	return result;
 }
 
