@@ -19,12 +19,13 @@ namespace phoenix = boost::phoenix;
 ObjMaterialLibParser::ObjMaterialLibParser() :
 	ObjMaterialLibParser::base_type(startRule_)
 {
+	// TODO: reformat the more complex parsers, this is unreadable
 	blankRule_ = -(qi::char_('#') >> *(qi::char_ - qi::eol)) >> qi::eol;
 	endRule_ = (qi::eol | qi::eoi) >> *blankRule_;
-	newMaterialRule_ = qi::lit("newmtl") >> (*(qi::char_ - ascii::space))[boost::bind(&ObjMaterialLibParser::addMaterial, this, _1)] >> endRule_;
+	newMaterialRule_ = qi::lit("newmtl") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjMaterialLibParser::addMaterial, this, _1)] >> endRule_;
 	ambientColourRule_ = qi::lit("Ka") >> qi::repeat(3)[qi::double_][boost::bind(&ObjMaterialLibParser::setAmbientColour, this, _1)] >> endRule_;
 	diffuseColourRule_ = qi::lit("Kd") >> qi::repeat(3)[qi::double_][boost::bind(&ObjMaterialLibParser::setDiffuseColour, this, _1)] >> endRule_;
-	diffuseColourMapRule_ = qi::lit("map_Kd") >> (*(qi::char_ - ascii::space))[boost::bind(&ObjMaterialLibParser::setDiffuseColourMap, this, _1)] >> endRule_;
+	diffuseColourMapRule_ = qi::lit("map_Kd") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjMaterialLibParser::setDiffuseColourMap, this, _1)] >> endRule_;
 	specularColourRule_ = qi::lit("Ks") >> qi::repeat(3)[qi::double_][boost::bind(&ObjMaterialLibParser::setSpecularColour, this, _1)] >> endRule_;
 	specularExponentRule_ = qi::lit("Ns") >> qi::double_[boost::bind(&ObjMaterialLibParser::setSpecularExponent, this, _1)] >> endRule_;
 	illuminationModelRule_ = qi::lit("illum") >> qi::int_ >> endRule_;

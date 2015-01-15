@@ -25,18 +25,19 @@ ObjModelParser::MaterialFileOpener::IStreamPtr ObjModelParser::MaterialFileOpene
 ObjModelParser::ObjModelParser() :
 	ObjModelParser::base_type(startRule_)
 {
+	// TODO: reformat the more complex parsers, this is unreadable
 	blankRule_ = -(qi::char_('#') >> *(qi::char_ - qi::eol)) >> qi::eol;
 	endRule_ = (qi::eol | qi::eoi) >> *blankRule_;
 	smoothingGroupRule_ = 's' >> (qi::lit("off") | qi::int_) >> endRule_;
-	materialRule_ = qi::lit("usemtl") >> (*(qi::char_ - ascii::space))[boost::bind(&ObjModelParser::setMaterial, this, _1)] >> endRule_;
+	materialRule_ = qi::lit("usemtl") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjModelParser::setMaterial, this, _1)] >> endRule_;
 	vertexRule_ = (qi::uint_ % '/')[qi::_val = phoenix::bind(&ObjModelParser::makeVertex, this, qi::_1)];
 	faceRule_ = 'f' >> qi::repeat(3)[vertexRule_][boost::bind(&ObjModelParser::addFace, this, _1)] >> endRule_;
 	positionRule_ = 'v' >> qi::repeat(3)[qi::double_][boost::bind(&ObjModelParser::addPosition, this, _1)] >> endRule_;
 	textureCoordinateRule_ = qi::lit("vt") >> qi::repeat(2)[qi::double_][boost::bind(&ObjModelParser::addTextureCoordinate, this, _1)] >> endRule_;
 	normalRule_ = qi::lit("vn") >> qi::repeat(3)[qi::double_][boost::bind(&ObjModelParser::addNormal, this, _1)] >> endRule_;
-	objectNameRule_ = (qi::char_('o')) >> (*(qi::char_ - ascii::space))[boost::bind(&ObjModelParser::newObject, this, _1)] >> endRule_;
-	groupNameRule_ = (qi::char_('g')) >> (*(qi::char_ - ascii::space))[boost::bind(&ObjModelParser::newGroup, this, _1)] >> endRule_;
-	materialLibRule_ = qi::lit("mtllib") >> (*(qi::char_ - ascii::space))[boost::bind(&ObjModelParser::addMaterialLib, this, _1)] >> endRule_;
+	objectNameRule_ = (qi::char_('o')) >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjModelParser::newObject, this, _1)] >> endRule_;
+	groupNameRule_ = (qi::char_('g')) >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjModelParser::newGroup, this, _1)] >> endRule_;
+	materialLibRule_ = qi::lit("mtllib") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjModelParser::addMaterialLib, this, _1)] >> endRule_;
 
 	startRule_ = *blankRule_
 		>> *(
@@ -47,7 +48,8 @@ ObjModelParser::ObjModelParser() :
 		positionRule_ |
 		textureCoordinateRule_ |
 		normalRule_ |
-		objectNameRule_
+		objectNameRule_ |
+		groupNameRule_
 		);
 }
 

@@ -1,5 +1,8 @@
 #include <memory>
 
+#include <iostream>
+#include <stdexcept>
+
 #include "milk/system/App.hpp"
 #include "game/Game.hpp"
 
@@ -12,10 +15,15 @@ using namespace coconut;
 using namespace coconut::shell;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow) {
-	std::shared_ptr<milk::system::App> app(new milk::system::App(hInstance, pScmdline, iCmdshow));
+	try {
+		std::shared_ptr<milk::system::App> app(new milk::system::App(hInstance, pScmdline, iCmdshow));
 
-	game::Game theGame(app);
-	theGame.loop();
+		game::Game theGame(app);
+		theGame.loop();
 
-	return 0;
+		return 0;
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << '\n';
+		return 1;
+	}
 }
