@@ -102,25 +102,33 @@ void Model::DataListener::newObject() {
 }
 
 void Model::DataListener::newSmoothingGroup(milk::graphics::PrimitiveTopology primitiveTopology) {
+
 }
 
 void Model::DataListener::newFace() {
+
 }
 
 void Model::DataListener::newVertex() {
+
 }
 
 void Model::DataListener::setVertexPosition(const milk::math::Vector3d& position) {
+
 }
 
 void Model::DataListener::setVertexTextureCoordinate(const milk::math::Vector2d& textureCoordinate) {
+
 }
 
 void Model::DataListener::setVertexNormal(const milk::math::Vector3d& normal) {
+
 }
 
 void Model::DataListener::setVertexNormalNeedsCalculation() {
+
 }
 
 void Model::DataListener::endModel() {
+
 }

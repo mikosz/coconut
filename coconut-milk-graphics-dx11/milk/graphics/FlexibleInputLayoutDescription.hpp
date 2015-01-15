@@ -6,8 +6,11 @@
 
 #include <d3d11.h>
 
-#include "InputLayoutDescription.hpp"
 #include "milk/system/COMWrapper.hpp"
+
+#include "milk/utils/MakePointerDefinitionsMacro.hpp"
+
+#include "InputLayoutDescription.hpp"
 
 namespace coconut {
 namespace milk {
@@ -48,6 +51,8 @@ public:
 		virtual void toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) = 0;
 
 	};
+
+	MAKE_POINTER_DEFINITIONS(Element);
 
 	FLEXIBLE_INPUT_LAYOUT_ELEMENT(Position);
 

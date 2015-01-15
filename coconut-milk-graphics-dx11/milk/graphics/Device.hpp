@@ -7,6 +7,8 @@
 #include "milk/system/COMWrapper.hpp"
 #include "milk/system/Window.hpp"
 
+#include "PrimitiveTopology.hpp"
+
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 
@@ -30,6 +32,8 @@ public:
 	void beginScene();
 
 	void endScene();
+
+	void draw(size_t startingIndex, size_t vertexCount, PrimitiveTopology primitiveTopology);
 
 	void setRenderTarget(Texture2d& texture);
 

@@ -56,6 +56,9 @@
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjMaterialLibParser.cpp">
       <Filter>Source Files\model_loader</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\DrawGroup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp">
@@ -132,6 +135,9 @@
     </ClInclude>
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjMaterialLibParser.hpp">
       <Filter>Source Files\model_loader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\DrawGroup.hpp">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

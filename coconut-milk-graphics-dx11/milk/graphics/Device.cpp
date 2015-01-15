@@ -173,3 +173,8 @@ void Device::beginScene() {
 void Device::endScene() {
 	swapChain_->Present(configuration_.vsync, 0);
 }
+
+void Device::draw(size_t startingIndex, size_t indexCount, PrimitiveTopology primitiveTopology) {
+	d3dDeviceContext_->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(primitiveTopology));
+	d3dDeviceContext_->DrawIndexed(indexCount, startingIndex, 0);
+}
