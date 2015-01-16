@@ -22,23 +22,18 @@ void ObjModelLoader::load(ModelDataListener& modelDataListener) {
 	for (size_t objectIndex = 0; objectIndex < parser.objects().size(); ++objectIndex) {
 		const ObjModelParser::Object& object = parser.objects()[objectIndex];
 
-		modelDataListener.newObject();
-
 		for (auto group : object.groups) {
 			hasFaces = hasFaces || !group.faces.empty();
 
 			if (hasFaces) {
-				modelDataListener.newSmoothingGroup(milk::graphics::PrimitiveTopology::TRIANGLE_LIST);
-
 				bool normalsNeedGeneration = false;
+
+				modelDataListener.setMaterial(group.material);
 
 				for (size_t faceIndex = 0; faceIndex < group.faces.size(); ++faceIndex) {
 					const ObjModelParser::Face& face = group.faces[faceIndex];
 
-					modelDataListener.newFace();
-
 					for (auto vertex : face.vertices) {
-						modelDataListener.newVertex();
 						modelDataListener.setVertexPosition(positions[vertex.positionIndex]);
 						modelDataListener.setVertexTextureCoordinate(textureCoordinates[vertex.textureCoordinateIndex]);
 						if (vertex.normalIndex != ObjModelParser::NORMAL_INDEX_UNKNOWN) {
@@ -46,10 +41,18 @@ void ObjModelLoader::load(ModelDataListener& modelDataListener) {
 						} else {
 							modelDataListener.setVertexNormalNeedsCalculation();
 						}
+
+						modelDataListener.endVertex();
 					}
+
+					modelDataListener.endFace();
 				}
+
+				modelDataListener.endSmoothingGroup(milk::graphics::PrimitiveTopology::TRIANGLE_LIST);
 			}
 		}
+
+		modelDataListener.endObject();
 	}
 
 	if (!hasFaces) {

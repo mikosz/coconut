@@ -1,12 +1,14 @@
 #include "DrawGroup.hpp"
 
+#include <algorithm>
 #include <cstdint>
+#include <limits>
 
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
-namespace {
+namespace /* anonymous */ {
 
 milk::graphics::Buffer::Configuration vertexBufferConfiguration(const DrawGroup::Data& drawGroupData) {
 	milk::graphics::Buffer::Configuration configuration;
@@ -15,8 +17,10 @@ milk::graphics::Buffer::Configuration vertexBufferConfiguration(const DrawGroup:
 	configuration.allowGPUWrite = false;
 	configuration.allowModifications = false;
 	configuration.purpose =  milk::graphics::Buffer::CreationPurpose::VERTEX_BUFFER;
-	configuration.stride = drawGroupData.material.inputLayout().vertexSize();
-	configuration.size = configuration.stride * drawGroupData.vertexCount;
+	configuration.stride = drawGroupData.material->inputLayout()->vertexSize();
+	configuration.size = configuration.stride * drawGroupData.vertices.size();
+
+	return configuration;
 }
 
 milk::graphics::Buffer::Configuration indexBufferConfiguration(const DrawGroup::Data& drawGroupData) {
@@ -26,19 +30,22 @@ milk::graphics::Buffer::Configuration indexBufferConfiguration(const DrawGroup::
 	configuration.allowGPUWrite = false;
 	configuration.allowModifications = false;
 	configuration.purpose =  milk::graphics::Buffer::CreationPurpose::INDEX_BUFFER;
-	configuration.stride = drawGroupData.material.indexSize();
-	configuration.size = configuration.stride * drawGroupData.indexCount;
+	// TODO: index size should be 2 or 4 depending on max index, this is hardcoded to 4
+	configuration.stride = 4;
+	configuration.size = configuration.stride * drawGroupData.indices.size();
+
+	return configuration;
 }
 
 // TODO: make sure this is move-constructed
 std::vector<std::uint8_t> vertexBufferData(const DrawGroup::Data& drawGroupData) {
 	std::vector<std::uint8_t> data;
-	const size_t vertexSize = drawGroupData.material.inputLayout().vertexSize();
-	data.resize(vertexSize * drawGroupData.vertexCount);
+	const size_t vertexSize = drawGroupData.material->inputLayout()->vertexSize();
+	data.resize(vertexSize * drawGroupData.vertices.size());
 
 	std::uint8_t* target = &data.front();
 	for (auto vertex : drawGroupData.vertices) {
-		drawGroupData.material.inputLayout().makeVertex(vertex, target);
+		drawGroupData.material->inputLayout()->makeVertex(*vertex, target);
 		target += vertexSize;
 	}
 
@@ -48,22 +55,13 @@ std::vector<std::uint8_t> vertexBufferData(const DrawGroup::Data& drawGroupData)
 // TODO: make sure this is move-constructed
 std::vector<std::uint8_t> indexBufferData(const DrawGroup::Data& drawGroupData) {
 	std::vector<std::uint8_t> data;
-	const size_t indexSize = drawGroupData.material.inputLayout().indexSize();
-	data.resize(indexSize * drawGroupData.indexCount);
+	data.resize(4 * drawGroupData.indices.size());
 
-	if (indexSize != 2 && indexSize != 4) {
-		throw std::runtime_error("Unexpected index size");
-	}
-
-	std::uint8_t* target = &data.front();
+	// TODO: index size should be 2 or 4 depending on max index, this is hardcoded to 4
+	std::uint32_t* target = reinterpret_cast<std::uint32_t*>(&data.front());
 	for (auto index : drawGroupData.indices) {
-		if (indexSize == 2) {
-			*target = static_cast<std::uint16_t>(index);
-		} else {
-			*target = static_cast<std::uint32_t>(index);
-		}
-
-		target += indexSize;
+		*target = static_cast<std::uint32_t>(index);
+		target += 4;
 	}
 
 	return data;
@@ -75,7 +73,7 @@ DrawGroup::DrawGroup(milk::graphics::Device& graphicsDevice, const Data& data) :
 	material_(data.material),
 	vertexBuffer_(graphicsDevice, vertexBufferConfiguration(data), &vertexBufferData(data).front()),
 	indexBuffer_(graphicsDevice, indexBufferConfiguration(data), &indexBufferData(data).front()),
-	indexCount_(data.indexCount),
+	indexCount_(data.indices.size()),
 	primitiveTopology_(data.primitiveTopology)
 {
 }

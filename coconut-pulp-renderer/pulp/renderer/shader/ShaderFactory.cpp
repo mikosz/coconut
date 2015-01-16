@@ -52,7 +52,7 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 			std::shared_ptr<milk::graphics::FlexibleInputLayoutDescription::PositionElement>(
 				new milk::graphics::FlexibleInputLayoutDescription::PositionElement(
 					0,
-					milk::graphics::FlexibleInputLayoutDescription::R32G32B32_FLOAT
+					milk::graphics::FlexibleInputLayoutDescription::Format::R32G32B32_FLOAT
 					)
 				)
 			);

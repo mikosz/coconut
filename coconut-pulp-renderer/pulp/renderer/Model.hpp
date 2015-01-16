@@ -6,6 +6,7 @@
 
 #include "milk/graphics/Buffer.hpp"
 #include "milk/graphics/Device.hpp"
+#include "milk/graphics/VertexInterface.hpp"
 
 #include "milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -13,7 +14,7 @@
 #include "shader/Shader.hpp"
 #include "RenderingContext.hpp"
 #include "Material.hpp"
-#include "SmoothingGroup.hpp"
+#include "DrawGroup.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -22,24 +23,32 @@ namespace renderer {
 class Model {
 public:
 
-	Model(milk::graphics::Device& device, model_loader::ModelLoader& loader);
+	Model(milk::graphics::Device& graphicsDevice, model_loader::ModelLoader& loader);
 
-	void render(milk::graphics::Device& devices, RenderingContext renderingContext);
+	void render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
 
 private:
+
+	struct VertexData : public milk::graphics::VertexInterface {
+
+		milk::math::Vector3d position_;
+
+		milk::math::Vector2d textureCoordinate_;
+
+		milk::math::Vector3d position() const override {
+			return position_;
+		}
+
+		milk::math::Vector2d textureCoordinate() const override {
+			return textureCoordinate_;
+		}
+
+	};
 
 	class DataListener : public model_loader::ModelDataListener {
 	public:
 
-		DataListener(Model& model);
-
-		void newObject() override;
-
-		void newSmoothingGroup(milk::graphics::PrimitiveTopology primitiveTopology) override;
-
-		void newFace() override;
-
-		void newVertex() override;
+		DataListener(Model& model, milk::graphics::Device& graphicsDevice);
 
 		void setVertexPosition(const milk::math::Vector3d& position) override;
 
@@ -49,17 +58,31 @@ private:
 
 		void setVertexNormalNeedsCalculation() override;
 
+		void endVertex() override;
+
+		void endFace() override;
+
+		void endSmoothingGroup(milk::graphics::PrimitiveTopology primitiveTopology) override;
+
+		void endObject() override;
+
 		void endModel() override;
 
 	private:
 
+		milk::graphics::Device& graphicsDevice_;
+			
 		Model& model_;
+
+		DrawGroup::Data currentGroupData_;
+
+		VertexData currentVertexData_;
 
 	};
 
-	typedef std::unordered_multimap<MaterialSharedPtr, SmoothingGroup> SmoothingGroupsByMaterial;
+	typedef std::unordered_multimap<MaterialSharedPtr, DrawGroupSharedPtr> DrawGroupsByMaterial;
 
-	SmoothingGroupsByMaterial smoothingGroupsByMaterial_;
+	DrawGroupsByMaterial drawGroupsByMaterial_;
 
 	friend class DataListener;
 

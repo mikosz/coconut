@@ -25,6 +25,7 @@
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\Parameter.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\Shader.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ShaderFactory.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ShaderSet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Actor.hpp" />
@@ -51,6 +52,7 @@
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\SceneParameter.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\Shader.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ShaderFactory.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ShaderSet.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\UpdateableParameter.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\StaticCamera.hpp" />
   </ItemGroup>
@@ -92,7 +94,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,7 +109,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

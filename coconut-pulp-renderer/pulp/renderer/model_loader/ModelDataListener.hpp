@@ -13,14 +13,6 @@ namespace model_loader {
 class ModelDataListener {
 public:
 
-	virtual void newObject() = 0;
-
-	virtual void newSmoothingGroup(milk::graphics::PrimitiveTopology primitiveTopology) = 0;
-
-	virtual void newFace() = 0;
-
-	virtual void newVertex() = 0;
-
 	virtual void setVertexPosition(const milk::math::Vector3d& position) = 0;
 
 	virtual void setVertexTextureCoordinate(const milk::math::Vector2d& textureCoordinate) = 0;
@@ -28,6 +20,14 @@ public:
 	virtual void setVertexNormal(const milk::math::Vector3d& normal) = 0;
 
 	virtual void setVertexNormalNeedsCalculation() = 0;
+
+	virtual void endVertex() = 0;
+
+	virtual void endFace() = 0;
+
+	virtual void endSmoothingGroup(milk::graphics::PrimitiveTopology primitiveTopology) = 0;
+
+	virtual void endObject() = 0;
 
 	virtual void endModel() = 0;
 

@@ -67,5 +67,8 @@
     <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\PrimitiveTopology.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\coconut-milk-graphics-dx11\milk\graphics\VertexInterface.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

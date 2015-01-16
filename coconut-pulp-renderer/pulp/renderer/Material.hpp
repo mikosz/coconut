@@ -4,10 +4,11 @@
 #include <string>
 
 #include "milk/graphics/Device.hpp"
+#include "milk/graphics/InputLayoutDescription.hpp"
 
 #include "milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "shader/Shader.hpp"
+#include "shader/ShaderSet.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -20,15 +21,17 @@ public:
 
 	typedef std::string Id;
 
-	Material(milk::graphics::Device& graphicsDevice);
+	Material(milk::graphics::Device& graphicsDevice, shader::ShaderSetSharedPtr shaderSet);
 
 	void bind(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
 
+	milk::graphics::InputLayoutDescriptionSharedPtr inputLayout() {
+		return shaderSet_->inputLayout();
+	}
+
 private:
 
-	shader::ShaderSharedPtr vertexShader_;
-
-	shader::ShaderSharedPtr pixelShader_;
+	shader::ShaderSetSharedPtr shaderSet_;
 
 };
 

@@ -5,6 +5,10 @@
 
 #include "milk/system/COMWrapper.hpp"
 
+#include "milk/utils/MakePointerDefinitionsMacro.hpp"
+
+#include "VertexInterface.hpp"
+
 namespace coconut {
 namespace milk {
 namespace graphics {
@@ -21,7 +25,11 @@ public:
 		Device& device,
 		void* shaderData,
 		size_t shaderSize
-		) = 0;
+		) const = 0;
+
+	virtual size_t vertexSize() const = 0;
+
+	virtual void makeVertex(const VertexInterface& vertex, void* buffer) const = 0;
 
 protected:
 
@@ -29,6 +37,8 @@ protected:
 	}
 
 };
+
+MAKE_POINTER_DEFINITIONS(InputLayoutDescription);
 
 } // namespace graphics
 } // namespace milk

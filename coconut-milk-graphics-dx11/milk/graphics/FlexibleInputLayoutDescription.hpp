@@ -24,7 +24,11 @@ class Device;
 		\
 		name##Element(size_t index, FlexibleInputLayoutDescription::Format format); \
 		\
-		void toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc); \
+		void toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const override; \
+		\
+		size_t size() const override; \
+		\
+		void make(const VertexInterface& vertex, void* buffer) const override; \
 		\
 	private: \
 		\
@@ -37,7 +41,8 @@ class Device;
 class FlexibleInputLayoutDescription : public InputLayoutDescription {
 public:
 
-	enum Format {
+	enum class Format {
+		R32G32B32A32_FLOAT = DXGI_FORMAT_R32G32B32A32_FLOAT,
 		R32G32B32_FLOAT = DXGI_FORMAT_R32G32B32_FLOAT,
 		R32G32_FLOAT = DXGI_FORMAT_R32G32_FLOAT,
 	};
@@ -48,7 +53,11 @@ public:
 		virtual ~Element() {
 		}
 
-		virtual void toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) = 0;
+		virtual void toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const = 0;
+
+		virtual size_t size() const = 0;
+
+		virtual void make(const VertexInterface& vertex, void* buffer) const = 0;
 
 	};
 
@@ -62,13 +71,17 @@ public:
 		Device& device,
 		void* shaderData,
 		size_t shaderSize
-		);
+		) const override;
+
+	size_t vertexSize() const override;
+
+	void makeVertex(const VertexInterface& vertex, void* buffer) const override;
 
 	void push(std::shared_ptr<Element> element);
 
 private:
 
-	std::vector<std::shared_ptr<Element> > elements_;
+	std::vector<ElementSharedPtr> elements_;
 
 };
 

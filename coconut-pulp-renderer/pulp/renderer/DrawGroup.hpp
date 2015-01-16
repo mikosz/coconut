@@ -1,8 +1,13 @@
 #ifndef _COCONUT_PULP_RENDERER_DRAWGROUP_HPP_
 #define _COCONUT_PULP_RENDERER_DRAWGROUP_HPP_
 
+#include <vector>
+
 #include "milk/graphics/Buffer.hpp"
 #include "milk/graphics/PrimitiveTopology.hpp"
+#include "milk/graphics/VertexInterface.hpp"
+
+#include "milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "Material.hpp"
 #include "RenderingContext.hpp"
@@ -16,13 +21,26 @@ public:
 
 	struct Data {
 
-		size_t vertexCount;
+		milk::graphics::PrimitiveTopology primitiveTopology;
 
-		size_t indexCount;
+		MaterialSharedPtr material;
+
+		milk::graphics::InputLayoutDescriptionSharedPtr inputLayout;
+
+		std::vector<milk::graphics::VertexInterfaceSharedPtr> vertices;
+
+		std::vector<size_t> indices;
+
+		void reset() {
+			material.reset();
+			inputLayout.reset();
+			vertices.clear();
+			indices.clear();
+		}
 
 	};
 
-	DrawGroup(MaterialSharedPtr material);
+	DrawGroup(milk::graphics::Device& graphicsDevice, const Data& data);
 
 	void render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
 
@@ -39,6 +57,8 @@ private:
 	milk::graphics::PrimitiveTopology primitiveTopology_;
 
 };
+
+MAKE_POINTER_DEFINITIONS(DrawGroup);
 
 } // namespace renderer
 } // namespace pulp
