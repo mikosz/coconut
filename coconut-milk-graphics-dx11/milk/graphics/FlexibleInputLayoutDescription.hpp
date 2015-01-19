@@ -85,6 +85,8 @@ private:
 
 };
 
+MAKE_POINTER_DEFINITIONS(FlexibleInputLayoutDescription);
+
 } // namespace graphics
 } // namespace milk
 } // namespace coconut

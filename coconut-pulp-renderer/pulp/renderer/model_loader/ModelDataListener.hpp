@@ -21,6 +21,16 @@ public:
 
 	virtual void setVertexNormalNeedsCalculation() = 0;
 
+	virtual void setMaterialName(const std::string& materialName) = 0;
+
+	virtual void setAmbientColour(const milk::math::Vector4d& rgbaColour) = 0;
+	
+	virtual void setDiffuseColour(const milk::math::Vector4d& rgbaColour) = 0;
+
+	virtual void setSpecularColour(const milk::math::Vector4d& rgbaColour) = 0;
+
+	virtual void setSpecularExponent(float specularExponent) = 0;
+
 	virtual void endVertex() = 0;
 
 	virtual void endFace() = 0;

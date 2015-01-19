@@ -19,5 +19,10 @@ void Shader::bind(milk::graphics::Device& graphicsDevice, const RenderingContext
 		actorParameter.second->bind(graphicsDevice, actorParameter.first, shaderType_);
 	}
 
+	for (auto materialParameter : materialParameters_) {
+		materialParameter.second->update(graphicsDevice, *renderingContext.material); // TODO: update conditionally (if changed since last update)
+		materialParameter.second->bind(graphicsDevice, materialParameter.first, shaderType_);
+	}
+
 	binaryShader_->bind(graphicsDevice);
 }

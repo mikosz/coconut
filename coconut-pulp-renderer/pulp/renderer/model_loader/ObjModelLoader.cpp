@@ -28,7 +28,16 @@ void ObjModelLoader::load(ModelDataListener& modelDataListener) {
 			if (hasFaces) {
 				bool normalsNeedGeneration = false;
 
-				modelDataListener.setMaterial(group.material);
+				ObjModelParser::Materials::const_iterator materialIt = parser.materials().find(group.material);
+				if (materialIt == parser.materials().end()) {
+					throw std::runtime_error("Material " + group.material + " not found");
+				} else {
+					modelDataListener.setMaterialName(materialIt->second.name);
+					modelDataListener.setAmbientColour(materialIt->second.ambientColour.widen(1.0f));
+					modelDataListener.setDiffuseColour(materialIt->second.diffuseColour.widen(1.0f));
+					modelDataListener.setSpecularColour(materialIt->second.specularColour.widen(1.0f));
+					modelDataListener.setSpecularExponent(materialIt->second.specularExponent);
+				}
 
 				for (size_t faceIndex = 0; faceIndex < group.faces.size(); ++faceIndex) {
 					const ObjModelParser::Face& face = group.faces[faceIndex];

@@ -35,12 +35,42 @@ private:
 
 		milk::math::Vector2d textureCoordinate_;
 
+		std::string materialName_;
+
+		milk::math::Vector4d ambientColour_;
+
+		milk::math::Vector4d diffuseColour_;
+
+		milk::math::Vector4d specularColour_;
+
+		float specularExponent_;
+
 		milk::math::Vector3d position() const override {
 			return position_;
 		}
 
 		milk::math::Vector2d textureCoordinate() const override {
 			return textureCoordinate_;
+		}
+
+		std::string materialName() const override {
+			return materialName_;
+		}
+
+		milk::math::Vector4d ambientColour() const override {
+			return ambientColour_;
+		}
+
+		milk::math::Vector4d diffuseColour() const override {
+			return diffuseColour_;
+		}
+
+		milk::math::Vector4d specularColour() const override {
+			return specularColour_;
+		}
+
+		float specularExponent() const override {
+			return specularExponent_;
 		}
 
 	};
@@ -57,6 +87,16 @@ private:
 		void setVertexNormal(const milk::math::Vector3d& normal) override;
 
 		void setVertexNormalNeedsCalculation() override;
+
+		void setMaterialName(const std::string& materialName) override;
+
+		void setAmbientColour(const milk::math::Vector4d& rgbaColour) override;
+
+		void setDiffuseColour(const milk::math::Vector4d& rgbaColour) override;
+
+		void setSpecularColour(const milk::math::Vector4d& rgbaColour) override;
+
+		void setSpecularExponent(float specularExponent) override;
 
 		void endVertex() override;
 

@@ -25,6 +25,8 @@ class Vector :
 {
 public:
 
+	typedef DirectX::XMVECTOR ShaderParameter;
+
 	static const size_t DIMENSION = DIMENSION_PARAM;
 	
 	static const Vector ZERO;
@@ -146,6 +148,10 @@ public:
 		os << ">";
 
 		return os;
+	}
+
+	ShaderParameter shaderParameter() const {
+		return load();
 	}
 
 protected:
@@ -303,6 +309,8 @@ public:
 
 };
 
+class Vector4d;
+
 class Vector3d :
 	public Vector<3>,
 	boost::additive<Vector3d>,
@@ -324,6 +332,8 @@ public:
 
 	explicit Vector3d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
 	}
+
+	Vector4d widen(float w) const;
 
 	Vector3d& crossEq(const Vector3d& rhs) {
 		store(DirectX::XMVector3Cross(load(), rhs.load()));

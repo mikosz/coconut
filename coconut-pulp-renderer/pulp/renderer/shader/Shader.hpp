@@ -10,6 +10,7 @@
 
 #include "ActorParameter.hpp"
 #include "SceneParameter.hpp"
+#include "MaterialParameter.hpp"
 #include "../RenderingContext.hpp"
 
 namespace coconut {
@@ -24,16 +25,20 @@ public:
 
 	typedef std::unordered_map<size_t, ActorParameterSharedPtr> ActorParameters;
 
+	typedef std::unordered_map<size_t, MaterialParameterSharedPtr> MaterialParameters;
+
 	Shader(
 		milk::graphics::ShaderSharedPtr binaryShader,
 		milk::graphics::Buffer::ShaderType shaderType,
 		const SceneParameters& sceneParameters,
-		const ActorParameters& actorParameters
+		const ActorParameters& actorParameters,
+		const MaterialParameters& materialParameters
 		) :
 		binaryShader_(binaryShader),
 		shaderType_(shaderType),
 		sceneParameters_(sceneParameters),
-		actorParameters_(actorParameters)
+		actorParameters_(actorParameters),
+		materialParameters_(materialParameters)
 	{
 	}
 
@@ -51,6 +56,8 @@ private:
 	SceneParameters sceneParameters_;
 
 	ActorParameters actorParameters_;
+
+	MaterialParameters materialParameters_;
 
 };
 

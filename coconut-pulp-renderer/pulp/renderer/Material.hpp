@@ -6,6 +6,8 @@
 #include "milk/graphics/Device.hpp"
 #include "milk/graphics/InputLayoutDescription.hpp"
 
+#include "milk/math/Vector.hpp"
+
 #include "milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "shader/ShaderSet.hpp"
@@ -29,9 +31,19 @@ public:
 		return shaderSet_->inputLayout();
 	}
 
+	void setSpecularColour(const milk::math::Vector4d& rgbaColour) {
+		specularColour_ = rgbaColour;
+	}
+
+	const milk::math::Vector4d& specularColour() const {
+		return specularColour_;
+	}
+
 private:
 
 	shader::ShaderSetSharedPtr shaderSet_;
+
+	milk::math::Vector4d specularColour_;
 
 };
 

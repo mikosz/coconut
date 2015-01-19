@@ -28,16 +28,17 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 
 	Shader::SceneParameters sceneParameters;
 	Shader::ActorParameters actorParameters;
+	Shader::MaterialParameters materialParameters;
 
 	if (shaderId == "VS") {
 		shaderType = milk::graphics::Buffer::ShaderType::VERTEX;
 
-		std::ifstream ifs("sprite.v.cso", std::ios::binary);
+		std::ifstream ifs("Debug/sprite.v.cso", std::ios::binary);
 		if (!ifs) {
 			throw std::runtime_error("Failed to open the vertex shader");
 		}
 
-		auto shaderSize = boost::filesystem::file_size("sprite.v.cso");
+		auto shaderSize = boost::filesystem::file_size("Debug/sprite.v.cso");
 		std::vector<char> vdata;
 		vdata.resize(static_cast<size_t>(shaderSize));
 
@@ -105,12 +106,12 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 	} else if (shaderId == "PS") {
 		shaderType = milk::graphics::Buffer::ShaderType::PIXEL;
 
-		std::ifstream ifs("sprite.p.cso", std::ios::binary);
+		std::ifstream ifs("Debug/sprite.p.cso", std::ios::binary);
 		if (!ifs) {
 			throw std::runtime_error("Failed to open the pixel shader");
 		}
 
-		auto shaderSize = boost::filesystem::file_size("sprite.p.cso");
+		auto shaderSize = boost::filesystem::file_size("Debug/sprite.p.cso");
 		std::vector<char> pdata;
 		pdata.resize(static_cast<size_t>(shaderSize));
 
@@ -121,11 +122,31 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 		}
 
 		binaryShader.reset(new milk::graphics::PixelShader(graphicsDevice, &pdata.front(), pdata.size()));
+
+		{
+			MaterialParameterSharedPtr materialParameter(
+				new CallbackUpdateableParameter<Material, milk::math::Vector4d::ShaderParameter>(
+					graphicsDevice,
+					[](const Material& material, milk::math::Vector4d::ShaderParameter& result) {
+						result = material.specularColour().shaderParameter();
+					}
+					)
+				);
+			materialParameters.insert(std::make_pair(0, materialParameter));
+		}
 	} else {
 		throw std::runtime_error("Unknown shader id");
 	}
 
-	ShaderSharedPtr shader(new Shader(binaryShader, shaderType, sceneParameters, actorParameters));
+	ShaderSharedPtr shader(
+		new Shader(
+			binaryShader,
+			shaderType,
+			sceneParameters,
+			actorParameters,
+			materialParameters
+			)
+		);
 
 	return shader;
 }

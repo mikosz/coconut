@@ -14,6 +14,7 @@
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Actor.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\DrawGroup.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Material.cpp" />
+    <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\MaterialFactory.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjMaterialLibParser.cpp" />
     <ClCompile Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ObjModelLoader.cpp" />
@@ -33,6 +34,7 @@
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\DrawGroup.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Lens.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Material.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\MaterialFactory.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Model.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ModelDataListener.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\model_loader\ModelLoader.hpp" />
@@ -48,6 +50,7 @@
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\Scene.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\ActorParameter.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\CallbackUpdateableParameter.hpp" />
+    <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\MaterialParameter.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\Parameter.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\SceneParameter.hpp" />
     <ClInclude Include="..\..\coconut-pulp-renderer\pulp\renderer\shader\Shader.hpp" />
