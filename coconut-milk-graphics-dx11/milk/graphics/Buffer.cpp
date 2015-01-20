@@ -20,7 +20,7 @@ void unmap(ID3D11DeviceContext* deviceContext, ID3D11Resource* resource, UINT su
 
 } // anonymous namespace
 
-Buffer::Buffer(Device& device, const Configuration& configuration, void* initialData) :
+Buffer::Buffer(Device& device, const Configuration& configuration, const void* initialData) :
 	configuration_(configuration)
 {
 	D3D11_BUFFER_DESC desc;

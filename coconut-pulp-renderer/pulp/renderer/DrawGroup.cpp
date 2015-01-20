@@ -61,7 +61,7 @@ std::vector<std::uint8_t> indexBufferData(const DrawGroup::Data& drawGroupData) 
 	std::uint32_t* target = reinterpret_cast<std::uint32_t*>(&data.front());
 	for (auto index : drawGroupData.indices) {
 		*target = static_cast<std::uint32_t>(index);
-		target += 4;
+		++target;
 	}
 
 	return data;

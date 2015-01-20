@@ -89,7 +89,7 @@ public:
 
 	};
 
-	Buffer(Device& device, const Configuration& configuration, void* initialData = 0);
+	Buffer(Device& device, const Configuration& configuration, const void* initialData = 0);
 
 	LockedData lock(Device& device, LockPurpose lockPurpose);
 
