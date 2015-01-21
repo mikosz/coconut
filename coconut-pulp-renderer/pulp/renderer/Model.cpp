@@ -80,6 +80,7 @@ void Model::DataListener::endSmoothingGroup(milk::graphics::PrimitiveTopology pr
 
 		MaterialFactory materialFactory;
 		currentGroupData_.material = materialFactory.createMaterial(graphicsDevice_, "");
+		currentGroupData_.material->setDiffuseColour(currentGroupData_.material->diffuseColour());
 
 		DrawGroupSharedPtr drawGroup(new DrawGroup(graphicsDevice_, currentGroupData_));
 		model_.drawGroupsByMaterial_.insert(std::make_pair(currentGroupData_.material, drawGroup));

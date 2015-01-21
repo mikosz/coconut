@@ -12,15 +12,17 @@ namespace pulp {
 namespace renderer {
 namespace shader {
 
-class Shader;
-MAKE_POINTER_DEFINITIONS(Shader);
+class ShaderSet;
+MAKE_POINTER_DEFINITIONS(ShaderSet);
 
 class ShaderFactory {
 public:
 
 	typedef std::string ShaderId;
 
-	ShaderSharedPtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
+	ShaderFactory();
+
+	ShaderSetSharedPtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
 
 private:
 

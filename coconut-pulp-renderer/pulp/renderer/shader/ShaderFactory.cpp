@@ -13,7 +13,7 @@
 #include "milk/math/Matrix.hpp"
 
 #include "CallbackUpdateableParameter.hpp"
-#include "Shader.hpp"
+#include "ShaderSet.hpp"
 #include "../Actor.hpp"
 #include "../Scene.hpp"
 
@@ -22,7 +22,7 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
-ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId) {
+ShaderSetSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId) {
 	milk::graphics::ShaderSharedPtr binaryShader;
 	milk::graphics::Buffer::ShaderType shaderType;
 
@@ -128,7 +128,7 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 				new CallbackUpdateableParameter<Material, milk::math::Vector4d::ShaderParameter>(
 					graphicsDevice,
 					[](const Material& material, milk::math::Vector4d::ShaderParameter& result) {
-						result = material.specularColour().shaderParameter();
+						result = material.diffuseColour().shaderParameter();
 					}
 					)
 				);

@@ -31,19 +31,19 @@ public:
 		return shaderSet_->inputLayout();
 	}
 
-	void setSpecularColour(const milk::math::Vector4d& rgbaColour) {
-		specularColour_ = rgbaColour;
+	void setDiffuseColour(const milk::math::Vector4d& rgbaColour) {
+		diffuseColour_ = rgbaColour;
 	}
 
-	const milk::math::Vector4d& specularColour() const {
-		return specularColour_;
+	const milk::math::Vector4d& diffuseColour() const {
+		return diffuseColour_;
 	}
 
 private:
 
 	shader::ShaderSetSharedPtr shaderSet_;
 
-	milk::math::Vector4d specularColour_;
+	milk::math::Vector4d diffuseColour_;
 
 };
 
