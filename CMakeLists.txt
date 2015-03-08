@@ -5,6 +5,7 @@ project(coconut)
 include("cmake.cfg")
 
 set(CMAKE_MODULE_PATH "${EXTENSIONS_DIR}/cmake" ${CMAKE_MODULE_PATH})
+include("executable-module")
 include("library-module")
 
 set(coconut_VERSION_MAJOR 1)

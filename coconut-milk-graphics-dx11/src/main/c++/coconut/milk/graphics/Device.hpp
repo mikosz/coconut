@@ -4,8 +4,8 @@
 #include <d3d11.h>
 
 #include "Texture2d.hpp"
-#include "coconut-tools/milk/system/COMWrapper.hpp"
-#include "coconut-tools/milk/system/Window.hpp"
+#include "coconut/milk/system/COMWrapper.hpp"
+#include "coconut/milk/system/Window.hpp"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")

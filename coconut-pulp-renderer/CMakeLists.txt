@@ -1,7 +1,6 @@
 set(DEPENDENCY_LIBRARIES
-    # coconut-tools-exceptions
-	# ${Boost_THREAD_LIBRARY}
-    # ${Boost_SYSTEM_LIBRARY}
+    coconut-milk-math-${MODULE_MATHS}
+    coconut-milk-graphics-${MODULE_RENDERER}
     )
 
 set(TEST_LIBRARIES
