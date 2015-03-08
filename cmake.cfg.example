@@ -1,0 +1,9 @@
+set(GMOCK_ROOT "/home/mradwan/tools/gmock/")
+set(GTEST_ROOT "/home/mradwan/tools/gmock/gtest/")
+
+set(EXTENSIONS_DIR "/usr/")
+set(CMAKE_INSTALL_PREFIX "/usr/")
+
+set(MODULE_RENDERER "dx11")
+set(MODULE_SYSTEM "win32")
+set(MODULE_MATHS "xna")
