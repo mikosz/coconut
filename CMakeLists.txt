@@ -54,7 +54,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 find_package(GMock REQUIRED)
 include_directories(${GMOCK_INCLUDE_DIR})
 
-# find coconut tools-concurrent
+# find coconut tools
 set(CoconutTools_INCLUDE_HINT ${EXTENSIONS_DIR})
 set(CoconutTools_LIBRARY_HINT ${EXTENSIONS_DIR})
 find_package(CoconutTools REQUIRED)
