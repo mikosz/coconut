@@ -1,6 +1,10 @@
 set(DEPENDENCY_LIBRARIES
     coconut-milk-math-${MODULE_MATHS}
     coconut-milk-graphics-${MODULE_RENDERER}
+	coconut-tools-logger
+	coconut-tools-configuration
+    coconut-tools-system
+	coconut-tools-exceptions
     )
 
 set(TEST_LIBRARIES

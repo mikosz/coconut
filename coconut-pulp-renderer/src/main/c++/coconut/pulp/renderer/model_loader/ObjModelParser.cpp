@@ -5,6 +5,8 @@
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/bind.hpp>
 
+#include <coconut-tools/logger.hpp>
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
@@ -14,6 +16,12 @@ namespace spirit = boost::spirit;
 namespace qi = spirit::qi;
 namespace ascii = spirit::ascii;
 namespace phoenix = boost::phoenix;
+
+namespace /* anonymous */ {
+
+CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
+
+} // anonymous namespace
 
 const size_t ObjModelParser::NORMAL_INDEX_UNKNOWN = std::numeric_limits<size_t>::max();
 
@@ -56,6 +64,8 @@ ObjModelParser::ObjModelParser() :
 void ObjModelParser::parse(std::istream& is, const MaterialFileOpener& fileOpener) {
 	clear();
 
+	CT_LOG_DEBUG << "Beginning ObjModel parsing...";
+
 	is.unsetf(std::istream::skipws);
 	spirit::istream_iterator it(is), end;
 
@@ -81,6 +91,8 @@ void ObjModelParser::parse(std::istream& is, const MaterialFileOpener& fileOpene
 			materials_.insert(std::make_pair(material.name, material));
 		}
 	}
+
+	CT_LOG_DEBUG << "ObjModel parsing completed";
 }
 
 void ObjModelParser::clear() {
@@ -93,6 +105,8 @@ void ObjModelParser::clear() {
 }
 
 void ObjModelParser::setMaterial(const std::vector<char>& materialChars) {
+	CT_LOG_TRACE << "Set material: " << std::string(materialChars.begin(), materialChars.end());
+
 	if (objects_.empty()) {
 		throw std::runtime_error("Attempted to set a material with no object specified");
 	}
@@ -108,6 +122,8 @@ void ObjModelParser::setMaterial(const std::vector<char>& materialChars) {
 }
 
 ObjModelParser::Vertex ObjModelParser::makeVertex(const std::vector<size_t>& vertexData) {
+	CT_LOG_TRACE << "Make vertex: " << vertexData[0] << ", " << vertexData[1] << ", " << vertexData[2];
+
 	if (vertexData.size() != 3 && vertexData.size() != 2) {
 		throw std::runtime_error("Vertex data has size different than 2 and 3");
 	}
@@ -181,10 +197,14 @@ void ObjModelParser::addNormal(const std::vector<double>& vector) {
 }
 
 void ObjModelParser::newObject(const std::vector<char>& nameChars) {
+	CT_LOG_TRACE << "New object: " << std::string(nameChars.begin(), nameChars.end());
+
 	objects_.push_back(Object());
 }
 
 void ObjModelParser::newGroup(const std::vector<char>& nameChars) {
+	CT_LOG_TRACE << "New group: " << std::string(nameChars.begin(), nameChars.end());
+
 	if (objects_.empty()) {
 		throw std::runtime_error("Attempted to add a group with no object specified");
 	}
