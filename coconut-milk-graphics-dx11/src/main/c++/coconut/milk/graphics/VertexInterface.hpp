@@ -3,9 +3,9 @@
 
 #include <stdexcept>
 
-#include "milk/math/Vector.hpp"
+#include "coconut/milk/math/Vector.hpp"
 
-#include "milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 namespace coconut {
 namespace milk {

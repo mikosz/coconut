@@ -3,11 +3,11 @@
 
 #include <vector>
 
-#include "milk/graphics/Buffer.hpp"
-#include "milk/graphics/PrimitiveTopology.hpp"
-#include "milk/graphics/VertexInterface.hpp"
+#include "coconut/milk/graphics/Buffer.hpp"
+#include "coconut/milk/graphics/PrimitiveTopology.hpp"
+#include "coconut/milk/graphics/VertexInterface.hpp"
 
-#include "milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "Material.hpp"
 #include "RenderingContext.hpp"

@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include "milk/graphics/Device.hpp"
+#include "coconut/milk/graphics/Device.hpp"
 
-#include "milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 namespace coconut {
 namespace pulp {

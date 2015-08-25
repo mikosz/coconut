@@ -37,7 +37,7 @@ void FlexibleInputLayoutDescription::PositionElement::toElementDesc(D3D11_INPUT_
 	std::memset(desc, 0, sizeof(*desc));
 
 	desc->SemanticName = "POSITION";
-	desc->SemanticIndex = index_;
+	desc->SemanticIndex = static_cast<UINT>(index_);
 	desc->Format = static_cast<DXGI_FORMAT>(format_);
 	desc->InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	desc->AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
@@ -80,7 +80,7 @@ system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout
 	checkDirectXCall(
 		device.d3dDevice()->CreateInputLayout(
 			&descs.front(),
-			descs.size(),
+			static_cast<UINT>(descs.size()),
 			shaderData,
 			shaderSize,
 			&layout.get()
@@ -95,7 +95,7 @@ size_t FlexibleInputLayoutDescription::vertexSize() const {
 	return std::accumulate(
 		elements_.begin(),
 		elements_.end(),
-		0,
+		static_cast<size_t>(0),
 		[](size_t sum, ConstElementSharedPtr element) { return sum + element->size(); }
 	);
 }

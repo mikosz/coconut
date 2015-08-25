@@ -1,7 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_MATERIALPARAMETER_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_MATERIALPARAMETER_HPP_
 
-#include "milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "UpdateableParameter.hpp"
 

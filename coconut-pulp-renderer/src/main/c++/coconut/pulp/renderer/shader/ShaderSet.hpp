@@ -1,9 +1,9 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_SHADERSET_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_SHADERSET_HPP_
 
-#include "milk/utils/MakePointerDefinitionsMacro.hpp"
-#include "milk/graphics/InputLayoutDescription.hpp"
-#include "milk/graphics/Device.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/milk/graphics/InputLayoutDescription.hpp"
+#include "coconut/milk/graphics/Device.hpp"
 
 #include "../RenderingContext.hpp"
 #include "Shader.hpp"

@@ -1,6 +1,6 @@
 #include "MaterialFactory.hpp"
 
-#include "milk/graphics/FlexibleInputLayoutDescription.hpp"
+#include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 
 #include "shader/ShaderFactory.hpp"
 #include "shader/ShaderSet.hpp"
