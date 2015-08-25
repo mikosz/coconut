@@ -68,8 +68,8 @@ void createD3DDevice(
 
 	swapChainDesc.BufferCount = 1;
 
-	swapChainDesc.BufferDesc.Width = window.clientWidth();
-	swapChainDesc.BufferDesc.Height = window.clientHeight();
+	swapChainDesc.BufferDesc.Width = static_cast<UINT>(window.clientWidth());
+	swapChainDesc.BufferDesc.Height = static_cast<UINT>(window.clientHeight());
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -176,5 +176,5 @@ void Device::endScene() {
 
 void Device::draw(size_t startingIndex, size_t indexCount, PrimitiveTopology primitiveTopology) {
 	d3dDeviceContext_->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(primitiveTopology));
-	d3dDeviceContext_->DrawIndexed(indexCount, startingIndex, 0);
+	d3dDeviceContext_->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(startingIndex), 0);
 }

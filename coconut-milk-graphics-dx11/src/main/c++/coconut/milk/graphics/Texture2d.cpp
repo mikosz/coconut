@@ -14,9 +14,9 @@ Texture2d::Texture2d(Device& device, const Configuration& configuration, void* i
 	D3D11_TEXTURE2D_DESC desc;
 	std::memset(&desc, 0, sizeof(desc));
 
-	desc.Width = configuration.width;
-	desc.Height = configuration.height;
-	desc.MipLevels = configuration.mipLevels;
+	desc.Width = static_cast<UINT>(configuration.width);
+	desc.Height = static_cast<UINT>(configuration.height);
+	desc.MipLevels = static_cast<UINT>(configuration.mipLevels);
 	desc.ArraySize = 1;
 	desc.Format = static_cast<DXGI_FORMAT>(configuration.pixelFormat);
 	desc.SampleDesc.Count = 1;

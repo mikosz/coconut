@@ -5,7 +5,7 @@
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
-#include "milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "VertexInterface.hpp"
 

@@ -42,8 +42,8 @@ Window::Window(const Configuration& configuration, std::shared_ptr<App> app) :
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
 		100,
 		100,
-		configuration_.width,
-		configuration_.height,
+		static_cast<int>(configuration_.width),
+		static_cast<int>(configuration_.height),
 		0,
 		0,
 		app_->instance(),
@@ -84,7 +84,7 @@ LRESULT CALLBACK Window::messageHandler(HWND window, UINT message, WPARAM wparam
 				throw std::logic_error("Window instance create parameter shall not be null!");
 			}
 
-			::SetWindowLong(window, GWL_USERDATA, reinterpret_cast<LONG>(instance));
+			::SetWindowLongPtr(window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(instance));
 
 			return TRUE;
 		}
@@ -94,7 +94,7 @@ LRESULT CALLBACK Window::messageHandler(HWND window, UINT message, WPARAM wparam
 		return FALSE;
 	default:
 		{
-			Window* instance = reinterpret_cast<Window*>(::GetWindowLong(window, GWL_USERDATA));
+			Window* instance = reinterpret_cast<Window*>(::GetWindowLongPtr(window, GWLP_USERDATA));
 
 			if (!instance) {
 				throw std::logic_error("Window instance shall not be null!");

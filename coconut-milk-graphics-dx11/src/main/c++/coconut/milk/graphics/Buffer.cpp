@@ -26,9 +26,9 @@ Buffer::Buffer(Device& device, const Configuration& configuration, const void* i
 	D3D11_BUFFER_DESC desc;
 	std::memset(&desc, 0, sizeof(desc));
 
-	desc.ByteWidth = configuration.size;
+	desc.ByteWidth = static_cast<UINT>(configuration.size);
 	desc.BindFlags = static_cast<UINT>(configuration.purpose);
-	desc.StructureByteStride = configuration.stride;
+	desc.StructureByteStride = static_cast<UINT>(configuration.stride);
 
 	if (configuration.allowModifications) {
 		if (configuration.allowCPURead) {
@@ -85,9 +85,9 @@ void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
 	switch (configuration_.purpose) {
 	case CreationPurpose::VERTEX_BUFFER:
 		{
-			UINT stride = configuration_.stride;
+			UINT stride = static_cast<UINT>(configuration_.stride);
 			UINT offset = 0;
-			device.d3dDeviceContext()->IASetVertexBuffers(slot, 1, &buffer, &stride, &offset);
+			device.d3dDeviceContext()->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buffer, &stride, &offset);
 			break;
 		}
 	case CreationPurpose::INDEX_BUFFER:
@@ -110,10 +110,10 @@ void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
 		{
 			switch (shaderType) {
 			case ShaderType::VERTEX:
-				device.d3dDeviceContext()->VSSetConstantBuffers(slot, 1, &buffer);
+				device.d3dDeviceContext()->VSSetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
 				break;
 			case ShaderType::PIXEL:
-				device.d3dDeviceContext()->PSGetConstantBuffers(slot, 1, &buffer);
+				device.d3dDeviceContext()->PSGetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
 				break;
 			default:
 				throw std::runtime_error("Unknown shader type");
