@@ -183,7 +183,7 @@ private:
 
 	void setMaterial(const std::vector<char>& materialChars);
 
-	Vertex makeVertex(const std::vector<size_t>& vertexData);
+	Vertex makeVertex(const std::vector<unsigned int>& vertexData);
 
 	void addFace(const std::vector<Vertex>& face);
 

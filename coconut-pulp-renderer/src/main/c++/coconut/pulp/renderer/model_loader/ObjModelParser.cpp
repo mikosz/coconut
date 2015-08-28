@@ -1,3 +1,9 @@
+#include "coconut-tools/system/platform.hpp"
+
+#if defined(CT_COMPILER_VISUAL_CXX)
+#	pragma warning(disable: 4244) // boost spirit spews conversion warnings
+#endif /* CT_COMPILER_VISUAL_CXX */
+
 #include "ObjModelParser.hpp"
 
 #include <fstream>
@@ -121,7 +127,7 @@ void ObjModelParser::setMaterial(const std::vector<char>& materialChars) {
 	objects_.back().groups.back().material = std::string(materialChars.begin(), materialChars.end());
 }
 
-ObjModelParser::Vertex ObjModelParser::makeVertex(const std::vector<size_t>& vertexData) {
+ObjModelParser::Vertex ObjModelParser::makeVertex(const std::vector<unsigned int>& vertexData) {
 	CT_LOG_TRACE << "Make vertex: " << vertexData[0] << ", " << vertexData[1] << ", " << vertexData[2];
 
 	if (vertexData.size() != 3 && vertexData.size() != 2) {

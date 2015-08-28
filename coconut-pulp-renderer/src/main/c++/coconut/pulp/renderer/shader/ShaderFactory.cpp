@@ -22,7 +22,7 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
-ShaderSetSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId) {
+ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId) {
 	milk::graphics::ShaderSharedPtr binaryShader;
 	milk::graphics::Buffer::ShaderType shaderType;
 
@@ -102,7 +102,6 @@ ShaderSetSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsD
 				);
 			sceneParameters.insert(std::make_pair(2, projectionParameter));
 		}
-
 	} else if (shaderId == "PS") {
 		shaderType = milk::graphics::Buffer::ShaderType::PIXEL;
 

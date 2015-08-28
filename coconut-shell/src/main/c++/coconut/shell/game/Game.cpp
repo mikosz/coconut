@@ -64,7 +64,7 @@ void Game::loop() {
 
 	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, loader));
 
-	auto start = std::chrono::monotonic_clock::now();
+	auto start = std::chrono::steady_clock::now();
 
 	camera->setTranslation(milk::math::Vector3d(0.0f, 0.0f, -5.0f));
 
@@ -84,7 +84,7 @@ void Game::loop() {
 	actor2->setScale(milk::math::Vector3d(2.0f, 2.0f, 2.0f));
 
 	for (;;) {
-		auto now = std::chrono::monotonic_clock::now();
+		auto now = std::chrono::steady_clock::now();
 
 		app_->update();
 

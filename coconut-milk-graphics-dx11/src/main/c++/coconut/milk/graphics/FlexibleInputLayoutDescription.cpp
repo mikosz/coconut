@@ -61,7 +61,7 @@ void FlexibleInputLayoutDescription::PositionElement::make(
 	target[0] = position.x();
 	target[1] = position.y();
 	target[2] = position.z();
-	target[3] = 0.0f;
+	target[3] = 0.0f; // XXX: 1.0f?
 }
 
 system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout(

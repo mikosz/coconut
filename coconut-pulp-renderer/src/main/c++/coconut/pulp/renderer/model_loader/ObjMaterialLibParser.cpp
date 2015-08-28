@@ -1,3 +1,9 @@
+#include "coconut-tools/system/platform.hpp"
+
+#if defined(CT_COMPILER_VISUAL_CXX)
+#	pragma warning(disable: 4244) // boost spirit spews conversion warnings
+#endif /* CT_COMPILER_VISUAL_CXX */
+
 #include "ObjMaterialLibParser.hpp"
 
 #include <fstream>
