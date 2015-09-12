@@ -23,11 +23,7 @@ namespace qi = spirit::qi;
 namespace ascii = spirit::ascii;
 namespace phoenix = boost::phoenix;
 
-namespace /* anonymous */ {
-
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
-
-} // anonymous namespace
 
 const size_t ObjModelParser::NORMAL_INDEX_UNKNOWN = std::numeric_limits<size_t>::max();
 

@@ -22,6 +22,9 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
+ShaderFactory::ShaderFactory() {
+}
+
 ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId) {
 	milk::graphics::ShaderSharedPtr binaryShader;
 	milk::graphics::Buffer::ShaderType shaderType;
