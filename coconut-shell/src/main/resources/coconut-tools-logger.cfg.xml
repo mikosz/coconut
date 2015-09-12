@@ -1,0 +1,27 @@
+<root-logger>
+  <level>debug</level>
+  <appenders>
+	<appender>debug-window</appender>
+  </appenders>
+</root-logger>
+<appenders>
+  <appender>
+    <id>debug-window</id>
+    <level>debug</level>
+    <type>coconut_tools::logger::appender::DebugWindowAppender</type>
+    <layout>detailed</layout>
+  </appender>
+</appenders>
+<layouts>
+  <layout>
+    <id>basic</id>
+    <type>coconut_tools::logger::layout::BasicLayout</type>
+  </layout>
+  <layout>
+    <id>detailed</id>
+    <type>coconut_tools::logger::layout::DetailedLayout</type>
+    <configuration>
+      <time-precision>milliseconds</time-precision>
+    </configuration>
+  </layout>
+</layouts>
