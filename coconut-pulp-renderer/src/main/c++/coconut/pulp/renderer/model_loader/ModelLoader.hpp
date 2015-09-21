@@ -3,17 +3,21 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
+#include "../material/MaterialLibrary.hpp"
 #include "ModelDataListener.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
+
+class MaterialLibrary;
+
 namespace model_loader {
 
 class ModelLoader {
 public:
 
-	virtual void load(ModelDataListener& modelDataListener) = 0;
+	virtual void load(ModelDataListener& modelDataListener, material::MaterialLibrary& materialLibrary) = 0;
 
 protected:
 

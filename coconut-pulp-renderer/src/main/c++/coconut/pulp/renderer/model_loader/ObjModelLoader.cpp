@@ -2,6 +2,7 @@
 
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 
+#include "../material/PhongMaterial.hpp"
 #include "ObjModelParser.hpp"
 
 using namespace coconut;
@@ -9,7 +10,7 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::model_loader;
 
-void ObjModelLoader::load(ModelDataListener& modelDataListener) {
+void ObjModelLoader::load(ModelDataListener& modelDataListener, material::MaterialLibrary& materialLibrary) {
 	ObjModelParser parser;
 	parser.parse(*is_, *materialFileOpener_);
 
@@ -32,11 +33,13 @@ void ObjModelLoader::load(ModelDataListener& modelDataListener) {
 				if (materialIt == parser.materials().end()) {
 					throw std::runtime_error("Material " + group.material + " not found");
 				} else {
-					modelDataListener.setMaterialName(materialIt->second.name);
-					modelDataListener.setAmbientColour(materialIt->second.ambientColour.widen(1.0f));
-					modelDataListener.setDiffuseColour(materialIt->second.diffuseColour.widen(1.0f));
-					modelDataListener.setSpecularColour(materialIt->second.specularColour.widen(1.0f));
-					modelDataListener.setSpecularExponent(materialIt->second.specularExponent);
+					const auto& materialInfo = materialIt->second;
+					modelDataListener.setMaterialName(materialInfo.name);
+					if (!materialLibrary.has(materialInfo.name)) {
+						material::MaterialSharedPtr material(new material::PhongMaterial);
+						material->setDiffuseColour(materialInfo.diffuseColour.widen(1.0f));
+						materialLibrary.put(materialInfo.name, material);
+					}
 				}
 
 				for (size_t faceIndex = 0; faceIndex < group.faces.size(); ++faceIndex) {

@@ -26,22 +26,6 @@ public:
 		throw std::runtime_error("materialName() not implemented");
 	}
 
-	virtual math::Vector4d ambientColour() const {
-		throw std::runtime_error("ambientColour() not implemented");
-	}
-
-	virtual math::Vector4d diffuseColour() const {
-		throw std::runtime_error("diffuseColour() not implemented");
-	}
-
-	virtual math::Vector4d specularColour() const {
-		throw std::runtime_error("specularColour() not implemented");
-	}
-
-	virtual float specularExponent() const {
-		throw std::runtime_error("specularExponent() not implemented");
-	}
-
 protected:
 
 	virtual ~VertexInterface() {

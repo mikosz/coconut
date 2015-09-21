@@ -49,22 +49,6 @@ void Model::DataListener::setMaterialName(const std::string& materialName) {
 	currentVertexData_.materialName_ = materialName;
 }
 
-void Model::DataListener::setAmbientColour(const milk::math::Vector4d& rgbaColour) {
-	currentVertexData_.ambientColour_ = rgbaColour;
-}
-
-void Model::DataListener::setDiffuseColour(const milk::math::Vector4d& rgbaColour) {
-	currentVertexData_.diffuseColour_ = rgbaColour;
-}
-
-void Model::DataListener::setSpecularColour(const milk::math::Vector4d& rgbaColour) {
-	currentVertexData_.specularColour_ = rgbaColour;
-}
-
-void Model::DataListener::setSpecularExponent(float specularExponent) {
-	currentVertexData_.specularExponent_ = specularExponent;
-}
-
 void Model::DataListener::endVertex() {
 	// TODO: do it a better way (keep vertices in some other form)
 	currentGroupData_.vertices.push_back(milk::graphics::VertexInterfaceSharedPtr(new VertexData(currentVertexData_)));

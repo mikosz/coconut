@@ -12,8 +12,8 @@
 
 #include "model_loader/ModelLoader.hpp"
 #include "shader/Shader.hpp"
+#include "material/Material.hpp"
 #include "RenderingContext.hpp"
-#include "Material.hpp"
 #include "DrawGroup.hpp"
 
 namespace coconut {
@@ -37,14 +37,6 @@ private:
 
 		std::string materialName_;
 
-		milk::math::Vector4d ambientColour_;
-
-		milk::math::Vector4d diffuseColour_;
-
-		milk::math::Vector4d specularColour_;
-
-		float specularExponent_;
-
 		milk::math::Vector3d position() const override {
 			return position_;
 		}
@@ -55,22 +47,6 @@ private:
 
 		std::string materialName() const override {
 			return materialName_;
-		}
-
-		milk::math::Vector4d ambientColour() const override {
-			return ambientColour_;
-		}
-
-		milk::math::Vector4d diffuseColour() const override {
-			return diffuseColour_;
-		}
-
-		milk::math::Vector4d specularColour() const override {
-			return specularColour_;
-		}
-
-		float specularExponent() const override {
-			return specularExponent_;
 		}
 
 	};
@@ -89,14 +65,6 @@ private:
 		void setVertexNormalNeedsCalculation() override;
 
 		void setMaterialName(const std::string& materialName) override;
-
-		void setAmbientColour(const milk::math::Vector4d& rgbaColour) override;
-
-		void setDiffuseColour(const milk::math::Vector4d& rgbaColour) override;
-
-		void setSpecularColour(const milk::math::Vector4d& rgbaColour) override;
-
-		void setSpecularExponent(float specularExponent) override;
 
 		void endVertex() override;
 
@@ -120,7 +88,7 @@ private:
 
 	};
 
-	typedef std::unordered_multimap<MaterialSharedPtr, DrawGroupSharedPtr> DrawGroupsByMaterial;
+	typedef std::unordered_multimap<material::MaterialSharedPtr, DrawGroupSharedPtr> DrawGroupsByMaterial;
 
 	DrawGroupsByMaterial drawGroupsByMaterial_;
 

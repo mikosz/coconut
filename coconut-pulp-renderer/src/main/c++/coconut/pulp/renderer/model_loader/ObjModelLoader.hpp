@@ -4,12 +4,14 @@
 #include <memory>
 #include <iosfwd>
 
+#include "../material/MaterialLibrary.hpp"
 #include "ModelLoader.hpp"
 #include "ObjModelParser.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
+
 namespace model_loader {
 
 class ObjModelLoader : public ModelLoader {
@@ -27,7 +29,7 @@ public:
 	{
 	}
 
-	void load(ModelDataListener& modelDataListener) override;
+	void load(ModelDataListener& modelDataListener, material::MaterialLibrary& materialLibrary) override;
 
 private:
 

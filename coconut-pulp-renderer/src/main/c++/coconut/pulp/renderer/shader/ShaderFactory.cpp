@@ -127,9 +127,9 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 
 		{
 			MaterialParameterSharedPtr materialParameter(
-				new CallbackUpdateableParameter<Material, milk::math::Vector4d::ShaderParameter>(
+				new CallbackUpdateableParameter<material::Material, milk::math::Vector4d::ShaderParameter>(
 					graphicsDevice,
-					[](const Material& material, milk::math::Vector4d::ShaderParameter& result) {
+					[](const material::Material& material, milk::math::Vector4d::ShaderParameter& result) {
 						result = material.diffuseColour().shaderParameter();
 					}
 					)
