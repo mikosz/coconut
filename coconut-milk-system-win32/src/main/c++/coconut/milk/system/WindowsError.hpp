@@ -1,5 +1,5 @@
-#ifndef _COCONUT_MILK_GRAPHICS_DIRECTXERROR_HPP_
-#define _COCONUT_MILK_GRAPHICS_DIRECTXERROR_HPP_
+#ifndef _COCONUT_MILK_SYSTEM_WINDOWSERROR_HPP_
+#define _COCONUT_MILK_SYSTEM_WINDOWSERROR_HPP_
 
 #include <string>
 #include <stdexcept>
@@ -11,15 +11,15 @@
 
 namespace coconut {
 namespace milk {
-namespace graphics {
+namespace system {
 
-class DirectXError : public coconut_tools::exceptions::RuntimeError {
+class WindowsError : public coconut_tools::exceptions::RuntimeError {
 public:
 
-	DirectXError(HRESULT errorCode, const std::string& message);
+	WindowsError(HRESULT errorCode, const std::string& message);
 
 	const std::string& name() const noexcept override {
-		static const std::string NAME = "DirectXError";
+		static const std::string NAME = "WindowsError";
 		return NAME;
 	}
 
@@ -35,14 +35,14 @@ private:
 
 };
 
-inline void checkDirectXCall(HRESULT result, const std::string& errorMessage) {
+inline void checkWindowsCall(HRESULT result, const std::string& errorMessage) {
 	if (FAILED(result)) {
-		throw DirectXError(result, errorMessage);
+		throw WindowsError(result, errorMessage);
 	}
 }
 
-} // namespace graphics
+} // namespace system
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_GRAPHICS_DIRECTXERROR_HPP_ */
+#endif /* _COCONUT_MILK_SYSTEM_WINDOWSERROR_HPP_ */

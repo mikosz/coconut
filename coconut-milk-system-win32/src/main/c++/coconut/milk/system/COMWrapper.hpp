@@ -45,29 +45,17 @@ public:
 		return *this;
 	}
 
-	T* operator ->() {
+	T* operator ->() const {
 		assert(comObject_);
 		return comObject_;
 	}
 
-	const T* operator ->() const {
-		assert(comObject_);
-		return comObject_;
+	T& operator *() const {
+		// TODO: validate not null
+		return *comObject_;
 	}
 
-	T*& operator *() {
-		return comObject_;
-	}
-
-	const T*& operator *() const {
-		return comObject_;
-	}
-
-	operator T*() {
-		return get();
-	}
-
-	operator const T*() const {
+	operator T*() const {
 		return get();
 	}
 
@@ -87,7 +75,7 @@ public:
 		return comObject_;
 	}
 
-	const T* get() const {
+	T* get() const {
 		return comObject_;
 	}
 

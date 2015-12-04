@@ -1,8 +1,11 @@
 #include "ObjModelLoader.hpp"
 
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
+#include "coconut/milk/graphics/ImageLoader.hpp"
+#include "coconut/milk/graphics/Texture2d.hpp"
 
 #include "../material/PhongMaterial.hpp"
+#include "../material/MaterialLibrary.hpp"
 #include "ObjModelParser.hpp"
 
 using namespace coconut;
@@ -10,15 +13,40 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::model_loader;
 
-void ObjModelLoader::load(ModelDataListener& modelDataListener, material::MaterialLibrary& materialLibrary) {
+void ObjModelLoader::load(ModelDataListener& modelDataListener, milk::graphics::Device& graphicsDevice) {
 	ObjModelParser parser;
 	parser.parse(*is_, *materialFileOpener_);
 
 	bool hasFaces = false;
 
-	const ObjModelParser::Positions& positions = parser.positions();
-	const ObjModelParser::TextureCoordinates& textureCoordinates = parser.textureCoordinates();
-	const ObjModelParser::Normals& normals = parser.normals();
+	const auto& materials = parser.materials();
+	const auto& positions = parser.positions();
+	const auto& textureCoordinates = parser.textureCoordinates();
+	const auto& normals = parser.normals();
+
+	{ // TODO: extract function
+		material::MaterialLibrary materialLibrary;
+
+		milk::graphics::ImageLoader imageLoader;
+
+		for (const auto& materialData : materials) {
+			auto material = static_cast<material::MaterialSharedPtr>(std::make_shared<material::PhongMaterial>());
+
+			material->setDiffuseColour(milk::math::Vector4d(materialData.second.diffuseColour, 1.0f));
+			material->setAmbientColour(milk::math::Vector4d(materialData.second.ambientColour, 1.0f));
+			material->setSpecularColour(milk::math::Vector4d(materialData.second.specularColour, 1.0f));
+			material->setSpecularExponent(materialData.second.specularExponent);
+
+			if (!materialData.second.diffuseMap.empty()) {
+				auto image = imageLoader.load(materialFileOpener_->pathTo(materialData.second.diffuseMap));
+				material->setDiffuseMap(std::make_unique<milk::graphics::Texture2d>(graphicsDevice, image));
+			}
+
+			materialLibrary.put(materialData.first, material);
+		}
+
+		modelDataListener.setMaterialLibrary(std::move(materialLibrary));
+	}
 
 	for (size_t objectIndex = 0; objectIndex < parser.objects().size(); ++objectIndex) {
 		const ObjModelParser::Object& object = parser.objects()[objectIndex];
@@ -29,18 +57,7 @@ void ObjModelLoader::load(ModelDataListener& modelDataListener, material::Materi
 			if (hasFaces) {
 				bool normalsNeedGeneration = false;
 
-				ObjModelParser::Materials::const_iterator materialIt = parser.materials().find(group.material);
-				if (materialIt == parser.materials().end()) {
-					throw std::runtime_error("Material " + group.material + " not found");
-				} else {
-					const auto& materialInfo = materialIt->second;
-					modelDataListener.setMaterialName(materialInfo.name);
-					if (!materialLibrary.has(materialInfo.name)) {
-						material::MaterialSharedPtr material(new material::PhongMaterial);
-						material->setDiffuseColour(materialInfo.diffuseColour.widen(1.0f));
-						materialLibrary.put(materialInfo.name, material);
-					}
-				}
+				modelDataListener.setMaterialName(group.material);
 
 				for (size_t faceIndex = 0; faceIndex < group.faces.size(); ++faceIndex) {
 					const ObjModelParser::Face& face = group.faces[faceIndex];

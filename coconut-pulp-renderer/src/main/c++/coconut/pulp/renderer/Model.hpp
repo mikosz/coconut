@@ -10,9 +10,9 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
+#include "material/MaterialLibrary.hpp"
 #include "model_loader/ModelLoader.hpp"
 #include "shader/Shader.hpp"
-#include "material/Material.hpp"
 #include "RenderingContext.hpp"
 #include "DrawGroup.hpp"
 
@@ -23,7 +23,11 @@ namespace renderer {
 class Model {
 public:
 
-	Model(milk::graphics::Device& graphicsDevice, model_loader::ModelLoader& loader);
+	Model(
+		milk::graphics::Device& graphicsDevice,
+		model_loader::ModelLoader& loader,
+		const milk::graphics::InputLayoutDescription& inputLayoutDescription
+		);
 
 	void render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
 
@@ -51,10 +55,16 @@ private:
 
 	};
 
-	class DataListener : public model_loader::ModelDataListener {
+	class ModelDataListener : public model_loader::ModelDataListener {
 	public:
 
-		DataListener(Model& model, milk::graphics::Device& graphicsDevice);
+		ModelDataListener(
+			Model& model,
+			milk::graphics::Device& graphicsDevice,
+			const milk::graphics::InputLayoutDescription& inputLayoutDescription
+			);
+
+		void setMaterialLibrary(material::MaterialLibrary&& materialLibrary) override;
 
 		void setVertexPosition(const milk::math::Vector3d& position) override;
 
@@ -88,11 +98,13 @@ private:
 
 	};
 
-	typedef std::unordered_multimap<material::MaterialSharedPtr, DrawGroupSharedPtr> DrawGroupsByMaterial;
+	typedef std::unordered_multimap<material::ConstMaterialSharedPtr, DrawGroupSharedPtr> DrawGroupsByMaterial;
+
+	material::MaterialLibrary materialLibrary_;
 
 	DrawGroupsByMaterial drawGroupsByMaterial_;
 
-	friend class DataListener;
+	friend class ModelDataListener;
 
 };
 

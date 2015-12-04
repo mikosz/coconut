@@ -14,10 +14,8 @@ using namespace coconut::milk::graphics;
 VertexShader::VertexShader(
 	Device& device,
 	void* data,
-	size_t size,
-	InputLayoutDescription& inputLayout
-	) :
-	inputLayout_(inputLayout.makeLayout(device, data, size))
+	size_t size
+	)
 {
 	checkDirectXCall(
 		device.d3dDevice()->CreateVertexShader(data, size, 0, &shader_.get()),
@@ -25,7 +23,6 @@ VertexShader::VertexShader(
 		);
 }
 
-void VertexShader::bind(Device& device) {
-	device.d3dDeviceContext()->IASetInputLayout(inputLayout_);
+void VertexShader::bind(Device& device) const {
 	device.d3dDeviceContext()->VSSetShader(shader_, 0, 0);
 }

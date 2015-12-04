@@ -10,8 +10,24 @@ cbuffer ProjectionTransformations : register(b2) {
 	matrix projectionMatrix;
 }
 
-float4 main(float4 pos : POSITION) : SV_POSITION
+struct VIn {
+	float4 pos : POSITION;
+	float2 tex : TEXCOORD;
+};
+
+struct VOut {
+	float4 pos : SV_POSITION;
+	float2 tex : TEXCOORD;
+};
+
+VOut main(VIn vin)
 {
-	pos.w = 1.0f;
-	return mul(mul(mul(pos, worldMatrix), viewMatrix), projectionMatrix);
+	vin.pos.w = 1.0f;
+
+	VOut vout;
+
+	vout.pos = mul(mul(mul(vin.pos, worldMatrix), viewMatrix), projectionMatrix);
+	vout.tex = vin.tex;
+
+	return vout;
 }

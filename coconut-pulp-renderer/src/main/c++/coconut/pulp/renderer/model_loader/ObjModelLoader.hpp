@@ -4,32 +4,30 @@
 #include <memory>
 #include <iosfwd>
 
-#include "../material/MaterialLibrary.hpp"
 #include "ModelLoader.hpp"
 #include "ObjModelParser.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
-
 namespace model_loader {
 
 class ObjModelLoader : public ModelLoader {
 public:
 
-	typedef std::auto_ptr<std::istream> IStreamPtr;
+	typedef std::unique_ptr<std::istream> IStreamPtr;
 
 	typedef ObjModelParser::MaterialFileOpener MaterialFileOpener;
 
 	typedef std::shared_ptr<MaterialFileOpener> MaterialFileOpenerPtr;
 
 	ObjModelLoader(IStreamPtr is, MaterialFileOpenerPtr materialFileOpener) :
-		is_(is),
+		is_(std::move(is)),
 		materialFileOpener_(materialFileOpener)
 	{
 	}
 
-	void load(ModelDataListener& modelDataListener, material::MaterialLibrary& materialLibrary) override;
+	void load(ModelDataListener& modelDataListener, milk::graphics::Device& graphicsDevice) override;
 
 private:
 

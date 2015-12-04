@@ -20,12 +20,13 @@ public:
 	{
 	}
 
+	UpdateableParameter(const UpdateableParameter&) = delete;
+
+	virtual ~UpdateableParameter() = default;
+
+	void operator=(UpdateableParameter&) = delete;
+
 	virtual void update(milk::graphics::Device& graphicsDevice, const SourceType& data) = 0;
-
-protected:
-
-	~UpdateableParameter() {
-	}
 
 };
 

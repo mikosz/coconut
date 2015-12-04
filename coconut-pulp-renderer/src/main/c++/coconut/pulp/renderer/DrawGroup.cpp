@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <limits>
 
+#include "shader/Pass.hpp"
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
@@ -17,7 +19,7 @@ milk::graphics::Buffer::Configuration vertexBufferConfiguration(const DrawGroup:
 	configuration.allowGPUWrite = false;
 	configuration.allowModifications = false;
 	configuration.purpose =  milk::graphics::Buffer::CreationPurpose::VERTEX_BUFFER;
-	configuration.stride = drawGroupData.material->inputLayout()->vertexSize();
+	configuration.stride = drawGroupData.inputLayout->vertexSize();
 	configuration.size = configuration.stride * drawGroupData.vertices.size();
 
 	return configuration;
@@ -40,12 +42,12 @@ milk::graphics::Buffer::Configuration indexBufferConfiguration(const DrawGroup::
 // TODO: make sure this is move-constructed
 std::vector<std::uint8_t> vertexBufferData(const DrawGroup::Data& drawGroupData) {
 	std::vector<std::uint8_t> data;
-	const size_t vertexSize = drawGroupData.material->inputLayout()->vertexSize();
+	const size_t vertexSize = drawGroupData.inputLayout->vertexSize();
 	data.resize(vertexSize * drawGroupData.vertices.size());
 
 	std::uint8_t* target = &data.front();
 	for (auto vertex : drawGroupData.vertices) {
-		drawGroupData.material->inputLayout()->makeVertex(*vertex, target);
+		drawGroupData.inputLayout->makeVertex(*vertex, target);
 		target += vertexSize;
 	}
 
@@ -79,10 +81,13 @@ DrawGroup::DrawGroup(milk::graphics::Device& graphicsDevice, const Data& data) :
 }
 
 void DrawGroup::render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext) {
-	vertexBuffer_.bind(graphicsDevice, milk::graphics::Buffer::ShaderType::VERTEX, 0);
-	indexBuffer_.bind(graphicsDevice, milk::graphics::Buffer::ShaderType::PIXEL, 0);
+	vertexBuffer_.bind(graphicsDevice, milk::graphics::ShaderType::VERTEX, 0);
+	indexBuffer_.bind(graphicsDevice, milk::graphics::ShaderType::PIXEL, 0);
 
-	material_->bind(graphicsDevice, renderingContext);
+	renderingContext.material = material_.get();
+
+	renderingContext.pass->bind(graphicsDevice, renderingContext);
+	renderingContext.pass->bind(graphicsDevice, renderingContext);
 
 	graphicsDevice.draw(0, indexCount_, primitiveTopology_);
 }

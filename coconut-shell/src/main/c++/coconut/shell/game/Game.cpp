@@ -60,15 +60,15 @@ void Game::loop() {
 	}
 
 	pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/Daniel/craig chemise bleu"));
-	pulp::renderer::model_loader::ObjModelLoader loader(modelIS, opener);
-
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, loader));
+	pulp::renderer::model_loader::ObjModelLoader loader(std::move(modelIS), opener);
 
 	auto start = std::chrono::steady_clock::now();
 
 	camera->setTranslation(milk::math::Vector3d(0.0f, 0.0f, -5.0f));
 
-	pulp::renderer::Scene scene;
+	pulp::renderer::Scene scene(*graphicsDevice_);
+
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, loader, scene.renderingPass().inputLayoutDescription()));
 
 	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
 
@@ -97,9 +97,9 @@ void Game::loop() {
 		auto dt = now - start;
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(dt).count()) / 1000.0f;
 
-		camera->setRotation(milk::math::Vector3d(0.0f, 3.14f * secs, 0.0f));
+		camera->setRotation(milk::math::Vector3d(0.0f, 0.01f * 3.14f * secs, 0.0f));
 
-		actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 3.14f * secs));
+		actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.01f * 3.14f * secs));
 		actor->setTranslation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
 		actor->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 

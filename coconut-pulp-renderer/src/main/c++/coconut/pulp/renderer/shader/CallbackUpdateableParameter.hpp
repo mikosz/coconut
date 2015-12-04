@@ -14,7 +14,7 @@ template <class SourceType, class DataType>
 class CallbackUpdateableParameter : public UpdateableParameter<SourceType> {
 public:
 	
-	typedef std::function<void (const SourceType&, DataType&)> Callback;
+	using Callback = std::function<void (const SourceType&, DataType&)>;
 
 	CallbackUpdateableParameter(
 		milk::graphics::Device& graphicsDevice,

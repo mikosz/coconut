@@ -3,17 +3,16 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
+#include "../material/Material.hpp"
+
 #include "UpdateableParameter.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
-
-class Material;
-
 namespace shader {
 
-typedef UpdateableParameter<Material> MaterialParameter;
+using MaterialParameter = UpdateableParameter<material::Material>;
 
 MAKE_POINTER_DEFINITIONS(MaterialParameter);
 

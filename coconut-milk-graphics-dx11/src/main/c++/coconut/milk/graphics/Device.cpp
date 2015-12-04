@@ -30,7 +30,7 @@ void queryAdapterAndRefreshRate(
 	UINT modeCount;
 	checkDirectXCall(
 		output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, 0),
-		"Failed to get display modes"
+		"Failed to get display mode count"
 		);
 
 	displayModes.resize(modeCount);

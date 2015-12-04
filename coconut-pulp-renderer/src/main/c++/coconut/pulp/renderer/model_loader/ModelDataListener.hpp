@@ -5,6 +5,8 @@
 
 #include "coconut/milk/math/Vector.hpp"
 
+#include "../material/MaterialLibrary.hpp"
+
 namespace coconut {
 namespace pulp {
 namespace renderer {
@@ -12,6 +14,14 @@ namespace model_loader {
 
 class ModelDataListener {
 public:
+
+	virtual ~ModelDataListener() = default;
+
+	ModelDataListener(const ModelDataListener&) = delete;
+
+	void operator=(const ModelDataListener&) = delete;
+
+	virtual void setMaterialLibrary(material::MaterialLibrary&& materialLibrary) = 0;
 
 	virtual void setVertexPosition(const milk::math::Vector3d& position) = 0;
 
@@ -35,8 +45,7 @@ public:
 
 protected:
 
-	virtual ~ModelDataListener() {
-	}
+	ModelDataListener() = default;
 
 };
 

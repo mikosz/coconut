@@ -3,15 +3,20 @@
 
 #include <d3d11.h>
 
-#include "PixelFormat.hpp"
 #include "coconut/milk/system/COMWrapper.hpp"
+
 #include "coconut/milk/utils/IntOfSize.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+
+#include "ShaderResource.hpp"
+#include "PixelFormat.hpp"
 
 namespace coconut {
 namespace milk {
 namespace graphics {
 
 class Device;
+class Image;
 
 class Texture2d {
 public:
@@ -53,7 +58,9 @@ public:
 	Texture2d() {
 	}
 
-	Texture2d(Device& device, const Configuration& configuration, void* initialData = 0);
+	Texture2d(Device& device, const Configuration& configuration, const void* initialData = nullptr, size_t dataRowPitch = 0); // TODO: move initialData and dataRowPitch to config
+
+	Texture2d(Device& device, const Image& image);
 
 	Texture2d(system::COMWrapper<ID3D11Texture2D> texture) :
 		texture_(texture) {
@@ -65,13 +72,21 @@ public:
 
 	ID3D11RenderTargetView* asRenderTargetView(Device& device);
 
+	ShaderResourceUniquePtr asShaderResource(Device& device) const;
+
 private:
 
-	system::COMWrapper<ID3D11Texture2D> texture_;
+	mutable system::COMWrapper<ID3D11Texture2D> texture_; // TODO: tempshit mutable
 
 	system::COMWrapper<ID3D11RenderTargetView> renderTargetView_;
 
+	mutable system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_; // TODO: tempshit mutable
+
+	void initialise(Device& device, const Configuration& configuration, const void* initialData, size_t dataRowPitch);
+
 };
+
+MAKE_POINTER_DEFINITIONS(Texture2d);
 
 } // namespace graphics
 } // namespace milk

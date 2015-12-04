@@ -7,8 +7,8 @@
 #include <coconut-tools/system/function-name.hpp>
 
 #include "coconut/milk/math/Vector.hpp"
-
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/milk/graphics/Texture2d.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -40,11 +40,43 @@ public:
 	virtual ~Material() {
 	}
 
+	virtual void setAmbientColour(const milk::math::Vector4d& rgbaColour) {
+		throw NotImplemented(CT_FUNCTION_NAME);
+	}
+
+	virtual const milk::math::Vector4d& ambientColour() const {
+		throw NotImplemented(CT_FUNCTION_NAME);
+	}
+
 	virtual void setDiffuseColour(const milk::math::Vector4d& rgbaColour) {
 		throw NotImplemented(CT_FUNCTION_NAME);
 	}
 
 	virtual const milk::math::Vector4d& diffuseColour() const {
+		throw NotImplemented(CT_FUNCTION_NAME);
+	}
+
+	virtual void setSpecularColour(const milk::math::Vector4d& rgbaColour) {
+		throw NotImplemented(CT_FUNCTION_NAME);
+	}
+
+	virtual const milk::math::Vector4d& specularColour() const {
+		throw NotImplemented(CT_FUNCTION_NAME);
+	}
+
+	virtual void setSpecularExponent(float specularExponent) {
+		throw NotImplemented(CT_FUNCTION_NAME);
+	}
+
+	virtual float specularExponent() const {
+		throw NotImplemented(CT_FUNCTION_NAME);
+	}
+
+	virtual void setDiffuseMap(milk::graphics::ConstTexture2dUniquePtr diffuseMap) {
+		throw NotImplemented(CT_FUNCTION_NAME);
+	}
+
+	virtual const milk::graphics::Texture2d& diffuseMap() const {
 		throw NotImplemented(CT_FUNCTION_NAME);
 	}
 

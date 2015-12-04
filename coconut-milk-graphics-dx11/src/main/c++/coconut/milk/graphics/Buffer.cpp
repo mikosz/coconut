@@ -80,7 +80,7 @@ Buffer::LockedData Buffer::lock(Device& device, LockPurpose lockPurpose) {
 }
 
 void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
-	ID3D11Buffer* buffer = *buffer_;
+	ID3D11Buffer* buffer = buffer_.get();
 
 	switch (configuration_.purpose) {
 	case CreationPurpose::VERTEX_BUFFER:
@@ -113,7 +113,7 @@ void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
 				device.d3dDeviceContext()->VSSetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
 				break;
 			case ShaderType::PIXEL:
-				device.d3dDeviceContext()->PSGetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
+				device.d3dDeviceContext()->PSSetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
 				break;
 			default:
 				throw std::runtime_error("Unknown shader type");

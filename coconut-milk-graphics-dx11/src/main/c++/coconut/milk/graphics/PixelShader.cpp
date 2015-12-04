@@ -14,6 +14,6 @@ PixelShader::PixelShader(Device& device, void* data, size_t size) {
 		);
 };
 
-void PixelShader::bind(Device& device) {
+void PixelShader::bind(Device& device) const {
 	device.d3dDeviceContext()->PSSetShader(shader_, 0, 0);
 }

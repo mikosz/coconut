@@ -132,7 +132,7 @@ void ObjMaterialLibParser::setSpecularColour(const std::vector<double>& rgbColou
 }
 
 void ObjMaterialLibParser::setDiffuseColourMap(const std::vector<char>& newMaterialChars) {
-
+	materials_.back().diffuseMap = std::string(newMaterialChars.begin(), newMaterialChars.end());
 }
 
 void ObjMaterialLibParser::setSpecularExponent(double specularExponent) {

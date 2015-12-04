@@ -264,6 +264,9 @@ public:
 	Vector2d(float x, float y) : Vector(x, y, 0.0f, 0.0f) {
 	}
 
+	Vector2d(Vector1d v, float y) : Vector(v.x(), y, 0.0f, 0.0f) {
+	}
+
 	explicit Vector2d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
 	}
 
@@ -328,6 +331,12 @@ public:
 	}
 
 	Vector3d(float x, float y, float z) : Vector(x, y, z, 0.0f) {
+	}
+
+	Vector3d(Vector1d v, float y, float z) : Vector(v.x(), y, z, 0.0f) {
+	}
+
+	Vector3d(Vector2d v, float z) : Vector(v.x(), v.y(), z, 0.0f) {
 	}
 
 	explicit Vector3d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
@@ -420,6 +429,15 @@ public:
 	}
 
 	Vector4d(float x, float y, float z, float w) : Vector(x, y, z, w) {
+	}
+
+	Vector4d(Vector1d v, float y, float z, float w) : Vector(v.x(), y, z, w) {
+	}
+
+	Vector4d(Vector2d v, float z, float w) : Vector(v.x(), v.y(), z, w) {
+	}
+
+	Vector4d(Vector3d v, float w) : Vector(v.x(), v.y(), v.z(), w) {
 	}
 
 	explicit Vector4d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
