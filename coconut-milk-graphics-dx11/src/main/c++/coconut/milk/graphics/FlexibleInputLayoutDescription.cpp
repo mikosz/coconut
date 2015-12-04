@@ -64,6 +64,41 @@ void FlexibleInputLayoutDescription::PositionElement::make(
 	target[3] = 0.0f; // XXX: 1.0f?
 }
 
+FlexibleInputLayoutDescription::TextureCoordinatesElement::TextureCoordinatesElement(size_t index, Format format) :
+	index_(index),
+	format_(format)
+{
+}
+
+void FlexibleInputLayoutDescription::TextureCoordinatesElement::toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const {
+	std::memset(desc, 0, sizeof(*desc));
+
+	desc->SemanticName = "TEXCOORD";
+	desc->SemanticIndex = static_cast<UINT>(index_);
+	desc->Format = static_cast<DXGI_FORMAT>(format_);
+	desc->InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	desc->AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+}
+
+size_t FlexibleInputLayoutDescription::TextureCoordinatesElement::size() const {
+	return formatSize(format_);
+}
+
+void FlexibleInputLayoutDescription::TextureCoordinatesElement::make(
+	const VertexInterface& vertex,
+	void* buffer
+	) const {
+	if (format_ != Format::R32G32_FLOAT) {
+		throw std::runtime_error("PositionElement only supports rg32 format");
+	}
+
+	float* target = reinterpret_cast<float*>(buffer);
+	auto&& position = vertex.textureCoordinate(); // TODO: only 2d, so thats an issue
+
+	target[0] = position.x();
+	target[1] = position.y();
+}
+
 system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout(
 	Device& device,
 	void* shaderData,

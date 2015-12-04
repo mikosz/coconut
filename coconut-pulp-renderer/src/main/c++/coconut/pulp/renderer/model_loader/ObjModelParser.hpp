@@ -45,7 +45,9 @@ public:
 		virtual ~MaterialFileOpener() {
 		}
 
-		virtual IStreamPtr open(const boost::filesystem::path& path) const;
+		virtual IStreamPtr open(const std::string& name) const;
+
+		virtual boost::filesystem::path pathTo(const std::string& name) const;
 
 	private:
 

@@ -2,9 +2,16 @@
 
 #include "RenderingContext.hpp"
 
+#include "shader/ShaderFactory.hpp"
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
+
+Scene::Scene(milk::graphics::Device& device) :
+	renderingPass_(std::move(shader::ShaderFactory().createShader(device, "")))
+{
+}
 
 void Scene::add(ActorSharedPtr actor) {
 	actors_.push_back(actor);
@@ -21,6 +28,7 @@ void Scene::setLens(LensSharedPtr lens) {
 void Scene::render(milk::graphics::Device& device) {
 	RenderingContext context;
 	context.scene = this;
+	context.pass = renderingPass_.get();
 
 	for (auto actor : actors_) {
 		actor->render(device, context);

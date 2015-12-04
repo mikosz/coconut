@@ -13,7 +13,8 @@
 #include "coconut/milk/math/Matrix.hpp"
 
 #include "CallbackUpdateableParameter.hpp"
-#include "ShaderSet.hpp"
+#include "Pass.hpp"
+#include "Resource.hpp"
 #include "../Actor.hpp"
 #include "../Scene.hpp"
 
@@ -25,16 +26,20 @@ using namespace coconut::pulp::renderer::shader;
 ShaderFactory::ShaderFactory() {
 }
 
-ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId) {
-	milk::graphics::ShaderSharedPtr binaryShader;
-	milk::graphics::Buffer::ShaderType shaderType;
+PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId) {
+	milk::graphics::InputLayoutUniquePtr inputLayout;
+	ShaderUniquePtr vertexShader;
+	ShaderUniquePtr pixelShader;
 
-	Shader::SceneParameters sceneParameters;
-	Shader::ActorParameters actorParameters;
-	Shader::MaterialParameters materialParameters;
+	{
+		milk::graphics::ShaderType shaderType;
+		Shader::SceneParameters sceneParameters;
+		Shader::ActorParameters actorParameters;
+		Shader::MaterialParameters materialParameters;
+		Shader::Resources resources;
+		milk::graphics::VertexShaderSharedPtr binaryShader;
 
-	if (shaderId == "VS") {
-		shaderType = milk::graphics::Buffer::ShaderType::VERTEX;
+		shaderType = milk::graphics::ShaderType::VERTEX;
 
 		std::ifstream ifs("Debug/sprite.v.cso", std::ios::binary);
 		if (!ifs) {
@@ -51,22 +56,25 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 			throw std::runtime_error("Failed to read the vertex shader");
 		}
 
-		milk::graphics::FlexibleInputLayoutDescription inputLayoutDesc;
-		inputLayoutDesc.push(
-			std::shared_ptr<milk::graphics::FlexibleInputLayoutDescription::PositionElement>(
-				new milk::graphics::FlexibleInputLayoutDescription::PositionElement(
-					0,
-					milk::graphics::FlexibleInputLayoutDescription::Format::R32G32B32_FLOAT
-					)
+		auto inputLayoutDesc = std::make_unique<milk::graphics::FlexibleInputLayoutDescription>();
+		inputLayoutDesc->push(
+			std::make_shared<milk::graphics::FlexibleInputLayoutDescription::PositionElement>(
+				0, milk::graphics::FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT
 				)
 			);
+		inputLayoutDesc->push(
+			std::make_shared<milk::graphics::FlexibleInputLayoutDescription::TextureCoordinatesElement>(
+				0 , milk::graphics::FlexibleInputLayoutDescription::Format::R32G32_FLOAT
+				)
+			);
+
+		inputLayout = std::make_unique<milk::graphics::InputLayout>(std::move(inputLayoutDesc), graphicsDevice, &vdata.front(), vdata.size());
 
 		binaryShader.reset(
 			new milk::graphics::VertexShader(
 				graphicsDevice,
 				&vdata.front(),
-				vdata.size(),
-				inputLayoutDesc
+				vdata.size()
 				)
 			);
 
@@ -105,8 +113,26 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 				);
 			sceneParameters.insert(std::make_pair(2, projectionParameter));
 		}
-	} else if (shaderId == "PS") {
-		shaderType = milk::graphics::Buffer::ShaderType::PIXEL;
+
+		vertexShader = std::make_unique<Shader>(
+			binaryShader,
+			shaderType,
+			std::move(sceneParameters),
+			std::move(actorParameters),
+			std::move(materialParameters),
+			std::move(resources)
+			);
+	}
+	
+	{
+		milk::graphics::ShaderType shaderType;
+		Shader::SceneParameters sceneParameters;
+		Shader::ActorParameters actorParameters;
+		Shader::MaterialParameters materialParameters;
+		Shader::Resources resources;
+		milk::graphics::ShaderSharedPtr binaryShader;
+
+		shaderType = milk::graphics::ShaderType::PIXEL;
 
 		std::ifstream ifs("Debug/sprite.p.cso", std::ios::binary);
 		if (!ifs) {
@@ -127,28 +153,34 @@ ShaderSharedPtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevi
 
 		{
 			MaterialParameterSharedPtr materialParameter(
-				new CallbackUpdateableParameter<Material, milk::math::Vector4d::ShaderParameter>(
+				new CallbackUpdateableParameter<material::Material, milk::math::Vector4d::ShaderParameter>(
 					graphicsDevice,
-					[](const Material& material, milk::math::Vector4d::ShaderParameter& result) {
+					[](const material::Material& material, milk::math::Vector4d::ShaderParameter& result) {
 						result = material.diffuseColour().shaderParameter();
 					}
 					)
 				);
 			materialParameters.insert(std::make_pair(0, materialParameter));
 		}
-	} else {
-		throw std::runtime_error("Unknown shader id");
-	}
 
-	ShaderSharedPtr shader(
-		new Shader(
+		{
+			auto resource = std::make_shared<Resource>(
+				[](milk::graphics::Device& graphicsDevice, const RenderingContext& context) {
+					return context.material->diffuseMap().asShaderResource(graphicsDevice);
+				}
+				);
+			resources.insert(std::make_pair(0, resource));
+		}
+
+		pixelShader = std::make_unique<Shader>(
 			binaryShader,
 			shaderType,
-			sceneParameters,
-			actorParameters,
-			materialParameters
-			)
-		);
+			std::move(sceneParameters),
+			std::move(actorParameters),
+			std::move(materialParameters),
+			std::move(resources)
+			);
+	}
 
-	return shader;
+	return std::make_unique<Pass>(std::move(inputLayout), std::move(vertexShader), std::move(pixelShader));
 }

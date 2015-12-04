@@ -14,7 +14,7 @@ class Device;
 class Shader {
 public:
 
-	virtual void bind(Device& device) = 0;
+	virtual void bind(Device& device) const = 0;
 
 protected:
 

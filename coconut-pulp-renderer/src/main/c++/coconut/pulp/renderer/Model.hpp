@@ -10,10 +10,10 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
+#include "material/MaterialLibrary.hpp"
 #include "model_loader/ModelLoader.hpp"
 #include "shader/Shader.hpp"
 #include "RenderingContext.hpp"
-#include "Material.hpp"
 #include "DrawGroup.hpp"
 
 namespace coconut {
@@ -23,7 +23,11 @@ namespace renderer {
 class Model {
 public:
 
-	Model(milk::graphics::Device& graphicsDevice, model_loader::ModelLoader& loader);
+	Model(
+		milk::graphics::Device& graphicsDevice,
+		model_loader::ModelLoader& loader,
+		const milk::graphics::InputLayoutDescription& inputLayoutDescription
+		);
 
 	void render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
 
@@ -37,14 +41,6 @@ private:
 
 		std::string materialName_;
 
-		milk::math::Vector4d ambientColour_;
-
-		milk::math::Vector4d diffuseColour_;
-
-		milk::math::Vector4d specularColour_;
-
-		float specularExponent_;
-
 		milk::math::Vector3d position() const override {
 			return position_;
 		}
@@ -57,28 +53,18 @@ private:
 			return materialName_;
 		}
 
-		milk::math::Vector4d ambientColour() const override {
-			return ambientColour_;
-		}
-
-		milk::math::Vector4d diffuseColour() const override {
-			return diffuseColour_;
-		}
-
-		milk::math::Vector4d specularColour() const override {
-			return specularColour_;
-		}
-
-		float specularExponent() const override {
-			return specularExponent_;
-		}
-
 	};
 
-	class DataListener : public model_loader::ModelDataListener {
+	class ModelDataListener : public model_loader::ModelDataListener {
 	public:
 
-		DataListener(Model& model, milk::graphics::Device& graphicsDevice);
+		ModelDataListener(
+			Model& model,
+			milk::graphics::Device& graphicsDevice,
+			const milk::graphics::InputLayoutDescription& inputLayoutDescription
+			);
+
+		void setMaterialLibrary(material::MaterialLibrary&& materialLibrary) override;
 
 		void setVertexPosition(const milk::math::Vector3d& position) override;
 
@@ -89,14 +75,6 @@ private:
 		void setVertexNormalNeedsCalculation() override;
 
 		void setMaterialName(const std::string& materialName) override;
-
-		void setAmbientColour(const milk::math::Vector4d& rgbaColour) override;
-
-		void setDiffuseColour(const milk::math::Vector4d& rgbaColour) override;
-
-		void setSpecularColour(const milk::math::Vector4d& rgbaColour) override;
-
-		void setSpecularExponent(float specularExponent) override;
 
 		void endVertex() override;
 
@@ -120,11 +98,13 @@ private:
 
 	};
 
-	typedef std::unordered_multimap<MaterialSharedPtr, DrawGroupSharedPtr> DrawGroupsByMaterial;
+	typedef std::unordered_multimap<material::ConstMaterialSharedPtr, DrawGroupSharedPtr> DrawGroupsByMaterial;
+
+	material::MaterialLibrary materialLibrary_;
 
 	DrawGroupsByMaterial drawGroupsByMaterial_;
 
-	friend class DataListener;
+	friend class ModelDataListener;
 
 };
 

@@ -28,8 +28,12 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
 const size_t ObjModelParser::NORMAL_INDEX_UNKNOWN = std::numeric_limits<size_t>::max();
 
 ObjModelParser::MaterialFileOpener::IStreamPtr ObjModelParser::MaterialFileOpener::open(
-	const boost::filesystem::path& path) const {
-	return IStreamPtr(new std::ifstream((baseDirectory_ / path).string().c_str()));
+	const std::string& name) const {
+	return IStreamPtr(new std::ifstream(pathTo(name).string().c_str()));
+}
+
+boost::filesystem::path ObjModelParser::MaterialFileOpener::pathTo(const std::string& name) const {
+	return baseDirectory_ / name;
 }
 
 ObjModelParser::ObjModelParser() :
@@ -124,7 +128,7 @@ void ObjModelParser::setMaterial(const std::vector<char>& materialChars) {
 }
 
 ObjModelParser::Vertex ObjModelParser::makeVertex(const std::vector<unsigned int>& vertexData) {
-	CT_LOG_TRACE << "Make vertex: " << vertexData[0] << ", " << vertexData[1] << ", " << vertexData[2];
+	CT_LOG_TRACE << "Make vertex: " << vertexData;
 
 	if (vertexData.size() != 3 && vertexData.size() != 2) {
 		throw std::runtime_error("Vertex data has size different than 2 and 3");

@@ -30,7 +30,7 @@ void queryAdapterAndRefreshRate(
 	UINT modeCount;
 	checkDirectXCall(
 		output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, 0),
-		"Failed to get display modes"
+		"Failed to get display mode count"
 		);
 
 	displayModes.resize(modeCount);
@@ -140,7 +140,20 @@ Device::Device(system::Window& window, const Configuration& configuration) :
 	createD3DDevice(window, configuration, refreshRate, &swapChain_, &d3dDevice_, &d3dDeviceContext_);
 
 	extractBackBuffer(swapChain_, &backBuffer_);
-	setRenderTarget(backBuffer_);
+
+	Texture2d::Configuration depthStencilConfig;
+	depthStencilConfig.width = window.clientWidth();
+	depthStencilConfig.height = window.clientHeight();
+	depthStencilConfig.allowGPUWrite = true;
+	depthStencilConfig.allowCPURead = false;
+	depthStencilConfig.allowModifications = false;
+	depthStencilConfig.mipLevels = 1;
+	depthStencilConfig.pixelFormat = PixelFormat::D32_FLOAT;
+	depthStencilConfig.purposeFlags = Texture2d::DEPTH_STENCIL;
+	
+	depthStencil_.initialise(*this, depthStencilConfig); // TODO: cleanup initialisation + do we need a default depth stencil view?
+
+	setRenderTarget(backBuffer_, depthStencil_);
 
 	D3D11_VIEWPORT viewport;
 	viewport.Height = static_cast<float>(window.clientHeight());
@@ -160,14 +173,21 @@ Device::Device(system::Window& window, const Configuration& configuration) :
 	d3dDeviceContext_->RSSetState(rasterizer_);
 }
 
-void Device::setRenderTarget(Texture2d& texture) {
-	ID3D11RenderTargetView* renderTargetView = texture.asRenderTargetView(*this);
-	d3dDeviceContext_->OMSetRenderTargets(1, &renderTargetView, 0);
+void Device::setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil) {
+	auto* renderTargetView = renderTarget.asRenderTargetView(*this);
+	auto* depthStencilView = depthStencil.asDepthStencilView(*this);
+	d3dDeviceContext_->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 }
 
 void Device::beginScene() {
 	float colour[] = { 1.0f, 0.0f, 1.0f, 1.0f };
 	d3dDeviceContext_->ClearRenderTargetView(backBuffer_.asRenderTargetView(*this), colour);
+	d3dDeviceContext_->ClearDepthStencilView(
+		depthStencil_.asDepthStencilView(*this),
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+		1.0f,
+		static_cast<UINT8>(0)
+		);
 }
 
 void Device::endScene() {

@@ -37,6 +37,8 @@ public:
 
 		float specularExponent;
 
+		std::string diffuseMap;
+
 		Material() :
 			ambientColour(0.0f, 0.0f, 0.0f),
 			diffuseColour(0.0f, 0.0f, 0.0f),

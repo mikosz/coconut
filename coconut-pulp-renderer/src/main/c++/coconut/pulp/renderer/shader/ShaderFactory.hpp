@@ -7,13 +7,12 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
+#include "Pass.hpp"
+
 namespace coconut {
 namespace pulp {
 namespace renderer {
 namespace shader {
-
-class Shader;
-MAKE_POINTER_DEFINITIONS(Shader);
 
 class ShaderFactory {
 public:
@@ -22,7 +21,7 @@ public:
 
 	ShaderFactory();
 
-	ShaderSharedPtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
+	PassUniquePtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
 
 };
 

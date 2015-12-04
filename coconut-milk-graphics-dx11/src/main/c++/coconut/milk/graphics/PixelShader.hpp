@@ -19,11 +19,11 @@ public:
 
 	PixelShader(Device& device, void* data, size_t size);
 
-	void bind(Device& device) override;
+	void bind(Device& device) const override;
 
 private:
 
-	system::COMWrapper<ID3D11PixelShader> shader_;
+	mutable system::COMWrapper<ID3D11PixelShader> shader_; // because PSSetShader takes PixelShader* not const PixelShader*
 
 };
 

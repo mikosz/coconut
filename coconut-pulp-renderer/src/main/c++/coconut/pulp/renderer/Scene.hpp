@@ -6,6 +6,8 @@
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 #include "coconut/milk/graphics/Device.hpp"
 
+#include "shader/Pass.hpp"
+
 #include "Actor.hpp"
 #include "Camera.hpp"
 #include "Lens.hpp"
@@ -16,6 +18,8 @@ namespace renderer {
 
 class Scene {
 public:
+
+	Scene(milk::graphics::Device& device);
 
 	void add(ActorSharedPtr actor);
 
@@ -33,6 +37,10 @@ public:
 		return *lens_;
 	}
 
+	const shader::Pass& renderingPass() const {
+		return *renderingPass_;
+	}
+
 private:
 
 	std::vector<ActorSharedPtr> actors_;
@@ -40,6 +48,8 @@ private:
 	CameraSharedPtr camera_;
 
 	LensSharedPtr lens_;
+
+	shader::PassUniquePtr renderingPass_;
 
 };
 

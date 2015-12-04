@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_RENDERER_MODEL_LOADER_MODEL_LOADER_HPP_
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/milk/graphics/Device.hpp"
 
 #include "ModelDataListener.hpp"
 
@@ -13,12 +14,17 @@ namespace model_loader {
 class ModelLoader {
 public:
 
-	virtual void load(ModelDataListener& modelDataListener) = 0;
+	virtual ~ModelLoader() = default;
+
+	ModelLoader(const ModelLoader&) = delete;
+
+	void operator=(const ModelLoader&) = delete;
+
+	virtual void load(ModelDataListener& modelDataListener, milk::graphics::Device& graphicsDevice) = 0;
 
 protected:
 
-	virtual ~ModelLoader() {
-	}
+	ModelLoader() = default;
 
 };
 

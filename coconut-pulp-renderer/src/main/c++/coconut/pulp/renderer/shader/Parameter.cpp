@@ -26,7 +26,7 @@ Parameter::Parameter(
 void Parameter::bind(
 	milk::graphics::Device& graphicsDevice,
 	size_t slot,
-	milk::graphics::Buffer::ShaderType shaderType
+	milk::graphics::ShaderType shaderType
 	) {
 	buffer_.bind(graphicsDevice, shaderType, slot);
 }

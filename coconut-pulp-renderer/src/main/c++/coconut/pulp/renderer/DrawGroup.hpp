@@ -6,10 +6,12 @@
 #include "coconut/milk/graphics/Buffer.hpp"
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 #include "coconut/milk/graphics/VertexInterface.hpp"
+#include "coconut/milk/graphics/InputLayoutDescription.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "Material.hpp"
+#include "material/Material.hpp"
+#include "shader/Shader.hpp"
 #include "RenderingContext.hpp"
 
 namespace coconut {
@@ -23,9 +25,9 @@ public:
 
 		milk::graphics::PrimitiveTopology primitiveTopology;
 
-		MaterialSharedPtr material;
+		material::ConstMaterialSharedPtr material;
 
-		milk::graphics::InputLayoutDescriptionSharedPtr inputLayout;
+		const milk::graphics::InputLayoutDescription* inputLayout;
 
 		std::vector<milk::graphics::VertexInterfaceSharedPtr> vertices;
 
@@ -33,7 +35,7 @@ public:
 
 		void reset() {
 			material.reset();
-			inputLayout.reset();
+			// inputLayout.reset();
 			vertices.clear();
 			indices.clear();
 		}
@@ -46,7 +48,7 @@ public:
 
 private:
 
-	MaterialSharedPtr material_;
+	material::ConstMaterialSharedPtr material_;
 
 	milk::graphics::Buffer vertexBuffer_;
 

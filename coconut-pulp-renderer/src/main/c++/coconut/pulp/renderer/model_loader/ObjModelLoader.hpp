@@ -15,19 +15,19 @@ namespace model_loader {
 class ObjModelLoader : public ModelLoader {
 public:
 
-	typedef std::auto_ptr<std::istream> IStreamPtr;
+	typedef std::unique_ptr<std::istream> IStreamPtr;
 
 	typedef ObjModelParser::MaterialFileOpener MaterialFileOpener;
 
 	typedef std::shared_ptr<MaterialFileOpener> MaterialFileOpenerPtr;
 
 	ObjModelLoader(IStreamPtr is, MaterialFileOpenerPtr materialFileOpener) :
-		is_(is),
+		is_(std::move(is)),
 		materialFileOpener_(materialFileOpener)
 	{
 	}
 
-	void load(ModelDataListener& modelDataListener) override;
+	void load(ModelDataListener& modelDataListener, milk::graphics::Device& graphicsDevice) override;
 
 private:
 

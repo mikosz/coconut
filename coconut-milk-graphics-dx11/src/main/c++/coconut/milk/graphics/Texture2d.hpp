@@ -3,26 +3,31 @@
 
 #include <d3d11.h>
 
-#include "PixelFormat.hpp"
 #include "coconut/milk/system/COMWrapper.hpp"
+
 #include "coconut/milk/utils/IntOfSize.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+
+#include "ShaderResource.hpp"
+#include "PixelFormat.hpp"
 
 namespace coconut {
 namespace milk {
 namespace graphics {
 
 class Device;
+class Image;
 
 class Texture2d {
 public:
 
-	enum CreationPurpose {
+	enum CreationPurpose { // TODO: enum class
 		SHADER_RESOURCE = D3D11_BIND_SHADER_RESOURCE,
 		RENDER_TARGET = D3D11_BIND_RENDER_TARGET,
 		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
 	};
 
-	enum LockPurpose {
+	enum LockPurpose { // TODO: enum class
 		READ = D3D11_MAP_READ,
 		WRITE = D3D11_MAP_WRITE,
 		READ_WRITE = D3D11_MAP_READ_WRITE,
@@ -46,24 +51,34 @@ public:
 
 		bool allowGPUWrite;
 
-		utils::IntOfSize<sizeof(CreationPurpose)>::Unsigned purposeFlags;
+		utils::IntOfSize<sizeof(CreationPurpose)>::Unsigned purposeFlags; // TODO: make c++11?
 
 	};
 
 	Texture2d() {
 	}
 
-	Texture2d(Device& device, const Configuration& configuration, void* initialData = 0);
+	Texture2d(Device& device, const Configuration& configuration, const void* initialData = nullptr, size_t dataRowPitch = 0); // TODO: move initialData and dataRowPitch to config
+
+	Texture2d(Device& device, const Image& image);
 
 	Texture2d(system::COMWrapper<ID3D11Texture2D> texture) :
 		texture_(texture) {
 	}
 
-	void* lock(Device& device, LockPurpose lockPurpose);
+	void initialise(Device& device, const Configuration& configuration, const void* initialData = nullptr, size_t dataRowPitch = 0);
+
+	void reset();
+
+	void* lock(Device& device, LockPurpose lockPurpose); // TODO: return RAII object?
 
 	void unlock(Device& device);
 
 	ID3D11RenderTargetView* asRenderTargetView(Device& device);
+
+	ID3D11DepthStencilView* asDepthStencilView(Device& device);
+
+	ShaderResourceUniquePtr asShaderResource(Device& device) const;
 
 private:
 
@@ -71,7 +86,13 @@ private:
 
 	system::COMWrapper<ID3D11RenderTargetView> renderTargetView_;
 
+	system::COMWrapper<ID3D11DepthStencilView> depthStencilView_;
+
+	mutable system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_; // TODO: mutable tempshit
+
 };
+
+MAKE_POINTER_DEFINITIONS(Texture2d);
 
 } // namespace graphics
 } // namespace milk

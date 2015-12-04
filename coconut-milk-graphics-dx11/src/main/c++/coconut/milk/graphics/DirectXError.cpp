@@ -7,7 +7,7 @@ using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
 DirectXError::DirectXError(HRESULT errorCode, const std::string& message) :
-	std::runtime_error(buildMessage(errorCode, message)),
+	coconut_tools::exceptions::RuntimeError(buildMessage(errorCode, message)),
 	errorCode_(errorCode)
 {
 }

@@ -35,7 +35,7 @@ public:
 
 	void draw(size_t startingIndex, size_t vertexCount, PrimitiveTopology primitiveTopology);
 
-	void setRenderTarget(Texture2d& texture);
+	void setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil);
 
 	ID3D11Device* d3dDevice() {
 		return d3dDevice_;
@@ -62,6 +62,8 @@ private:
 	system::COMWrapper<IDXGISwapChain> swapChain_;
 
 	Texture2d backBuffer_;
+
+	Texture2d depthStencil_;
 
 	system::COMWrapper<ID3D11RasterizerState> rasterizer_;
 

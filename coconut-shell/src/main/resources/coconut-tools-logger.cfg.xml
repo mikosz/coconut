@@ -1,5 +1,5 @@
 <root-logger>
-  <level>debug</level>
+  <level>trace</level>
   <appenders>
 	<appender>debug-window</appender>
   </appenders>
@@ -7,7 +7,7 @@
 <appenders>
   <appender>
     <id>debug-window</id>
-    <level>debug</level>
+    <level>trace</level>
     <type>coconut_tools::logger::appender::DebugWindowAppender</type>
     <layout>detailed</layout>
   </appender>

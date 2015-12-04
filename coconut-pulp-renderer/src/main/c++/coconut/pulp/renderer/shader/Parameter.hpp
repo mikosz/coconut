@@ -7,7 +7,6 @@
 namespace coconut {
 namespace pulp {
 namespace renderer {
-
 namespace shader {
 
 class Parameter {
@@ -18,7 +17,7 @@ public:
 	void bind(
 		milk::graphics::Device& graphicsDevice,
 		size_t slot,
-		milk::graphics::Buffer::ShaderType shaderType
+		milk::graphics::ShaderType shaderType
 		);
 
 	milk::graphics::Buffer& buffer() {

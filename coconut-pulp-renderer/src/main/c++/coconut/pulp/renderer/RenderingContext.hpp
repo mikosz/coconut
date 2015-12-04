@@ -1,6 +1,9 @@
 #ifndef _COCONUT_PULP_RENDERER_RENDERINGCONTEXT_HPP_
 #define _COCONUT_PULP_RENDERER_RENDERINGCONTEXT_HPP_
 
+#include "material/Material.hpp"
+#include "shader/Pass.hpp"
+
 namespace coconut {
 namespace pulp {
 namespace renderer {
@@ -8,24 +11,25 @@ namespace renderer {
 class Scene;
 class Actor;
 class Model;
-class Material;
 
 struct RenderingContext {
 
-	Scene* scene;
+	const shader::Pass* pass = nullptr;
 
-	Actor* actor;
+	const Scene* scene = nullptr;
 
-	Model* model;
+	const Actor* actor = nullptr;
 
-	Material* material;
+	const Model* model = nullptr;
 
-	RenderingContext() :
-		scene(nullptr),
-		actor(nullptr),
-		model(nullptr),
-		material(nullptr)
-	{
+	const material::Material* material = nullptr;
+
+	void reset() {
+		pass = nullptr;
+		scene = nullptr;
+		actor = nullptr;
+		model = nullptr;
+		material = nullptr;
 	}
 
 };

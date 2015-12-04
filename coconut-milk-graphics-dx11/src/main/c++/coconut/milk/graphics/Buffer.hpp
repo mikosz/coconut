@@ -8,6 +8,8 @@
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 #include "coconut/milk/utils/RAIIHelper.hpp"
 
+#include "ShaderType.hpp"
+
 namespace coconut {
 namespace milk {
 namespace graphics {
@@ -29,11 +31,6 @@ public:
 		READ_WRITE = D3D11_MAP_READ_WRITE,
 		WRITE_DISCARD = D3D11_MAP_WRITE_DISCARD,
 		WRITE_NO_OVERWRITE = D3D11_MAP_WRITE_NO_OVERWRITE,
-	};
-
-	enum class ShaderType {
-		VERTEX,
-		PIXEL
 	};
 
 	struct Configuration {

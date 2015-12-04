@@ -7,6 +7,7 @@
 #include <d3d11.h>
 
 #include "coconut/milk/system/COMWrapper.hpp"
+#include "InputLayoutDescription.hpp"
 #include "Buffer.hpp"
 #include "Shader.hpp"
 
@@ -15,7 +16,6 @@ namespace milk {
 namespace graphics {
 
 class Device;
-class InputLayoutDescription;
 
 class VertexShader : public Shader {
 public:
@@ -23,19 +23,18 @@ public:
 	VertexShader(
 		Device& device,
 		void* data,
-		size_t size,
-		InputLayoutDescription& inputLayout
+		size_t size
 		);
 
-	void bind(Device& device) override;
+	void bind(Device& device) const override;
 
 private:
 
-	system::COMWrapper<ID3D11VertexShader> shader_;
-
-	system::COMWrapper<ID3D11InputLayout> inputLayout_;
+	mutable system::COMWrapper<ID3D11VertexShader> shader_; // because PSSetShader takes PixelShader* not const PixelShader*
 
 };
+
+MAKE_POINTER_DEFINITIONS(VertexShader);
 
 } // namespace graphics
 } // namespace milk
