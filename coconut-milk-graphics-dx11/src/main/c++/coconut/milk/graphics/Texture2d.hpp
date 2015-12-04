@@ -21,13 +21,13 @@ class Image;
 class Texture2d {
 public:
 
-	enum CreationPurpose {
+	enum CreationPurpose { // TODO: enum class
 		SHADER_RESOURCE = D3D11_BIND_SHADER_RESOURCE,
 		RENDER_TARGET = D3D11_BIND_RENDER_TARGET,
 		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
 	};
 
-	enum LockPurpose {
+	enum LockPurpose { // TODO: enum class
 		READ = D3D11_MAP_READ,
 		WRITE = D3D11_MAP_WRITE,
 		READ_WRITE = D3D11_MAP_READ_WRITE,
@@ -51,7 +51,7 @@ public:
 
 		bool allowGPUWrite;
 
-		utils::IntOfSize<sizeof(CreationPurpose)>::Unsigned purposeFlags;
+		utils::IntOfSize<sizeof(CreationPurpose)>::Unsigned purposeFlags; // TODO: make c++11?
 
 	};
 
@@ -66,23 +66,29 @@ public:
 		texture_(texture) {
 	}
 
-	void* lock(Device& device, LockPurpose lockPurpose);
+	void initialise(Device& device, const Configuration& configuration, const void* initialData = nullptr, size_t dataRowPitch = 0);
+
+	void reset();
+
+	void* lock(Device& device, LockPurpose lockPurpose); // TODO: return RAII object?
 
 	void unlock(Device& device);
 
 	ID3D11RenderTargetView* asRenderTargetView(Device& device);
 
+	ID3D11DepthStencilView* asDepthStencilView(Device& device);
+
 	ShaderResourceUniquePtr asShaderResource(Device& device) const;
 
 private:
 
-	mutable system::COMWrapper<ID3D11Texture2D> texture_; // TODO: tempshit mutable
+	system::COMWrapper<ID3D11Texture2D> texture_;
 
 	system::COMWrapper<ID3D11RenderTargetView> renderTargetView_;
 
-	mutable system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_; // TODO: tempshit mutable
+	system::COMWrapper<ID3D11DepthStencilView> depthStencilView_;
 
-	void initialise(Device& device, const Configuration& configuration, const void* initialData, size_t dataRowPitch);
+	mutable system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_; // TODO: mutable tempshit
 
 };
 

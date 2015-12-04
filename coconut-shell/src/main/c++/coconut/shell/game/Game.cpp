@@ -64,7 +64,8 @@ void Game::loop() {
 
 	auto start = std::chrono::steady_clock::now();
 
-	camera->setTranslation(milk::math::Vector3d(0.0f, 0.0f, -5.0f));
+	camera->setTranslation(milk::math::Vector3d(0.0f, 0.0f, -1.5f));
+	camera->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
 
 	pulp::renderer::Scene scene(*graphicsDevice_);
 
@@ -78,10 +79,10 @@ void Game::loop() {
 
 	pulp::renderer::ActorSharedPtr actor2(new pulp::renderer::Actor(m));
 
-	scene.add(actor2);
+	// scene.add(actor2);
 	actor2->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
-	actor2->setTranslation(milk::math::Vector3d(0.0f, 0.0f, -1.0f));
-	actor2->setScale(milk::math::Vector3d(2.0f, 2.0f, 2.0f));
+	actor2->setTranslation(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
+	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
 	for (;;) {
 		auto now = std::chrono::steady_clock::now();
@@ -97,10 +98,10 @@ void Game::loop() {
 		auto dt = now - start;
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(dt).count()) / 1000.0f;
 
-		camera->setRotation(milk::math::Vector3d(0.0f, 0.01f * 3.14f * secs, 0.0f));
+		camera->setRotation(milk::math::Vector3d(0.0f, 0.03f * 3.14f * secs, 0.0f));
 
-		actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.01f * 3.14f * secs));
-		actor->setTranslation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
+		actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
+		actor->setTranslation(milk::math::Vector3d(0.0f, -1.0f, 0.0f));
 		actor->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
 		scene.render(*graphicsDevice_);
