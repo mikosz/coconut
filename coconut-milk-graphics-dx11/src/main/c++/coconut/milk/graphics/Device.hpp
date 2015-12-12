@@ -2,6 +2,7 @@
 #define _COCONUT_MILK_GRAPHICS_DX11_DEVICE_HPP_
 
 #include <d3d11.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include "Texture2d.hpp"
 #include "coconut/milk/system/COMWrapper.hpp"
@@ -24,6 +25,10 @@ public:
 		bool debugDevice;
 
 		bool vsync;
+
+		std::uint32_t sampleCount; // verify that this is a power of 2
+
+		std::uint32_t sampleQuality;
 
 	};
 

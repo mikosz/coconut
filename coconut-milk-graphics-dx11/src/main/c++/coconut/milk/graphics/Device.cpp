@@ -1,6 +1,7 @@
 #include "Device.hpp"
 
 #include <vector>
+#include <algorithm>
 
 #include "DirectXError.hpp"
 
@@ -10,18 +11,23 @@ using namespace coconut::milk::graphics;
 
 namespace /* anonymous */ {
 
-void queryAdapterAndRefreshRate(
-	system::Window& window,
-	system::COMWrapper<IDXGIAdapter>* adapter,
-	DXGI_RATIONAL* refreshRate
-	) {
+system::COMWrapper<IDXGIFactory> createDXGIFactory() {
 	system::COMWrapper<IDXGIFactory> factory;
 	checkDirectXCall(
 		CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory.get())),
 		"Failed to create a DXGIFactory"
 		);
 
-	checkDirectXCall(factory->EnumAdapters(0, &adapter->get()), "Failed to enumerate video cards");
+	return factory;
+}
+
+void queryAdapterAndRefreshRate(
+	IDXGIFactory& dxgiFactory,
+	system::Window& window,
+	system::COMWrapper<IDXGIAdapter>* adapter,
+	DXGI_RATIONAL* refreshRate
+	) {
+	checkDirectXCall(dxgiFactory.EnumAdapters(0, &adapter->get()), "Failed to enumerate video cards");
 
 	system::COMWrapper<IDXGIOutput> output;
 	checkDirectXCall((*adapter)->EnumOutputs(0, &output.get()), "Failed to enumerate outputs");
@@ -57,12 +63,34 @@ void queryAdapterAndRefreshRate(
 
 void createD3DDevice(
 	system::Window& window,
+	IDXGIFactory& dxgiFactory,
 	const Device::Configuration& configuration,
 	const DXGI_RATIONAL& refreshRate,
 	system::COMWrapper<IDXGISwapChain>* swapChain,
 	system::COMWrapper<ID3D11Device>* device,
 	system::COMWrapper<ID3D11DeviceContext>* deviceContext
 	) {
+	UINT creationFlags = 0;
+	if (configuration.debugDevice) {
+		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	}
+
+	checkDirectXCall(
+		D3D11CreateDevice(
+			0,
+			D3D_DRIVER_TYPE_HARDWARE,
+			0,
+			creationFlags,
+			0,
+			0,
+			D3D11_SDK_VERSION,
+			&device->get(),
+			0,
+			&deviceContext->get()
+			),
+		"Failed to create a directx device"
+		);
+
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
@@ -70,7 +98,7 @@ void createD3DDevice(
 
 	swapChainDesc.BufferDesc.Width = static_cast<UINT>(window.clientWidth());
 	swapChainDesc.BufferDesc.Height = static_cast<UINT>(window.clientHeight());
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // TODO: read from config or parameter
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 
@@ -81,8 +109,30 @@ void createD3DDevice(
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	}
 
-	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
+	UINT sampleCount = std::min<UINT>(D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT, configuration.sampleCount);
+	UINT sampleQuality;
+
+	for (;;) {
+		if (sampleCount == 1) {
+			sampleQuality = 0;
+			break;
+		}
+
+		UINT maxSampleQuality;
+		checkDirectXCall(
+			(*device)->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, sampleCount, &maxSampleQuality),
+			"Failed to retrieve the multisampling quality level"
+			);
+		if (maxSampleQuality == 0) {
+			sampleCount /= 2;
+		} else {
+			sampleQuality = std::min<UINT>(configuration.sampleQuality, maxSampleQuality - 1);
+			break;
+		}
+	}
+
+	swapChainDesc.SampleDesc.Count = sampleCount;
+	swapChainDesc.SampleDesc.Quality = sampleQuality;
 
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 
@@ -92,25 +142,11 @@ void createD3DDevice(
 
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-	UINT creationFlags = 0;
-	if (configuration.debugDevice) {
-		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-	}
-
 	checkDirectXCall(
-		D3D11CreateDeviceAndSwapChain(
-			0,
-			D3D_DRIVER_TYPE_HARDWARE,
-			0,
-			creationFlags,
-			0,
-			0,
-			D3D11_SDK_VERSION,
+		dxgiFactory.CreateSwapChain(
+			*device,
 			&swapChainDesc,
-			&swapChain->get(),
-			&device->get(),
-			0,
-			&deviceContext->get()
+			&swapChain->get()
 			),
 		"Failed to create a directx device"
 		);
@@ -134,12 +170,17 @@ void extractBackBuffer(
 Device::Device(system::Window& window, const Configuration& configuration) :
 	configuration_(configuration)
 {
-	DXGI_RATIONAL refreshRate;
-	queryAdapterAndRefreshRate(window, &adapter_, &refreshRate);
+	auto dxgiFactory = createDXGIFactory();
 
-	createD3DDevice(window, configuration, refreshRate, &swapChain_, &d3dDevice_, &d3dDeviceContext_);
+	DXGI_RATIONAL refreshRate;
+	queryAdapterAndRefreshRate(*dxgiFactory, window, &adapter_, &refreshRate);
+
+	createD3DDevice(window, *dxgiFactory, configuration, refreshRate, &swapChain_, &d3dDevice_, &d3dDeviceContext_);
 
 	extractBackBuffer(swapChain_, &backBuffer_);
+
+	UINT quality;
+	d3dDevice_->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &quality);
 
 	Texture2d::Configuration depthStencilConfig;
 	depthStencilConfig.width = window.clientWidth();
@@ -150,6 +191,11 @@ Device::Device(system::Window& window, const Configuration& configuration) :
 	depthStencilConfig.mipLevels = 1;
 	depthStencilConfig.pixelFormat = PixelFormat::D32_FLOAT;
 	depthStencilConfig.purposeFlags = Texture2d::DEPTH_STENCIL;
+
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	checkDirectXCall(swapChain_->GetDesc(&swapChainDesc), "Failed to retrieve the swap chain description");
+	depthStencilConfig.sampleCount = swapChainDesc.SampleDesc.Count;
+	depthStencilConfig.sampleQuality = swapChainDesc.SampleDesc.Quality;
 	
 	depthStencil_.initialise(*this, depthStencilConfig); // TODO: cleanup initialisation + do we need a default depth stencil view?
 

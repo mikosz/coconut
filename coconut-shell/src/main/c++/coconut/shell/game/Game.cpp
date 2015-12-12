@@ -44,6 +44,8 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 		milk::graphics::Device::Configuration configuration;
 		configuration.debugDevice = DEBUG;
 		configuration.vsync = false;
+		configuration.sampleCount = std::numeric_limits<std::uint32_t>::max();
+		configuration.sampleQuality = std::numeric_limits<std::uint32_t>::max();
 
 		graphicsDevice_.reset(new milk::graphics::Device(*window_, configuration));
 	}

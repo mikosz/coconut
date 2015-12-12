@@ -45,6 +45,10 @@ public:
 
 		PixelFormat pixelFormat;
 
+		size_t sampleCount;
+
+		size_t sampleQuality;
+
 		bool allowModifications;
 
 		bool allowCPURead;
@@ -52,6 +56,11 @@ public:
 		bool allowGPUWrite;
 
 		utils::IntOfSize<sizeof(CreationPurpose)>::Unsigned purposeFlags; // TODO: make c++11?
+
+		Configuration() {
+			std::memset(this, 0, sizeof(decltype(*this))); // TODO: TEMP TEMP TEMP
+			sampleCount = 1;
+		}
 
 	};
 

@@ -6,9 +6,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include <wincodec.h>
-#if defined(ERROR) // wincodec.h graciously clutters the global namespace with beautiful macros
-#	undef ERROR
-#endif
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 #pragma comment(lib, "windowscodecs.lib")
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>

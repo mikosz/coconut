@@ -41,7 +41,8 @@ void Texture2d::initialise(Device& device, const Configuration& configuration, c
 	desc.MipLevels = static_cast<UINT>(configuration.mipLevels);
 	desc.ArraySize = 1;
 	desc.Format = static_cast<DXGI_FORMAT>(configuration.pixelFormat);
-	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Count = static_cast<UINT>(configuration.sampleCount);
+	desc.SampleDesc.Quality = static_cast<UINT>(configuration.sampleQuality);
 	desc.BindFlags = static_cast<UINT>(configuration.purposeFlags);
 
 	if (configuration.allowModifications) {
