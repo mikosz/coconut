@@ -12,7 +12,9 @@
 
 #include "coconut/milk/math/Matrix.hpp"
 
-#include "CallbackUpdateableParameter.hpp"
+#include "ArrayParameter.hpp"
+#include "CallbackParameter.hpp"
+#include "StructuredParameter.hpp"
 #include "Pass.hpp"
 #include "Resource.hpp"
 #include "../Actor.hpp"
@@ -33,9 +35,9 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 
 	{
 		milk::graphics::ShaderType shaderType;
-		Shader::SceneParameters sceneParameters;
-		Shader::ActorParameters actorParameters;
-		Shader::MaterialParameters materialParameters;
+		Shader::SceneData sceneData;
+		Shader::ActorData actorData;
+		Shader::MaterialData materialData;
 		Shader::Resources resources;
 		milk::graphics::VertexShaderSharedPtr binaryShader;
 
@@ -64,7 +66,12 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 			);
 		inputLayoutDesc->push(
 			std::make_shared<milk::graphics::FlexibleInputLayoutDescription::TextureCoordinatesElement>(
-				0 , milk::graphics::FlexibleInputLayoutDescription::Format::R32G32_FLOAT
+				0, milk::graphics::FlexibleInputLayoutDescription::Format::R32G32_FLOAT
+				)
+			);
+		inputLayoutDesc->push(
+			std::make_shared<milk::graphics::FlexibleInputLayoutDescription::NormalElement>(
+				0, milk::graphics::FlexibleInputLayoutDescription::Format::R32G32B32_FLOAT
 				)
 			);
 
@@ -79,56 +86,69 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 			);
 
 		{
-			ActorParameterSharedPtr actorParameter(
-				new CallbackUpdateableParameter<Actor, milk::math::Matrix>(
-					graphicsDevice,
-					[](const Actor& actor, milk::math::Matrix& result) {
+			auto worldParameter =
+				std::make_unique<CallbackParameter<milk::math::Matrix, Actor>>(
+					[](milk::math::Matrix& result, const Actor& actor) {
 						result = actor.worldTransformation().transposed();
 					}
 					)
-				);
-			actorParameters.insert(std::make_pair(0, actorParameter));
+				;
+
+			auto worldInvTransParameter =
+				std::make_unique<CallbackParameter<milk::math::Matrix, Actor>>(
+					[](milk::math::Matrix& result, const Actor& actor) {
+						result = actor.worldTransformation().inverted();
+					}
+					)
+				;
+
+			StructuredParameter<Actor>::Subparameters actorFields;
+			actorFields.reserve(2);
+			actorFields.emplace_back(std::move(worldParameter));
+			actorFields.emplace_back(std::move(worldInvTransParameter));
+
+			auto actorParameter = std::make_unique<StructuredParameter<Actor>>(std::move(actorFields));
+
+			actorData.emplace_back(std::make_unique<ConstantBuffer<Actor>>(graphicsDevice, shaderType, 0, std::move(actorParameter)));
 		}
 
 		{
-			SceneParameterSharedPtr viewParameter(
-				new CallbackUpdateableParameter<Scene, milk::math::Matrix>(
-					graphicsDevice,
-					[](const Scene& scene, milk::math::Matrix& result) {
+			auto viewParameter =
+				std::make_unique<CallbackParameter<milk::math::Matrix, Scene>>(
+					[](milk::math::Matrix& result, const Scene& scene) {
 						result = scene.camera().viewTransformation().transposed();
 					}
 					)
-				);
-			sceneParameters.insert(std::make_pair(1, viewParameter));
+				;
+			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsDevice, shaderType, 1, std::move(viewParameter)));
 		}
 
 		{
-			SceneParameterSharedPtr projectionParameter(
-				new CallbackUpdateableParameter<Scene, milk::math::Matrix>(
-					graphicsDevice,
-					[](const Scene& scene, milk::math::Matrix& result) {
+			auto projectionParameter =
+				std::make_unique<CallbackParameter<milk::math::Matrix, Scene>>(
+					[](milk::math::Matrix& result, const Scene& scene) {
 						result = scene.lens().projectionTransformation().transposed();
 					}
 					)
-				);
-			sceneParameters.insert(std::make_pair(2, projectionParameter));
+				;
+			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsDevice, shaderType, 2, std::move(projectionParameter)));
 		}
 
 		vertexShader = std::make_unique<Shader>(
 			binaryShader,
 			shaderType,
-			std::move(sceneParameters),
-			std::move(actorParameters),
-			std::move(materialParameters),
+			std::move(sceneData),
+			std::move(actorData),
+			std::move(materialData),
 			std::move(resources)
 			);
 	}
 	
 	{
 		milk::graphics::ShaderType shaderType;
-		Shader::SceneParameters sceneParameters;
-		Shader::ActorParameters actorParameters;
-		Shader::MaterialParameters materialParameters;
+		Shader::SceneData sceneData;
+		Shader::ActorData actorData;
+		Shader::MaterialData groupData; // TODO: change type to GroupParameters and dont restrict param to material (?)
 		Shader::Resources resources;
 		milk::graphics::ShaderSharedPtr binaryShader;
 
@@ -152,15 +172,137 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 		binaryShader.reset(new milk::graphics::PixelShader(graphicsDevice, &pdata.front(), pdata.size()));
 
 		{
-			MaterialParameterSharedPtr materialParameter(
-				new CallbackUpdateableParameter<material::Material, milk::math::Vector4d::ShaderParameter>(
-					graphicsDevice,
-					[](const material::Material& material, milk::math::Vector4d::ShaderParameter& result) {
+			auto eyeParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector3d::ShaderParameter, Scene>>(
+					[](milk::math::Vector3d::ShaderParameter& result, const Scene& scene) {
+						result = scene.camera().position().shaderParameter();
+					}
+					)
+				;
+
+			auto directionalLightCountParameter =
+				std::make_unique<CallbackParameter<std::uint32_t, Scene>>(
+					[](std::uint32_t& result, const Scene& scene) {
+						result = static_cast<std::uint32_t>(scene.directionalLights().size()); // TODO: limit number of lights
+					}
+					)
+				;
+			
+			auto ambientParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Scene, size_t>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
+						if (scene.directionalLights().size() > lightIndex) {
+							result = scene.directionalLights()[lightIndex].ambientColour().shaderParameter();
+						}
+					}
+					)
+				;
+			auto diffuseParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Scene, size_t>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
+						if (scene.directionalLights().size() > lightIndex) {
+							result = scene.directionalLights()[lightIndex].diffuseColour().shaderParameter();
+						}
+					}
+					)
+				;
+			auto specularParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Scene, size_t>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
+						if (scene.directionalLights().size() > lightIndex) {
+							result = scene.directionalLights()[lightIndex].specularColour().shaderParameter();
+						}
+					}
+					)
+				;
+			
+			auto directionParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector3d::ShaderParameter, Scene, size_t>>(
+					[](milk::math::Vector3d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
+						if (scene.directionalLights().size() > lightIndex) {
+							result = scene.directionalLights()[lightIndex].direction().shaderParameter();
+						}
+					}
+					)
+				;
+
+			auto paddingParameter =
+				std::make_unique<CallbackParameter<float, Scene, size_t>>(
+					[](float&, const Scene&, size_t) {
+					}
+					)
+				;
+
+			StructuredParameter<Scene, size_t>::Subparameters directionalLightFields;
+			directionalLightFields.reserve(5);
+			directionalLightFields.emplace_back(std::move(ambientParameter));
+			directionalLightFields.emplace_back(std::move(diffuseParameter));
+			directionalLightFields.emplace_back(std::move(specularParameter));
+			directionalLightFields.emplace_back(std::move(directionParameter));
+			directionalLightFields.emplace_back(std::move(paddingParameter));
+
+			auto directionalLightParameter =
+				std::make_unique<StructuredParameter<Scene, size_t>>(
+					std::move(directionalLightFields)// TODO: could structured parameter handle padding?
+					)
+				;
+
+			auto directionalLightsParameterArray =
+				std::make_unique<ArrayParameter<Scene>>(
+					std::move(directionalLightParameter), // TODO: padding!
+					3
+					)
+				;
+
+			StructuredParameter<Scene>::Subparameters lightFields;
+			lightFields.reserve(3);
+			lightFields.emplace_back(std::move(eyeParameter));
+			lightFields.emplace_back(std::move(directionalLightCountParameter));
+			lightFields.emplace_back(std::move(directionalLightsParameterArray));
+
+			auto lightsParameter = 
+				std::make_unique<StructuredParameter<Scene>>(
+					lightFields
+				);
+
+			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsDevice, shaderType, 0, std::move(lightsParameter)));
+		}
+
+		{
+			auto ambientParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, material::Material>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const material::Material& material) {
+						result = material.ambientColour().shaderParameter();
+					}
+					)
+				;
+			auto diffuseParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, material::Material>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const material::Material& material) {
 						result = material.diffuseColour().shaderParameter();
 					}
 					)
+				;
+			auto specularParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, material::Material>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const material::Material& material) {
+						result = material.specularColour().shaderParameter();
+					}
+					)
+				;
+
+			StructuredParameter<material::Material>::Subparameters materialFields;
+			materialFields.reserve(3);
+			materialFields.emplace_back(std::move(ambientParameter));
+			materialFields.emplace_back(std::move(diffuseParameter));
+			materialFields.emplace_back(std::move(specularParameter));
+
+			auto materialParameter = std::make_unique<StructuredParameter<material::Material>>(
+				std::move(materialFields)
 				);
-			materialParameters.insert(std::make_pair(0, materialParameter));
+
+			groupData.emplace_back(std::make_unique<ConstantBuffer<material::Material>>(graphicsDevice, shaderType, 2, std::move(materialParameter)));
+			// TODO: verify that two constant buffers don't share a slot
 		}
 
 		{
@@ -175,9 +317,9 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 		pixelShader = std::make_unique<Shader>(
 			binaryShader,
 			shaderType,
-			std::move(sceneParameters),
-			std::move(actorParameters),
-			std::move(materialParameters),
+			std::move(sceneData),
+			std::move(actorData),
+			std::move(groupData),
 			std::move(resources)
 			);
 	}

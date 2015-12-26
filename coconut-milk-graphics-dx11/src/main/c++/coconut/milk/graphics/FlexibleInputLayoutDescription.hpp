@@ -67,6 +67,8 @@ public:
 
 	FLEXIBLE_INPUT_LAYOUT_ELEMENT(TextureCoordinates);
 
+	FLEXIBLE_INPUT_LAYOUT_ELEMENT(Normal);
+
 	system::COMWrapper<ID3D11InputLayout> makeLayout(
 		Device& device,
 		void* shaderData,

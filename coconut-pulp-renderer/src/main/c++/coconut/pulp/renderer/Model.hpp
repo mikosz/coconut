@@ -39,6 +39,8 @@ private:
 
 		milk::math::Vector2d textureCoordinate_;
 
+		milk::math::Vector3d normal_;
+
 		std::string materialName_;
 
 		milk::math::Vector3d position() const override {
@@ -47,6 +49,10 @@ private:
 
 		milk::math::Vector2d textureCoordinate() const override {
 			return textureCoordinate_;
+		}
+
+		milk::math::Vector3d normal() const override {
+			return normal_;
 		}
 
 		std::string materialName() const override {
@@ -95,6 +101,8 @@ private:
 		DrawGroup::Data currentGroupData_;
 
 		VertexData currentVertexData_;
+
+		void calculateMissingNormals();
 
 	};
 

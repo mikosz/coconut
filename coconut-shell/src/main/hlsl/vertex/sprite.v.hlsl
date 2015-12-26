@@ -1,9 +1,10 @@
 cbuffer WorldTransformations : register(b0) {
 	matrix worldMatrix;
+	matrix worldInvTranspose;
 }
 
 cbuffer ViewTransformations : register(b1) {
-	matrix viewMatrix;
+	matrix viewMatrix; // TODO: one world-view-proj matrix would suffice in b0 (and would be quicker)
 }
 
 cbuffer ProjectionTransformations : register(b2) {
@@ -11,23 +12,28 @@ cbuffer ProjectionTransformations : register(b2) {
 }
 
 struct VIn {
-	float4 pos : POSITION;
+	float4 posL : POSITION;
 	float2 tex : TEXCOORD;
+	float3 normalL : NORMAL;
 };
 
 struct VOut {
-	float4 pos : SV_POSITION;
+	float4 posH : SV_POSITION;
 	float2 tex : TEXCOORD;
+	float3 posW : POSITION;
+	float3 normalW : NORMAL;
 };
 
 VOut main(VIn vin)
 {
-	vin.pos.w = 1.0f;
+	vin.posL.w = 1.0f;
 
 	VOut vout;
 
-	vout.pos = mul(mul(mul(vin.pos, worldMatrix), viewMatrix), projectionMatrix);
+	vout.posH = mul(mul(mul(vin.posL, worldMatrix), viewMatrix), projectionMatrix);
 	vout.tex = vin.tex;
+	vout.posW = mul(vin.posL, worldMatrix).xyz;
+	vout.normalW = mul(vin.normalL, (float3x3)worldInvTranspose);
 
 	return vout;
 }

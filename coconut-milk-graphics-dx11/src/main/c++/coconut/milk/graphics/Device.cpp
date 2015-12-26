@@ -148,7 +148,7 @@ void createD3DDevice(
 			&swapChainDesc,
 			&swapChain->get()
 			),
-		"Failed to create a directx device"
+		"Failed to create a directx swap chain"
 		);
 }
 

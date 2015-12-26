@@ -22,6 +22,10 @@ public:
 		throw std::runtime_error("textureCoordinate() not implemented");
 	}
 
+	virtual math::Vector3d normal() const {
+		throw std::runtime_error("normal() not implemented");
+	}
+
 	virtual std::string materialName() const {
 		throw std::runtime_error("materialName() not implemented");
 	}

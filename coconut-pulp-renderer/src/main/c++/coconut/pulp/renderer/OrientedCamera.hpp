@@ -37,6 +37,10 @@ public:
 		return -orientation_.getRotation();
 	}
 
+	const milk::math::Vector3d& position() const override {
+		return orientation_.getTranslation();
+	}
+
 private:
 
 	Orientation orientation_;

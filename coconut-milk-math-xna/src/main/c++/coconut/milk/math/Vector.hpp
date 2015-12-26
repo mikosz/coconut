@@ -25,8 +25,6 @@ class Vector :
 {
 public:
 
-	typedef DirectX::XMVECTOR ShaderParameter;
-
 	static const size_t DIMENSION = DIMENSION_PARAM;
 	
 	static const Vector ZERO;
@@ -102,7 +100,7 @@ public:
 		return true;
 	}
 
-	bool operator==(const Vector& other) const {
+	bool operator==(const Vector& other) const { // TODO: makes no sense, use almost Equal here
 		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
 			if (get(i) != other.get(i)) {
 				return false;
@@ -148,10 +146,6 @@ public:
 		os << ">";
 
 		return os;
-	}
-
-	ShaderParameter shaderParameter() const {
-		return load();
 	}
 
 protected:
@@ -321,6 +315,8 @@ class Vector3d :
 {
 public:
 
+	using ShaderParameter = DirectX::XMFLOAT3;
+
 	Vector3d() {
 	}
 
@@ -403,6 +399,12 @@ public:
 		return -1.0f * (*this);
 	}
 
+	ShaderParameter shaderParameter() const {
+		ShaderParameter result; // TODO: to chyba tez zle
+		DirectX::XMStoreFloat3(&result, load());
+		return result;
+	}
+
 };
 
 inline Vector3d cross(const Vector3d& lhs, const Vector3d& rhs) {
@@ -415,6 +417,8 @@ class Vector4d :
 	boost::multiplicative<Vector4d, float>
 {
 public:
+
+	using ShaderParameter = DirectX::XMFLOAT4;
 
 	Vector4d() {
 	}
@@ -497,6 +501,12 @@ public:
 
 	Vector4d operator-() const {
 		return -1.0f * (*this);
+	}
+
+	ShaderParameter shaderParameter() const {
+		ShaderParameter result; // TODO: to chyba tez zle
+		DirectX::XMStoreFloat4(&result, load());
+		return result;
 	}
 
 };
