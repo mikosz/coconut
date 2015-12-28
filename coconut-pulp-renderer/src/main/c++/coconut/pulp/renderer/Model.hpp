@@ -82,7 +82,9 @@ private:
 
 		void setMaterialName(const std::string& materialName) override;
 
-		void endVertex() override;
+		size_t endVertex() override;
+
+		void addIndex(size_t index) override;
 
 		void endFace() override;
 

@@ -33,7 +33,9 @@ public:
 
 	virtual void setMaterialName(const std::string& materialName) = 0;
 
-	virtual void endVertex() = 0;
+	virtual size_t endVertex() = 0;
+
+	virtual void addIndex(size_t index) = 0;
 
 	virtual void endFace() = 0;
 

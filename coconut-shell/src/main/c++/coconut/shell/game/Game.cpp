@@ -68,12 +68,28 @@ void Game::loop() {
 
 	auto start = std::chrono::steady_clock::now();
 
-	camera->setTranslation(milk::math::Vector3d(0.0f, -0.0f, -3.f));
-	camera->setRotation(milk::math::Vector3d(.5f, 0.0f, 0.0f));
+	camera->setTranslation(milk::math::Vector3d(0.0f, 1.0f, -3.f));
+	camera->setRotation(milk::math::Vector3d(-.25f, 0.0f, 0.0f));
 
 	pulp::renderer::Scene scene(*graphicsDevice_);
 
 	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, loader, scene.renderingPass().inputLayoutDescription()));
+
+	pulp::renderer::lighting::DirectionalLight topWhite(
+		milk::math::Vector3d(-0.f, -.5f, -0.f),
+		milk::math::Vector4d(0.1f, 0.1f, 0.1f, 0.0f),
+		milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f),
+		milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f)
+		);
+	scene.add(topWhite);
+
+	pulp::renderer::lighting::DirectionalLight frontGreen(
+		milk::math::Vector3d(-0.f, -.0f, .5f),
+		milk::math::Vector4d(0.f, 0.1f, 0.f, 0.0f),
+		milk::math::Vector4d(.0f, 1.f, .0f, 1.0f),
+		milk::math::Vector4d(1.0f, 1.f, .0f, 1.0f)
+		);
+	scene.add(frontGreen);
 
 	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
 
@@ -106,7 +122,7 @@ void Game::loop() {
 		actor->setRotation(milk::math::Vector3d(0.0f, 0.03f * 3.14f * secs, 0.0f));
 
 		// actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
-		actor->setTranslation(milk::math::Vector3d(0.0f, -1.0f, 0.0f));
+		actor->setTranslation(milk::math::Vector3d(0.0f, -.0f, 0.0f));
 		actor->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
 		scene.render(*graphicsDevice_);

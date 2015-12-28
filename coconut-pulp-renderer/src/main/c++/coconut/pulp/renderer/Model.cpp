@@ -72,10 +72,14 @@ void Model::ModelDataListener::setMaterialName(const std::string& materialName) 
 	currentVertexData_.materialName_ = materialName;
 }
 
-void Model::ModelDataListener::endVertex() {
+size_t Model::ModelDataListener::endVertex() {
 	// TODO: do it a better way (keep vertices in some other form)
-	currentGroupData_.vertices.push_back(milk::graphics::VertexInterfaceSharedPtr(new VertexData(currentVertexData_)));
-	currentGroupData_.indices.push_back(currentGroupData_.vertices.size() - 1);
+	currentGroupData_.vertices.emplace_back(std::make_shared<VertexData>(currentVertexData_));
+	return currentGroupData_.vertices.size() - 1;
+}
+
+void Model::ModelDataListener::addIndex(size_t index) {
+	currentGroupData_.indices.emplace_back(index);
 }
 
 void Model::ModelDataListener::endFace() {
@@ -160,7 +164,7 @@ void Model::ModelDataListener::calculateMissingNormals() {
 
 			normal += faceNormals[faceIdx];
 			
-			CT_LOG_TRACE << "Temporary normal with face " << faceIdx << " is " << normal;
+			CT_LOG_TRACE << "Temporary normal with face " << (faceIdx / 3) << " is " << normal;
 
 			++range.first;
 		}

@@ -24,6 +24,8 @@ public:
 
 	void add(ActorSharedPtr actor);
 
+	void add(lighting::DirectionalLight directionalLight);
+
 	void setCamera(CameraSharedPtr camera);
 
 	void setLens(LensSharedPtr lens);
