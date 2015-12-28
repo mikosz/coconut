@@ -135,17 +135,22 @@ void Model::ModelDataListener::calculateMissingNormals() {
 	for (auto vertexIdx : needCalc) {
 		auto range = affectingFaces.equal_range(vertexIdx);
 
-		milk::math::Vector3d normal;
+		milk::math::Vector3d normal(0.0f, 0.0f, 0.0f); // TODO: default vector initialisation to 0?
+
+		CT_LOG_TRACE << "Calculating normal for vertex " << vertexIdx << ": " << currentGroupData_.vertices[vertexIdx]->position();
 
 		while (range.first != range.second) {
 			const auto faceIdx = range.first->second;
 			if (faceNormals.count(faceIdx) == 0) {
+				// TODO: kolejnosc
 				milk::math::Vector3d a =
-					currentGroupData_.vertices[currentGroupData_.indices[faceIdx + 1]]->position() -
-					currentGroupData_.vertices[currentGroupData_.indices[faceIdx]]->position();
-				milk::math::Vector3d b =
 					currentGroupData_.vertices[currentGroupData_.indices[faceIdx + 2]]->position() -
 					currentGroupData_.vertices[currentGroupData_.indices[faceIdx]]->position();
+				milk::math::Vector3d b =
+					currentGroupData_.vertices[currentGroupData_.indices[faceIdx + 1]]->position() -
+					currentGroupData_.vertices[currentGroupData_.indices[faceIdx]]->position();
+
+				CT_LOG_TRACE << "Face vectors: " << a << " x " << b << " = " << a.cross(b);
 
 				faceNormals.insert(std::make_pair(
 					faceIdx,
@@ -155,6 +160,8 @@ void Model::ModelDataListener::calculateMissingNormals() {
 
 			normal += faceNormals[faceIdx];
 			
+			CT_LOG_TRACE << "Temporary normal with face " << faceIdx << " is " << normal;
+
 			++range.first;
 		}
 
@@ -163,6 +170,8 @@ void Model::ModelDataListener::calculateMissingNormals() {
 			normal /= normal.length();
 		}
 		
+		CT_LOG_TRACE << "Final normal is " << normal;
+
 		dynamic_cast<VertexData&>(*currentGroupData_.vertices[vertexIdx]).normal_ = normal;
 	}
 }

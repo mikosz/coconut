@@ -56,20 +56,20 @@ void Game::loop() {
 
 	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
 
-	pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj"));
-	// pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/cube.model"));
+	// pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj"));
+	pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/cube.model"));
 	if (!modelIS->good()) {
 		throw std::runtime_error("Failed to open model file");
 	}
 
-	pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/Daniel/craig chemise bleu"));
-	// pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/"));
+	// pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/Daniel/craig chemise bleu"));
+	pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/"));
 	pulp::renderer::model_loader::ObjModelLoader loader(std::move(modelIS), opener);
 
 	auto start = std::chrono::steady_clock::now();
 
-	camera->setTranslation(milk::math::Vector3d(0.0f, 0.0f, -1.5f));
-	camera->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
+	camera->setTranslation(milk::math::Vector3d(0.0f, -0.0f, -3.f));
+	camera->setRotation(milk::math::Vector3d(.5f, 0.0f, 0.0f));
 
 	pulp::renderer::Scene scene(*graphicsDevice_);
 
@@ -102,9 +102,10 @@ void Game::loop() {
 		auto dt = now - start;
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(dt).count()) / 1000.0f;
 
-		camera->setRotation(milk::math::Vector3d(0.0f, 0.03f * 3.14f * secs, 0.0f));
+		// camera->setRotation(milk::math::Vector3d(0.0f, 0.03f * 3.14f * secs, 0.0f));
+		actor->setRotation(milk::math::Vector3d(0.0f, 0.03f * 3.14f * secs, 0.0f));
 
-		actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
+		// actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
 		actor->setTranslation(milk::math::Vector3d(0.0f, -1.0f, 0.0f));
 		actor->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
