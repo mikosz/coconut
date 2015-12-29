@@ -93,6 +93,10 @@ public:
 		return DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&internal_));
 	}
 
+	Vector3d extractTranslation() const { // TODO: cache?
+		return Vector3d(internal_._14, internal_._24, internal_._34);
+	}
+
 	bool isIdentity() const {
 		return DirectX::XMMatrixIsIdentity(DirectX::XMLoadFloat4x4(&internal_));
 	}

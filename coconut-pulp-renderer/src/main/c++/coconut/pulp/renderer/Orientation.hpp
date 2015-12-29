@@ -11,10 +11,14 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
+// TODO: remove?
 class Orientation {
 public:
 
 	Orientation() :
+		translation_(0.0f, 0.0f, 0.0f),
+		scale_(1.0f, 1.0f, 1.0f),
+		rotation_(0.0f, 0.0f, 0.0f),
 		worldMatrix_(std::bind(&Orientation::calculateWorldTransformation, this, std::placeholders::_1))
 	{
 	}
@@ -30,6 +34,11 @@ public:
 
 	const milk::math::Vector3d& getTranslation() const {
 		return translation_;
+	}
+
+	void translate(const milk::math::Vector3d& translation) {
+		translation_ += translation;
+		worldMatrix_.invalidate();
 	}
 
 	void setScale(const milk::math::Vector3d& scale) {
@@ -48,6 +57,11 @@ public:
 
 	const milk::math::Vector3d& getRotation() const {
 		return rotation_;
+	}
+
+	void rotate(const milk::math::Vector3d& rotation) {
+		rotation_ += rotation;
+		worldMatrix_.invalidate();
 	}
 
 private:

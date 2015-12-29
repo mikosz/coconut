@@ -46,8 +46,7 @@ void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	float3 lightVec = -l.direction;
-	float diffuseFactor = dot(lightVec, toEye);
-	[flatten]
+	float diffuseFactor = dot(lightVec, normal);
 	if (diffuseFactor > 0.0f) {
 		float3 reflected = reflect(-lightVec, normal);
 		float specularFactor = pow(max(dot(reflected, toEye), 0.0f), mat.specularColour.w);

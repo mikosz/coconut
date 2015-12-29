@@ -90,6 +90,13 @@ public:
 		return DirectX::XMVectorGetX(DirectX::XMVector4Dot(load(), other.load()));
 	}
 
+	void normalise() {
+		const auto l = length();
+		if (l > 0.0f) {
+			*this /= l;
+		}
+	}
+
 	bool almostEqual(const Vector& other, float epsilon) const {
 		Vector difference = other - *this;
 		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
@@ -208,6 +215,12 @@ public:
 	explicit Vector1d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
 	}
 
+	Vector1d normalised() {
+		Vector1d v(*this);
+		v.normalise();
+		return v;
+	}
+
 	float& x() {
 		return get<0>();
 	}
@@ -262,6 +275,12 @@ public:
 	}
 
 	explicit Vector2d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
+	}
+
+	Vector2d normalised() {
+		Vector2d v(*this);
+		v.normalise();
+		return v;
 	}
 
 	float& x() {
@@ -349,6 +368,12 @@ public:
 		Vector3d result = *this;
 		result.crossEq(rhs);
 		return result;
+	}
+
+	Vector3d normalised() {
+		Vector3d v(*this);
+		v.normalise();
+		return v;
 	}
 
 	float& x() {
@@ -445,6 +470,12 @@ public:
 	}
 
 	explicit Vector4d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
+	}
+
+	Vector4d normalised() {
+		Vector4d v(*this);
+		v.normalise();
+		return v;
 	}
 
 	float& x() {

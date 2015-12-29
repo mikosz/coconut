@@ -66,28 +66,26 @@ void Game::loop() {
 	pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/"));
 	pulp::renderer::model_loader::ObjModelLoader loader(std::move(modelIS), opener);
 
-	auto start = std::chrono::steady_clock::now();
-
-	camera->setTranslation(milk::math::Vector3d(0.0f, 1.0f, -3.f));
-	camera->setRotation(milk::math::Vector3d(-.25f, 0.0f, 0.0f));
+	camera->rotate(milk::math::Vector3d(1.f, 0.0f, 0.0f));
+	camera->translate(milk::math::Vector3d(0.0f, 0.0f, -2.f));
 
 	pulp::renderer::Scene scene(*graphicsDevice_);
 
 	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, loader, scene.renderingPass().inputLayoutDescription()));
 
-	pulp::renderer::lighting::DirectionalLight topWhite(
-		milk::math::Vector3d(-0.f, -.5f, -0.f),
+	/*pulp::renderer::lighting::DirectionalLight topWhite(
+		milk::math::Vector3d(-0.f, -1.0f, -0.f),
 		milk::math::Vector4d(0.1f, 0.1f, 0.1f, 0.0f),
 		milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f),
 		milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f)
 		);
-	scene.add(topWhite);
+	scene.add(topWhite);*/
 
 	pulp::renderer::lighting::DirectionalLight frontGreen(
-		milk::math::Vector3d(-0.f, -.0f, .5f),
-		milk::math::Vector4d(0.f, 0.1f, 0.f, 0.0f),
-		milk::math::Vector4d(.0f, 1.f, .0f, 1.0f),
-		milk::math::Vector4d(1.0f, 1.f, .0f, 1.0f)
+		milk::math::Vector3d(0.25f, -0.25f, 0.25f).normalised(),
+		milk::math::Vector4d(0.0f, 0.1f, 0.0f, 0.0f),
+		milk::math::Vector4d(0.0f, 0.6f, 0.0f, 1.0f),
+		milk::math::Vector4d(1.0f, 0.6f, 0.0f, 0.0f)
 		);
 	scene.add(frontGreen);
 
@@ -104,6 +102,7 @@ void Game::loop() {
 	actor2->setTranslation(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
 	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
+	const auto start = std::chrono::steady_clock::now();
 	for (;;) {
 		auto now = std::chrono::steady_clock::now();
 
@@ -116,9 +115,12 @@ void Game::loop() {
 		graphicsDevice_->beginScene();
 
 		auto dt = now - start;
-		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(dt).count()) / 1000.0f;
+		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;
 
-		// camera->setRotation(milk::math::Vector3d(0.0f, 0.03f * 3.14f * secs, 0.0f));
+		camera->reset();
+		// camera->rotate(milk::math::Vector3d(0.0f, 0.06f * 3.14f * secs, 0.0f));
+		camera->rotate(milk::math::Vector3d(.5f, 0.0f, 0.0f));
+		camera->translate(milk::math::Vector3d(0.0f, 0.0f, -2.f));
 		actor->setRotation(milk::math::Vector3d(0.0f, 0.03f * 3.14f * secs, 0.0f));
 
 		// actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
