@@ -17,7 +17,7 @@ public:
 
 	OrientedCamera() :
 		transformation_(milk::math::Matrix::IDENTITY),
-		position_([this](milk::math::Vector3d& position) { position = transformation_.extractTranslation(); })
+		position_([this](milk::math::Vector3d& position) { position = transformation_.inverted().transposed().extractTranslation(); }) // TODO: could be done with fewer temporaries
 	{
 	}
 

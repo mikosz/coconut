@@ -66,9 +66,6 @@ void Game::loop() {
 	pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/"));
 	pulp::renderer::model_loader::ObjModelLoader loader(std::move(modelIS), opener);
 
-	camera->rotate(milk::math::Vector3d(1.f, 0.0f, 0.0f));
-	camera->translate(milk::math::Vector3d(0.0f, 0.0f, -2.f));
-
 	pulp::renderer::Scene scene(*graphicsDevice_);
 
 	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, loader, scene.renderingPass().inputLayoutDescription()));
@@ -81,13 +78,13 @@ void Game::loop() {
 		);
 	scene.add(topWhite);*/
 
-	pulp::renderer::lighting::DirectionalLight frontGreen(
-		milk::math::Vector3d(0.25f, -0.25f, 0.25f).normalised(),
+	pulp::renderer::lighting::DirectionalLight green(
+		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
 		milk::math::Vector4d(0.0f, 0.1f, 0.0f, 0.0f),
 		milk::math::Vector4d(0.0f, 0.6f, 0.0f, 1.0f),
 		milk::math::Vector4d(1.0f, 0.6f, 0.0f, 0.0f)
 		);
-	scene.add(frontGreen);
+	scene.add(green);
 
 	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
 
@@ -118,11 +115,11 @@ void Game::loop() {
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;
 
 		camera->reset();
-		// camera->rotate(milk::math::Vector3d(0.0f, 0.06f * 3.14f * secs, 0.0f));
-		camera->rotate(milk::math::Vector3d(.5f, 0.0f, 0.0f));
+		// camera->rotate(milk::math::Vector3d(0.0f, 0.09f * 3.14f * secs, 0.0f));
+		camera->rotate(milk::math::Vector3d(-0.25f, 0.0f, 0.0f));
 		camera->translate(milk::math::Vector3d(0.0f, 0.0f, -2.f));
-		actor->setRotation(milk::math::Vector3d(0.0f, 0.03f * 3.14f * secs, 0.0f));
-
+		
+		actor->setRotation(milk::math::Vector3d(0.0f, 0.09f * 3.14f * secs, 0.0f));
 		// actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
 		actor->setTranslation(milk::math::Vector3d(0.0f, -.0f, 0.0f));
 		actor->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));

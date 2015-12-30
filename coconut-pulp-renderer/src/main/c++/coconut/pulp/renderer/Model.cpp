@@ -148,10 +148,10 @@ void Model::ModelDataListener::calculateMissingNormals() {
 			if (faceNormals.count(faceIdx) == 0) {
 				// TODO: kolejnosc
 				milk::math::Vector3d a =
-					currentGroupData_.vertices[currentGroupData_.indices[faceIdx + 2]]->position() -
+					currentGroupData_.vertices[currentGroupData_.indices[faceIdx + 1]]->position() -
 					currentGroupData_.vertices[currentGroupData_.indices[faceIdx]]->position();
 				milk::math::Vector3d b =
-					currentGroupData_.vertices[currentGroupData_.indices[faceIdx + 1]]->position() -
+					currentGroupData_.vertices[currentGroupData_.indices[faceIdx + 2]]->position() -
 					currentGroupData_.vertices[currentGroupData_.indices[faceIdx]]->position();
 
 				CT_LOG_TRACE << "Face vectors: " << a << " x " << b << " = " << a.cross(b);
