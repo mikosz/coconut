@@ -7,6 +7,7 @@
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
+#include <boost/spirit/include/classic_position_iterator.hpp>
 
 #include "coconut/milk/math/Vector.hpp"
 
@@ -17,7 +18,7 @@ namespace model_loader {
 
 class ObjMaterialLibParser :
 	public boost::spirit::qi::grammar<
-		boost::spirit::istream_iterator,
+		boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
 		void(),
 		boost::spirit::ascii::blank_type
 		> {
@@ -38,6 +39,10 @@ public:
 		float specularExponent;
 
 		std::string diffuseMap;
+
+		std::string bumpMap;
+
+		std::string dissolveMap;
 
 		Material() :
 			ambientColour(0.0f, 0.0f, 0.0f),
@@ -62,7 +67,7 @@ public:
 private:
 
 	typedef boost::spirit::qi::rule<
-		boost::spirit::istream_iterator,
+		boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
 		void(),
 		boost::spirit::ascii::blank_type
 	> Rule;
@@ -82,6 +87,10 @@ private:
 	Rule specularColourRule_;
 
 	Rule specularExponentRule_;
+
+	Rule bumpMapRule_;
+
+	Rule dissolveMapRule_;
 
 	Rule illuminationModelRule_;
 
@@ -106,6 +115,10 @@ private:
 	void setDiffuseColourMap(const std::vector<char>& newMaterialChars);
 
 	void setSpecularExponent(double specularExponent);
+
+	void setBumpMap(const std::vector<char>& bumpMapChars);
+
+	void setDissolveMap(const std::vector<char>& dissolveMapChars);
 
 };
 

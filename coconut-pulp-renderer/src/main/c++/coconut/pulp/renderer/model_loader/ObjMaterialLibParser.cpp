@@ -34,6 +34,8 @@ ObjMaterialLibParser::ObjMaterialLibParser() :
 	diffuseColourMapRule_ = qi::lit("map_Kd") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjMaterialLibParser::setDiffuseColourMap, this, _1)] >> endRule_;
 	specularColourRule_ = qi::lit("Ks") >> qi::repeat(3)[qi::double_][boost::bind(&ObjMaterialLibParser::setSpecularColour, this, _1)] >> endRule_;
 	specularExponentRule_ = qi::lit("Ns") >> qi::double_[boost::bind(&ObjMaterialLibParser::setSpecularExponent, this, _1)] >> endRule_;
+	bumpMapRule_ = qi::lit("map_Bump") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjMaterialLibParser::setBumpMap, this, _1)] >> endRule_;
+	dissolveMapRule_ = qi::lit("map_d") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjMaterialLibParser::setDissolveMap, this, _1)] >> endRule_;
 	illuminationModelRule_ = qi::lit("illum") >> qi::int_ >> endRule_;
 	dissolveRule_ = qi::lit("d") >> qi::double_ >> endRule_;
 	opticalDensityRule_ = qi::lit("Ni") >> qi::double_ >> endRule_;
@@ -46,6 +48,8 @@ ObjMaterialLibParser::ObjMaterialLibParser() :
 		diffuseColourMapRule_ |
 		specularColourRule_ |
 		specularExponentRule_ |
+		bumpMapRule_ |
+		dissolveMapRule_ |
 		illuminationModelRule_ |
 		dissolveRule_ |
 		opticalDensityRule_
@@ -58,10 +62,15 @@ void ObjMaterialLibParser::parse(std::istream& is) {
 	is.unsetf(std::istream::skipws);
 	spirit::istream_iterator it(is), end;
 
-	bool result = qi::phrase_parse(it, end, *this, ascii::blank);
+	spirit::classic::position_iterator2<spirit::istream_iterator> posIt(it, end), posEnd;
 
-	if (!result || it != end) {
-		std::runtime_error("Failed to parse material lib file");
+	bool result = qi::phrase_parse(posIt, posEnd, *this, ascii::blank);
+
+	if (!result || posIt != posEnd) {
+		std::ostringstream err;
+		const auto& position = posIt.get_position();
+		err << "Failed to parse material lib file at line: " << position.line << ", column: " << position.column;
+		throw std::runtime_error(err.str()); // TODO: exc
 	}
 }
 
@@ -146,4 +155,12 @@ void ObjMaterialLibParser::setSpecularExponent(double specularExponent) {
 	}
 
 	materials_.back().specularExponent = static_cast<float>(specularExponent);
+}
+
+void ObjMaterialLibParser::setBumpMap(const std::vector<char>& bumpMapChars) {
+	materials_.back().bumpMap = std::string(bumpMapChars.begin(), bumpMapChars.end());
+}
+
+void ObjMaterialLibParser::setDissolveMap(const std::vector<char>& dissolveMapChars) {
+	materials_.back().dissolveMap = std::string(dissolveMapChars.begin(), dissolveMapChars.end());
 }
