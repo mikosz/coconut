@@ -67,7 +67,7 @@ public:
 		DirectX::XMStoreFloat4x4(&internal_, xmMatrix);
 	}
 
-	Matrix operator *(const Matrix& other) {
+	Matrix operator *(const Matrix& other) { // TODO: use boost operator
 		return DirectX::XMMatrixMultiply(
 			DirectX::XMLoadFloat4x4(&internal_),
 			DirectX::XMLoadFloat4x4(&other.internal_)
@@ -85,8 +85,20 @@ public:
 		return *this;
 	}
 
-	Matrix transposed() const {
+	Matrix transposed() const { // TODO: cache?
 		return DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&internal_));
+	}
+
+	Matrix inverted() const { // TODO: cache?
+		return DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&internal_));
+	}
+
+	Vector3d extractTranslation() const { // TODO: cache?
+		return Vector3d(internal_._14, internal_._24, internal_._34);
+	}
+
+	bool isIdentity() const {
+		return DirectX::XMMatrixIsIdentity(DirectX::XMLoadFloat4x4(&internal_));
 	}
 
 	DirectX::XMMATRIX internal() const {

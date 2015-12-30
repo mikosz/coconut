@@ -1,32 +1,35 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_PARAMETER_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_PARAMETER_HPP_
 
-#include "coconut/milk/graphics/Buffer.hpp"
-#include "coconut/milk/graphics/Device.hpp"
-
 namespace coconut {
 namespace pulp {
 namespace renderer {
 namespace shader {
 
+template <class... UpdateArguments>
 class Parameter {
 public:
 
-	Parameter(milk::graphics::Device& graphicsDevice, size_t size);
+	Parameter(size_t size) :
+		size_(size)
+	{
+	}
 
-	void bind(
-		milk::graphics::Device& graphicsDevice,
-		size_t slot,
-		milk::graphics::ShaderType shaderType
-		);
+	Parameter(const Parameter&) = delete;
 
-	milk::graphics::Buffer& buffer() {
-		return buffer_;
+	virtual ~Parameter() = default;
+
+	void operator=(const Parameter&) = delete;
+
+	virtual void update(void* buffer, const UpdateArguments&... data) = 0;
+
+	size_t size() const {
+		return size_;
 	}
 
 private:
 
-	milk::graphics::Buffer buffer_;
+	size_t size_;
 
 };
 

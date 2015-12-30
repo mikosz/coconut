@@ -1,10 +1,12 @@
 #ifndef _COCONUT_PULP_RENDERER_ORIENTEDCAMERA_HPP_
 #define _COCONUT_PULP_RENDERER_ORIENTEDCAMERA_HPP_
 
+#include "coconut/milk/math/Matrix.hpp"
+#include "coconut/milk/math/Vector.hpp"
+
 #include "coconut/milk/utils/Lazy.hpp"
 
 #include "Camera.hpp"
-#include "Orientation.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -13,33 +15,40 @@ namespace renderer {
 class OrientedCamera : public Camera {
 public:
 
-	OrientedCamera() {
-		orientation_.setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
+	OrientedCamera() :
+		transformation_(milk::math::Matrix::IDENTITY),
+		position_([this](milk::math::Vector3d& position) { position = transformation_.inverted().transposed().extractTranslation(); }) // TODO: could be done with fewer temporaries
+	{
 	}
 
 	const milk::math::Matrix& viewTransformation() const override {
-		return orientation_.worldTransformation();
+		return transformation_;
 	}
 
-	void setTranslation(const milk::math::Vector3d& translation) {
-		orientation_.setTranslation(-translation);
+	const milk::math::Vector3d& position() const override {
+		return position_.get();
 	}
 
-	milk::math::Vector3d getTranslation() const {
-		return -orientation_.getTranslation();
+	void reset() {
+		transformation_ = milk::math::Matrix::IDENTITY;
+		position_.invalidate();
 	}
 
-	void setRotation(const milk::math::Vector3d& rotation) {
-		orientation_.setRotation(-rotation);
+	void translate(const milk::math::Vector3d& translation) {
+		transformation_ *= milk::math::Matrix::translation(-translation);
+		position_.invalidate();
 	}
 
-	milk::math::Vector3d getRotation() const {
-		return -orientation_.getRotation();
+	void rotate(const milk::math::Vector3d& rotation) {
+		transformation_ *= milk::math::Matrix::rotation(-rotation);
+		position_.invalidate();
 	}
 
 private:
 
-	Orientation orientation_;
+	milk::math::Matrix transformation_;
+
+	milk::utils::Lazy<milk::math::Vector3d> position_;
 
 };
 

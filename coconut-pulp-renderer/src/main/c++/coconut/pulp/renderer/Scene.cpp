@@ -17,6 +17,10 @@ void Scene::add(ActorSharedPtr actor) {
 	actors_.push_back(actor);
 }
 
+void Scene::add(lighting::DirectionalLight directionalLight) {
+	directionalLights_.emplace_back(directionalLight);
+}
+
 void Scene::setCamera(CameraSharedPtr camera) {
 	camera_ = camera;
 }

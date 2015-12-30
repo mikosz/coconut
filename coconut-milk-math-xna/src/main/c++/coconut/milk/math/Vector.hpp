@@ -25,8 +25,6 @@ class Vector :
 {
 public:
 
-	typedef DirectX::XMVECTOR ShaderParameter;
-
 	static const size_t DIMENSION = DIMENSION_PARAM;
 	
 	static const Vector ZERO;
@@ -92,6 +90,13 @@ public:
 		return DirectX::XMVectorGetX(DirectX::XMVector4Dot(load(), other.load()));
 	}
 
+	void normalise() {
+		const auto l = length();
+		if (l > 0.0f) {
+			*this /= l;
+		}
+	}
+
 	bool almostEqual(const Vector& other, float epsilon) const {
 		Vector difference = other - *this;
 		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
@@ -102,7 +107,7 @@ public:
 		return true;
 	}
 
-	bool operator==(const Vector& other) const {
+	bool operator==(const Vector& other) const { // TODO: makes no sense, use almost Equal here
 		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
 			if (get(i) != other.get(i)) {
 				return false;
@@ -148,10 +153,6 @@ public:
 		os << ">";
 
 		return os;
-	}
-
-	ShaderParameter shaderParameter() const {
-		return load();
 	}
 
 protected:
@@ -214,6 +215,12 @@ public:
 	explicit Vector1d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
 	}
 
+	Vector1d normalised() {
+		Vector1d v(*this);
+		v.normalise();
+		return v;
+	}
+
 	float& x() {
 		return get<0>();
 	}
@@ -270,6 +277,12 @@ public:
 	explicit Vector2d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
 	}
 
+	Vector2d normalised() {
+		Vector2d v(*this);
+		v.normalise();
+		return v;
+	}
+
 	float& x() {
 		return get<0>();
 	}
@@ -321,6 +334,8 @@ class Vector3d :
 {
 public:
 
+	using ShaderParameter = DirectX::XMFLOAT3;
+
 	Vector3d() {
 	}
 
@@ -353,6 +368,12 @@ public:
 		Vector3d result = *this;
 		result.crossEq(rhs);
 		return result;
+	}
+
+	Vector3d normalised() {
+		Vector3d v(*this);
+		v.normalise();
+		return v;
 	}
 
 	float& x() {
@@ -403,6 +424,12 @@ public:
 		return -1.0f * (*this);
 	}
 
+	ShaderParameter shaderParameter() const {
+		ShaderParameter result; // TODO: to chyba tez zle
+		DirectX::XMStoreFloat3(&result, load());
+		return result;
+	}
+
 };
 
 inline Vector3d cross(const Vector3d& lhs, const Vector3d& rhs) {
@@ -415,6 +442,8 @@ class Vector4d :
 	boost::multiplicative<Vector4d, float>
 {
 public:
+
+	using ShaderParameter = DirectX::XMFLOAT4;
 
 	Vector4d() {
 	}
@@ -441,6 +470,12 @@ public:
 	}
 
 	explicit Vector4d(DirectX::XMVECTOR xmvector) : Vector(xmvector) {
+	}
+
+	Vector4d normalised() {
+		Vector4d v(*this);
+		v.normalise();
+		return v;
 	}
 
 	float& x() {
@@ -497,6 +532,12 @@ public:
 
 	Vector4d operator-() const {
 		return -1.0f * (*this);
+	}
+
+	ShaderParameter shaderParameter() const {
+		ShaderParameter result; // TODO: to chyba tez zle
+		DirectX::XMStoreFloat4(&result, load());
+		return result;
 	}
 
 };

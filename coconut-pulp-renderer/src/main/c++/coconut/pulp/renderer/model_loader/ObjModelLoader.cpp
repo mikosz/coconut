@@ -1,5 +1,8 @@
 #include "ObjModelLoader.hpp"
 
+#include <unordered_map>
+#include <tuple>
+
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 #include "coconut/milk/graphics/ImageLoader.hpp"
 #include "coconut/milk/graphics/Texture2d.hpp"
@@ -12,6 +15,38 @@ using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::model_loader;
+
+namespace /* anonymous */ {
+
+using VertexDescriptor = std::tuple<size_t, size_t, size_t>;
+
+size_t hashCombine(size_t seed, size_t value) { // TODO: extract to tools
+	// Code from boost
+	// Reciprocal of the golden ratio helps spread entropy and handles duplicates.
+	// See Mike Seymour in magic-numbers-in-boosthash-combine: http://stackoverflow.com/questions/4948780
+
+	seed ^= std::hash_value(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+	return seed;
+}
+
+} // anonymous namespace
+
+namespace std {
+
+template <>
+struct hash<VertexDescriptor> {
+
+	size_t operator()(const VertexDescriptor& vertexDescriptor) const {
+		size_t seed = 0;
+		seed = hashCombine(seed, std::get<0>(vertexDescriptor));
+		seed = hashCombine(seed, std::get<1>(vertexDescriptor));
+		seed = hashCombine(seed, std::get<2>(vertexDescriptor));
+		return seed;
+	}
+
+};
+
+} // namespace std
 
 void ObjModelLoader::load(ModelDataListener& modelDataListener, milk::graphics::Device& graphicsDevice) {
 	ObjModelParser parser;
@@ -34,7 +69,7 @@ void ObjModelLoader::load(ModelDataListener& modelDataListener, milk::graphics::
 
 			material->setDiffuseColour(milk::math::Vector4d(materialData.second.diffuseColour, 1.0f));
 			material->setAmbientColour(milk::math::Vector4d(materialData.second.ambientColour, 1.0f));
-			material->setSpecularColour(milk::math::Vector4d(materialData.second.specularColour, 1.0f));
+			material->setSpecularColour(milk::math::Vector4d(materialData.second.specularColour, materialData.second.specularExponent)); // TODO: separate colour from exp?
 			material->setSpecularExponent(materialData.second.specularExponent);
 
 			if (!materialData.second.diffuseMap.empty()) {
@@ -59,19 +94,27 @@ void ObjModelLoader::load(ModelDataListener& modelDataListener, milk::graphics::
 
 				modelDataListener.setMaterialName(group.material);
 
+				std::unordered_map<VertexDescriptor, size_t> vertexIndices;
+
 				for (size_t faceIndex = 0; faceIndex < group.faces.size(); ++faceIndex) {
 					const ObjModelParser::Face& face = group.faces[faceIndex];
 
 					for (auto vertex : face.vertices) {
-						modelDataListener.setVertexPosition(positions[vertex.positionIndex]);
-						modelDataListener.setVertexTextureCoordinate(textureCoordinates[vertex.textureCoordinateIndex]);
-						if (vertex.normalIndex != ObjModelParser::NORMAL_INDEX_UNKNOWN) {
-							modelDataListener.setVertexNormal(normals[vertex.normalIndex]);
-						} else {
-							modelDataListener.setVertexNormalNeedsCalculation();
+						VertexDescriptor vertexDesc(vertex.positionIndex, vertex.textureCoordinateIndex, vertex.normalIndex);
+						if (vertexIndices.count(vertexDesc) == 0) {
+							modelDataListener.setVertexPosition(positions[vertex.positionIndex]);
+							modelDataListener.setVertexTextureCoordinate(textureCoordinates[vertex.textureCoordinateIndex]);
+							if (vertex.normalIndex != ObjModelParser::NORMAL_INDEX_UNKNOWN) {
+								modelDataListener.setVertexNormal(normals[vertex.normalIndex]);
+							} else {
+								modelDataListener.setVertexNormalNeedsCalculation();
+							}
+
+							const auto vertexIndex = modelDataListener.endVertex();
+							vertexIndices.insert(std::make_pair(vertexDesc, vertexIndex));
 						}
 
-						modelDataListener.endVertex();
+						modelDataListener.addIndex(vertexIndices[vertexDesc]);
 					}
 
 					modelDataListener.endFace();

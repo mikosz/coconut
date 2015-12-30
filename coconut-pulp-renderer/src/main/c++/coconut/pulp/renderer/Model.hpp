@@ -39,6 +39,8 @@ private:
 
 		milk::math::Vector2d textureCoordinate_;
 
+		milk::math::Vector3d normal_;
+
 		std::string materialName_;
 
 		milk::math::Vector3d position() const override {
@@ -47,6 +49,10 @@ private:
 
 		milk::math::Vector2d textureCoordinate() const override {
 			return textureCoordinate_;
+		}
+
+		milk::math::Vector3d normal() const override {
+			return normal_;
 		}
 
 		std::string materialName() const override {
@@ -76,7 +82,9 @@ private:
 
 		void setMaterialName(const std::string& materialName) override;
 
-		void endVertex() override;
+		size_t endVertex() override;
+
+		void addIndex(size_t index) override;
 
 		void endFace() override;
 
@@ -95,6 +103,8 @@ private:
 		DrawGroup::Data currentGroupData_;
 
 		VertexData currentVertexData_;
+
+		void calculateMissingNormals();
 
 	};
 

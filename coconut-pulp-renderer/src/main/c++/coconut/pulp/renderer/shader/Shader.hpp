@@ -1,6 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_SHADER_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_SHADER_HPP_
 
+#include <vector>
 #include <unordered_map>
 
 #include "coconut/milk/graphics/Device.hpp"
@@ -9,15 +10,17 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "ActorParameter.hpp"
-#include "SceneParameter.hpp"
-#include "MaterialParameter.hpp"
+#include "coconut/pulp/renderer/material/Material.hpp"
+
+#include "ConstantBuffer.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
 
 struct RenderingContext;
+class Actor;
+class Scene;
 
 namespace shader {
 
@@ -27,20 +30,20 @@ MAKE_POINTER_DEFINITIONS(Resource);
 class Shader {
 public:
 
-	typedef std::unordered_map<size_t, SceneParameterSharedPtr> SceneParameters;
+	using SceneData = std::vector<ConstantBufferSharedPtr<Scene>>;
 
-	typedef std::unordered_map<size_t, ActorParameterSharedPtr> ActorParameters;
+	using ActorData = std::vector<ConstantBufferSharedPtr<Actor>>;
 
-	typedef std::unordered_map<size_t, MaterialParameterSharedPtr> MaterialParameters;
+	using MaterialData = std::vector<ConstantBufferSharedPtr<material::Material>>;
 
-	typedef std::unordered_map<size_t, ResourceSharedPtr> Resources;
+	using Resources = std::unordered_map<size_t, ResourceSharedPtr>;
 
 	Shader(
 		milk::graphics::ShaderSharedPtr binaryShader,
 		milk::graphics::ShaderType shaderType,
-		SceneParameters sceneParameters,
-		ActorParameters actorParameters,
-		MaterialParameters materialParameters,
+		SceneData sceneData,
+		ActorData actorData,
+		MaterialData materialData,
 		Resources resources
 		);
 
@@ -59,11 +62,11 @@ private:
 
 	milk::graphics::ShaderType shaderType_;
 
-	SceneParameters sceneParameters_;
+	SceneData sceneData_;
 
-	ActorParameters actorParameters_;
+	ActorData actorData_;
 
-	MaterialParameters materialParameters_;
+	MaterialData materialData_;
 
 	Resources resources_;
 

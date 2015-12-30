@@ -7,6 +7,7 @@
 #include "coconut/milk/graphics/Device.hpp"
 
 #include "shader/Pass.hpp"
+#include "lighting/DirectionalLight.hpp"
 
 #include "Actor.hpp"
 #include "Camera.hpp"
@@ -22,6 +23,8 @@ public:
 	Scene(milk::graphics::Device& device);
 
 	void add(ActorSharedPtr actor);
+
+	void add(lighting::DirectionalLight directionalLight);
 
 	void setCamera(CameraSharedPtr camera);
 
@@ -41,9 +44,15 @@ public:
 		return *renderingPass_;
 	}
 
+	const std::vector<lighting::DirectionalLight>& directionalLights() const {
+		return directionalLights_;
+	}
+
 private:
 
 	std::vector<ActorSharedPtr> actors_;
+
+	std::vector<lighting::DirectionalLight> directionalLights_;
 
 	CameraSharedPtr camera_;
 

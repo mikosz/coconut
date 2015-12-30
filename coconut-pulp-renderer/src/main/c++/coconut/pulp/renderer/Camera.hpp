@@ -13,6 +13,8 @@ public:
 
 	virtual const milk::math::Matrix& viewTransformation() const = 0;
 
+	virtual const milk::math::Vector3d& position() const = 0;
+
 protected:
 
 	virtual ~Camera() {

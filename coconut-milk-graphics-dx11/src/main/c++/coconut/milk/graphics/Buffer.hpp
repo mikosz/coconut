@@ -69,7 +69,7 @@ public:
 
 	};
 
-	struct LockedData {
+	struct LockedData { // TODO: change into a unique ptr with deleter
 
 		void* data;
 
