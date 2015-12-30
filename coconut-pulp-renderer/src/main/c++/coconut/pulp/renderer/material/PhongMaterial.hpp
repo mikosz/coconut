@@ -27,8 +27,8 @@ public:
 		return diffuseColour_;
 	}
 
-	void setSpecularColour(const milk::math::Vector4d& /*rgbaColour*/) override {
-		specularColour_ = milk::math::Vector4d(1.0f, 0.0f, 0.0f, 1.0f); // rgbaColour;
+	void setSpecularColour(const milk::math::Vector4d& rgbaColour) override {
+		specularColour_ = rgbaColour;
 	}
 
 	const milk::math::Vector4d& specularColour() const override {

@@ -69,7 +69,7 @@ void ObjModelLoader::load(ModelDataListener& modelDataListener, milk::graphics::
 
 			material->setDiffuseColour(milk::math::Vector4d(materialData.second.diffuseColour, 1.0f));
 			material->setAmbientColour(milk::math::Vector4d(materialData.second.ambientColour, 1.0f));
-			material->setSpecularColour(milk::math::Vector4d(materialData.second.specularColour, 1.0f));
+			material->setSpecularColour(milk::math::Vector4d(materialData.second.specularColour, materialData.second.specularExponent)); // TODO: separate colour from exp?
 			material->setSpecularExponent(materialData.second.specularExponent);
 
 			if (!materialData.second.diffuseMap.empty()) {
