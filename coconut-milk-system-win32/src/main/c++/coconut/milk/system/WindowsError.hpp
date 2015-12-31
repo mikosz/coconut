@@ -16,22 +16,20 @@ namespace system {
 class WindowsError : public coconut_tools::exceptions::RuntimeError {
 public:
 
-	WindowsError(HRESULT errorCode, const std::string& message);
+	WindowsError(HRESULT hResult, const std::string& message);
+
+	WindowsError(DWORD errorCode, const std::string& message);
 
 	const std::string& name() const noexcept override {
 		static const std::string NAME = "WindowsError";
 		return NAME;
 	}
 
-	HRESULT errorCode() const {
-		return errorCode_;
-	}
-
 private:
 
-	HRESULT errorCode_;
+	static std::string buildMessage(HRESULT hResult, const std::string& message);
 
-	static std::string buildMessage(HRESULT errorCode, const std::string& message);
+	static std::string buildMessage(DWORD errorCode, const std::string& message);
 
 };
 

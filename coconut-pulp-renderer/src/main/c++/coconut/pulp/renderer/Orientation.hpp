@@ -11,7 +11,7 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-// TODO: remove?
+// TODO: this is useless, I think. It won't allow to stack transformations, just holds a single translation, scale and rotation.
 class Orientation {
 public:
 

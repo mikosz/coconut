@@ -39,7 +39,6 @@ milk::graphics::Buffer::Configuration indexBufferConfiguration(const DrawGroup::
 	return configuration;
 }
 
-// TODO: make sure this is move-constructed
 std::vector<std::uint8_t> vertexBufferData(const DrawGroup::Data& drawGroupData) {
 	std::vector<std::uint8_t> data;
 	const size_t vertexSize = drawGroupData.inputLayout->vertexSize();
@@ -54,7 +53,6 @@ std::vector<std::uint8_t> vertexBufferData(const DrawGroup::Data& drawGroupData)
 	return data;
 }
 
-// TODO: make sure this is move-constructed
 std::vector<std::uint8_t> indexBufferData(const DrawGroup::Data& drawGroupData) {
 	std::vector<std::uint8_t> data;
 	data.resize(4 * drawGroupData.indices.size());

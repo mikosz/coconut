@@ -190,7 +190,7 @@ Device::Device(system::Window& window, const Configuration& configuration) :
 	depthStencilConfig.allowModifications = false;
 	depthStencilConfig.mipLevels = 1;
 	depthStencilConfig.pixelFormat = PixelFormat::D32_FLOAT;
-	depthStencilConfig.purposeFlags = Texture2d::DEPTH_STENCIL;
+	depthStencilConfig.purposeFlags = Texture2d::CreationPurpose::DEPTH_STENCIL;
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	checkDirectXCall(swapChain_->GetDesc(&swapChainDesc), "Failed to retrieve the swap chain description");

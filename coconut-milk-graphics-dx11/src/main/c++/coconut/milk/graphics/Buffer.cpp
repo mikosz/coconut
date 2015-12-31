@@ -70,13 +70,12 @@ Buffer::LockedData Buffer::lock(Device& device, LockPurpose lockPurpose) {
 		"Failed to lock a buffer"
 		);
 
-	Buffer::LockedData result;
-	result.data = mappedResource.pData;
-	result.unlocker_ = utils::RAIIHelper(
-		std::bind(&unmap, device.d3dDeviceContext(), buffer_.get(), 0)
+	return Buffer::LockedData(
+		mappedResource.pData,
+		[deviceContext = device.d3dDeviceContext(), resource = buffer_.get()](void*) {
+			deviceContext->Unmap(resource, 0);
+		}
 		);
-	
-	return result;
 }
 
 void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {

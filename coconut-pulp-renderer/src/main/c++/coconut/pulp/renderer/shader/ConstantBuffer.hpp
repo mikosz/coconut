@@ -44,7 +44,7 @@ public:
 
 	void update(milk::graphics::Device& graphicsDevice, const UpdateArguments&... updateArguments) { // TODO: why doesn't perfect forwarding work here?
 		auto lockedData = buffer_.lock(graphicsDevice, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
-		parameter_->update(lockedData.data, updateArguments...);
+		parameter_->update(lockedData.get(), updateArguments...);
 	}
 
 	void bind(milk::graphics::Device& graphicsDevice) {

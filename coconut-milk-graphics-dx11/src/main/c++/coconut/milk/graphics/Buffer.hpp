@@ -1,12 +1,13 @@
 #ifndef _COCONUT_MILK_GRAPHICS_BUFFER_HPP_
 #define _COCONUT_MILK_GRAPHICS_BUFFER_HPP_
 
+#include <functional>
+
 #include <d3d11.h>
 
 #include "coconut/milk/system/COMWrapper.hpp"
 #include "coconut/milk/utils/IntOfSize.hpp"
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-#include "coconut/milk/utils/RAIIHelper.hpp"
 
 #include "ShaderType.hpp"
 
@@ -69,22 +70,7 @@ public:
 
 	};
 
-	struct LockedData { // TODO: change into a unique ptr with deleter
-
-		void* data;
-
-	private:
-
-		utils::RAIIHelper unlocker_;
-
-		LockedData() :
-			data(0)
-		{
-		}
-
-		friend class Buffer;
-
-	};
+	using LockedData = std::unique_ptr<void, std::function<void(void*)>>;
 
 	Buffer(Device& device, const Configuration& configuration, const void* initialData = 0);
 

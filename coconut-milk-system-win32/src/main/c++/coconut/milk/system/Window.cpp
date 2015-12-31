@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "App.hpp"
+#include "WindowsError.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
@@ -51,10 +52,7 @@ Window::Window(const Configuration& configuration, std::shared_ptr<App> app) :
 		);
 
 	if (handle_ == 0) {
-		std::ostringstream error;
-		error << "Failed to create window. Error code: " << GetLastError();
-
-		throw std::runtime_error(error.str());
+		throw WindowsError(GetLastError(), "Failed to create a window.");
 	}
 
 	ShowWindow(handle_, SW_SHOW);

@@ -120,7 +120,7 @@ void Model::ModelDataListener::calculateMissingNormals() {
 
 	CT_LOG_DEBUG << "Calculating group normals";
 
-	assert(currentGroupData_.primitiveTopology == milk::graphics::PrimitiveTopology::TRIANGLE_LIST); // TODO
+	assert(currentGroupData_.primitiveTopology == milk::graphics::PrimitiveTopology::TRIANGLE_LIST); // TODO refacor, extend supported topologies
 
 	std::unordered_multimap<size_t, size_t> affectingFaces;
 
@@ -139,7 +139,7 @@ void Model::ModelDataListener::calculateMissingNormals() {
 	for (auto vertexIdx : needCalc) {
 		auto range = affectingFaces.equal_range(vertexIdx);
 
-		milk::math::Vector3d normal(0.0f, 0.0f, 0.0f); // TODO: default vector initialisation to 0?
+		milk::math::Vector3d normal(0.0f, 0.0f, 0.0f);
 
 		CT_LOG_TRACE << "Calculating normal for vertex " << vertexIdx << ": " << currentGroupData_.vertices[vertexIdx]->position();
 
@@ -169,10 +169,7 @@ void Model::ModelDataListener::calculateMissingNormals() {
 			++range.first;
 		}
 
-		const auto length = normal.length();  // TODO: this should be a vector function (normalise)
-		if (length > 0.0f) {
-			normal /= normal.length();
-		}
+		normal.normalise();
 		
 		CT_LOG_TRACE << "Final normal is " << normal;
 

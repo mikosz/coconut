@@ -7,6 +7,7 @@ namespace coconut {
 namespace milk {
 namespace utils {
 
+// TODO: probably useless in c++11 with accessible underlying types
 template <int>
 struct IntOfSize {
 
