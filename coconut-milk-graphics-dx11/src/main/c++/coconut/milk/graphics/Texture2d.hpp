@@ -55,7 +55,7 @@ public:
 
 		bool allowGPUWrite;
 
-		CreationPurpose purposeFlags; // TODO: make c++11?
+		std::underlying_type_t<CreationPurpose> purposeFlags;
 
 		Configuration() {
 			std::memset(this, 0, sizeof(decltype(*this))); // TODO: TEMP TEMP TEMP
