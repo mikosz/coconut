@@ -12,7 +12,8 @@
 #include "coconut/milk/graphics/VertexShader.hpp"
 #include "coconut/milk/graphics/PixelShader.hpp"
 
-#include "coconut/pulp/renderer/model_loader/ObjModelLoader.hpp"
+#include "coconut/pulp/model/obj/Importer.hpp"
+
 #include "coconut/pulp/renderer/Model.hpp"
 #include "coconut/pulp/renderer/PerspectiveLens.hpp"
 #include "coconut/pulp/renderer/OrientedCamera.hpp"
@@ -56,21 +57,23 @@ void Game::loop() {
 
 	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
 
-	pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj"));
+	std::ifstream modelIS(std::ifstream("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj"));
 	// pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/Elexis/Blonde Elexis - nude/Blonde Elexis - nude.obj"));
 	// pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/cube.model"));
-	if (!modelIS->good()) {
+	if (!modelIS.good()) {
 		throw std::runtime_error("Failed to open model file");
 	}
 
-	pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/Daniel/craig chemise bleu"));
+	auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Daniel/craig chemise bleu");
 	// pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/Elexis/Blonde Elexis - nude"));
 	// pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/"));
-	pulp::renderer::model_loader::ObjModelLoader loader(std::move(modelIS), opener);
+	pulp::model::obj::Importer importer(std::move(opener));
+
+	auto modelData = importer.import(modelIS);
 
 	pulp::renderer::Scene scene(*graphicsDevice_);
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, loader, scene.renderingPass().inputLayoutDescription()));
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsDevice_, scene.renderingPass().inputLayoutDescription()));
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),

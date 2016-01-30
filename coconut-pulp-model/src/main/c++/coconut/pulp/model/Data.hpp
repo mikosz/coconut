@@ -5,6 +5,7 @@
 #include <string>
 
 #include "coconut/milk/math/Vector.hpp"
+#include "coconut/milk/graphics/PrimitiveTopology.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -13,6 +14,11 @@ namespace model {
 struct Data {
 public:
 
+	/* TODO:
+	 * renderer material is an abstract class designed to incorporate multiple material types (currently only implementation
+	 * is PhongMaterial). The struct below only allows Phong material, so there's no way to provide data for other material
+	 * types. Either rewrite this, or simplify renderer material.
+	 */
 	struct Material {
 
 		std::string name; // TODO: necessary?
@@ -41,13 +47,13 @@ public:
 
 	struct DrawGroup {
 
+		milk::graphics::PrimitiveTopology primitiveTopology;
+
 		std::vector<VertexDescriptor> vertices;
 
 		std::vector<size_t> indices;
 
 		Material material;
-
-		bool normalsNeedGeneration;
 
 	};
 
@@ -58,6 +64,8 @@ public:
 	std::vector<milk::math::Vector2d> textureCoordinates;
 
 	std::vector<DrawGroup> drawGroups;
+
+	void generateNormals(); // TODO: if Data has functions, it should be a class
 
 };
 

@@ -1,7 +1,7 @@
 set(DEPENDENCY_LIBRARIES
     coconut-milk-math-${MODULE_MATHS}
     coconut-milk-graphics-${MODULE_RENDERER}
-    coconut-pulp-model-importer
+    coconut-pulp-model
     coconut-tools-logger
     coconut-tools-configuration
     coconut-tools-system

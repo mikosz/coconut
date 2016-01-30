@@ -10,7 +10,9 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "material/Material.hpp"
+#include "coconut/pulp/model/Data.hpp"
+
+#include "material/PhongMaterial.hpp"
 #include "shader/Shader.hpp"
 #include "RenderingContext.hpp"
 
@@ -21,34 +23,18 @@ namespace renderer {
 class DrawGroup {
 public:
 
-	struct Data {
-
-		milk::graphics::PrimitiveTopology primitiveTopology;
-
-		material::ConstMaterialSharedPtr material;
-
-		const milk::graphics::InputLayoutDescription* inputLayout;
-
-		std::vector<milk::graphics::VertexInterfaceSharedPtr> vertices;
-
-		std::vector<size_t> indices;
-
-		void reset() {
-			material.reset();
-			// inputLayout.reset();
-			vertices.clear();
-			indices.clear();
-		}
-
-	};
-
-	DrawGroup(milk::graphics::Device& graphicsDevice, const Data& data);
+	DrawGroup(
+		const model::Data& modelData,
+		size_t groupIndex,
+		milk::graphics::Device& graphicsDevice,
+		const milk::graphics::InputLayoutDescription& inputLayoutDescription
+		);
 
 	void render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
 
 private:
 
-	material::ConstMaterialSharedPtr material_;
+	material::PhongMaterial material_; // TODO: currently only supports Phong materials
 
 	milk::graphics::Buffer vertexBuffer_;
 
