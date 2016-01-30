@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_RENDERER_MODEL_IMPORTER_IMPORTER_HPP_
-#define _COCONUT_PULP_RENDERER_MODEL_IMPORTER_IMPORTER_HPP_
+#ifndef _COCONUT_PULP_RENDERER_MODEL_IMPORTER_HPP_
+#define _COCONUT_PULP_RENDERER_MODEL_IMPORTER_HPP_
 
 #include <iosfwd>
 
@@ -9,7 +9,7 @@
 
 namespace coconut {
 namespace pulp {
-namespace model_importer {
+namespace model {
 
 class Importer {
 public:
@@ -30,8 +30,8 @@ protected:
 
 MAKE_POINTER_DEFINITIONS(Importer);
 
-} // namespace model_importer
+} // namespace model
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_MODEL_IMPORTER_IMPORTER_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_MODEL_IMPORTER_HPP_ */

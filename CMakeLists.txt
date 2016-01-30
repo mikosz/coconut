@@ -68,8 +68,8 @@ set(MODULES
     "coconut-milk-math-${MODULE_MATHS}"
     "coconut-milk-system-${MODULE_SYSTEM}"
     "coconut-milk-utils"
+    "coconut-pulp-model"
     "coconut-pulp-renderer"
-    "coconut-pulp-model-importer"
     "coconut-shell"
     )
 

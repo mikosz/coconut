@@ -61,53 +61,6 @@ private:
 
 	};
 
-	class ModelDataListener : public model_loader::ModelDataListener {
-	public:
-
-		ModelDataListener(
-			Model& model,
-			milk::graphics::Device& graphicsDevice,
-			const milk::graphics::InputLayoutDescription& inputLayoutDescription
-			);
-
-		void setMaterialLibrary(material::MaterialLibrary&& materialLibrary) override;
-
-		void setVertexPosition(const milk::math::Vector3d& position) override;
-
-		void setVertexTextureCoordinate(const milk::math::Vector2d& textureCoordinate) override;
-
-		void setVertexNormal(const milk::math::Vector3d& normal) override;
-
-		void setVertexNormalNeedsCalculation() override;
-
-		void setMaterialName(const std::string& materialName) override;
-
-		size_t endVertex() override;
-
-		void addIndex(size_t index) override;
-
-		void endFace() override;
-
-		void endSmoothingGroup(milk::graphics::PrimitiveTopology primitiveTopology) override;
-
-		void endObject() override;
-
-		void endModel() override;
-
-	private:
-
-		milk::graphics::Device& graphicsDevice_;
-			
-		Model& model_;
-
-		DrawGroup::Data currentGroupData_;
-
-		VertexData currentVertexData_;
-
-		void calculateMissingNormals();
-
-	};
-
 	typedef std::unordered_multimap<material::ConstMaterialSharedPtr, DrawGroupSharedPtr> DrawGroupsByMaterial;
 
 	material::MaterialLibrary materialLibrary_;

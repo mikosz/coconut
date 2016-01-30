@@ -10,4 +10,4 @@ set(TEST_LIBRARIES
 	${Boost_TEST_EXEC_MONITOR_LIBRARY}
 	)
 
-library_module(coconut-pulp-model-importer "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}")
+library_module(coconut-pulp-model "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}")

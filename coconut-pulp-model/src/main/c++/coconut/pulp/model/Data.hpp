@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_RENDERER_MODEL_IMPORTER_DATA_HPP_
-#define _COCONUT_PULP_RENDERER_MODEL_IMPORTER_DATA_HPP_
+#ifndef _COCONUT_PULP_RENDERER_MODEL_DATA_HPP_
+#define _COCONUT_PULP_RENDERER_MODEL_DATA_HPP_
 
 #include <vector>
 #include <string>
@@ -8,7 +8,7 @@
 
 namespace coconut {
 namespace pulp {
-namespace model_importer {
+namespace model {
 
 struct Data {
 public:
@@ -61,8 +61,8 @@ public:
 
 };
 
-} // namespace model_importer
+} // namespace model
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_MODEL_IMPORTER_DATA_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_MODEL_DATA_HPP_ */
