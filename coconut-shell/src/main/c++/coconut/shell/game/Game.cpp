@@ -57,16 +57,16 @@ void Game::loop() {
 
 	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
 
-	std::ifstream modelIS(std::ifstream("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj"));
-	// pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/Elexis/Blonde Elexis - nude/Blonde Elexis - nude.obj"));
-	// pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/cube.model"));
+	// std::ifstream modelIS("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj");
+	// std::ifstream modelIS("data/models/Elexis/Blonde Elexis - nude/Blonde Elexis - nude.obj");
+	std::ifstream modelIS("data/models/cube.model");
 	if (!modelIS.good()) {
 		throw std::runtime_error("Failed to open model file");
 	}
 
-	auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Daniel/craig chemise bleu");
-	// pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/Elexis/Blonde Elexis - nude"));
-	// pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/"));
+	// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Daniel/craig chemise bleu");
+	// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Elexis/Blonde Elexis - nude");
+	auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/");
 	pulp::model::obj::Importer importer(std::move(opener));
 
 	auto modelData = importer.import(modelIS);
