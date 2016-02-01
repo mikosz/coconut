@@ -12,8 +12,15 @@ namespace file_io {
 class JSONSerialiser : public Serialiser {
 public:
 
-	JSONSerialiser(std::ostream& os) : // TODO: needs to remain valid through lifetime of this object - enforce?
+	JSONSerialiser(std::ostream& os, Serialiser::Write) : // TODO: needs to remain valid through lifetime of this object - enforce?
+		Serialiser(Serialiser::write),
 		os_(os)
+	{
+	}
+
+	JSONSerialiser(std::istream& is, Serialiser::Read) :
+		Serialiser(Serialiser::read),
+		is_(is)
 	{
 	}
 

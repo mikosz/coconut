@@ -12,6 +12,12 @@ namespace file_io {
 class Serialiser {
 public:
 
+	struct Read {
+	} constexpr read;
+
+	struct Write {
+	} constexpr write;
+
 	template <class T>
 	struct LabelledValue {
 	
@@ -117,7 +123,15 @@ public:
 
 protected:
 
-	Serialiser() = default;
+	Serialiser(Read) :
+		writing_(false)
+	{
+	}
+
+	Serialiser(Write) :
+		writing_(true)
+	{
+	}
 
 	virtual void writeObjectStart() = 0;
 
@@ -154,6 +168,8 @@ private:
 	Serialiser(const Serialiser&) = delete;
 
 	void operator=(const Serialiser&) = delete;
+
+	bool writing_;
 
 };
 
