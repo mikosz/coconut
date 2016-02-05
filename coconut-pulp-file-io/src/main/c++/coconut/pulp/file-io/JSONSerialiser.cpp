@@ -47,60 +47,80 @@ void JSONSerialiser::writeLabel(const std::string& label) {
 }
 
 void JSONSerialiser::write(std::uint8_t i) {
+	flushComma();
+	indent();
 	os_ << i;
 	commaPending_ = true;
 	newLinePending_ = true;
 }
 
 void JSONSerialiser::write(std::int8_t i) {
+	flushComma();
+	indent();
 	os_ << i;
 	commaPending_ = true;
 	newLinePending_ = true;
 }
 
 void JSONSerialiser::write(std::uint16_t i) {
+	flushComma();
+	indent();
 	os_ << i;
 	commaPending_ = true;
 	newLinePending_ = true;
 }
 
 void JSONSerialiser::write(std::int16_t i) {
+	flushComma();
+	indent();
 	os_ << i;
 	commaPending_ = true;
 	newLinePending_ = true;
 }
 
 void JSONSerialiser::write(std::uint32_t i) {
+	flushComma();
+	indent();
 	os_ << i;
 	commaPending_ = true;
 	newLinePending_ = true;
 }
 
 void JSONSerialiser::write(std::int32_t i) {
+	flushComma();
+	indent();
 	os_ << i;
 	commaPending_ = true;
 	newLinePending_ = true;
 }
 
 void JSONSerialiser::write(std::uint64_t i) {
+	flushComma();
+	indent();
 	os_ << i;
 	commaPending_ = true;
 	newLinePending_ = true;
 }
 
 void JSONSerialiser::write(std::int64_t i) {
+	flushComma();
+	indent();
 	os_ << i;
 	commaPending_ = true;
 	newLinePending_ = true;
 }
 
 void JSONSerialiser::write(float f) {
+	flushComma();
+	indent();
 	os_ << f;
 	commaPending_ = true;
 	newLinePending_ = true;
 }
 
 void JSONSerialiser::write(const std::string& s) {
+	flushComma();
+	indent();
 	os_ << '"' << s << '"';
 	commaPending_ = true;
 	newLinePending_ = true;

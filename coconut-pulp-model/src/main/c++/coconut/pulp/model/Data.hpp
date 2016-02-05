@@ -7,6 +7,8 @@
 #include "coconut/milk/math/Vector.hpp"
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 
+#include "coconut/pulp/file-io/Serialiser.hpp"
+
 namespace coconut {
 namespace pulp {
 namespace model {
@@ -68,6 +70,8 @@ public:
 	void generateNormals(); // TODO: if Data has functions, it should be a class
 
 };
+
+void serialise(file_io::Serialiser& serialiser, const Data& data);
 
 } // namespace model
 } // namespace pulp

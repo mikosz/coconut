@@ -1,4 +1,5 @@
 set(DEPENDENCY_LIBRARIES
+    coconut-pulp-file-io
     coconut-milk-math-${MODULE_MATHS}
     coconut-tools-logger
     coconut-tools-configuration

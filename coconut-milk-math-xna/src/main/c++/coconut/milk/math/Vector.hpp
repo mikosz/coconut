@@ -29,6 +29,8 @@ public:
 	
 	static const Vector ZERO;
 
+	static const float EPSILON;
+
 	Vector() {
 	}
 
@@ -107,14 +109,8 @@ public:
 		return true;
 	}
 
-	bool operator==(const Vector& other) const { // TODO: makes no sense, use almost Equal here
-		for (size_t i = 0; i < Vector::DIMENSION; ++i) {
-			if (get(i) != other.get(i)) {
-				return false;
-			}
-		}
-
-		return true;
+	bool operator==(const Vector& other) const {
+		return almostEqual(other, EPSILON);
 	}
 
 	Vector& operator*=(float scalar) {
@@ -188,6 +184,13 @@ private:
 	DirectX::XMFLOAT4 data_;
 
 };
+
+template <
+	size_t DIMENSION_PARAM,
+	typename std::enable_if<(DIMENSION_PARAM >= 1)>::type* lt,
+	typename std::enable_if<(DIMENSION_PARAM <= 4)>::type* rt
+>
+const float Vector<DIMENSION_PARAM, lt, rt>::EPSILON = 0.0001f;
 
 template <class VectorType>
 float dot(const VectorType& lhs, const VectorType& rhs) {

@@ -10,6 +10,48 @@ namespace /* anonymous */ {
 
 BOOST_AUTO_TEST_SUITE(MilkMathVectorTestSuite);
 
+BOOST_AUTO_TEST_CASE(ZeroVectorEqualsZeroAtAllElements) {
+	const auto zero = Vector<3>::ZERO;
+
+	BOOST_CHECK_EQUAL(zero.get<0>(), 0.0f);
+	BOOST_CHECK_EQUAL(zero.get<1>(), 0.0f);
+	BOOST_CHECK_EQUAL(zero.get<2>(), 0.0f);
+}
+
+BOOST_AUTO_TEST_CASE(VectorsEqualIfElementsDifferByLessThanEpsilon) {
+	Vector<3> lhs;
+	lhs.get<0>() = 0.0f;
+	lhs.get<1>() = 1.0f;
+	lhs.get<2>() = 2.0f;
+
+	Vector<3> rhs;
+	rhs.get<0>() = 0.0f + 0.00009f;
+	rhs.get<1>() = 1.0f;
+	rhs.get<2>() = 2.0f - 0.00009f;
+
+	BOOST_CHECK_EQUAL(lhs, rhs);
+}
+
+BOOST_AUTO_TEST_CASE(VectorsNotEqualIfElementOffByMoreThanEpsilon) {
+	Vector<3> lhs;
+	lhs.get<0>() = 0.0f;
+	lhs.get<1>() = 1.0f;
+	lhs.get<2>() = 2.0f;
+
+	Vector<3> rhs;
+	rhs.get<0>() = 0.0f + 0.00011f;
+	rhs.get<1>() = 1.0f;
+	rhs.get<2>() = 2.0f;
+
+	BOOST_CHECK_NE(lhs, rhs);
+
+	rhs.get<0>() = 0.0f;
+	rhs.get<1>() = 1.0f;
+	rhs.get<2>() = 2.0f - 0.00011f;
+
+	BOOST_CHECK_NE(lhs, rhs);
+}
+
 BOOST_AUTO_TEST_CASE(VectorElementsAccessible) {
 	Vector<4> vector;
 	vector.get<0>() = 0.0f;
