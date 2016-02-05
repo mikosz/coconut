@@ -121,6 +121,95 @@ public:
 		return *this;
 	}
 
+	template <class T>
+	Serialiser& operator>>(T& value) {
+		readObjectStart();
+		serialise(*this, value);
+		readObjectEnd();
+		return *this;
+	}
+
+	template <class T>
+	Serialiser& operator>>(LabelledValue<T>& labelledValue) {
+		readLabel(labelledValue.label);
+		*this >> labelledValue.value;
+		return *this;
+	}
+
+	template <class T>
+	Serialiser& operator>>(std::vector<T>& vector) {
+		// TODO: verify array not larger than max uint32_t
+		readArrayStart(static_cast<std::uint32_t>(vector.size()));
+		for (const auto& element : vector) {
+			*this >> element;
+		}
+		readArrayEnd();
+		return *this;
+	}
+
+	// TODO: make this a template accepting all integral types
+	Serialiser& operator>>(std::uint8_t& i) {
+		read(i);
+		return *this;
+	}
+
+	Serialiser& operator>>(std::int8_t& i) {
+		read(i);
+		return *this;
+	}
+
+	Serialiser& operator>>(std::uint16_t& i) {
+		read(i);
+		return *this;
+	}
+
+	Serialiser& operator>>(std::int16_t& i) {
+		read(i);
+		return *this;
+	}
+
+	Serialiser& operator>>(std::uint32_t& i) {
+		read(i);
+		return *this;
+	}
+
+	Serialiser& operator>>(std::int32_t& i) {
+		read(i);
+		return *this;
+	}
+
+	Serialiser& operator>>(std::uint64_t& i) {
+		read(i);
+		return *this;
+	}
+
+	Serialiser& operator>>(std::int64_t& i) {
+		read(i);
+		return *this;
+	}
+
+	Serialiser& operator>>(float& f) {
+		read(f);
+		return *this;
+	}
+
+	Serialiser& operator>>(std::string& s) {
+		read(std::string(s));
+		return *this;
+	}
+
+	template <class T>
+	Serialiser& operator()(T& value) {
+		if (writing_) {
+			*this << value;
+		}
+		else {
+			*this >> value;
+		}
+
+		return *this;
+	}
+
 protected:
 
 	Serialiser(Read) :
@@ -162,6 +251,36 @@ protected:
 	virtual void write(float f) = 0;
 
 	virtual void write(const std::string& s) = 0;
+
+	virtual void readObjectStart() = 0;
+
+	virtual void readObjectEnd() = 0;
+
+	virtual void readArrayStart(std::uint32_t elementCount) = 0;
+
+	virtual void readArrayEnd() = 0;
+
+	virtual void readLabel(std::string& label) = 0;
+
+	virtual void read(std::uint8_t& i) = 0;
+
+	virtual void read(std::int8_t& i) = 0;
+
+	virtual void read(std::uint16_t& i) = 0;
+
+	virtual void read(std::int16_t& i) = 0;
+
+	virtual void read(std::uint32_t& i) = 0;
+
+	virtual void read(std::int32_t& i) = 0;
+
+	virtual void read(std::uint64_t& i) = 0;
+
+	virtual void read(std::int64_t& i) = 0;
+
+	virtual void read(float& f) = 0;
+
+	virtual void read(std::string& s) = 0;
 
 private:
 
