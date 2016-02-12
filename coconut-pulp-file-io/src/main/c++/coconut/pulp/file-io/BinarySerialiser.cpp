@@ -1,6 +1,9 @@
 #include "BinarySerialiser.hpp"
 
 #include <cstddef>
+#include <iostream>
+
+#include "coconut-tools/logger.hpp"
 
 #include "coconut/milk/utils/endianness.hpp"
 
@@ -9,6 +12,8 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::file_io;
 
 namespace /* anonymous */ {
+
+CT_LOGGER_CATEGORY("COCONUT.PULP.FILE_IO");
 
 template <class T>
 void writeBinaryData(std::ostream& os, const T& value) { // TODO: move to tools, also this should only accept POD values
@@ -21,6 +26,8 @@ void writeBinaryData(std::ostream& os, const T& value) { // TODO: move to tools,
 BinarySerialiser::BinarySerialiser(std::ostream& os) :
 	os_(os)
 {
+	os_.exceptions(std::ios::badbit | std::ios::failbit);
+
 	writeBinaryData(os_, static_cast<char>(milk::utils::isBigEndian()));
 }
 

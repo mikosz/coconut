@@ -5,9 +5,10 @@
 #include <string>
 
 #include "coconut/milk/math/Vector.hpp"
+
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 
-#include "coconut/pulp/file-io/Serialiser.hpp"
+#include "coconut/pulp/file-io/make-serialisable-macro.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -49,7 +50,7 @@ public:
 
 	struct DrawGroup {
 
-		milk::graphics::PrimitiveTopology primitiveTopology;
+		milk::graphics::PrimitiveTopology primitiveTopology = milk::graphics::PrimitiveTopology::TRIANGLE_LIST; // TODO!
 
 		std::vector<VertexDescriptor> vertices;
 
@@ -71,7 +72,35 @@ public:
 
 };
 
-void serialise(file_io::Serialiser& serialiser, const Data& data);
+// TODO: move stuff below to .cpp, only need impls for Serialiser and Deserialiser (would need macro for declaration?)
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::DrawGroup, drawGroup) {
+	// serialiser(SerialiserType::Label("primitiveTopology"), drawGroup.primitiveTopology); TODO!
+	serialiser(SerialiserType::Label("vertices"), drawGroup.vertices);
+	serialiser(SerialiserType::Label("indices"), drawGroup.indices);
+	serialiser(SerialiserType::Label("material"), drawGroup.material);
+}
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::Material, material) {
+	serialiser(SerialiserType::Label("name"), material.name);
+	serialiser(SerialiserType::Label("ambientColour"), material.ambientColour);
+	serialiser(SerialiserType::Label("diffuseColour"), material.diffuseColour);
+	serialiser(SerialiserType::Label("specularColour"), material.specularColour);
+	serialiser(SerialiserType::Label("specularExponent"), material.specularExponent);
+	serialiser(SerialiserType::Label("diffuseMap"), material.diffuseMap);
+}
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::VertexDescriptor, vertexDescriptor) {
+	serialiser(SerialiserType::Label("positionIndex"), vertexDescriptor.positionIndex);
+	serialiser(SerialiserType::Label("normalIndex"), vertexDescriptor.normalIndex);
+	serialiser(SerialiserType::Label("textureCoordinateIndex"), vertexDescriptor.textureCoordinateIndex);
+}
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data, data) {
+	serialiser(SerialiserType::Label("positions"), data.positions);
+	serialiser(SerialiserType::Label("normals"), data.normals);
+	serialiser(SerialiserType::Label("textureCoordinates"), data.textureCoordinates);
+	serialiser(SerialiserType::Label("drawGroups"), data.drawGroups);
+}
 
 } // namespace model
 } // namespace pulp

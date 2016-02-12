@@ -5,6 +5,8 @@
 #include <vector>
 #include <cstddef>
 
+#include "coconut/milk/math/Vector.hpp"
+
 namespace coconut {
 namespace pulp {
 namespace file_io {
@@ -12,46 +14,32 @@ namespace file_io {
 class Serialiser {
 public:
 
-	struct Read {
-	} constexpr read;
-
-	struct Write {
-	} constexpr write;
-
 	template <class T>
-	struct LabelledValue {
-	
-		LabelledValue(const std::string& label, const T& value) : // value to universal ref or boost::call_traits
-			label(label),
-			value(value)
+	using SerialiseArgument = const T&;
+
+	struct Label {
+
+		std::string label;
+
+		Label(const std::string& label) :
+			label(label)
 		{
 		}
 
-		const std::string& label;
-
-		const T& value;
+		Label(std::string&& label) :
+			label(std::move(label))
+		{
+		}
 
 	};
 
 	virtual ~Serialiser() = default;
-	
-	template <class T>
-	static LabelledValue<T> labelled(const std::string& label, const T& value) {
-		return LabelledValue<T>(label, value);
-	}
 
 	template <class T>
 	Serialiser& operator<<(const T& value) {
 		writeObjectStart();
 		serialise(*this, value);
 		writeObjectEnd();
-		return *this;
-	}
-
-	template <class T>
-	Serialiser& operator<<(const LabelledValue<T>& labelledValue) {
-		writeLabel(labelledValue.label);
-		*this << labelledValue.value;
 		return *this;
 	}
 
@@ -63,6 +51,11 @@ public:
 			*this << element;
 		}
 		writeArrayEnd();
+		return *this;
+	}
+
+	Serialiser& operator<<(const Label& label) {
+		writeLabel(label.label);
 		return *this;
 	}
 
@@ -122,105 +115,20 @@ public:
 	}
 
 	template <class T>
-	Serialiser& operator>>(T& value) {
-		readObjectStart();
-		serialise(*this, value);
-		readObjectEnd();
+	Serialiser& operator()(const T& value) { // TODO: use call_traits param type
+		*this << value;
 		return *this;
 	}
 
 	template <class T>
-	Serialiser& operator>>(LabelledValue<T>& labelledValue) {
-		readLabel(labelledValue.label);
-		*this >> labelledValue.value;
-		return *this;
-	}
-
-	template <class T>
-	Serialiser& operator>>(std::vector<T>& vector) {
-		// TODO: verify array not larger than max uint32_t
-		readArrayStart(static_cast<std::uint32_t>(vector.size()));
-		for (const auto& element : vector) {
-			*this >> element;
-		}
-		readArrayEnd();
-		return *this;
-	}
-
-	// TODO: make this a template accepting all integral types
-	Serialiser& operator>>(std::uint8_t& i) {
-		read(i);
-		return *this;
-	}
-
-	Serialiser& operator>>(std::int8_t& i) {
-		read(i);
-		return *this;
-	}
-
-	Serialiser& operator>>(std::uint16_t& i) {
-		read(i);
-		return *this;
-	}
-
-	Serialiser& operator>>(std::int16_t& i) {
-		read(i);
-		return *this;
-	}
-
-	Serialiser& operator>>(std::uint32_t& i) {
-		read(i);
-		return *this;
-	}
-
-	Serialiser& operator>>(std::int32_t& i) {
-		read(i);
-		return *this;
-	}
-
-	Serialiser& operator>>(std::uint64_t& i) {
-		read(i);
-		return *this;
-	}
-
-	Serialiser& operator>>(std::int64_t& i) {
-		read(i);
-		return *this;
-	}
-
-	Serialiser& operator>>(float& f) {
-		read(f);
-		return *this;
-	}
-
-	Serialiser& operator>>(std::string& s) {
-		read(std::string(s));
-		return *this;
-	}
-
-	template <class T>
-	Serialiser& operator()(T& value) {
-		if (writing_) {
-			*this << value;
-		}
-		else {
-			*this >> value;
-		}
-
+	Serialiser& operator()(const Label& label, const T& value) { // TODO: use call_traits param type
+		*this << label << value;
 		return *this;
 	}
 
 protected:
 
-	Serialiser(Read) :
-		writing_(false)
-	{
-	}
-
-	Serialiser(Write) :
-		writing_(true)
-	{
-	}
+	Serialiser() = default;
 
 	virtual void writeObjectStart() = 0;
 
@@ -252,45 +160,17 @@ protected:
 
 	virtual void write(const std::string& s) = 0;
 
-	virtual void readObjectStart() = 0;
-
-	virtual void readObjectEnd() = 0;
-
-	virtual void readArrayStart(std::uint32_t elementCount) = 0;
-
-	virtual void readArrayEnd() = 0;
-
-	virtual void readLabel(std::string& label) = 0;
-
-	virtual void read(std::uint8_t& i) = 0;
-
-	virtual void read(std::int8_t& i) = 0;
-
-	virtual void read(std::uint16_t& i) = 0;
-
-	virtual void read(std::int16_t& i) = 0;
-
-	virtual void read(std::uint32_t& i) = 0;
-
-	virtual void read(std::int32_t& i) = 0;
-
-	virtual void read(std::uint64_t& i) = 0;
-
-	virtual void read(std::int64_t& i) = 0;
-
-	virtual void read(float& f) = 0;
-
-	virtual void read(std::string& s) = 0;
-
 private:
 
 	Serialiser(const Serialiser&) = delete;
 
 	void operator=(const Serialiser&) = delete;
 
-	bool writing_;
-
 };
+
+void serialise(Serialiser& serialiser, const milk::math::Vector2d& vector);
+void serialise(Serialiser& serialiser, const milk::math::Vector3d& vector);
+void serialise(Serialiser& serialiser, const milk::math::Vector4d& vector);
 
 } // namespace file_io
 } // namespace pulp

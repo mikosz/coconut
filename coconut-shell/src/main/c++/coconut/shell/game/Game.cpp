@@ -21,6 +21,7 @@
 #include "coconut/pulp/renderer/Actor.hpp"
 
 #include "coconut/pulp/file-io/BinarySerialiser.hpp"
+#include "coconut/pulp/file-io/BinaryDeserialiser.hpp"
 
 #include "globals.hpp"
 #include "coconut/milk/system/Window.hpp"
@@ -59,25 +60,32 @@ void Game::loop() {
 
 	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
 
-	// std::ifstream modelIS("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj");
-	std::ifstream modelIS("data/models/Elexis/Blonde Elexis - nude/Blonde Elexis - nude.obj");
-	// std::ifstream modelIS("data/models/cube.model");
-	if (!modelIS.good()) {
-		throw std::runtime_error("Failed to open model file");
+	if (!boost::filesystem::exists("elexis.model")) {
+		// std::ifstream modelIS("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj");
+		std::ifstream modelIS("data/models/Elexis/Blonde Elexis - nude/Blonde Elexis - nude.obj");
+		// std::ifstream modelIS("data/models/cube.model");
+		if (!modelIS.good()) {
+			throw std::runtime_error("Failed to open model file");
+		}
+
+		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Daniel/craig chemise bleu");
+		auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Elexis/Blonde Elexis - nude");
+		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/");
+		pulp::model::obj::Importer importer(std::move(opener));
+
+		auto modelData = importer.import(modelIS);
+
+		{
+			std::ofstream modelOFS("elexis.model", std::ofstream::out | std::ofstream::binary);
+			pulp::file_io::BinarySerialiser serialiser(modelOFS);
+			serialiser << modelData;
+		}
 	}
 
-	// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Daniel/craig chemise bleu");
-	auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Elexis/Blonde Elexis - nude");
-	// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/");
-	pulp::model::obj::Importer importer(std::move(opener));
-
-	auto modelData = importer.import(modelIS);
-
-	{
-		std::ofstream modelOFS("elexis.model");
-		pulp::file_io::BinarySerialiser serialiser(modelOFS);
-		serialiser << modelData;
-	}
+	std::ifstream modelIFS("elexis.model", std::ifstream::in | std::ifstream::binary);
+	pulp::file_io::BinaryDeserialiser deserialiser(modelIFS);
+	pulp::model::Data modelData;
+	deserialiser >> modelData;
 
 	pulp::renderer::Scene scene(*graphicsDevice_);
 

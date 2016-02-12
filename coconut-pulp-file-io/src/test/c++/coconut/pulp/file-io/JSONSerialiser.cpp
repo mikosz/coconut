@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include <boost/filesystem.hpp>
+
 #include "coconut/pulp/file-io/JSONSerialiser.hpp"
 
 using namespace coconut;
@@ -17,19 +19,27 @@ struct SubStruct {
 };
 
 void serialise(Serialiser& s, const SubStruct&) {
-	s << Serialiser::labelled("int", 42);
+	s << Serialiser::Label("int") << 42;
 }
 
 void serialise(Serialiser& s, const BasicTypeStruct&) {
-	s << Serialiser::labelled("int", 123);
-	s << Serialiser::labelled("float", 1.3f);
-	s << Serialiser::labelled("string", "value");
+	s << Serialiser::Label("int") << 123;
+	s << Serialiser::Label("float") << 1.3f;
+	s << Serialiser::Label("string") << "value";
 
 	std::vector<SubStruct> v(2);
-	s << Serialiser::labelled("sub-objects", v);
+	s << Serialiser::Label("sub-objects") << v;
 }
 
 BOOST_AUTO_TEST_SUITE(PulpFileIOJSONSerialiserTestSuite);
+
+BOOST_AUTO_TEST_CASE(ThrowsIfFileExists) {
+	BOOST_FAIL("implement me");
+}
+
+BOOST_AUTO_TEST_CASE(ThrowsIfFailedWrite) {
+	BOOST_FAIL("implement me");
+}
 
 BOOST_AUTO_TEST_CASE(SerialisesDataToJSON) {
 	std::ostringstream oss;

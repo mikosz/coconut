@@ -13,55 +13,6 @@ namespace /* anonymous */ {
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.MODEL.DATA");
 
-void serialise(file_io::Serialiser& serialiser, const milk::math::Vector2d& data) { // TODO: move to vector, move file-io to milk
-	serialiser << file_io::Serialiser::labelled("x", data.x());
-	serialiser << file_io::Serialiser::labelled("y", data.y());
-}
-
-void serialise(file_io::Serialiser& serialiser, const milk::math::Vector3d& data) { // TODO: move to vector, move file-io to milk
-	serialiser << file_io::Serialiser::labelled("x", data.x());
-	serialiser << file_io::Serialiser::labelled("y", data.y());
-	serialiser << file_io::Serialiser::labelled("z", data.z());
-}
-
-void serialise(file_io::Serialiser& serialiser, const milk::math::Vector4d& data) { // TODO: move to vector, move file-io to milk
-	serialiser << file_io::Serialiser::labelled("x", data.x());
-	serialiser << file_io::Serialiser::labelled("y", data.y());
-	serialiser << file_io::Serialiser::labelled("z", data.z());
-	serialiser << file_io::Serialiser::labelled("w", data.w());
-}
-
-void serialise(file_io::Serialiser& serialiser, const Data::DrawGroup& drawGroup) {
-	switch (drawGroup.primitiveTopology) {
-	case milk::graphics::PrimitiveTopology::TRIANGLE_LIST: // better use a name array
-		serialiser << file_io::Serialiser::labelled("primitiveTopology", "TRIANGLE_LIST");
-		break;
-	case milk::graphics::PrimitiveTopology::TRIANGLE_STRIP:
-		serialiser << file_io::Serialiser::labelled("primitiveTopology", "TRIANGLE_STRIP");
-		break;
-	default:
-		assert(0);
-	}
-	serialiser << file_io::Serialiser::labelled("vertices", drawGroup.vertices);
-	serialiser << file_io::Serialiser::labelled("indices", drawGroup.indices);
-	serialiser << file_io::Serialiser::labelled("material", drawGroup.material);
-}
-
-void serialise(file_io::Serialiser& serialiser, const Data::Material& material) {
-	serialiser << file_io::Serialiser::labelled("name", material.name);
-	serialiser << file_io::Serialiser::labelled("ambientColour", material.ambientColour);
-	serialiser << file_io::Serialiser::labelled("diffuseColour", material.diffuseColour);
-	serialiser << file_io::Serialiser::labelled("specularColour", material.specularColour);
-	serialiser << file_io::Serialiser::labelled("specularExponent", material.specularExponent);
-	serialiser << file_io::Serialiser::labelled("diffuseMap", material.diffuseMap);
-}
-
-void serialise(file_io::Serialiser& serialiser, const Data::VertexDescriptor& vertexDescriptor) {
-	serialiser << file_io::Serialiser::labelled("positionIndex", vertexDescriptor.positionIndex);
-	serialiser << file_io::Serialiser::labelled("normalIndex", vertexDescriptor.normalIndex);
-	serialiser << file_io::Serialiser::labelled("textureCoordinateIndex", vertexDescriptor.textureCoordinateIndex);
-}
-
 struct Vector3dLexicographicalCompare {
 
 	bool operator()(const milk::math::Vector3d& lhs, const milk::math::Vector3d& rhs) {
@@ -157,11 +108,4 @@ void Data::generateNormals() {
 			}
 		}
 	}
-}
-
-void coconut::pulp::model::serialise(file_io::Serialiser& serialiser, const Data& data) {
-	serialiser << file_io::Serialiser::labelled("positions", data.positions);
-	serialiser << file_io::Serialiser::labelled("normals", data.normals);
-	serialiser << file_io::Serialiser::labelled("textureCoordinates", data.textureCoordinates);
-	serialiser << file_io::Serialiser::labelled("drawGroups", data.drawGroups);
 }
