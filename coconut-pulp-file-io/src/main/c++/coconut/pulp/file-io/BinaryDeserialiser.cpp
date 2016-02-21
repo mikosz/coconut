@@ -81,7 +81,7 @@ void BinaryDeserialiser::read(std::int64_t& i) {
 }
 
 void BinaryDeserialiser::read(float& f) {
-	readBinaryData(is_, f, changeEndianness_);
+	readBinaryData(is_, f, false);
 }
 
 void BinaryDeserialiser::read(std::string& s) {

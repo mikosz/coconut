@@ -53,7 +53,7 @@ CCN_MAKE_SERIALISABLE(SerialiserType, s, BasicTypeStruct, bts) {
 
 BOOST_AUTO_TEST_SUITE(PulpFileIOTwoWaySerialisationTestSuite);
 
-BOOST_AUTO_TEST_CASE(SerialiseAndDeserialiseToBinary) {
+BOOST_AUTO_TEST_CASE(SerialiseAndDeserialiseToBinary) { // TODO: make templated test for JSON versions too (when JSON deserialisation works)
 	std::stringstream ss;
 
 	BasicTypeStruct toSerialise;

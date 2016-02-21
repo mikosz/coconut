@@ -1,8 +1,11 @@
 #include <boost/test/auto_unit_test.hpp>
 
 #include <sstream>
+#include <fstream>
 
 #include <boost/filesystem.hpp>
+
+#include <coconut-tools/test-utils/test-utils.hpp>
 
 #include "coconut/pulp/file-io/JSONSerialiser.hpp"
 
@@ -11,6 +14,8 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::file_io;
 
 namespace /* anonymous */ {
+
+std::ostream* testIs = nullptr;
 
 struct BasicTypeStruct {
 };
@@ -31,14 +36,41 @@ void serialise(Serialiser& s, const BasicTypeStruct&) {
 	s << Serialiser::Label("sub-objects") << v;
 }
 
+struct BadStruct {
+};
+
+void serialise(Serialiser& s, const BadStruct&) {
+	assert(testIs != nullptr);
+	testIs->setstate(std::ios::badbit);
+}
+
+struct FailStruct {
+};
+
+void serialise(Serialiser& s, const FailStruct&) {
+	assert(testIs != nullptr);
+	testIs->setstate(std::ios::failbit);
+}
+
 BOOST_AUTO_TEST_SUITE(PulpFileIOJSONSerialiserTestSuite);
 
-BOOST_AUTO_TEST_CASE(ThrowsIfFileExists) {
-	BOOST_FAIL("implement me");
+BOOST_FIXTURE_TEST_CASE(ThrowsIfBadPath, coconut_tools::test_utils::ResourcesDirFixture) {
+	std::ofstream ofs((resourcesDir() / "no-such-dir" / "file.json").c_str());
+
+	BOOST_CHECK_THROW(JSONSerialiser s(ofs), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(ThrowsIfFailedWrite) {
-	BOOST_FAIL("implement me");
+	std::ostringstream oss;
+	testIs = &oss;
+
+	JSONSerialiser s(oss);
+
+	BOOST_CHECK_THROW(s << BadStruct(), std::runtime_error);
+
+	oss.clear();
+
+	BOOST_CHECK_THROW(s << FailStruct(), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(SerialisesDataToJSON) {

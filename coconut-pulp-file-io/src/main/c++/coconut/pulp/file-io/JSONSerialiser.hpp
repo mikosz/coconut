@@ -15,6 +15,7 @@ public:
 	JSONSerialiser(std::ostream& os) : // TODO: needs to remain valid through lifetime of this object - enforce?
 		os_(os)
 	{
+		os_.exceptions(std::ios::badbit | std::ios::failbit);
 	}
 
 protected:
