@@ -1,5 +1,6 @@
 set(DEPENDENCY_LIBRARIES
     coconut-pulp-file-io
+	coconut-milk-graphics-${MODULE_RENDERER}
     coconut-milk-math-${MODULE_MATHS}
     coconut-tools-logger
     coconut-tools-configuration

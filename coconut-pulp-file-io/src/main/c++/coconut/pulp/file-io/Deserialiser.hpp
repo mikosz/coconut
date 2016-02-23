@@ -150,7 +150,7 @@ protected:
 
 	virtual void read(float& f) = 0;
 
-	virtual void read(std::string& s) = 0;
+	virtual void read(std::string& s) = 0; // TODO: avoid reading extra-long strings in error
 
 private:
 
@@ -163,6 +163,13 @@ private:
 void serialise(Deserialiser& deserialiser, milk::math::Vector2d& vector);
 void serialise(Deserialiser& deserialiser, milk::math::Vector3d& vector);
 void serialise(Deserialiser& deserialiser, milk::math::Vector4d& vector);
+
+template <class EnumType>
+inline void serialise(file_io::Deserialiser& deserialiser, EnumType& enumValue, std::enable_if_t<std::is_enum<EnumType>::value>* = nullptr) {
+	std::string name;
+	deserialiser >> name;
+	fromString(enumValue, name);
+}
 
 } // namespace file_io
 } // namespace pulp

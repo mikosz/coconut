@@ -8,6 +8,8 @@
 
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 
+#include "coconut/pulp/file-io/Serialiser.hpp"
+#include "coconut/pulp/file-io/Deserialiser.hpp"
 #include "coconut/pulp/file-io/make-serialisable-macro.hpp"
 
 namespace coconut {
@@ -72,9 +74,8 @@ public:
 
 };
 
-// TODO: move stuff below to .cpp, only need impls for Serialiser and Deserialiser (would need macro for declaration?)
 CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::DrawGroup, drawGroup) {
-	// serialiser(SerialiserType::Label("primitiveTopology"), drawGroup.primitiveTopology); TODO!
+	serialiser(SerialiserType::Label("primitiveTopology"), drawGroup.primitiveTopology);
 	serialiser(SerialiserType::Label("vertices"), drawGroup.vertices);
 	serialiser(SerialiserType::Label("indices"), drawGroup.indices);
 	serialiser(SerialiserType::Label("material"), drawGroup.material);

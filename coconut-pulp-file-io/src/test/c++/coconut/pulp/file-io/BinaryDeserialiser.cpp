@@ -4,7 +4,6 @@
 #include <sstream>
 #include <fstream>
 
-
 #include <coconut-tools/test-utils/test-utils.hpp>
 
 #include "coconut/pulp/file-io/BinaryDeserialiser.hpp"

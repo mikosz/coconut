@@ -7,6 +7,8 @@
 
 #include "coconut/milk/math/Vector.hpp"
 
+// TODO: move serialisation API to CoconutTools, document, support versioning
+
 namespace coconut {
 namespace pulp {
 namespace file_io {
@@ -171,6 +173,11 @@ private:
 void serialise(Serialiser& serialiser, const milk::math::Vector2d& vector);
 void serialise(Serialiser& serialiser, const milk::math::Vector3d& vector);
 void serialise(Serialiser& serialiser, const milk::math::Vector4d& vector);
+
+template <class EnumType>
+inline void serialise(file_io::Serialiser& serialiser, EnumType enumValue, std::enable_if_t<std::is_enum<EnumType>::value>* = nullptr) {
+	serialiser << toString(enumValue);
+}
 
 } // namespace file_io
 } // namespace pulp

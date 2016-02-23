@@ -1,5 +1,5 @@
-#ifndef _COCONUT_MILK_UTILS_HPP_
-#define _COCONUT_MILK_UTILS_HPP_
+#ifndef _COCONUT_MILK_UTILS_INTOFSIZE_HPP_
+#define _COCONUT_MILK_UTILS_INTOFSIZE_HPP_
 
 #include <cstdint>
 
@@ -35,4 +35,4 @@ struct IntOfSize<4> {
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_UTILS_HPP_ */
+#endif /* _COCONUT_MILK_UTILS_INTOFSIZE_HPP_ */
