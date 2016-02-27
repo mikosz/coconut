@@ -52,7 +52,7 @@ public:
 
 	struct DrawGroup {
 
-		milk::graphics::PrimitiveTopology primitiveTopology = milk::graphics::PrimitiveTopology::TRIANGLE_LIST; // TODO!
+		milk::graphics::PrimitiveTopology primitiveTopology;
 
 		std::vector<VertexDescriptor> vertices;
 

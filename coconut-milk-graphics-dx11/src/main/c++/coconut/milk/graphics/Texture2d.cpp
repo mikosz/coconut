@@ -5,7 +5,7 @@
 
 #include "Device.hpp"
 #include "DirectXError.hpp"
-#include "ImageLoader.hpp" // TODO: will only nead Image when it gets extracted
+#include "ImageLoader.hpp" // TODO: will only need Image when it gets extracted
 
 using namespace coconut;
 using namespace coconut::milk;
