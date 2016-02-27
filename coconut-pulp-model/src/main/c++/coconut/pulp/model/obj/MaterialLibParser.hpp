@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_RENDERER_MODEL_LOADER_OBJMATERIALLIBPARSER_HPP_
-#define _COCONUT_PULP_RENDERER_MODEL_LOADER_OBJMATERIALLIBPARSER_HPP_
+#ifndef _COCONUT_PULP_RENDERER_MODEL_OBJ_MATERIALLIBPARSER_HPP_
+#define _COCONUT_PULP_RENDERER_MODEL_OBJ_MATERIALLIBPARSER_HPP_
 
 #include <iosfwd>
 #include <vector>
@@ -7,23 +7,24 @@
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
+#include <boost/spirit/include/classic_position_iterator.hpp>
 
 #include "coconut/milk/math/Vector.hpp"
 
 namespace coconut {
 namespace pulp {
-namespace renderer {
-namespace model_loader {
+namespace model {
+namespace obj {
 
-class ObjMaterialLibParser :
+class MaterialLibParser :
 	public boost::spirit::qi::grammar<
-		boost::spirit::istream_iterator,
-		void(),
-		boost::spirit::ascii::blank_type
-		> {
+	boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
+	void(),
+	boost::spirit::ascii::blank_type
+	> {
 public:
 
-	typedef milk::math::Vector3d RGBColour;
+	using RGBColour = milk::math::Vector3d;
 
 	struct Material {
 
@@ -39,6 +40,10 @@ public:
 
 		std::string diffuseMap;
 
+		std::string bumpMap;
+
+		std::string dissolveMap;
+
 		Material() :
 			ambientColour(0.0f, 0.0f, 0.0f),
 			diffuseColour(0.0f, 0.0f, 0.0f),
@@ -49,9 +54,9 @@ public:
 
 	};
 
-	typedef std::vector<Material> Materials;
+	using Materials = std::vector<Material>;
 
-	ObjMaterialLibParser();
+	MaterialLibParser();
 
 	void parse(std::istream& is);
 
@@ -61,11 +66,11 @@ public:
 
 private:
 
-	typedef boost::spirit::qi::rule<
-		boost::spirit::istream_iterator,
+	using Rule = boost::spirit::qi::rule<
+		boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
 		void(),
 		boost::spirit::ascii::blank_type
-	> Rule;
+		>;
 
 	Rule blankRule_;
 
@@ -82,6 +87,10 @@ private:
 	Rule specularColourRule_;
 
 	Rule specularExponentRule_;
+
+	Rule bumpMapRule_;
+
+	Rule dissolveMapRule_;
 
 	Rule illuminationModelRule_;
 
@@ -107,11 +116,15 @@ private:
 
 	void setSpecularExponent(double specularExponent);
 
+	void setBumpMap(const std::vector<char>& bumpMapChars);
+
+	void setDissolveMap(const std::vector<char>& dissolveMapChars);
+
 };
 
-} // namespace model_loader
-} // namespace renderer
+} // namespace obj
+} // namespace model
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_MODEL_LOADER_OBJMATERIALLIBPARSER_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_MODEL_OBJ_MATERIALLIBPARSER_HPP_ */

@@ -21,13 +21,13 @@ class Image;
 class Texture2d {
 public:
 
-	enum CreationPurpose { // TODO: enum class
+	enum class CreationPurpose {
 		SHADER_RESOURCE = D3D11_BIND_SHADER_RESOURCE,
 		RENDER_TARGET = D3D11_BIND_RENDER_TARGET,
 		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
 	};
 
-	enum LockPurpose { // TODO: enum class
+	enum class LockPurpose {
 		READ = D3D11_MAP_READ,
 		WRITE = D3D11_MAP_WRITE,
 		READ_WRITE = D3D11_MAP_READ_WRITE,
@@ -55,7 +55,7 @@ public:
 
 		bool allowGPUWrite;
 
-		utils::IntOfSize<sizeof(CreationPurpose)>::Unsigned purposeFlags; // TODO: make c++11?
+		std::underlying_type_t<CreationPurpose> purposeFlags;
 
 		Configuration() {
 			std::memset(this, 0, sizeof(decltype(*this))); // TODO: TEMP TEMP TEMP

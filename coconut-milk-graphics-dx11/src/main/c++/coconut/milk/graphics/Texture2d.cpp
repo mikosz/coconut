@@ -5,7 +5,7 @@
 
 #include "Device.hpp"
 #include "DirectXError.hpp"
-#include "ImageLoader.hpp" // TODO: will only nead Image when it gets extracted
+#include "ImageLoader.hpp" // TODO: will only need Image when it gets extracted
 
 using namespace coconut;
 using namespace coconut::milk;
@@ -25,7 +25,7 @@ Texture2d::Texture2d(Device& device, const Image& image) {
 	config.allowModifications = false;
 	config.allowCPURead = false;
 	config.allowGPUWrite = false;
-	config.purposeFlags = CreationPurpose::SHADER_RESOURCE;
+	config.purposeFlags = static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::SHADER_RESOURCE);
 
 	initialise(device, config, image.pixels(), image.rowPitch());
 }

@@ -4,7 +4,7 @@
 #	pragma warning(disable: 4244) // boost spirit spews conversion warnings
 #endif /* CT_COMPILER_VISUAL_CXX */
 
-#include "ObjModelParser.hpp"
+#include "Parser.hpp"
 
 #include <fstream>
 
@@ -15,8 +15,8 @@
 
 using namespace coconut;
 using namespace coconut::pulp;
-using namespace coconut::pulp::renderer;
-using namespace coconut::pulp::renderer::model_loader;
+using namespace coconut::pulp::model;
+using namespace coconut::pulp::model::obj;
 
 namespace spirit = boost::spirit;
 namespace qi = spirit::qi;
@@ -25,49 +25,49 @@ namespace phoenix = boost::phoenix;
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
 
-const size_t ObjModelParser::NORMAL_INDEX_UNKNOWN = std::numeric_limits<size_t>::max();
+const size_t Parser::NORMAL_INDEX_UNKNOWN = std::numeric_limits<size_t>::max();
 
-ObjModelParser::MaterialFileOpener::IStreamPtr ObjModelParser::MaterialFileOpener::open(
+Parser::MaterialFileOpener::IStreamPtr Parser::MaterialFileOpener::open(
 	const std::string& name) const {
 	return IStreamPtr(new std::ifstream(pathTo(name).string().c_str()));
 }
 
-boost::filesystem::path ObjModelParser::MaterialFileOpener::pathTo(const std::string& name) const {
+boost::filesystem::path Parser::MaterialFileOpener::pathTo(const std::string& name) const {
 	return baseDirectory_ / name;
 }
 
-ObjModelParser::ObjModelParser() :
-	ObjModelParser::base_type(startRule_)
+Parser::Parser() :
+	Parser::base_type(startRule_)
 {
 	// TODO: reformat the more complex parsers, this is unreadable
 	blankRule_ = -(qi::char_('#') >> *(qi::char_ - qi::eol)) >> qi::eol;
 	endRule_ = (qi::eol | qi::eoi) >> *blankRule_;
 	smoothingGroupRule_ = 's' >> (qi::lit("off") | qi::int_) >> endRule_;
-	materialRule_ = qi::lit("usemtl") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjModelParser::setMaterial, this, _1)] >> endRule_;
-	vertexRule_ = (qi::uint_ % '/')[qi::_val = phoenix::bind(&ObjModelParser::makeVertex, this, qi::_1)];
-	faceRule_ = 'f' >> qi::repeat(3)[vertexRule_][boost::bind(&ObjModelParser::addFace, this, _1)] >> endRule_;
-	positionRule_ = 'v' >> qi::repeat(3)[qi::double_][boost::bind(&ObjModelParser::addPosition, this, _1)] >> endRule_;
-	textureCoordinateRule_ = qi::lit("vt") >> qi::repeat(2)[qi::double_][boost::bind(&ObjModelParser::addTextureCoordinate, this, _1)] >> endRule_;
-	normalRule_ = qi::lit("vn") >> qi::repeat(3)[qi::double_][boost::bind(&ObjModelParser::addNormal, this, _1)] >> endRule_;
-	objectNameRule_ = (qi::char_('o')) >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjModelParser::newObject, this, _1)] >> endRule_;
-	groupNameRule_ = (qi::char_('g')) >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjModelParser::newGroup, this, _1)] >> endRule_;
-	materialLibRule_ = qi::lit("mtllib") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&ObjModelParser::addMaterialLib, this, _1)] >> endRule_;
+	materialRule_ = qi::lit("usemtl") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&Parser::setMaterial, this, _1)] >> endRule_;
+	vertexRule_ = (qi::uint_ % '/')[qi::_val = phoenix::bind(&Parser::makeVertex, this, qi::_1)];
+	faceRule_ = 'f' >> qi::repeat(3)[vertexRule_][boost::bind(&Parser::addFace, this, _1)] >> endRule_;
+	positionRule_ = 'v' >> qi::repeat(3)[qi::double_][boost::bind(&Parser::addPosition, this, _1)] >> endRule_;
+	textureCoordinateRule_ = qi::lit("vt") >> qi::repeat(2)[qi::double_][boost::bind(&Parser::addTextureCoordinate, this, _1)] >> endRule_;
+	normalRule_ = qi::lit("vn") >> qi::repeat(3)[qi::double_][boost::bind(&Parser::addNormal, this, _1)] >> endRule_;
+	objectNameRule_ = (qi::char_('o')) >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&Parser::newObject, this, _1)] >> endRule_;
+	groupNameRule_ = (qi::char_('g')) >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&Parser::newGroup, this, _1)] >> endRule_;
+	materialLibRule_ = qi::lit("mtllib") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&Parser::addMaterialLib, this, _1)] >> endRule_;
 
 	startRule_ = *blankRule_
 		>> *(
-		smoothingGroupRule_ |
-		materialRule_ |
-		materialLibRule_ |
-		faceRule_ |
-		positionRule_ |
-		textureCoordinateRule_ |
-		normalRule_ |
-		objectNameRule_ |
-		groupNameRule_
-		);
+			smoothingGroupRule_ |
+			materialRule_ |
+			materialLibRule_ |
+			faceRule_ |
+			positionRule_ |
+			textureCoordinateRule_ |
+			normalRule_ |
+			objectNameRule_ |
+			groupNameRule_
+			);
 }
 
-void ObjModelParser::parse(std::istream& is, const MaterialFileOpener& fileOpener) {
+void Parser::parse(std::istream& is, const MaterialFileOpener& fileOpener) {
 	clear();
 
 	CT_LOG_DEBUG << "Beginning ObjModel parsing...";
@@ -81,7 +81,7 @@ void ObjModelParser::parse(std::istream& is, const MaterialFileOpener& fileOpene
 		std::runtime_error("Failed to parse model file");
 	}
 
-	ObjMaterialLibParser materialLibParser;
+	MaterialLibParser materialLibParser;
 	for (auto materialLib : materialLibs_) {
 		auto materialIS = fileOpener.open(materialLib);
 		if (!materialIS->good()) {
@@ -101,7 +101,7 @@ void ObjModelParser::parse(std::istream& is, const MaterialFileOpener& fileOpene
 	CT_LOG_DEBUG << "ObjModel parsing completed";
 }
 
-void ObjModelParser::clear() {
+void Parser::clear() {
 	objects_.clear();
 	positions_.clear();
 	textureCoordinates_.clear();
@@ -110,7 +110,7 @@ void ObjModelParser::clear() {
 	materials_.clear();
 }
 
-void ObjModelParser::setMaterial(const std::vector<char>& materialChars) {
+void Parser::setMaterial(const std::vector<char>& materialChars) {
 	CT_LOG_TRACE << "Set material: " << std::string(materialChars.begin(), materialChars.end());
 
 	if (objects_.empty()) {
@@ -127,7 +127,7 @@ void ObjModelParser::setMaterial(const std::vector<char>& materialChars) {
 	objects_.back().groups.back().material = std::string(materialChars.begin(), materialChars.end());
 }
 
-ObjModelParser::Vertex ObjModelParser::makeVertex(const std::vector<unsigned int>& vertexData) {
+Parser::Vertex Parser::makeVertex(const std::vector<unsigned int>& vertexData) {
 	CT_LOG_TRACE << "Make vertex: " << vertexData;
 
 	if (vertexData.size() != 3 && vertexData.size() != 2) {
@@ -147,7 +147,7 @@ ObjModelParser::Vertex ObjModelParser::makeVertex(const std::vector<unsigned int
 	return vertex;
 }
 
-void ObjModelParser::addFace(const std::vector<Vertex>& face) {
+void Parser::addFace(const std::vector<Vertex>& face) {
 	if (face.size() != 3) {
 		throw std::runtime_error("Currently supporting only faces with 3 vertices");
 	}
@@ -167,7 +167,7 @@ void ObjModelParser::addFace(const std::vector<Vertex>& face) {
 	objects_.back().groups.back().faces.push_back(storedFace);
 }
 
-void ObjModelParser::addPosition(const std::vector<double>& vector) {
+void Parser::addPosition(const std::vector<double>& vector) {
 	assert(vector.size() == 3);
 	// right-hand to left-hand system conversion (z inverted)
 	positions_.push_back(
@@ -179,7 +179,7 @@ void ObjModelParser::addPosition(const std::vector<double>& vector) {
 		);
 }
 
-void ObjModelParser::addTextureCoordinate(const std::vector<double>& vector) {
+void Parser::addTextureCoordinate(const std::vector<double>& vector) {
 	assert(vector.size() == 2);
 	// right-hand to left-hand system conversion (v mirrored)
 	textureCoordinates_.push_back(
@@ -190,7 +190,7 @@ void ObjModelParser::addTextureCoordinate(const std::vector<double>& vector) {
 		);
 }
 
-void ObjModelParser::addNormal(const std::vector<double>& vector) {
+void Parser::addNormal(const std::vector<double>& vector) {
 	assert(vector.size() == 3);
 	// right-hand to left-hand system conversion (z inverted)
 	normals_.push_back(
@@ -202,13 +202,13 @@ void ObjModelParser::addNormal(const std::vector<double>& vector) {
 		);
 }
 
-void ObjModelParser::newObject(const std::vector<char>& nameChars) {
+void Parser::newObject(const std::vector<char>& nameChars) {
 	CT_LOG_TRACE << "New object: " << std::string(nameChars.begin(), nameChars.end());
 
 	objects_.push_back(Object());
 }
 
-void ObjModelParser::newGroup(const std::vector<char>& nameChars) {
+void Parser::newGroup(const std::vector<char>& nameChars) {
 	CT_LOG_TRACE << "New group: " << std::string(nameChars.begin(), nameChars.end());
 
 	if (objects_.empty()) {
@@ -218,6 +218,6 @@ void ObjModelParser::newGroup(const std::vector<char>& nameChars) {
 	objects_.back().groups.push_back(Group());
 }
 
-void ObjModelParser::addMaterialLib(const std::vector<char>& materialLibChars) {
+void Parser::addMaterialLib(const std::vector<char>& materialLibChars) {
 	materialLibs_.push_back(std::string(materialLibChars.begin(), materialLibChars.end()));
 }

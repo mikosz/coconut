@@ -12,12 +12,16 @@
 #include "coconut/milk/graphics/VertexShader.hpp"
 #include "coconut/milk/graphics/PixelShader.hpp"
 
-#include "coconut/pulp/renderer/model_loader/ObjModelLoader.hpp"
+#include "coconut/pulp/model/obj/Importer.hpp"
+
 #include "coconut/pulp/renderer/Model.hpp"
 #include "coconut/pulp/renderer/PerspectiveLens.hpp"
 #include "coconut/pulp/renderer/OrientedCamera.hpp"
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
+
+#include "coconut/pulp/file-io/BinarySerialiser.hpp"
+#include "coconut/pulp/file-io/BinaryDeserialiser.hpp"
 
 #include "globals.hpp"
 #include "coconut/milk/system/Window.hpp"
@@ -56,24 +60,41 @@ void Game::loop() {
 
 	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
 
-	pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj"));
-	// pulp::renderer::model_loader::ObjModelLoader::IStreamPtr modelIS(new std::ifstream("data/models/cube.model"));
-	if (!modelIS->good()) {
-		throw std::runtime_error("Failed to open model file");
+	if (!boost::filesystem::exists("elexis.model")) {
+		// std::ifstream modelIS("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj");
+		std::ifstream modelIS("data/models/Elexis/Blonde Elexis - nude/Blonde Elexis - nude.obj");
+		// std::ifstream modelIS("data/models/cube.model");
+		if (!modelIS.good()) {
+			throw std::runtime_error("Failed to open model file");
+		}
+
+		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Daniel/craig chemise bleu");
+		auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Elexis/Blonde Elexis - nude");
+		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/");
+		pulp::model::obj::Importer importer(std::move(opener));
+
+		auto modelData = importer.import(modelIS);
+
+		{
+			std::ofstream modelOFS("elexis.model", std::ofstream::out | std::ofstream::binary);
+			pulp::file_io::BinarySerialiser serialiser(modelOFS);
+			serialiser << modelData;
+		}
 	}
 
-	pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/Daniel/craig chemise bleu"));
-	// pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpenerPtr opener(new pulp::renderer::model_loader::ObjModelLoader::MaterialFileOpener("data/models/"));
-	pulp::renderer::model_loader::ObjModelLoader loader(std::move(modelIS), opener);
+	std::ifstream modelIFS("elexis.model", std::ifstream::in | std::ifstream::binary);
+	pulp::file_io::BinaryDeserialiser deserialiser(modelIFS);
+	pulp::model::Data modelData;
+	deserialiser >> modelData;
 
 	pulp::renderer::Scene scene(*graphicsDevice_);
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(*graphicsDevice_, loader, scene.renderingPass().inputLayoutDescription()));
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsDevice_, scene.renderingPass().inputLayoutDescription()));
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
 		milk::math::Vector4d(0.1f, 0.1f, 0.1f, 0.0f),
-		milk::math::Vector4d(0.4f, 0.4f, 0.4f, 1.0f),
+		milk::math::Vector4d(0.7f, 0.7f, 0.7f, 1.0f),
 		milk::math::Vector4d(0.4f, 0.4f, 0.4f, 0.0f)
 		);
 	scene.add(white);
@@ -108,9 +129,9 @@ void Game::loop() {
 
 		camera->reset();
 		// camera->rotate(milk::math::Vector3d(0.0f, 0.09f * 3.14f * secs, 0.0f));
-		camera->translate(milk::math::Vector3d(0.0f, 1.0f, 0.0f));
+		camera->translate(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
 		camera->rotate(milk::math::Vector3d(0.25f, 0.0f, 0.0f));
-		camera->translate(milk::math::Vector3d(0.0f, 0.0f, -2.f));
+		camera->translate(milk::math::Vector3d(0.0f, 0.0f, -5.f));
 		
 		actor->setRotation(milk::math::Vector3d(0.0f, 0.09f * 3.14f * secs, 0.0f));
 		// actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));

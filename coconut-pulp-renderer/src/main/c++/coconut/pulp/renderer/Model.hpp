@@ -1,18 +1,12 @@
 #ifndef _COCONUT_PULP_RENDERER_MODEL_HPP_
 #define _COCONUT_PULP_RENDERER_MODEL_HPP_
 
-#include <memory>
-#include <unordered_map>
-
-#include "coconut/milk/graphics/Buffer.hpp"
-#include "coconut/milk/graphics/Device.hpp"
-#include "coconut/milk/graphics/PrimitiveTopology.hpp"
+#include <vector>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "material/MaterialLibrary.hpp"
-#include "model_loader/ModelLoader.hpp"
-#include "shader/Shader.hpp"
+#include "coconut/pulp/model/Data.hpp"
+
 #include "RenderingContext.hpp"
 #include "DrawGroup.hpp"
 
@@ -24,8 +18,8 @@ class Model {
 public:
 
 	Model(
+		const model::Data& data,
 		milk::graphics::Device& graphicsDevice,
-		model_loader::ModelLoader& loader,
 		const milk::graphics::InputLayoutDescription& inputLayoutDescription
 		);
 
@@ -33,86 +27,10 @@ public:
 
 private:
 
-	struct VertexData : public milk::graphics::VertexInterface {
+	// TODO: make draw groups using the same materials be drawn one after another to avoid resetting constant buffers
+	using DrawGroups = std::vector<DrawGroupSharedPtr>;
 
-		milk::math::Vector3d position_;
-
-		milk::math::Vector2d textureCoordinate_;
-
-		milk::math::Vector3d normal_;
-
-		std::string materialName_;
-
-		milk::math::Vector3d position() const override {
-			return position_;
-		}
-
-		milk::math::Vector2d textureCoordinate() const override {
-			return textureCoordinate_;
-		}
-
-		milk::math::Vector3d normal() const override {
-			return normal_;
-		}
-
-		std::string materialName() const override {
-			return materialName_;
-		}
-
-	};
-
-	class ModelDataListener : public model_loader::ModelDataListener {
-	public:
-
-		ModelDataListener(
-			Model& model,
-			milk::graphics::Device& graphicsDevice,
-			const milk::graphics::InputLayoutDescription& inputLayoutDescription
-			);
-
-		void setMaterialLibrary(material::MaterialLibrary&& materialLibrary) override;
-
-		void setVertexPosition(const milk::math::Vector3d& position) override;
-
-		void setVertexTextureCoordinate(const milk::math::Vector2d& textureCoordinate) override;
-
-		void setVertexNormal(const milk::math::Vector3d& normal) override;
-
-		void setVertexNormalNeedsCalculation() override;
-
-		void setMaterialName(const std::string& materialName) override;
-
-		size_t endVertex() override;
-
-		void addIndex(size_t index) override;
-
-		void endFace() override;
-
-		void endSmoothingGroup(milk::graphics::PrimitiveTopology primitiveTopology) override;
-
-		void endObject() override;
-
-		void endModel() override;
-
-	private:
-
-		milk::graphics::Device& graphicsDevice_;
-			
-		Model& model_;
-
-		DrawGroup::Data currentGroupData_;
-
-		VertexData currentVertexData_;
-
-		void calculateMissingNormals();
-
-	};
-
-	typedef std::unordered_multimap<material::ConstMaterialSharedPtr, DrawGroupSharedPtr> DrawGroupsByMaterial;
-
-	material::MaterialLibrary materialLibrary_;
-
-	DrawGroupsByMaterial drawGroupsByMaterial_;
+	DrawGroups drawGroups_;
 
 	friend class ModelDataListener;
 

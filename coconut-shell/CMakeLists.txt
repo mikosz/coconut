@@ -1,5 +1,10 @@
 set(DEPENDENCY_LIBRARIES
     coconut-pulp-renderer
+	coconut-pulp-file-io
+    coconut-tools-logger
+    coconut-tools-configuration
+    coconut-tools-system
+    coconut-tools-exceptions
     )
 
 set(TEST_LIBRARIES

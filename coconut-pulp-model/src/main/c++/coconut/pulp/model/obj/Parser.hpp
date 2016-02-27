@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_RENDERER_MODEL_LOADER_OBJ_MODEL_PARSER_HPP_
-#define _COCONUT_PULP_RENDERER_MODEL_LOADER_OBJ_MODEL_PARSER_HPP_
+#ifndef _COCONUT_PULP_RENDERER_MODEL_OBJ_PARSER_HPP_
+#define _COCONUT_PULP_RENDERER_MODEL_OBJ_PARSER_HPP_
 
 #include <vector>
 #include <string>
@@ -14,14 +14,16 @@
 
 #include "coconut/milk/math/Vector.hpp"
 
-#include "ObjMaterialLibParser.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+
+#include "MaterialLibParser.hpp"
 
 namespace coconut {
 namespace pulp {
-namespace renderer {
-namespace model_loader {
+namespace model {
+namespace obj {
 
-class ObjModelParser :
+class Parser :
 	public boost::spirit::qi::grammar<
 		boost::spirit::istream_iterator,
 		void(),
@@ -29,10 +31,11 @@ class ObjModelParser :
 		> {
 public:
 
+	// TODO: this needs to be an external class
 	class MaterialFileOpener {
 	public:
 
-		typedef std::shared_ptr<std::istream> IStreamPtr;
+		typedef std::unique_ptr<std::istream> IStreamPtr;
 
 		MaterialFileOpener() {
 		}
@@ -71,7 +74,7 @@ public:
 
 	};
 
-	typedef std::vector<Face> Faces;
+	using Faces = std::vector<Face>;
 
 	struct Group {
 
@@ -81,7 +84,7 @@ public:
 
 	};
 
-	typedef std::vector<Group> Groups;
+	using Groups = std::vector<Group>;
 
 	struct Object {
 
@@ -89,21 +92,21 @@ public:
 
 	};
 
-	typedef std::vector<Object> Objects;
+	using Objects = std::vector<Object>;
 
-	typedef std::vector<milk::math::Vector3d> Positions;
+	using Positions = std::vector<milk::math::Vector3d>;
 
-	typedef std::vector<milk::math::Vector2d> TextureCoordinates;
+	using TextureCoordinates = std::vector<milk::math::Vector2d>;
 
-	typedef std::vector<milk::math::Vector3d> Normals;
+	using Normals = std::vector<milk::math::Vector3d>;
 
-	typedef ObjMaterialLibParser::Material Material;
+	using Material = MaterialLibParser::Material;
 
-	typedef std::unordered_map<std::string, Material> Materials;
+	using Materials = std::unordered_map<std::string, Material>;
 
 	static const size_t NORMAL_INDEX_UNKNOWN;
 
-	ObjModelParser();
+	Parser();
 
 	void parse(std::istream& is, const MaterialFileOpener& fileOpener);
 
@@ -115,7 +118,7 @@ public:
 		return positions_;
 	}
 
-	const TextureCoordinates& textureCoordinates() const {
+	const TextureCoordinates& textureCoordinateIndex() const {
 		return textureCoordinates_;
 	}
 
@@ -129,19 +132,19 @@ public:
 
 private:
 
-	typedef boost::spirit::qi::rule<
+	using Rule = boost::spirit::qi::rule<
 		boost::spirit::istream_iterator,
 		void(),
 		boost::spirit::ascii::blank_type
-		> Rule;
+	>;
 
-	typedef boost::spirit::qi::rule<
+	using VertexRule = boost::spirit::qi::rule<
 		boost::spirit::istream_iterator,
 		Vertex(),
 		boost::spirit::ascii::blank_type
-		> VertexRule;
+	>;
 
-	typedef std::vector<std::string> MaterialLibs;
+	using MaterialLibs = std::vector<std::string>;
 
 	Rule blankRule_;
 
@@ -170,7 +173,7 @@ private:
 	Rule startRule_;
 
 	Objects objects_;
-	
+
 	Positions positions_;
 
 	TextureCoordinates textureCoordinates_;
@@ -203,9 +206,11 @@ private:
 
 };
 
-} // namespace model_loader
-} // namespace renderer
+MAKE_POINTER_DEFINITIONS(Parser);
+
+} // namespace obj
+} // namespace model
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_MODEL_LOADER_OBJ_MODEL_PARSER_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_MODEL_OBJ_PARSER_HPP_ */

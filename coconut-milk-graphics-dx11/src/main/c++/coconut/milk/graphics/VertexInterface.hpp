@@ -26,10 +26,6 @@ public:
 		throw std::runtime_error("normal() not implemented");
 	}
 
-	virtual std::string materialName() const {
-		throw std::runtime_error("materialName() not implemented");
-	}
-
 protected:
 
 	virtual ~VertexInterface() {
