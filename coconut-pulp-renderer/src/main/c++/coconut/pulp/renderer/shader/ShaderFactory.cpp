@@ -6,6 +6,10 @@
 
 #include <boost/filesystem.hpp>
 
+#include <coconut-tools/configuration/hierarchical/HierarchicalConfiguration.hpp>
+#include "coconut-tools/configuration/readers/HierarchicalConfigurationReader.hpp"
+#include <coconut-tools/configuration/parsers/JSONParser.hpp>
+
 #include "coconut/milk/graphics/VertexShader.hpp"
 #include "coconut/milk/graphics/PixelShader.hpp"
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
@@ -28,10 +32,12 @@ using namespace coconut::pulp::renderer::shader;
 ShaderFactory::ShaderFactory() {
 }
 
-PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId) {
+PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDevice, PassId passId) {
 	milk::graphics::InputLayoutUniquePtr inputLayout;
 	ShaderUniquePtr vertexShader;
 	ShaderUniquePtr pixelShader;
+
+	createShader(graphicsDevice, "forward-opaque.vertex");
 
 	{
 		milk::graphics::ShaderType shaderType;
@@ -325,4 +331,26 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 	}
 
 	return std::make_unique<Pass>(std::move(inputLayout), std::move(vertexShader), std::move(pixelShader));
+}
+
+ShaderUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId) {
+	coconut_tools::configuration::parsers::JSONParser parser;
+	coconut_tools::configuration::readers::HierarchicalConfigurationReader reader;
+
+	auto configuration = coconut_tools::configuration::hierarchical::HierarchicalConfiguration::create();
+
+	reader.read(parser, boost::filesystem::path("data/shaders") / (shaderId + ".cfg.json"), configuration.get()); // TODO: get path from config, filename?
+
+	const auto shaderType = configuration->getAs<std::string>("type");
+
+	if (shaderType == "vertex") {
+		std::make_unique<Shader>(
+			binaryShader,
+			shaderType
+			);
+	} else {
+		assert(false);
+	}
+
+	return nullptr;
 }

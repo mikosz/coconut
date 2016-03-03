@@ -9,7 +9,7 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
 Scene::Scene(milk::graphics::Device& device) :
-	renderingPass_(std::move(shader::ShaderFactory().createShader(device, "")))
+	renderingPass_(std::move(shader::ShaderFactory().createShaderPass(device, "")))
 {
 }
 

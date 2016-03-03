@@ -5,8 +5,6 @@
 
 #include "coconut/milk/graphics/Device.hpp"
 
-#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-
 #include "Pass.hpp"
 
 namespace coconut {
@@ -17,11 +15,19 @@ namespace shader {
 class ShaderFactory {
 public:
 
-	typedef std::string ShaderId;
+	using ShaderId = std::string;
+
+	using PassId = std::string;
 
 	ShaderFactory();
 
-	PassUniquePtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
+	PassUniquePtr createShaderPass(milk::graphics::Device& graphicsDevice, PassId passId);
+
+	ShaderUniquePtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
+
+private:
+
+	
 
 };
 
