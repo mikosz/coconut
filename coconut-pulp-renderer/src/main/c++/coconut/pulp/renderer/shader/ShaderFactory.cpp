@@ -6,15 +6,16 @@
 
 #include <boost/filesystem.hpp>
 
-#include <coconut-tools/configuration/hierarchical/HierarchicalConfiguration.hpp>
-#include "coconut-tools/configuration/readers/HierarchicalConfigurationReader.hpp"
-#include <coconut-tools/configuration/parsers/JSONParser.hpp>
+#include <coconut-tools/exceptions/LogicError.hpp>
 
 #include "coconut/milk/graphics/VertexShader.hpp"
 #include "coconut/milk/graphics/PixelShader.hpp"
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 
 #include "coconut/milk/math/Matrix.hpp"
+
+#include "coconut/pulp/file-io/JSONDeserialiser.hpp" // TODO: create a deserialiser factory by extension
+#include "coconut/pulp/file-io/make-serialisable-macro.hpp"
 
 #include "ArrayParameter.hpp"
 #include "CallbackParameter.hpp"
@@ -28,6 +29,22 @@ using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
+
+namespace /* anonymous */ {
+
+struct ShaderInfo {
+
+	milk::graphics::ShaderType shaderType;
+
+	std::string binaryShaderFile;
+
+};
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, ShaderInfo, shaderInfo) {
+	serialiser(SerialiserType::Label("shaderType"), shaderInfo.shaderType);
+}
+
+} // anonymous namespace
 
 ShaderFactory::ShaderFactory() {
 }
@@ -334,22 +351,40 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 }
 
 ShaderUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId) {
-	coconut_tools::configuration::parsers::JSONParser parser;
-	coconut_tools::configuration::readers::HierarchicalConfigurationReader reader;
+	ShaderInfo shaderInfo;
 
-	auto configuration = coconut_tools::configuration::hierarchical::HierarchicalConfiguration::create();
+	{
+		std::ifstream ifs((boost::filesystem::path("data/shaders") / (shaderId + ".cfg.json")).c_str()); // TODO: get path from config, filename?
+		file_io::JSONDeserialiser deserialiser(ifs);
+		deserialiser >> shaderInfo;
+	}
 
-	reader.read(parser, boost::filesystem::path("data/shaders") / (shaderId + ".cfg.json"), configuration.get()); // TODO: get path from config, filename?
+	// TODO: handle shader source compilation and reloading?
+	milk::graphics::ShaderUniquePtr binaryShader;
 
-	const auto shaderType = configuration->getAs<std::string>("type");
+	std::vector<char> binaryShaderData;
 
-	if (shaderType == "vertex") {
-		std::make_unique<Shader>(
-			binaryShader,
-			shaderType
-			);
-	} else {
-		assert(false);
+	{
+		const auto binaryShaderPath = boost::filesystem::path("data/shaders") / shaderInfo.binaryShaderFile;
+
+		const auto shaderDataSize = boost::filesystem::file_size(binaryShaderPath);
+		binaryShaderData.resize(static_cast<size_t>(shaderDataSize));
+
+		std::ifstream ifs(binaryShaderPath.c_str(), std::ios::binary);
+		ifs.exceptions(std::ios::badbit | std::ios::failbit);
+
+		ifs.read(binaryShaderData.data(), shaderDataSize);
+	}
+
+	switch (shaderInfo.shaderType) {
+	case milk::graphics::ShaderType::VERTEX:
+		binaryShader = std::make_unique<milk::graphics::VertexShader>(graphicsDevice, &binaryShaderData.front(), binaryShaderData.size());
+		break;
+	case milk::graphics::ShaderType::PIXEL:
+		binaryShader = std::make_unique<milk::graphics::PixelShader>(graphicsDevice, &binaryShaderData.front(), binaryShaderData.size());
+		break;
+	default:
+		throw coconut_tools::exceptions::LogicError("Unhandled shader type: " + toString(shaderInfo.shaderType));
 	}
 
 	return nullptr;
