@@ -21,12 +21,7 @@ public:
 
 		std::string label;
 
-		Label(const std::string& label) :
-			label(label)
-		{
-		}
-
-		Label(std::string&& label) :
+		Label(std::string label) :
 			label(std::move(label))
 		{
 		}
@@ -39,6 +34,7 @@ public:
 	Deserialiser& operator>>(T& value) {
 		readObjectStart();
 		serialise(*this, value);
+		readObjectEnd();
 		return *this;
 	}
 
@@ -51,11 +47,12 @@ public:
 			*this >> element;
 			vector.emplace_back(std::move(element));
 		}
+		readArrayEnd();
 		return *this;
 	}
 
-	Deserialiser& operator>>(const Label& label) {
-		readLabel(label.label);
+	Deserialiser& operator>>(Label label) {
+		readLabel(std::move(label.label));
 		return *this;
 	}
 
@@ -128,9 +125,13 @@ protected:
 
 	virtual void readObjectStart() = 0;
 
+	virtual void readObjectEnd() = 0;
+
 	virtual std::uint32_t readArrayStart() = 0;
 
-	virtual void readLabel(const std::string& label) = 0;
+	virtual void readArrayEnd() = 0;
+
+	virtual void readLabel(std::string label) = 0;
 
 	virtual void read(std::uint8_t& i) = 0;
 

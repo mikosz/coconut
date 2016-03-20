@@ -1,7 +1,11 @@
-#ifndef _COCONUT_PULP_FILE_IO_BINARYDESERIALISER_HPP_
-#define _COCONUT_PULP_FILE_IO_BINARYDESERIALISER_HPP_
+#ifndef _COCONUT_PULP_FILE_IO_JSONDESERIALISER_HPP_
+#define _COCONUT_PULP_FILE_IO_JSONDESERIALISER_HPP_
 
 #include <iosfwd>
+#include <stack>
+#include <memory>
+
+#include <boost/property_tree/ptree.hpp>
 
 #include "Deserialiser.hpp"
 
@@ -9,10 +13,12 @@ namespace coconut {
 namespace pulp {
 namespace file_io {
 
-class BinaryDeserialiser : public Deserialiser {
+class JSONDeserialiser : public Deserialiser {
 public:
 
-	BinaryDeserialiser(std::istream& is); // TODO: needs to remain valid through lifetime of this object - enforce?
+	JSONDeserialiser(std::istream& is); // TODO: needs to remain valid through lifetime of this object - enforce?
+
+	~JSONDeserialiser();
 
 protected:
 
@@ -48,9 +54,22 @@ protected:
 
 private:
 
+	class PropertyTreeNode;
+
+	class ValueNode;
+
+	class ArrayNode;
+
 	std::istream& is_;
 
-	bool changeEndianness_;
+	boost::property_tree::ptree propertyTree_;
+
+	std::stack<std::unique_ptr<PropertyTreeNode>> path_;
+
+	std::unique_ptr<PropertyTreeNode> currentNode_;
+
+	template <class T>
+	void readValue(T& v);
 
 };
 
@@ -58,4 +77,4 @@ private:
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_FILE_IO_BINARYDESERIALISER_HPP_ */
+#endif /* _COCONUT_PULP_FILE_IO_JSONDESERIALISER_HPP_ */

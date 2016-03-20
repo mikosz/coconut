@@ -20,11 +20,17 @@ protected:
 	void readObjectStart() override {
 	}
 
+	void readObjectEnd() override {
+	}
+
 	std::uint32_t readArrayStart() override {
 		return 0;
 	}
 
-	void readLabel(const std::string& label) override {
+	void readArrayEnd() override {
+	}
+
+	void readLabel(std::string label) override {
 	}
 
 	void read(std::uint8_t& i) override {

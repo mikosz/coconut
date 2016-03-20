@@ -39,13 +39,19 @@ BinaryDeserialiser::BinaryDeserialiser(std::istream& is) :
 void BinaryDeserialiser::readObjectStart() {
 }
 
+void BinaryDeserialiser::readObjectEnd() {
+}
+
 std::uint32_t BinaryDeserialiser::readArrayStart() {
 	std::uint32_t elementCount;
 	readBinaryData(is_, elementCount, changeEndianness_);
 	return elementCount;
 }
 
-void BinaryDeserialiser::readLabel(const std::string& /* label */) {
+void BinaryDeserialiser::readArrayEnd() {
+}
+
+void BinaryDeserialiser::readLabel(std::string /* label */) {
 }
 
 void BinaryDeserialiser::read(std::uint8_t& i) {
