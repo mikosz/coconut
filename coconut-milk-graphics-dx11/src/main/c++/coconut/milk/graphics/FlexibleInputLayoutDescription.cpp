@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <unordered_map>
 
 #include "DirectXError.hpp"
 #include "Device.hpp"
@@ -24,6 +25,31 @@ size_t formatSize(FlexibleInputLayoutDescription::Format format) {
 		throw std::runtime_error("Unknown format size");
 	}
 }
+
+// TODO: this builds on visual c++, but is probably invalid C++ (no hash function for enum class)
+const std::unordered_map<FlexibleInputLayoutDescription::ElementType, const std::string> ELEMENT_TYPE_NAMES = {
+	{ FlexibleInputLayoutDescription::ElementType::NORMAL, "NORMAL" },
+	{ FlexibleInputLayoutDescription::ElementType::POSITION, "POSITION" },
+	{ FlexibleInputLayoutDescription::ElementType::TEXTURE_COORDINATES, "TEXTURE_COORDINATES" },
+};
+
+const std::unordered_map<std::string, FlexibleInputLayoutDescription::ElementType> NAMES_TO_ELEMENT_TYPE = {
+	{ "NORMAL", FlexibleInputLayoutDescription::ElementType::NORMAL },
+	{ "POSITION", FlexibleInputLayoutDescription::ElementType::POSITION },
+	{ "TEXTURE_COORDINATES", FlexibleInputLayoutDescription::ElementType::TEXTURE_COORDINATES },
+};
+
+const std::unordered_map<FlexibleInputLayoutDescription::Format, const std::string> FORMAT_NAMES = {
+	{ FlexibleInputLayoutDescription::Format::R32G32_FLOAT, "R32G32_FLOAT" },
+	{ FlexibleInputLayoutDescription::Format::R32G32B32_FLOAT, "R32G32B32_FLOAT" },
+	{ FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT, "R32G32B32A32_FLOAT" },
+};
+
+const std::unordered_map<std::string, FlexibleInputLayoutDescription::Format> NAMES_TO_FORMAT = {
+	{ "R32G32_FLOAT", FlexibleInputLayoutDescription::Format::R32G32_FLOAT },
+	{ "R32G32B32_FLOAT", FlexibleInputLayoutDescription::Format::R32G32B32_FLOAT },
+	{ "R32G32B32A32_FLOAT", FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT },
+};
 
 } // anonymous namespace
 
@@ -185,4 +211,22 @@ void FlexibleInputLayoutDescription::makeVertex(const VertexInterface& vertex, v
 
 void FlexibleInputLayoutDescription::push(std::shared_ptr<Element> element) {
 	elements_.push_back(element);
+}
+
+const std::string& coconut::milk::graphics::toString(
+	FlexibleInputLayoutDescription::ElementType elementType) {
+	return ELEMENT_TYPE_NAMES.at(elementType);
+}
+
+void coconut::milk::graphics::fromString(
+	FlexibleInputLayoutDescription::ElementType& elementType, const std::string& name) {
+	elementType = NAMES_TO_ELEMENT_TYPE.at(name);
+}
+
+const std::string& toString(FlexibleInputLayoutDescription::Format format) {
+	return FORMAT_NAMES.at(format);
+}
+
+void fromString(FlexibleInputLayoutDescription::Format& format, const std::string& name) {
+	format = NAMES_TO_FORMAT.at(name);
 }

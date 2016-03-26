@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_RENDERER_SHADER_SHADERFACTORY_HPP_
 
 #include <string>
+#include <unordered_map>
 
 #include "coconut/milk/graphics/Device.hpp"
 
@@ -19,15 +20,27 @@ public:
 
 	using PassId = std::string;
 
+	using InputLayoutDescriptionId = std::string;
+
 	ShaderFactory();
 
-	PassUniquePtr createShaderPass(milk::graphics::Device& graphicsDevice, PassId passId);
-
-	ShaderUniquePtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
+	PassSharedPtr createShaderPass(milk::graphics::Device& graphicsDevice, PassId passId);
 
 private:
 
-	
+	using PassCache = std::unordered_map<PassId, PassSharedPtr>;
+
+	milk::graphics::InputLayoutUniquePtr createInputLayoutDescription(
+		milk::graphics::Device& graphicsDevice,
+		InputLayoutDescriptionId inputlayoutDescriptionId,
+		const std::vector<char>& binaryShaderData
+		);
+
+	ShaderSharedPtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
+
+	ShaderSharedPtr createVertexShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
+
+	PassCache passCache_;
 
 };
 
