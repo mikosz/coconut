@@ -19,6 +19,21 @@ void CommandList::draw(size_t startingIndex, size_t indexCount, PrimitiveTopolog
 	d3dDeviceContext_->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(startingIndex), 0);
 }
 
+CommandList::LockedData CommandList::lock(Data& data, LockPurpose lockPurpose) {
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	checkDirectXCall(
+		d3dDeviceContext_->Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		"Failed to map the provided resource"
+		);
+
+	return Buffer::LockedData(
+		mappedResource.pData,
+		[deviceContext = d3dDeviceContext_, internalBuffer = data.internalResource()](void*) {
+			deviceContext->Unmap(internalBuffer.get(), 0);
+		}
+		);
+}
+
 void CommandList::setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil) {
 	auto* renderTargetView = renderTarget.internalRenderTargetView();
 	auto* depthStencilView = depthStencil.internalDepthStencilView();

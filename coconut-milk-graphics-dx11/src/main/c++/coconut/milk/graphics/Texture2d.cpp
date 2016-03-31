@@ -113,17 +113,3 @@ void Texture2d::reset() {
 	renderTargetView_.reset();
 	texture_.reset();
 }
-
-void* Texture2d::lock(Renderer& renderer, LockPurpose lockPurpose) {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	checkDirectXCall(
-		renderer.internalDeviceContext().Map(texture_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
-		"Failed to map resource"
-		);
-	
-	return mappedResource.pData;
-}
-
-void Texture2d::unlock(Renderer& renderer) {
-	renderer.internalDeviceContext().Unmap(texture_, 0);
-}

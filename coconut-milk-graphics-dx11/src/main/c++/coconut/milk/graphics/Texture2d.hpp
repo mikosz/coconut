@@ -2,6 +2,7 @@
 #define _COCONUT_MILK_GRAPHICS_DX11_TEXTURE2D_HPP_
 
 #include <d3d11.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
@@ -9,6 +10,7 @@
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "PixelFormat.hpp"
+#include "Data.hpp"
 
 namespace coconut {
 namespace milk {
@@ -17,21 +19,13 @@ namespace graphics {
 class Renderer;
 class Image;
 
-class Texture2d {
+class Texture2d : public Data {
 public:
 
 	enum class CreationPurpose {
 		SHADER_RESOURCE = D3D11_BIND_SHADER_RESOURCE,
 		RENDER_TARGET = D3D11_BIND_RENDER_TARGET,
 		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
-	};
-
-	enum class LockPurpose {
-		READ = D3D11_MAP_READ,
-		WRITE = D3D11_MAP_WRITE,
-		READ_WRITE = D3D11_MAP_READ_WRITE,
-		WRITE_DISCARD = D3D11_MAP_WRITE_DISCARD,
-		WRITE_NO_OVERWRITE = D3D11_MAP_WRITE_NO_OVERWRITE,
 	};
 
 	struct Configuration {
@@ -75,17 +69,13 @@ public:
 	Texture2d(Renderer& renderer, const Image& image);
 
 	Texture2d(system::COMWrapper<ID3D11Texture2D> texture) :
-		texture_(texture) {
+		texture_(texture)
+	{
 	}
 
 	void initialise(Renderer& renderer, const Configuration& configuration);
 
 	void reset();
-
-	// TODO: move these two to Renderer
-	void* lock(Renderer& renderer, LockPurpose lockPurpose); // TODO: return RAII object?
-
-	void unlock(Renderer& renderer);
 
 	ID3D11RenderTargetView* internalRenderTargetView() {
 		return renderTargetView_;
@@ -97,6 +87,10 @@ public:
 
 	ID3D11ShaderResourceView* internalShaderResourceView() {
 		return shaderResourceView_;
+	}
+
+	ID3D11Resource& internalResource() override {
+		return texture_;
 	}
 
 private:

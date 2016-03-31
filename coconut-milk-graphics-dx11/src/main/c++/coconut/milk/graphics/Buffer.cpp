@@ -54,21 +54,6 @@ Buffer::Buffer(Renderer& renderer, const Configuration& configuration, const voi
 		"Failed to create a buffer");
 }
 
-Buffer::LockedData Buffer::lock(Renderer& renderer, LockPurpose lockPurpose) {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	checkDirectXCall(
-		renderer.internalDeviceContext().Map(buffer_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
-		"Failed to lock a buffer"
-		);
-
-	return Buffer::LockedData(
-		mappedResource.pData,
-		[&deviceContext = renderer.internalDeviceContext(), resource = buffer_.get()](void*) {
-			deviceContext.Unmap(resource, 0);
-		}
-		);
-}
-
 void Buffer::bind(Renderer& renderer, ShaderType shaderType, size_t slot) {
 	ID3D11Buffer* buffer = buffer_.get();
 

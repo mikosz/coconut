@@ -19,9 +19,18 @@ class Renderer;
 class CommandList {
 public:
 
+	using LockedData = std::unique_ptr<void, std::function<void(void*)>>;
+
+	enum class LockPurpose {
+		WRITE_DISCARD = D3D11_MAP_WRITE_DISCARD,
+		WRITE_NO_OVERWRITE = D3D11_MAP_WRITE_NO_OVERWRITE,
+	};
+
 	CommandList(Renderer& renderer);
 
 	void draw(size_t startingIndex, size_t vertexCount, PrimitiveTopology primitiveTopology);
+
+	LockedData lock(Data& data, LockPurpose lockPurpose);
 
 	void setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil);
 

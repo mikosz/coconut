@@ -240,6 +240,21 @@ void Renderer::endScene() {
 	swapChain_->Present(vsync_, 0);
 }
 
+Renderer::LockedData Renderer::lock(Data& data, LockPurpose lockPurpose) {
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	checkDirectXCall(
+		d3dDeviceContext_->Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		"Failed to map the provided resource"
+		);
+
+	return Buffer::LockedData(
+		mappedResource.pData,
+		[deviceContext = d3dDeviceContext_, internalBuffer = data.internalResource()](void*) {
+			deviceContext->Unmap(internalBuffer.get(), 0);
+		}
+		);
+}
+
 void Renderer::submit(CommandList& commandList) {
 	system::COMWrapper<ID3D11CommandList> d3dCommandList;
 	checkDirectXCall(

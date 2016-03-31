@@ -4,11 +4,13 @@
 #include <functional>
 
 #include <d3d11.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include "coconut/milk/system/COMWrapper.hpp"
 #include "coconut/milk/utils/IntOfSize.hpp"
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
+#include "Data.hpp"
 #include "ShaderType.hpp"
 
 namespace coconut {
@@ -17,21 +19,13 @@ namespace graphics {
 
 class Renderer;
 
-class Buffer {
+class Buffer : public Data {
 public:
 
 	enum class CreationPurpose {
 		VERTEX_BUFFER = D3D11_BIND_VERTEX_BUFFER,
 		INDEX_BUFFER = D3D11_BIND_INDEX_BUFFER,
 		CONSTANT_BUFFER = D3D11_BIND_CONSTANT_BUFFER,
-	};
-
-	enum class LockPurpose {
-		READ = D3D11_MAP_READ,
-		WRITE = D3D11_MAP_WRITE,
-		READ_WRITE = D3D11_MAP_READ_WRITE,
-		WRITE_DISCARD = D3D11_MAP_WRITE_DISCARD,
-		WRITE_NO_OVERWRITE = D3D11_MAP_WRITE_NO_OVERWRITE,
 	};
 
 	struct Configuration {
@@ -70,16 +64,16 @@ public:
 
 	};
 
-	using LockedData = std::unique_ptr<void, std::function<void(void*)>>;
-
 	Buffer(Renderer& renderer, const Configuration& configuration, const void* initialData = 0);
-
-	LockedData lock(Renderer& renderer, LockPurpose lockPurpose);
 
 	void bind(Renderer& renderer, ShaderType shaderType, size_t slot);
 
-	ID3D11Buffer* resource() {
-		return buffer_.get();
+	ID3D11Buffer& internalBuffer() {
+		return buffer_;
+	}
+
+	ID3D11Resource& internalResource() override {
+		return buffer_;
 	}
 
 private:

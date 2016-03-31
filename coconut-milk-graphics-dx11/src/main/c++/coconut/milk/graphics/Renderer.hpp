@@ -1,6 +1,7 @@
 #ifndef _COCONUT_MILK_GRAPHICS_DX11_RENDERER_HPP_
 #define _COCONUT_MILK_GRAPHICS_DX11_RENDERER_HPP_
 
+#include <functional>
 #include <memory>
 
 #include <d3d11.h>
@@ -25,6 +26,16 @@ class Device;
 class Renderer {
 public:
 
+	using LockedData = std::unique_ptr<void, std::function<void(void*)>>;
+
+	enum class LockPurpose {
+		READ = D3D11_MAP_READ,
+		WRITE = D3D11_MAP_WRITE,
+		READ_WRITE = D3D11_MAP_READ_WRITE,
+		WRITE_DISCARD = D3D11_MAP_WRITE_DISCARD,
+		WRITE_NO_OVERWRITE = D3D11_MAP_WRITE_NO_OVERWRITE,
+	};
+
 	struct Configuration {
 
 		bool debugDevice;
@@ -44,6 +55,8 @@ public:
 	void endScene();
 
 	void submit(CommandList& commandList);
+
+	LockedData lock(Data& data, LockPurpose lockPurpose);
 
 	Texture2d& backBuffer() {
 		return backBuffer_;
