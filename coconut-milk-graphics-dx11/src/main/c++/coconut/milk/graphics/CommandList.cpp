@@ -50,7 +50,22 @@ void CommandList::setPixelShader(PixelShader& pixelShader) {
 	d3dDeviceContext_->PSSetShader(&pixelShader.internalShader(), nullptr, 0);
 }
 
-void CommandList::setBuffer(Buffer& buffer, ShaderType stage, size_t slot) {
+void CommandList::setVertexBuffer(Buffer& buffer, size_t slot, size_t stride, size_t offset) {
+	auto strideParam = static_cast<UINT>(stride);
+	auto offsetParam = static_cast<UINT>(offset);
+	auto* buf = &buffer.internalBuffer();
+
+	d3dDeviceContext_->IASetVertexBuffers(slot, 1, &buf, &strideParam, &offsetParam);
+}
+
+void CommandList::setIndexBuffer(Buffer& buffer, size_t offset) {
+	auto offsetParam = static_cast<UINT>(offset);
+	auto* buf = &buffer.internalBuffer();
+
+	d3dDeviceContext_->IASetIndexBuffer(buf, format, offset);
+}
+
+void CommandList::setConstantBuffer(Buffer& buffer, ShaderType stage, size_t slot) {
 	auto* buf = &buffer.internalBuffer();
 
 	switch (stage) {

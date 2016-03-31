@@ -41,7 +41,11 @@ public:
 
 	void setPixelShader(PixelShader& pixelShader);
 
-	void setBuffer(Buffer& buffer, ShaderType stage, size_t slot);
+	void setVertexBuffer(Buffer& buffer, size_t slot, size_t stride, size_t offset);
+
+	void setIndexBuffer(Buffer& buffer, size_t offset);
+
+	void setConstantBuffer(Buffer& buffer, ShaderType stage, size_t slot);
 
 	void setTexture(Texture2d& texture, ShaderType stage, size_t slot);
 
