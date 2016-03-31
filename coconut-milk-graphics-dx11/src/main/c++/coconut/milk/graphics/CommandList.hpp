@@ -7,14 +7,16 @@
 #include "coconut/milk/system/COMWrapper.hpp"
 
 #include "PrimitiveTopology.hpp"
-#include "Texture2d.hpp"
 #include "Shader.hpp"
+#include "ShaderType.hpp"
 
 namespace coconut {
 namespace milk {
 namespace graphics {
 
 class Renderer;
+class Buffer;
+class Texture2d;
 
 class CommandList {
 public:
@@ -37,6 +39,10 @@ public:
 	void setVertexShader(VertexShader& vertexShader);
 
 	void setPixelShader(PixelShader& pixelShader);
+
+	void setBuffer(Buffer& buffer, ShaderType stage, size_t slot);
+
+	void setTexture(Texture2d& texture, ShaderType stage, size_t slot);
 
 	ID3D11DeviceContext& internalDeviceContext() {
 		return *d3dDeviceContext_;

@@ -77,20 +77,20 @@ public:
 
 	void reset();
 
-	ID3D11RenderTargetView* internalRenderTargetView() {
-		return renderTargetView_;
+	ID3D11RenderTargetView& internalRenderTargetView() {
+		return *renderTargetView_;
 	}
 
-	ID3D11DepthStencilView* internalDepthStencilView() {
-		return depthStencilView_;
+	ID3D11DepthStencilView& internalDepthStencilView() {
+		return *depthStencilView_;
 	}
 
-	ID3D11ShaderResourceView* internalShaderResourceView() {
-		return shaderResourceView_;
+	ID3D11ShaderResourceView& internalShaderResourceView() {
+		return *shaderResourceView_;
 	}
 
 	ID3D11Resource& internalResource() override {
-		return texture_;
+		return *texture_;
 	}
 
 private:

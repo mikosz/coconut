@@ -1,5 +1,7 @@
 #include "CommandList.hpp"
 
+#include <coconut-tools/exceptions/LogicError.hpp>
+
 #include "Renderer.hpp"
 #include "DirectXError.hpp"
 
@@ -46,4 +48,34 @@ void CommandList::setVertexShader(VertexShader& vertexShader) {
 
 void CommandList::setPixelShader(PixelShader& pixelShader) {
 	d3dDeviceContext_->PSSetShader(&pixelShader.internalShader(), nullptr, 0);
+}
+
+void CommandList::setBuffer(Buffer& buffer, ShaderType stage, size_t slot) {
+	auto* buf = &buffer.internalBuffer();
+
+	switch (stage) {
+	case ShaderType::VERTEX:
+		d3dDeviceContext_->VSSetConstantBuffers(slot, 1, &buf);
+		break;
+	case ShaderType::PIXEL:
+		d3dDeviceContext_->PSSetConstantBuffers(slot, 1, &buf);
+		break;
+	default:
+		throw coconut_tools::exceptions::LogicError("Unknown shader type: " + toString(stage));
+	}
+}
+
+void CommandList::setTexture(Texture2d& texture, ShaderType stage, size_t slot) {
+	auto* srv = &texture.internalShaderResourceView();
+
+	switch (stage) {
+	case ShaderType::VERTEX:
+		d3dDeviceContext_->VSSetShaderResources(slot, 1, &srv);
+		break;
+	case ShaderType::PIXEL:
+		d3dDeviceContext_->PSSetShaderResources(slot, 1, &srv);
+		break;
+	default:
+		throw coconut_tools::exceptions::LogicError("Unknown shader type: " + toString(stage));
+	}
 }
