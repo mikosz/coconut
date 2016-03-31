@@ -8,14 +8,13 @@
 #include "coconut/milk/utils/IntOfSize.hpp"
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "ShaderResource.hpp"
 #include "PixelFormat.hpp"
 
 namespace coconut {
 namespace milk {
 namespace graphics {
 
-class Device;
+class Renderer;
 class Image;
 
 class Texture2d {
@@ -57,6 +56,10 @@ public:
 
 		std::underlying_type_t<CreationPurpose> purposeFlags;
 
+		const void* initialData;
+		
+		size_t dataRowPitch;
+
 		Configuration() {
 			std::memset(this, 0, sizeof(decltype(*this))); // TODO: TEMP TEMP TEMP
 			sampleCount = 1;
@@ -67,27 +70,34 @@ public:
 	Texture2d() {
 	}
 
-	Texture2d(Device& device, const Configuration& configuration, const void* initialData = nullptr, size_t dataRowPitch = 0); // TODO: move initialData and dataRowPitch to config
+	Texture2d(Renderer& renderer, const Configuration& configuration);
 
-	Texture2d(Device& device, const Image& image);
+	Texture2d(Renderer& renderer, const Image& image);
 
 	Texture2d(system::COMWrapper<ID3D11Texture2D> texture) :
 		texture_(texture) {
 	}
 
-	void initialise(Device& device, const Configuration& configuration, const void* initialData = nullptr, size_t dataRowPitch = 0);
+	void initialise(Renderer& renderer, const Configuration& configuration);
 
 	void reset();
 
-	void* lock(Device& device, LockPurpose lockPurpose); // TODO: return RAII object?
+	// TODO: move these two to Renderer
+	void* lock(Renderer& renderer, LockPurpose lockPurpose); // TODO: return RAII object?
 
-	void unlock(Device& device);
+	void unlock(Renderer& renderer);
 
-	ID3D11RenderTargetView* asRenderTargetView(Device& device);
+	ID3D11RenderTargetView* internalRenderTargetView() {
+		return renderTargetView_;
+	}
 
-	ID3D11DepthStencilView* asDepthStencilView(Device& device);
+	ID3D11DepthStencilView* internalDepthStencilView() {
+		return depthStencilView_;
+	}
 
-	ShaderResourceUniquePtr asShaderResource(Device& device) const;
+	ID3D11ShaderResourceView* internalShaderResourceView() {
+		return shaderResourceView_;
+	}
 
 private:
 

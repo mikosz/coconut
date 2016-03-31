@@ -1,6 +1,5 @@
-#include "Device.hpp"
+#include "Renderer.hpp"
 
-#include <vector>
 #include <algorithm>
 
 #include "DirectXError.hpp"
@@ -64,7 +63,7 @@ void queryAdapterAndRefreshRate(
 void createD3DDevice(
 	system::Window& window,
 	IDXGIFactory& dxgiFactory,
-	const Device::Configuration& configuration,
+	const Renderer::Configuration& configuration,
 	const DXGI_RATIONAL& refreshRate,
 	system::COMWrapper<IDXGISwapChain>* swapChain,
 	system::COMWrapper<ID3D11Device>* device,
@@ -155,7 +154,8 @@ void createD3DDevice(
 void extractBackBuffer(
 	IDXGISwapChain* swapChain,
 	Texture2d* backBuffer
-	) {
+	)
+{
 	system::COMWrapper<ID3D11Texture2D> texture;
 	checkDirectXCall(
 		swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&texture.get())),
@@ -167,7 +167,7 @@ void extractBackBuffer(
 
 } // anonymous namespace
 
-Device::Device(system::Window& window, const Configuration& configuration) :
+Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	configuration_(configuration)
 {
 	auto dxgiFactory = createDXGIFactory();
@@ -180,7 +180,9 @@ Device::Device(system::Window& window, const Configuration& configuration) :
 	extractBackBuffer(swapChain_, &backBuffer_);
 
 	UINT quality;
-	d3dDevice_->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &quality);
+	system::COMWrapper<ID3D11Device> device;
+	d3dDeviceContext_->GetDevice(&device.get());
+	device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &quality); // TODO: literal in code
 
 	Texture2d::Configuration depthStencilConfig;
 	depthStencilConfig.width = window.clientWidth();
@@ -196,10 +198,8 @@ Device::Device(system::Window& window, const Configuration& configuration) :
 	checkDirectXCall(swapChain_->GetDesc(&swapChainDesc), "Failed to retrieve the swap chain description");
 	depthStencilConfig.sampleCount = swapChainDesc.SampleDesc.Count;
 	depthStencilConfig.sampleQuality = swapChainDesc.SampleDesc.Quality;
-	
-	depthStencil_.initialise(*this, depthStencilConfig); // TODO: cleanup initialisation + do we need a default depth stencil view?
 
-	setRenderTarget(backBuffer_, depthStencil_);
+	depthStencil_.initialise(*this, depthStencilConfig);
 
 	D3D11_VIEWPORT viewport;
 	viewport.Height = static_cast<float>(window.clientHeight());
@@ -210,37 +210,41 @@ Device::Device(system::Window& window, const Configuration& configuration) :
 	viewport.TopLeftY = 0.0f;
 	d3dDeviceContext_->RSSetViewports(1, &viewport);
 
-	D3D11_RASTERIZER_DESC rasterizer;
+	D3D11_RASTERIZER_DESC rasterizer; // TODO: move to draw command
 	std::memset(&rasterizer, 0, sizeof(rasterizer));
 	rasterizer.CullMode = D3D11_CULL_NONE;
 	rasterizer.FillMode = D3D11_FILL_SOLID;
-	d3dDevice_->CreateRasterizerState(&rasterizer, &rasterizer_.get());
+	checkDirectXCall(
+		device->CreateRasterizerState(&rasterizer, &rasterizer_.get()),
+		"Failed to create a rasterizer state"
+		);
 
 	d3dDeviceContext_->RSSetState(rasterizer_);
+
+	vsync_ = configuration.vsync;
 }
 
-void Device::setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil) {
-	auto* renderTargetView = renderTarget.asRenderTargetView(*this);
-	auto* depthStencilView = depthStencil.asDepthStencilView(*this);
-	d3dDeviceContext_->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
-}
-
-void Device::beginScene() {
+void Renderer::beginScene() {
+	// TODO: move to pulp or disperse
 	float colour[] = { 1.0f, 0.0f, 1.0f, 1.0f };
-	d3dDeviceContext_->ClearRenderTargetView(backBuffer_.asRenderTargetView(*this), colour);
+	d3dDeviceContext_->ClearRenderTargetView(backBuffer_.internalRenderTargetView(), colour);
 	d3dDeviceContext_->ClearDepthStencilView(
-		depthStencil_.asDepthStencilView(*this),
+		depthStencil_.internalDepthStencilView(),
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		static_cast<UINT8>(0)
 		);
 }
 
-void Device::endScene() {
-	swapChain_->Present(configuration_.vsync, 0);
+void Renderer::endScene() {
+	swapChain_->Present(vsync_, 0);
 }
 
-void Device::draw(size_t startingIndex, size_t indexCount, PrimitiveTopology primitiveTopology) {
-	d3dDeviceContext_->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(primitiveTopology));
-	d3dDeviceContext_->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(startingIndex), 0);
+void Renderer::submit(CommandList& commandList) {
+	system::COMWrapper<ID3D11CommandList> d3dCommandList;
+	checkDirectXCall(
+		commandList.internalDeviceContext().FinishCommandList(false, &d3dCommandList.get()),
+		"Failed to finish a command list"
+		); // TODO: false?
+	d3dDeviceContext_->ExecuteCommandList(d3dCommandList, false); // TODO: false?
 }

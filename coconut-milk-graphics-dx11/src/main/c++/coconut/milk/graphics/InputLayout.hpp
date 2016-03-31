@@ -1,7 +1,7 @@
 #ifndef _COCONUT_MILK_GRAPHICS_INPUTLAYOUT_HPP_
 #define _COCONUT_MILK_GRAPHICS_INPUTLAYOUT_HPP_
 
-#include "Device.hpp"
+#include "Renderer.hpp"
 #include "InputLayoutDescription.hpp"
 
 namespace coconut {
@@ -11,14 +11,14 @@ namespace graphics {
 class InputLayout {
 public:
 
-	InputLayout(ConstInputLayoutDescriptionUniquePtr description, Device& device, void* shaderData, size_t shaderSize) :
+	InputLayout(ConstInputLayoutDescriptionUniquePtr description, Renderer& renderer, void* shaderData, size_t shaderSize) :
 		description_(std::move(description)),
-		dxInputLayout_(description_->makeLayout(device, shaderData, shaderSize))
+		dxInputLayout_(description_->makeLayout(renderer, shaderData, shaderSize))
 	{
 	}
 
-	void bind(Device& device) const {
-		device.d3dDeviceContext()->IASetInputLayout(dxInputLayout_);
+	void bind(Renderer& renderer) const {
+		renderer.internalDeviceContext().IASetInputLayout(dxInputLayout_);
 	}
 
 	const InputLayoutDescription& description() const {

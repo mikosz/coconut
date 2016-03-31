@@ -9,6 +9,7 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
+struct DrawCommand;
 struct RenderingContext;
 
 namespace shader {
@@ -27,16 +28,7 @@ public:
 	{
 	}
 
-	void bind(milk::graphics::Device& device, const RenderingContext& renderingContext) const {
-		inputLayout_->bind(device);
-
-		if (vertexShader_) {
-			vertexShader_->bind(device, renderingContext);
-		}
-		if (pixelShader_) {
-			pixelShader_->bind(device, renderingContext);
-		}
-	}
+	std::unique_ptr<DrawCommand> createDrawCommand(const RenderingContext& renderingContext) const;
 
 	const milk::graphics::InputLayoutDescription& inputLayoutDescription() const {
 		return inputLayout_->description();

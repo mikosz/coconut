@@ -1,7 +1,11 @@
-#ifndef _COCONUT_MILK_GRAPHICS_DX11_SHADER_HPP_
-#define _COCONUT_MILK_GRAPHICS_DX11_SHADER_HPP_
+#ifndef _COCONUT_MILK_GRAPHICS_SHADER_HPP_
+#define _COCONUT_MILK_GRAPHICS_SHADER_HPP_
 
 #include <memory>
+
+#include <d3d11.h>
+
+#include "coconut/milk/system/COMWrapper.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -9,24 +13,33 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-class Device;
+class Renderer;
 
+namespace detail {
+
+template <class InternalShaderType>
 class Shader {
 public:
 
-	virtual void bind(Device& device) const = 0;
+	Shader(Renderer& renderer, void* data, size_t size);
 
-protected:
-
-	virtual ~Shader() {
+	InternalShaderType& internalShader() {
+		return *shader_;
 	}
+
+private:
+
+	system::COMWrapper<InternalShaderType> shader_;
 
 };
 
-MAKE_POINTER_DEFINITIONS(Shader);
+} // namespace detail
+
+using VertexShader = detail::Shader<ID3D11VertexShader>;
+using PixelShader = detail::Shader<ID3D11PixelShader>;
 
 } // namespace graphics
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_GRAPHICS_DX11_SHADER_HPP_ */
+#endif /* _COCONUT_MILK_GRAPHICS_SHADER_HPP_ */

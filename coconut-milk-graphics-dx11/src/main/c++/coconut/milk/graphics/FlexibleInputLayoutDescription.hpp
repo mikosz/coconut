@@ -16,8 +16,6 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-class Device;
-
 #define FLEXIBLE_INPUT_LAYOUT_ELEMENT(name) \
 	class name##Element : public FlexibleInputLayoutDescription::Element { \
 	public: \
@@ -70,7 +68,7 @@ public:
 	FLEXIBLE_INPUT_LAYOUT_ELEMENT(Normal);
 
 	system::COMWrapper<ID3D11InputLayout> makeLayout(
-		Device& device,
+		Renderer& renderer,
 		void* shaderData,
 		size_t shaderSize
 		) const override;

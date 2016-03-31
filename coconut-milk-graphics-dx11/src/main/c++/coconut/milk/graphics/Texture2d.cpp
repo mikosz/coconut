@@ -3,7 +3,7 @@
 #include <cstring>
 #include <stdexcept>
 
-#include "Device.hpp"
+#include "Renderer.hpp"
 #include "DirectXError.hpp"
 #include "ImageLoader.hpp" // TODO: will only need Image when it gets extracted
 
@@ -11,11 +11,11 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
-Texture2d::Texture2d(Device& device, const Configuration& configuration, const void* initialData, size_t dataRowPitch) {
-	initialise(device, configuration, initialData, dataRowPitch);
+Texture2d::Texture2d(Renderer& renderer, const Configuration& configuration) {
+	initialise(renderer, configuration);
 }
 
-Texture2d::Texture2d(Device& device, const Image& image) {
+Texture2d::Texture2d(Renderer& renderer, const Image& image) {
 	Configuration config;
 	config.width = image.size().first;
 	config.height = image.size().second;
@@ -26,11 +26,13 @@ Texture2d::Texture2d(Device& device, const Image& image) {
 	config.allowCPURead = false;
 	config.allowGPUWrite = false;
 	config.purposeFlags = static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::SHADER_RESOURCE);
+	config.initialData = image.pixels();
+	config.dataRowPitch = image.rowPitch();
 
-	initialise(device, config, image.pixels(), image.rowPitch());
+	initialise(renderer, config);
 }
 
-void Texture2d::initialise(Device& device, const Configuration& configuration, const void* initialData, size_t dataRowPitch) {
+void Texture2d::initialise(Renderer& renderer, const Configuration& configuration) {
 	reset();
 
 	D3D11_TEXTURE2D_DESC desc;
@@ -69,19 +71,40 @@ void Texture2d::initialise(Device& device, const Configuration& configuration, c
 	D3D11_SUBRESOURCE_DATA subresourceData;
 	D3D11_SUBRESOURCE_DATA* subresourceDataPtr = nullptr;
 
-	if (initialData) {
+	if (configuration.initialData) {
 		std::memset(&subresourceData, 0, sizeof(subresourceData));
 
-		subresourceData.pSysMem = initialData;
-		subresourceData.SysMemPitch = static_cast<UINT>(dataRowPitch);
+		subresourceData.pSysMem = configuration.initialData;
+		subresourceData.SysMemPitch = static_cast<UINT>(configuration.dataRowPitch);
 
 		subresourceDataPtr = &subresourceData;
 	}
 
 	checkDirectXCall(
-		device.d3dDevice()->CreateTexture2D(&desc, subresourceDataPtr, &texture_.get()),
+		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture_.get()),
 		"Failed to create a 2D texture"
 		);
+
+	if (configuration.purposeFlags & static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::SHADER_RESOURCE)) {
+		checkDirectXCall(
+			renderer.internalDevice().CreateShaderResourceView(texture_, nullptr, &shaderResourceView_.get()),
+			"Failed to create a shader resource view of texture"
+			);
+	}
+
+	if (configuration.purposeFlags & static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::RENDER_TARGET)) {
+		checkDirectXCall(
+			renderer.internalDevice().CreateRenderTargetView(texture_, nullptr, &renderTargetView_.get()),
+			"Failed to create a render target view of texture"
+			);
+	}
+
+	if (configuration.purposeFlags & static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::DEPTH_STENCIL)) {
+		checkDirectXCall(
+			renderer.internalDevice().CreateDepthStencilView(texture_, nullptr, &depthStencilView_.get()),
+			"Failed to create a depth stencil view of texture"
+			);
+	}
 }
 
 void Texture2d::reset() {
@@ -91,49 +114,16 @@ void Texture2d::reset() {
 	texture_.reset();
 }
 
-void* Texture2d::lock(Device& device, LockPurpose lockPurpose) {
+void* Texture2d::lock(Renderer& renderer, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
-		device.d3dDeviceContext()->Map(texture_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		renderer.internalDeviceContext().Map(texture_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
 		"Failed to map resource"
 		);
 	
 	return mappedResource.pData;
 }
 
-void Texture2d::unlock(Device& device) {
-	device.d3dDeviceContext()->Unmap(texture_, 0);
-}
-
-ID3D11RenderTargetView* Texture2d::asRenderTargetView(Device& device) {
-	if (renderTargetView_.get() == nullptr) {
-		checkDirectXCall(
-			device.d3dDevice()->CreateRenderTargetView(texture_, nullptr, &renderTargetView_.get()),
-			"Failed to create a render target view of texture"
-			);
-	}
-
-	return renderTargetView_;
-}
-
-ID3D11DepthStencilView* Texture2d::asDepthStencilView(Device& device) {
-	if (depthStencilView_.get() == nullptr) {
-		checkDirectXCall(
-			device.d3dDevice()->CreateDepthStencilView(texture_, nullptr, &depthStencilView_.get()),
-			"Failed to create a depth stencil view of texture"
-			);
-	}
-
-	return depthStencilView_;
-}
-
-ShaderResourceUniquePtr Texture2d::asShaderResource(Device& device) const {
-	if (shaderResourceView_.get() == nullptr) {
-		checkDirectXCall(
-			device.d3dDevice()->CreateShaderResourceView(texture_, nullptr, &shaderResourceView_.get()),
-			"Failed to create a shader resource view of texture"
-			);
-	}
-
-	return std::make_unique<ShaderResource>(shaderResourceView_);
+void Texture2d::unlock(Renderer& renderer) {
+	renderer.internalDeviceContext().Unmap(texture_, 0);
 }

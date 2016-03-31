@@ -4,7 +4,7 @@
 #include <numeric>
 
 #include "DirectXError.hpp"
-#include "Device.hpp"
+#include "Renderer.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
@@ -136,7 +136,7 @@ void FlexibleInputLayoutDescription::NormalElement::make(
 }
 
 system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout(
-	Device& device,
+	Renderer& renderer,
 	void* shaderData,
 	size_t shaderSize
 	) const {
@@ -149,7 +149,7 @@ system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout
 
 	system::COMWrapper<ID3D11InputLayout> layout;
 	checkDirectXCall(
-		device.d3dDevice()->CreateInputLayout(
+		renderer.internalDevice().CreateInputLayout(
 			&descs.front(),
 			static_cast<UINT>(descs.size()),
 			shaderData,

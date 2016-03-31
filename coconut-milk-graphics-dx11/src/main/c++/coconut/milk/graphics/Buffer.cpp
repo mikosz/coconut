@@ -4,23 +4,14 @@
 #include <stdexcept>
 #include <functional>
 
-#include "Device.hpp"
+#include "Renderer.hpp"
 #include "DirectXError.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
-namespace /* anonymous */ {
-
-// Visual studio 2012 needs this indirection, calling ID3D11DeviceContext::Unbind through std::bind won't work
-void unmap(ID3D11DeviceContext* deviceContext, ID3D11Resource* resource, UINT subresourceIndex) {
-	deviceContext->Unmap(resource, subresourceIndex);
-}
-
-} // anonymous namespace
-
-Buffer::Buffer(Device& device, const Configuration& configuration, const void* initialData) :
+Buffer::Buffer(Renderer& renderer, const Configuration& configuration, const void* initialData) :
 	configuration_(configuration)
 {
 	D3D11_BUFFER_DESC desc;
@@ -59,26 +50,26 @@ Buffer::Buffer(Device& device, const Configuration& configuration, const void* i
 		dataPtr = &data;
 	}
 
-	checkDirectXCall(device.d3dDevice()->CreateBuffer(&desc, dataPtr, &buffer_.get()),
+	checkDirectXCall(renderer.internalDevice().CreateBuffer(&desc, dataPtr, &buffer_.get()),
 		"Failed to create a buffer");
 }
 
-Buffer::LockedData Buffer::lock(Device& device, LockPurpose lockPurpose) {
+Buffer::LockedData Buffer::lock(Renderer& renderer, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
-		device.d3dDeviceContext()->Map(buffer_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		renderer.internalDeviceContext().Map(buffer_, 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
 		"Failed to lock a buffer"
 		);
 
 	return Buffer::LockedData(
 		mappedResource.pData,
-		[deviceContext = device.d3dDeviceContext(), resource = buffer_.get()](void*) {
-			deviceContext->Unmap(resource, 0);
+		[&deviceContext = renderer.internalDeviceContext(), resource = buffer_.get()](void*) {
+			deviceContext.Unmap(resource, 0);
 		}
 		);
 }
 
-void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
+void Buffer::bind(Renderer& renderer, ShaderType shaderType, size_t slot) {
 	ID3D11Buffer* buffer = buffer_.get();
 
 	switch (configuration_.purpose) {
@@ -86,7 +77,7 @@ void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
 		{
 			UINT stride = static_cast<UINT>(configuration_.stride);
 			UINT offset = 0;
-			device.d3dDeviceContext()->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buffer, &stride, &offset);
+			renderer.internalDeviceContext().IASetVertexBuffers(static_cast<UINT>(slot), 1, &buffer, &stride, &offset);
 			break;
 		}
 	case CreationPurpose::INDEX_BUFFER:
@@ -102,17 +93,17 @@ void Buffer::bind(Device& device, ShaderType shaderType, size_t slot) {
 			default:
 				throw std::runtime_error("Invalid index buffer stride. Allowed strides are 2B and 4B.");
 			}
-			device.d3dDeviceContext()->IASetIndexBuffer(buffer, format, 0);
+			renderer.internalDeviceContext().IASetIndexBuffer(buffer, format, 0);
 			break;
 		}
 	case CreationPurpose::CONSTANT_BUFFER:
 		{
 			switch (shaderType) {
 			case ShaderType::VERTEX:
-				device.d3dDeviceContext()->VSSetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
+				renderer.internalDeviceContext().VSSetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
 				break;
 			case ShaderType::PIXEL:
-				device.d3dDeviceContext()->PSSetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
+				renderer.internalDeviceContext().PSSetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
 				break;
 			default:
 				throw std::runtime_error("Unknown shader type");

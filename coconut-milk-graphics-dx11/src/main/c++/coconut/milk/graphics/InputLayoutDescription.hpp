@@ -13,7 +13,7 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-class Device;
+class Renderer;
 
 class InputLayoutDescription {
 public:
@@ -28,7 +28,7 @@ public:
 	virtual void makeVertex(const VertexInterface& vertex, void* buffer) const = 0;
 
 	virtual system::COMWrapper<ID3D11InputLayout> makeLayout(
-		Device& device,
+		Renderer& renderer,
 		void* shaderData,
 		size_t shaderSize
 		) const = 0;

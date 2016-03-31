@@ -47,7 +47,7 @@ public:
 		Resources resources
 		);
 
-	void bind(
+	void update(
 		milk::graphics::Device& graphicsDevice,
 		const RenderingContext& renderingContext
 		) const;

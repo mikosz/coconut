@@ -1,13 +1,16 @@
-#ifndef _COCONUT_MILK_GRAPHICS_DX11_DEVICE_HPP_
-#define _COCONUT_MILK_GRAPHICS_DX11_DEVICE_HPP_
+#ifndef _COCONUT_MILK_GRAPHICS_DX11_RENDERER_HPP_
+#define _COCONUT_MILK_GRAPHICS_DX11_RENDERER_HPP_
+
+#include <memory>
 
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
-#include "Texture2d.hpp"
 #include "coconut/milk/system/COMWrapper.hpp"
 #include "coconut/milk/system/Window.hpp"
 
+#include "Texture2d.hpp"
+#include "CommandList.hpp"
 #include "PrimitiveTopology.hpp"
 
 #pragma comment(lib, "dxgi.lib")
@@ -17,7 +20,9 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-class Device {
+class Device;
+
+class Renderer {
 public:
 
 	struct Configuration {
@@ -26,32 +31,30 @@ public:
 
 		bool vsync;
 
-		std::uint32_t sampleCount; // verify that this is a power of 2
+		std::uint32_t sampleCount; // TODO: verify that this is a power of 2
 
 		std::uint32_t sampleQuality;
 
 	};
 
-	Device(system::Window& window, const Configuration& configuration);
+	Renderer(system::Window& window, const Configuration& configuration);
 
 	void beginScene();
 
 	void endScene();
 
-	void draw(size_t startingIndex, size_t vertexCount, PrimitiveTopology primitiveTopology);
-
-	void setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil);
-
-	ID3D11Device* d3dDevice() {
-		return d3dDevice_;
-	}
-
-	ID3D11DeviceContext* d3dDeviceContext() {
-		return d3dDeviceContext_;
-	}
+	void submit(CommandList& commandList);
 
 	Texture2d& backBuffer() {
 		return backBuffer_;
+	}
+
+	ID3D11Device& internalDevice() {
+		return *d3dDevice_;
+	}
+
+	ID3D11DeviceContext& internalDeviceContext() {
+		return *d3dDeviceContext_;
 	}
 
 private:
@@ -70,6 +73,8 @@ private:
 
 	Texture2d depthStencil_;
 
+	bool vsync_;
+
 	system::COMWrapper<ID3D11RasterizerState> rasterizer_;
 
 };
@@ -78,4 +83,4 @@ private:
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_GRAPHICS_DX11_DEVICE_HPP_ */
+#endif /* _COCONUT_MILK_GRAPHICS_DX11_RENDERER_HPP_ */

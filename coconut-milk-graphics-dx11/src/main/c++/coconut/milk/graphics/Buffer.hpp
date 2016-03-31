@@ -15,7 +15,7 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-class Device;
+class Renderer;
 
 class Buffer {
 public:
@@ -72,11 +72,11 @@ public:
 
 	using LockedData = std::unique_ptr<void, std::function<void(void*)>>;
 
-	Buffer(Device& device, const Configuration& configuration, const void* initialData = 0);
+	Buffer(Renderer& renderer, const Configuration& configuration, const void* initialData = 0);
 
-	LockedData lock(Device& device, LockPurpose lockPurpose);
+	LockedData lock(Renderer& renderer, LockPurpose lockPurpose);
 
-	void bind(Device& device, ShaderType shaderType, size_t slot);
+	void bind(Renderer& renderer, ShaderType shaderType, size_t slot);
 
 	ID3D11Buffer* resource() {
 		return buffer_.get();
