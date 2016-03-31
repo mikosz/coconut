@@ -17,6 +17,7 @@ namespace graphics {
 class Renderer;
 class Buffer;
 class Texture2d;
+class Sampler;
 
 class CommandList {
 public:
@@ -43,6 +44,8 @@ public:
 	void setBuffer(Buffer& buffer, ShaderType stage, size_t slot);
 
 	void setTexture(Texture2d& texture, ShaderType stage, size_t slot);
+
+	void setSampler(Sampler& sampler, ShaderType stage, size_t slot);
 
 	ID3D11DeviceContext& internalDeviceContext() {
 		return *d3dDeviceContext_;

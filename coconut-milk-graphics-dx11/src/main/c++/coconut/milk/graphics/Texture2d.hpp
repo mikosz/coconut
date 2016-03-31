@@ -101,7 +101,7 @@ private:
 
 	system::COMWrapper<ID3D11DepthStencilView> depthStencilView_;
 
-	mutable system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_; // TODO: mutable tempshit
+	system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_;
 
 };
 

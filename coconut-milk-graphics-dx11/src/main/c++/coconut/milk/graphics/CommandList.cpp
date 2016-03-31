@@ -79,3 +79,18 @@ void CommandList::setTexture(Texture2d& texture, ShaderType stage, size_t slot) 
 		throw coconut_tools::exceptions::LogicError("Unknown shader type: " + toString(stage));
 	}
 }
+
+void CommandList::setSampler(Sampler& sampler, ShaderType stage, size_t slot) {
+	auto* ss = &sampler.internalSamplerState();
+
+	switch (stage) {
+	case ShaderType::VERTEX:
+		d3dDeviceContext_->VSSetSamplers(slot, 1, &ss);
+		break;
+	case ShaderType::PIXEL:
+		d3dDeviceContext_->PSSetSamplers(slot, 1, &ss);
+		break;
+	default:
+		throw coconut_tools::exceptions::LogicError("Unknown shader type: " + toString(stage));
+	}
+}
