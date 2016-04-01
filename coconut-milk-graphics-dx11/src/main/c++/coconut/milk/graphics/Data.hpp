@@ -11,6 +11,8 @@ namespace graphics {
 class Data {
 public:
 
+	Data() = default;
+
 	Data(const Data&) = delete;
 
 	virtual ~Data() = default;

@@ -75,13 +75,13 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset) {
 
 void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stride) {
 	auto strideParam = static_cast<UINT>(stride);
-	UINT offsetParam = 0; // TODO: implement multiple buffers?
+	UINT offsetParam = 0;
 	auto* buf = &buffer.internalBuffer();
 
 	d3dDeviceContext_->IASetVertexBuffers(slot, 1, &buf, &strideParam, &offsetParam);
 }
 
-void CommandList::setTexture(Texture2d& texture, ShaderType stage, size_t slot) {
+void CommandList::setTexture(Texture& texture, ShaderType stage, size_t slot) {
 	auto* srv = &texture.internalShaderResourceView();
 
 	switch (stage) {

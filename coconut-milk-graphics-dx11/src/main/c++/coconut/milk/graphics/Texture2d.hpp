@@ -6,11 +6,10 @@
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
-#include "coconut/milk/utils/IntOfSize.hpp"
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "PixelFormat.hpp"
-#include "Data.hpp"
+#include "Texture.hpp"
 
 namespace coconut {
 namespace milk {
@@ -19,14 +18,8 @@ namespace graphics {
 class Renderer;
 class Image;
 
-class Texture2d : public Data {
+class Texture2d : public Texture {
 public:
-
-	enum class CreationPurpose {
-		SHADER_RESOURCE = D3D11_BIND_SHADER_RESOURCE,
-		RENDER_TARGET = D3D11_BIND_RENDER_TARGET,
-		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
-	};
 
 	struct Configuration {
 
@@ -77,18 +70,6 @@ public:
 
 	void reset();
 
-	ID3D11RenderTargetView& internalRenderTargetView() {
-		return *renderTargetView_;
-	}
-
-	ID3D11DepthStencilView& internalDepthStencilView() {
-		return *depthStencilView_;
-	}
-
-	ID3D11ShaderResourceView& internalShaderResourceView() {
-		return *shaderResourceView_;
-	}
-
 	ID3D11Resource& internalResource() override {
 		return *texture_;
 	}
@@ -96,12 +77,6 @@ public:
 private:
 
 	system::COMWrapper<ID3D11Texture2D> texture_;
-
-	system::COMWrapper<ID3D11RenderTargetView> renderTargetView_;
-
-	system::COMWrapper<ID3D11DepthStencilView> depthStencilView_;
-
-	system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_;
 
 };
 

@@ -49,7 +49,7 @@ public:
 
 	void setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stride, size_t offset);
 
-	void setTexture(Texture2d& texture, ShaderType stage, size_t slot);
+	void setTexture(Texture& texture, ShaderType stage, size_t slot);
 
 	void setSampler(Sampler& sampler, ShaderType stage, size_t slot);
 

@@ -1,7 +1,6 @@
 #include "Texture2d.hpp"
 
 #include <cstring>
-#include <stdexcept>
 
 #include "Renderer.hpp"
 #include "DirectXError.hpp"
@@ -38,6 +37,7 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 	D3D11_TEXTURE2D_DESC desc;
 	std::memset(&desc, 0, sizeof(desc));
 
+	// TODO: extract common configuration elements to superclass (when implementing other texture types)
 	desc.Width = static_cast<UINT>(configuration.width);
 	desc.Height = static_cast<UINT>(configuration.height);
 	desc.MipLevels = static_cast<UINT>(configuration.mipLevels);
@@ -85,31 +85,9 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 		"Failed to create a 2D texture"
 		);
 
-	if (configuration.purposeFlags & static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::SHADER_RESOURCE)) {
-		checkDirectXCall(
-			renderer.internalDevice().CreateShaderResourceView(texture_, nullptr, &shaderResourceView_.get()),
-			"Failed to create a shader resource view of texture"
-			);
-	}
-
-	if (configuration.purposeFlags & static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::RENDER_TARGET)) {
-		checkDirectXCall(
-			renderer.internalDevice().CreateRenderTargetView(texture_, nullptr, &renderTargetView_.get()),
-			"Failed to create a render target view of texture"
-			);
-	}
-
-	if (configuration.purposeFlags & static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::DEPTH_STENCIL)) {
-		checkDirectXCall(
-			renderer.internalDevice().CreateDepthStencilView(texture_, nullptr, &depthStencilView_.get()),
-			"Failed to create a depth stencil view of texture"
-			);
-	}
+	Texture::initialise(renderer, configuration.purposeFlags);
 }
 
 void Texture2d::reset() {
-	shaderResourceView_.reset();
-	depthStencilView_.reset();
-	renderTargetView_.reset();
 	texture_.reset();
 }
