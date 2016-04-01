@@ -2,6 +2,7 @@
 
 #include <coconut-tools/exceptions/LogicError.hpp>
 
+#include "Buffer.hpp"
 #include "Renderer.hpp"
 #include "DirectXError.hpp"
 
@@ -30,8 +31,8 @@ CommandList::LockedData CommandList::lock(Data& data, LockPurpose lockPurpose) {
 
 	return Buffer::LockedData(
 		mappedResource.pData,
-		[deviceContext = d3dDeviceContext_, internalBuffer = data.internalResource()](void*) {
-			deviceContext->Unmap(internalBuffer.get(), 0);
+		[deviceContext = d3dDeviceContext_, &internalBuffer = data.internalResource()](void*) {
+			deviceContext->Unmap(&internalBuffer, 0);
 		}
 		);
 }
@@ -50,22 +51,7 @@ void CommandList::setPixelShader(PixelShader& pixelShader) {
 	d3dDeviceContext_->PSSetShader(&pixelShader.internalShader(), nullptr, 0);
 }
 
-void CommandList::setVertexBuffer(Buffer& buffer, size_t slot, size_t stride, size_t offset) {
-	auto strideParam = static_cast<UINT>(stride);
-	auto offsetParam = static_cast<UINT>(offset);
-	auto* buf = &buffer.internalBuffer();
-
-	d3dDeviceContext_->IASetVertexBuffers(slot, 1, &buf, &strideParam, &offsetParam);
-}
-
-void CommandList::setIndexBuffer(Buffer& buffer, size_t offset) {
-	auto offsetParam = static_cast<UINT>(offset);
-	auto* buf = &buffer.internalBuffer();
-
-	d3dDeviceContext_->IASetIndexBuffer(buf, format, offset);
-}
-
-void CommandList::setConstantBuffer(Buffer& buffer, ShaderType stage, size_t slot) {
+void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, size_t slot) {
 	auto* buf = &buffer.internalBuffer();
 
 	switch (stage) {
@@ -78,6 +64,21 @@ void CommandList::setConstantBuffer(Buffer& buffer, ShaderType stage, size_t slo
 	default:
 		throw coconut_tools::exceptions::LogicError("Unknown shader type: " + toString(stage));
 	}
+}
+
+void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset) {
+	auto offsetParam = static_cast<UINT>(offset);
+	auto* buf = &buffer.internalBuffer();
+
+	d3dDeviceContext_->IASetIndexBuffer(buf, format, offset);
+}
+
+void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stride) {
+	auto strideParam = static_cast<UINT>(stride);
+	UINT offsetParam = 0; // TODO: implement multiple buffers?
+	auto* buf = &buffer.internalBuffer();
+
+	d3dDeviceContext_->IASetVertexBuffers(slot, 1, &buf, &strideParam, &offsetParam);
 }
 
 void CommandList::setTexture(Texture2d& texture, ShaderType stage, size_t slot) {

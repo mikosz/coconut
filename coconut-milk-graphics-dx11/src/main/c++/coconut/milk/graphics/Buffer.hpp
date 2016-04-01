@@ -40,8 +40,6 @@ public:
 
 		bool allowGPUWrite;
 
-		CreationPurpose purpose;
-
 		Configuration() {
 		}
 
@@ -50,30 +48,26 @@ public:
 			size_t stride,
 			bool allowModifications,
 			bool allowCPURead,
-			bool allowGPUWrite,
-			CreationPurpose purpose
+			bool allowGPUWrite
 			) :
 			size(size),
 			stride(stride),
 			allowModifications(allowModifications),
 			allowCPURead(allowCPURead),
-			allowGPUWrite(allowGPUWrite),
-			purpose(purpose)
+			allowGPUWrite(allowGPUWrite)
 		{
 		}
 
 	};
 
-	Buffer(Renderer& renderer, const Configuration& configuration, const void* initialData = 0);
-
-	void bind(Renderer& renderer, ShaderType shaderType, size_t slot);
+	Buffer(Renderer& renderer, CreationPurpose purpose, const Configuration& configuration, const void* initialData = 0);
 
 	ID3D11Buffer& internalBuffer() {
-		return buffer_;
+		return *buffer_;
 	}
 
 	ID3D11Resource& internalResource() override {
-		return buffer_;
+		return *buffer_;
 	}
 
 private:

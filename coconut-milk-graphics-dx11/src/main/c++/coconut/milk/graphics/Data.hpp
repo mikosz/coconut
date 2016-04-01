@@ -17,7 +17,7 @@ public:
 
 	void operator=(const Data&) = delete;
 
-	virtual ID3D11Resource* internalResource() = 0;
+	virtual ID3D11Resource& internalResource() = 0;
 
 };
 

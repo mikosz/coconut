@@ -11,14 +11,14 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
-Buffer::Buffer(Renderer& renderer, const Configuration& configuration, const void* initialData) :
+Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, const Configuration& configuration, const void* initialData) :
 	configuration_(configuration)
 {
 	D3D11_BUFFER_DESC desc;
 	std::memset(&desc, 0, sizeof(desc));
 
 	desc.ByteWidth = static_cast<UINT>(configuration.size);
-	desc.BindFlags = static_cast<UINT>(configuration.purpose);
+	desc.BindFlags = static_cast<UINT>(purpose);
 	desc.StructureByteStride = static_cast<UINT>(configuration.stride);
 
 	if (configuration.allowModifications) {
@@ -52,51 +52,4 @@ Buffer::Buffer(Renderer& renderer, const Configuration& configuration, const voi
 
 	checkDirectXCall(renderer.internalDevice().CreateBuffer(&desc, dataPtr, &buffer_.get()),
 		"Failed to create a buffer");
-}
-
-void Buffer::bind(Renderer& renderer, ShaderType shaderType, size_t slot) {
-	ID3D11Buffer* buffer = buffer_.get();
-
-	switch (configuration_.purpose) {
-	case CreationPurpose::VERTEX_BUFFER:
-		{
-			UINT stride = static_cast<UINT>(configuration_.stride);
-			UINT offset = 0;
-			renderer.internalDeviceContext().IASetVertexBuffers(static_cast<UINT>(slot), 1, &buffer, &stride, &offset);
-			break;
-		}
-	case CreationPurpose::INDEX_BUFFER:
-		{
-			DXGI_FORMAT format;
-			switch (configuration_.stride) {
-			case 2:
-				format = DXGI_FORMAT_R16_UINT;
-				break;
-			case 4:
-				format = DXGI_FORMAT_R32_UINT;
-				break;
-			default:
-				throw std::runtime_error("Invalid index buffer stride. Allowed strides are 2B and 4B.");
-			}
-			renderer.internalDeviceContext().IASetIndexBuffer(buffer, format, 0);
-			break;
-		}
-	case CreationPurpose::CONSTANT_BUFFER:
-		{
-			switch (shaderType) {
-			case ShaderType::VERTEX:
-				renderer.internalDeviceContext().VSSetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
-				break;
-			case ShaderType::PIXEL:
-				renderer.internalDeviceContext().PSSetConstantBuffers(static_cast<UINT>(slot), 1, &buffer);
-				break;
-			default:
-				throw std::runtime_error("Unknown shader type");
-			}
-
-			break;
-		}
-	default:
-		throw std::runtime_error("Unknown buffer purpose");
-	}
 }

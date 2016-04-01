@@ -249,8 +249,8 @@ Renderer::LockedData Renderer::lock(Data& data, LockPurpose lockPurpose) {
 
 	return Buffer::LockedData(
 		mappedResource.pData,
-		[deviceContext = d3dDeviceContext_, internalBuffer = data.internalResource()](void*) {
-			deviceContext->Unmap(internalBuffer.get(), 0);
+		[deviceContext = d3dDeviceContext_, &internalBuffer = data.internalResource()](void*) {
+			deviceContext->Unmap(&internalBuffer, 0);
 		}
 		);
 }

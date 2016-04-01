@@ -15,7 +15,9 @@ namespace milk {
 namespace graphics {
 
 class Renderer;
-class Buffer;
+class ConstantBuffer;
+class IndexBuffer;
+class VertexBuffer;
 class Texture2d;
 class Sampler;
 
@@ -41,11 +43,11 @@ public:
 
 	void setPixelShader(PixelShader& pixelShader);
 
-	void setVertexBuffer(Buffer& buffer, size_t slot, size_t stride, size_t offset);
+	void setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, size_t slot);
 
-	void setIndexBuffer(Buffer& buffer, size_t offset);
+	void setIndexBuffer(IndexBuffer& buffer, size_t offset);
 
-	void setConstantBuffer(Buffer& buffer, ShaderType stage, size_t slot);
+	void setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stride, size_t offset);
 
 	void setTexture(Texture2d& texture, ShaderType stage, size_t slot);
 
