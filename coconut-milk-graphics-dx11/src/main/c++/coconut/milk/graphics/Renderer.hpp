@@ -86,10 +86,6 @@ private:
 
 	Texture2d depthStencil_;
 
-	bool vsync_;
-
-	system::COMWrapper<ID3D11RasterizerState> rasterizer_;
-
 };
 
 } // namespace graphics

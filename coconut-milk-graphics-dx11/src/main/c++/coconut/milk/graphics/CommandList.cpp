@@ -4,6 +4,9 @@
 
 #include "Buffer.hpp"
 #include "Renderer.hpp"
+#include "Rasteriser.hpp"
+#include "Texture2d.hpp"
+#include "Sampler.hpp"
 #include "DirectXError.hpp"
 
 using namespace coconut;
@@ -109,4 +112,8 @@ void CommandList::setSampler(Sampler& sampler, ShaderType stage, size_t slot) {
 	default:
 		throw coconut_tools::exceptions::LogicError("Unknown shader type: " + toString(stage));
 	}
+}
+
+void CommandList::setRasteriser(Rasteriser& rasteriser) {
+	d3dDeviceContext_->RSSetState(&rasteriser.internalRasteriserState());
 }

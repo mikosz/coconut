@@ -1,5 +1,5 @@
-#ifndef _COCONUT_MILK_GRAPHICS_DX11_TEXTURE2D_HPP_
-#define _COCONUT_MILK_GRAPHICS_DX11_TEXTURE2D_HPP_
+#ifndef _COCONUT_MILK_GRAPHICS_DX11_SAMPLER_HPP_
+#define _COCONUT_MILK_GRAPHICS_DX11_SAMPLER_HPP_
 
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
@@ -55,4 +55,4 @@ private:
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_GRAPHICS_DX11_TEXTURE2D_HPP_ */
+#endif /* _COCONUT_MILK_GRAPHICS_DX11_SAMPLER_HPP_ */

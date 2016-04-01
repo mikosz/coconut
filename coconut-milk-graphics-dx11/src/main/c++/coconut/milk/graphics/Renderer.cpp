@@ -209,19 +209,6 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
 	d3dDeviceContext_->RSSetViewports(1, &viewport);
-
-	D3D11_RASTERIZER_DESC rasterizer; // TODO: move to draw command
-	std::memset(&rasterizer, 0, sizeof(rasterizer));
-	rasterizer.CullMode = D3D11_CULL_NONE;
-	rasterizer.FillMode = D3D11_FILL_SOLID;
-	checkDirectXCall(
-		device->CreateRasterizerState(&rasterizer, &rasterizer_.get()),
-		"Failed to create a rasterizer state"
-		);
-
-	d3dDeviceContext_->RSSetState(rasterizer_);
-
-	vsync_ = configuration.vsync;
 }
 
 void Renderer::beginScene() {
@@ -237,7 +224,7 @@ void Renderer::beginScene() {
 }
 
 void Renderer::endScene() {
-	swapChain_->Present(vsync_, 0);
+	swapChain_->Present(configuration_.vsync, 0);
 }
 
 Renderer::LockedData Renderer::lock(Data& data, LockPurpose lockPurpose) {

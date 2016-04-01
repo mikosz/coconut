@@ -20,6 +20,7 @@ class IndexBuffer;
 class VertexBuffer;
 class Texture2d;
 class Sampler;
+class Rasteriser;
 
 class CommandList {
 public:
@@ -52,6 +53,8 @@ public:
 	void setTexture(Texture& texture, ShaderType stage, size_t slot);
 
 	void setSampler(Sampler& sampler, ShaderType stage, size_t slot);
+
+	void setRasteriser(Rasteriser& rasteriser);
 
 	ID3D11DeviceContext& internalDeviceContext() {
 		return *d3dDeviceContext_;
