@@ -34,7 +34,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Importer);
+CCN_MAKE_POINTER_DEFINITIONS(Importer);
 
 } // namespace obj
 } // namespace model

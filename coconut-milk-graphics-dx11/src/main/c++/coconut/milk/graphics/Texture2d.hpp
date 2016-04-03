@@ -80,7 +80,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Texture2d);
+CCN_MAKE_POINTER_DEFINITIONS(Texture2d);
 
 } // namespace graphics
 } // namespace milk

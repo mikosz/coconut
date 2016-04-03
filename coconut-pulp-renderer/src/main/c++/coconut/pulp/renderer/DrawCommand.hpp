@@ -1,7 +1,9 @@
-#ifndef _COCONUT_PULP_RENDERER_DRAW_COMMAND_HPP_
-#define _COCONUT_PULP_RENDERER_DRAW_COMMAND_HPP_
+#ifndef _COCONUT_PULP_RENDERER_DRAWCOMMAND_HPP_
+#define _COCONUT_PULP_RENDERER_DRAWCOMMAND_HPP_
 
 #include <cstdint>
+
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -24,8 +26,10 @@ public:
 
 };
 
+CCN_MAKE_POINTER_DEFINITIONS(DrawCommand);
+
 } // namespace renderer
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_DRAW_COMMAND_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_DRAWCOMMAND_HPP_ */

@@ -25,7 +25,7 @@ class Scene;
 namespace shader {
 
 class Resource;
-MAKE_POINTER_DEFINITIONS(Resource);
+CCN_MAKE_POINTER_DEFINITIONS(Resource);
 
 class Shader {
 public:
@@ -72,7 +72,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Shader);
+CCN_MAKE_POINTER_DEFINITIONS(Shader);
 
 } // namespace shader
 } // namespace renderer

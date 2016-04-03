@@ -42,7 +42,7 @@ protected:
 
 };
 
-MAKE_POINTER_DEFINITIONS(InputLayoutDescription);
+CCN_MAKE_POINTER_DEFINITIONS(InputLayoutDescription);
 
 } // namespace graphics
 } // namespace milk

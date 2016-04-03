@@ -44,7 +44,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Pass);
+CCN_MAKE_POINTER_DEFINITIONS(Pass);
 
 } // namespace shader
 } // namespace renderer

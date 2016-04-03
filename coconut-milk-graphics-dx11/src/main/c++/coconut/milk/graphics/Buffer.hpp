@@ -78,7 +78,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Buffer);
+CCN_MAKE_POINTER_DEFINITIONS(Buffer);
 
 } // namespace graphics
 } // namespace milk

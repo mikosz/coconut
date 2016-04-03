@@ -82,7 +82,7 @@ public:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Material);
+CCN_MAKE_POINTER_DEFINITIONS(Material);
 
 } // namespace material
 } // namespace renderer

@@ -33,7 +33,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(InputLayout);
+CCN_MAKE_POINTER_DEFINITIONS(InputLayout);
 
 } // namespace graphics
 } // namespace milk

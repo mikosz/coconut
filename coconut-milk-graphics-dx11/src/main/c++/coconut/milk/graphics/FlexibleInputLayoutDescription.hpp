@@ -59,7 +59,7 @@ public:
 
 	};
 
-	MAKE_POINTER_DEFINITIONS(Element);
+	CCN_MAKE_POINTER_DEFINITIONS(Element);
 
 	FLEXIBLE_INPUT_LAYOUT_ELEMENT(Position);
 
@@ -85,7 +85,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(FlexibleInputLayoutDescription);
+CCN_MAKE_POINTER_DEFINITIONS(FlexibleInputLayoutDescription);
 
 } // namespace graphics
 } // namespace milk

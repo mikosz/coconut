@@ -22,7 +22,7 @@ protected:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Camera);
+CCN_MAKE_POINTER_DEFINITIONS(Camera);
 
 } // namespace renderer
 } // namespace pulp

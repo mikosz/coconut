@@ -33,7 +33,7 @@ protected:
 
 };
 
-MAKE_POINTER_DEFINITIONS(VertexInterface);
+CCN_MAKE_POINTER_DEFINITIONS(VertexInterface);
 
 } // namespace graphics
 } // namespace milk

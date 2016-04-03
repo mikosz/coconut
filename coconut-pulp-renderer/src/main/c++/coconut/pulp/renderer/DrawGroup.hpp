@@ -46,7 +46,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(DrawGroup);
+CCN_MAKE_POINTER_DEFINITIONS(DrawGroup);
 
 } // namespace renderer
 } // namespace pulp
