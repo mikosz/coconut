@@ -18,7 +18,7 @@ Sampler::Sampler(Renderer& renderer, const Configuration& configuration) {
 	samplerDesc.Filter = static_cast<D3D11_FILTER>(configuration.filter);
 
 	checkDirectXCall(
-		renderer.internalDevice().CreateSamplerState(samplerDesc, &samplerState_.get()),
+		renderer.internalDevice().CreateSamplerState(&samplerDesc, &samplerState_.get()),
 		"Failed to create a sampler state"
 		);
 }

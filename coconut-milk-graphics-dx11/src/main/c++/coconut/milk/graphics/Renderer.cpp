@@ -152,6 +152,7 @@ void createD3DDevice(
 }
 
 void extractBackBuffer(
+	Renderer& renderer,
 	IDXGISwapChain* swapChain,
 	Texture2d* backBuffer
 	)
@@ -162,7 +163,12 @@ void extractBackBuffer(
 		"Failed to extract the back buffer texture"
 		);
 
-	*backBuffer = texture;
+	backBuffer->initialise(
+		renderer,
+		static_cast<Texture::CreationPurposeFlag>(Texture::CreationPurpose::RENDER_TARGET) |
+		static_cast<Texture::CreationPurposeFlag>(Texture::CreationPurpose::DEPTH_STENCIL),
+		texture
+		); // TODO: this interface needs work
 }
 
 } // anonymous namespace
@@ -177,7 +183,7 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 
 	createD3DDevice(window, *dxgiFactory, configuration, refreshRate, &swapChain_, &d3dDevice_, &d3dDeviceContext_);
 
-	extractBackBuffer(swapChain_, &backBuffer_);
+	extractBackBuffer(*this, swapChain_, &backBuffer_);
 
 	UINT quality;
 	system::COMWrapper<ID3D11Device> device;
@@ -214,9 +220,9 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 void Renderer::beginScene() {
 	// TODO: move to pulp or disperse
 	float colour[] = { 1.0f, 0.0f, 1.0f, 1.0f };
-	d3dDeviceContext_->ClearRenderTargetView(backBuffer_.internalRenderTargetView(), colour);
+	d3dDeviceContext_->ClearRenderTargetView(&backBuffer_.internalRenderTargetView(), colour);
 	d3dDeviceContext_->ClearDepthStencilView(
-		depthStencil_.internalDepthStencilView(),
+		&depthStencil_.internalDepthStencilView(),
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		static_cast<UINT8>(0)
@@ -234,7 +240,7 @@ Renderer::LockedData Renderer::lock(Data& data, LockPurpose lockPurpose) {
 		"Failed to map the provided resource"
 		);
 
-	return Buffer::LockedData(
+	return LockedData(
 		mappedResource.pData,
 		[deviceContext = d3dDeviceContext_, &internalBuffer = data.internalResource()](void*) {
 			deviceContext->Unmap(&internalBuffer, 0);

@@ -2,12 +2,16 @@
 
 #include <coconut-tools/exceptions/LogicError.hpp>
 
-#include "Buffer.hpp"
+#include "ConstantBuffer.hpp"
+#include "IndexBuffer.hpp"
+#include "VertexBuffer.hpp"
 #include "Renderer.hpp"
 #include "Rasteriser.hpp"
 #include "Texture2d.hpp"
 #include "Sampler.hpp"
 #include "DirectXError.hpp"
+#include "ShaderType.hpp"
+#include "PixelFormat.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
@@ -32,7 +36,7 @@ CommandList::LockedData CommandList::lock(Data& data, LockPurpose lockPurpose) {
 		"Failed to map the provided resource"
 		);
 
-	return Buffer::LockedData(
+	return LockedData(
 		mappedResource.pData,
 		[deviceContext = d3dDeviceContext_, &internalBuffer = data.internalResource()](void*) {
 			deviceContext->Unmap(&internalBuffer, 0);
@@ -41,8 +45,8 @@ CommandList::LockedData CommandList::lock(Data& data, LockPurpose lockPurpose) {
 }
 
 void CommandList::setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil) {
-	auto* renderTargetView = renderTarget.internalRenderTargetView();
-	auto* depthStencilView = depthStencil.internalDepthStencilView();
+	auto* renderTargetView = &renderTarget.internalRenderTargetView();
+	auto* depthStencilView = &depthStencil.internalDepthStencilView();
 	d3dDeviceContext_->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 }
 
@@ -59,21 +63,20 @@ void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, si
 
 	switch (stage) {
 	case ShaderType::VERTEX:
-		d3dDeviceContext_->VSSetConstantBuffers(slot, 1, &buf);
+		d3dDeviceContext_->VSSetConstantBuffers(static_cast<UINT>(slot), 1, &buf);
 		break;
 	case ShaderType::PIXEL:
-		d3dDeviceContext_->PSSetConstantBuffers(slot, 1, &buf);
+		d3dDeviceContext_->PSSetConstantBuffers(static_cast<UINT>(slot), 1, &buf);
 		break;
 	default:
 		throw coconut_tools::exceptions::LogicError("Unknown shader type: " + toString(stage));
 	}
 }
 
-void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset) {
-	auto offsetParam = static_cast<UINT>(offset);
+void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset, PixelFormat pixelFormat) {
 	auto* buf = &buffer.internalBuffer();
 
-	d3dDeviceContext_->IASetIndexBuffer(buf, format, offset);
+	d3dDeviceContext_->IASetIndexBuffer(buf, static_cast<DXGI_FORMAT>(pixelFormat), static_cast<UINT>(offset));
 }
 
 void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stride) {
@@ -81,7 +84,7 @@ void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stri
 	UINT offsetParam = 0;
 	auto* buf = &buffer.internalBuffer();
 
-	d3dDeviceContext_->IASetVertexBuffers(slot, 1, &buf, &strideParam, &offsetParam);
+	d3dDeviceContext_->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buf, &strideParam, &offsetParam);
 }
 
 void CommandList::setTexture(Texture& texture, ShaderType stage, size_t slot) {
@@ -89,10 +92,10 @@ void CommandList::setTexture(Texture& texture, ShaderType stage, size_t slot) {
 
 	switch (stage) {
 	case ShaderType::VERTEX:
-		d3dDeviceContext_->VSSetShaderResources(slot, 1, &srv);
+		d3dDeviceContext_->VSSetShaderResources(static_cast<UINT>(slot), 1, &srv);
 		break;
 	case ShaderType::PIXEL:
-		d3dDeviceContext_->PSSetShaderResources(slot, 1, &srv);
+		d3dDeviceContext_->PSSetShaderResources(static_cast<UINT>(slot), 1, &srv);
 		break;
 	default:
 		throw coconut_tools::exceptions::LogicError("Unknown shader type: " + toString(stage));
@@ -104,10 +107,10 @@ void CommandList::setSampler(Sampler& sampler, ShaderType stage, size_t slot) {
 
 	switch (stage) {
 	case ShaderType::VERTEX:
-		d3dDeviceContext_->VSSetSamplers(slot, 1, &ss);
+		d3dDeviceContext_->VSSetSamplers(static_cast<UINT>(slot), 1, &ss);
 		break;
 	case ShaderType::PIXEL:
-		d3dDeviceContext_->PSSetSamplers(slot, 1, &ss);
+		d3dDeviceContext_->PSSetSamplers(static_cast<UINT>(slot), 1, &ss);
 		break;
 	default:
 		throw coconut_tools::exceptions::LogicError("Unknown shader type: " + toString(stage));

@@ -1,6 +1,8 @@
 #ifndef _COCONUT_MILK_GRAPHICS_DX11_TEXTURE_HPP_
 #define _COCONUT_MILK_GRAPHICS_DX11_TEXTURE_HPP_
 
+#include <type_traits>
+
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
@@ -24,7 +26,9 @@ public:
 		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
 	};
 
-	void initialise(Renderer& renderer, std::underlying_type_t<CreationPurpose> purposeFlags);
+	using CreationPurposeFlag = std::underlying_type_t<CreationPurpose>;
+
+	void initialise(Renderer& renderer, CreationPurposeFlag purposeFlags);
 
 	void reset();
 

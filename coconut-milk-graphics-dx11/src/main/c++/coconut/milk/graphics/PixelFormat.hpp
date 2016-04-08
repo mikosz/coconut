@@ -7,7 +7,7 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-enum PixelFormat {
+enum class PixelFormat {
 	// colour texture formats
 	R8G8B8A8_UNORM = DXGI_FORMAT_R8G8B8A8_UNORM,
 	B8G8R8A8_UNORM = DXGI_FORMAT_B8G8R8A8_UNORM,

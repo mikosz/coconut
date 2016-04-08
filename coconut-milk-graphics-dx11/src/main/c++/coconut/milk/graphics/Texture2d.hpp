@@ -41,7 +41,7 @@ public:
 
 		bool allowGPUWrite;
 
-		std::underlying_type_t<CreationPurpose> purposeFlags;
+		CreationPurposeFlag purposeFlags;
 
 		const void* initialData;
 		
@@ -67,6 +67,8 @@ public:
 	}
 
 	void initialise(Renderer& renderer, const Configuration& configuration);
+
+	void initialise(Renderer& renderer, CreationPurposeFlag purposeFlags, system::COMWrapper<ID3D11Texture2D> texture);
 
 	void reset();
 

@@ -7,7 +7,7 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
-void Texture::initialise(Renderer& renderer, std::underlying_type_t<CreationPurpose> purposeFlags) {
+void Texture::initialise(Renderer& renderer, CreationPurposeFlag purposeFlags) {
 	if (purposeFlags & static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::SHADER_RESOURCE)) {
 		checkDirectXCall(
 			renderer.internalDevice().CreateShaderResourceView(&internalResource(), nullptr, &shaderResourceView_.get()),

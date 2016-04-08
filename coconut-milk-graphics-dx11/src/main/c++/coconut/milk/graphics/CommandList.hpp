@@ -1,6 +1,9 @@
 #ifndef _COCONUT_MILK_GRAPHICS_DX11_COMMANDLIST_HPP_
 #define _COCONUT_MILK_GRAPHICS_DX11_COMMANDLIST_HPP_
 
+#include <memory>
+#include <functional>
+
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
@@ -14,13 +17,16 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
+class Data;
 class Renderer;
 class ConstantBuffer;
 class IndexBuffer;
 class VertexBuffer;
+class Texture;
 class Texture2d;
 class Sampler;
 class Rasteriser;
+enum class PixelFormat;
 
 class CommandList {
 public:
@@ -46,9 +52,9 @@ public:
 
 	void setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, size_t slot);
 
-	void setIndexBuffer(IndexBuffer& buffer, size_t offset);
+	void setIndexBuffer(IndexBuffer& buffer, size_t offset, PixelFormat pixelFormat);
 
-	void setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stride, size_t offset);
+	void setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stride);
 
 	void setTexture(Texture& texture, ShaderType stage, size_t slot);
 

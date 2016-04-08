@@ -88,6 +88,18 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 	Texture::initialise(renderer, configuration.purposeFlags);
 }
 
+void Texture2d::initialise(
+	Renderer& renderer,
+	CreationPurposeFlag purposeFlags,
+	system::COMWrapper<ID3D11Texture2D> texture
+	) {
+	reset();
+
+	texture_ = std::move(texture);
+
+	Texture::initialise(renderer, purposeFlags);
+}
+
 void Texture2d::reset() {
 	texture_.reset();
 }
