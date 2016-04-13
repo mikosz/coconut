@@ -3,10 +3,8 @@
 
 #include <memory>
 
-#include "coconut/milk/graphics/Buffer.hpp"
-#include "coconut/milk/graphics/Device.hpp"
-
-#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/milk/graphics/ConstantBuffer.hpp"
+#include "coconut/milk/graphics/Renderer.hpp"
 
 #include "Parameter.hpp"
 
@@ -20,7 +18,7 @@ class ConstantBuffer {
 public:
 
 	ConstantBuffer(
-		milk::graphics::Device& graphicsDevice,
+		milk::graphics::Renderer& renderer,
 		milk::graphics::ShaderType shaderType,
 		size_t slot,
 		std::unique_ptr<Parameter<UpdateArguments...>> parameter
@@ -34,21 +32,16 @@ public:
 				0,
 				true,
 				false,
-				false,
-				milk::graphics::Buffer::CreationPurpose::CONSTANT_BUFFER
+				false
 				)
 			),
 		parameter_(std::move(parameter))
 	{
 	}
 
-	void update(milk::graphics::Device& graphicsDevice, const UpdateArguments&... updateArguments) { // TODO: why doesn't perfect forwarding work here?
-		auto lockedData = buffer_.lock(graphicsDevice, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
+	void update(milk::graphics::CommandList& commandList, const UpdateArguments&... updateArguments) { // TODO: why doesn't perfect forwarding work here?
+		auto lockedData = commandList.lock(buffer_, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
 		parameter_->update(lockedData.get(), updateArguments...);
-	}
-
-	void bind(milk::graphics::Device& graphicsDevice) {
-		buffer_.bind(graphicsDevice, shaderType_, slot_);
 	}
 
 private:
@@ -57,7 +50,7 @@ private:
 
 	size_t slot_;
 
-	milk::graphics::Buffer buffer_;
+	milk::graphics::ConstantBuffer buffer_;
 
 	std::unique_ptr<Parameter<UpdateArguments...>> parameter_;
 

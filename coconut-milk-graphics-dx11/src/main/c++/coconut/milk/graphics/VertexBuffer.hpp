@@ -11,9 +11,18 @@ class VertexBuffer : public Buffer {
 public:
 
 	VertexBuffer(Renderer& renderer, const Configuration& configuration, const void* initialData = 0) :
-		Buffer(renderer, CreationPurpose::VERTEX_BUFFER, configuration, initialData)
+		Buffer(renderer, CreationPurpose::VERTEX_BUFFER, configuration, initialData),
+		stride_(configuration.stride)
 	{
 	}
+
+	size_t stride() const {
+		return stride_;
+	}
+
+private:
+
+	size_t stride_;
 
 };
 

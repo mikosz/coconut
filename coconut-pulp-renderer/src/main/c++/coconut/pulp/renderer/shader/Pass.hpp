@@ -19,8 +19,8 @@ public:
 
 	Pass(
 		milk::graphics::InputLayoutUniquePtr inputLayout,
-		ShaderUniquePtr vertexShader,
-		ShaderUniquePtr pixelShader
+		VertexShaderUniquePtr vertexShader,
+		PixelShaderUniquePtr pixelShader
 		) :
 		inputLayout_(std::move(inputLayout)),
 		vertexShader_(std::move(vertexShader)),
@@ -28,19 +28,25 @@ public:
 	{
 	}
 
-	std::unique_ptr<DrawCommand> createDrawCommand(const RenderingContext& renderingContext) const;
-
 	const milk::graphics::InputLayoutDescription& inputLayoutDescription() const {
 		return inputLayout_->description();
+	}
+
+	VertexShader& vertexShader() {
+		return *vertexShader_;
+	}
+
+	PixelShader& pixelShader() {
+		return *pixelShader_;
 	}
 
 private:
 
 	milk::graphics::InputLayoutUniquePtr inputLayout_;
 
-	ShaderUniquePtr vertexShader_;
+	VertexShaderUniquePtr vertexShader_;
 
-	ShaderUniquePtr pixelShader_;
+	PixelShaderUniquePtr pixelShader_;
 
 };
 

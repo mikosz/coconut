@@ -38,6 +38,9 @@ private:
 using VertexShader = detail::Shader<ID3D11VertexShader>;
 using PixelShader = detail::Shader<ID3D11PixelShader>;
 
+CCN_MAKE_POINTER_DEFINITIONS(VertexShader);
+CCN_MAKE_POINTER_DEFINITIONS(PixelShader);
+
 } // namespace graphics
 } // namespace milk
 } // namespace coconut

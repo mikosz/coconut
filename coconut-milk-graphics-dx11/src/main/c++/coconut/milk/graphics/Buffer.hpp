@@ -72,8 +72,6 @@ public:
 
 private:
 
-	Configuration configuration_;
-
 	system::COMWrapper<ID3D11Buffer> buffer_;
 
 };

@@ -37,8 +37,8 @@ CommandList::LockedData CommandList::lock(Data& data, LockPurpose lockPurpose) {
 		);
 
 	return LockedData(
-		mappedResource.pData,
-		[deviceContext = d3dDeviceContext_, &internalBuffer = data.internalResource()](void*) {
+		reinterpret_cast<std::uint8_t*>(mappedResource.pData),
+		[deviceContext = d3dDeviceContext_, &internalBuffer = data.internalResource()](std::uint8_t*) {
 			deviceContext->Unmap(&internalBuffer, 0);
 		}
 		);
@@ -73,14 +73,14 @@ void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, si
 	}
 }
 
-void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset, PixelFormat pixelFormat) {
+void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset) {
 	auto* buf = &buffer.internalBuffer();
 
-	d3dDeviceContext_->IASetIndexBuffer(buf, static_cast<DXGI_FORMAT>(pixelFormat), static_cast<UINT>(offset));
+	d3dDeviceContext_->IASetIndexBuffer(buf, static_cast<DXGI_FORMAT>(buffer.pixelFormat()), static_cast<UINT>(offset));
 }
 
-void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stride) {
-	auto strideParam = static_cast<UINT>(stride);
+void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot) {
+	auto strideParam = static_cast<UINT>(buffer.stride());
 	UINT offsetParam = 0;
 	auto* buf = &buffer.internalBuffer();
 

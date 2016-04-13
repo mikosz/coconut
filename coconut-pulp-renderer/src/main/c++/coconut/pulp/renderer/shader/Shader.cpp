@@ -11,16 +11,15 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
-Shader::Shader(
-	milk::graphics::ShaderSharedPtr binaryShader,
-	milk::graphics::ShaderType shaderType,
+template <class GraphicsShaderType>
+detail::Shader<GraphicsShaderType>::Shader(
+	GraphicsShaderType binaryShader,
 	SceneData sceneData,
 	ActorData actorData,
 	MaterialData materialData,
 	Resources resources
 	) :
 	binaryShader_(binaryShader),
-	shaderType_(shaderType),
 	sceneData_(std::move(sceneData)),
 	actorData_(std::move(actorData)),
 	materialData_(std::move(materialData)),
@@ -28,7 +27,8 @@ Shader::Shader(
 {
 }
 
-void Shader::update(milk::graphics::Device& graphicsDevice, const RenderingContext& renderingContext) const {
+template <class GraphicsShaderType>
+void detail::Shader<GraphicsShaderType>::update(milk::graphics::Device& graphicsDevice, const RenderingContext& renderingContext) const {
 	for (auto buffer : sceneData_) {
 		buffer->update(graphicsDevice, *renderingContext.scene); // TODO: update conditionally (if changed since last update)
 	}

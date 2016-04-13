@@ -12,6 +12,7 @@ class Scene;
 class Actor;
 class Model;
 
+// TODO: I don't like these pointers
 struct RenderingContext {
 
 	const shader::Pass* pass = nullptr;

@@ -14,6 +14,10 @@ enum class PixelFormat {
 
 	// depth texture formats
 	D32_FLOAT = DXGI_FORMAT_D32_FLOAT,
+
+	// index buffer formats
+	I16_UINT = DXGI_FORMAT_R16_UINT,
+	I32_UINT = DXGI_FORMAT_R32_UINT,
 };
 
 } // namespace graphics

@@ -1,6 +1,7 @@
 #ifndef _COCONUT_MILK_GRAPHICS_DX11_COMMANDLIST_HPP_
 #define _COCONUT_MILK_GRAPHICS_DX11_COMMANDLIST_HPP_
 
+#include <cstdint>
 #include <memory>
 #include <functional>
 
@@ -31,7 +32,7 @@ enum class PixelFormat;
 class CommandList {
 public:
 
-	using LockedData = std::unique_ptr<void, std::function<void(void*)>>;
+	using LockedData = std::unique_ptr<std::uint8_t, std::function<void(std::uint8_t*)>>;
 
 	enum class LockPurpose {
 		WRITE_DISCARD = D3D11_MAP_WRITE_DISCARD,
@@ -40,7 +41,7 @@ public:
 
 	CommandList(Renderer& renderer);
 
-	void draw(size_t startingIndex, size_t vertexCount, PrimitiveTopology primitiveTopology);
+	void draw(size_t startingIndex, size_t indexCount, PrimitiveTopology primitiveTopology);
 
 	LockedData lock(Data& data, LockPurpose lockPurpose);
 
@@ -52,9 +53,9 @@ public:
 
 	void setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, size_t slot);
 
-	void setIndexBuffer(IndexBuffer& buffer, size_t offset, PixelFormat pixelFormat);
+	void setIndexBuffer(IndexBuffer& buffer, size_t offset);
 
-	void setVertexBuffer(VertexBuffer& buffer, size_t slot, size_t stride);
+	void setVertexBuffer(VertexBuffer& buffer, size_t slot);
 
 	void setTexture(Texture& texture, ShaderType stage, size_t slot);
 
