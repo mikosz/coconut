@@ -11,9 +11,7 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
-Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, const Configuration& configuration, const void* initialData) :
-	configuration_(configuration)
-{
+Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, const Configuration& configuration, const void* initialData) {
 	D3D11_BUFFER_DESC desc;
 	std::memset(&desc, 0, sizeof(desc));
 

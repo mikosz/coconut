@@ -5,15 +5,14 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
 DrawCommand::Key GeometryDrawCommand::key() const {
-
+	return 0; // TODO
 }
 
-void GeometryDrawCommand::run(milk::graphics::CommandList& commandList) {
-	DrawCommand::run(commandList);
+void GeometryDrawCommand::submit(milk::graphics::CommandList& commandList) {
+	DrawCommand::submit(commandList);
 
 	assert(vertexBuffer_ != nullptr);
 	assert(indexBuffer_ != nullptr);
-	assert(renderingContext_ != nullptr);
 	assert(indexCount_ > 0);
 	assert(primitiveTopology_ != milk::graphics::PrimitiveTopology::INVALID);
 

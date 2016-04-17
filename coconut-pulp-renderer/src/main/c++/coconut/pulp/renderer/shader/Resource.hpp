@@ -5,8 +5,9 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "coconut/milk/graphics/Device.hpp"
-#include "coconut/milk/graphics/ShaderResource.hpp"
+#include "coconut/milk/graphics/Texture.hpp"
+
+#include "../DrawCommand.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -19,31 +20,27 @@ namespace shader {
 class Resource {
 public:
 
-	using Callback = std::function<milk::graphics::ShaderResourceSharedPtr (milk::graphics::Device&, const RenderingContext&)>;
+	// TODO: pointer?
+	using Callback = std::function<milk::graphics::Texture* (const RenderingContext&)>;
 
-	Resource(Callback callback) :
-		callback_(callback)
+	Resource(Callback callback, milk::graphics::ShaderType shaderType, size_t slot) :
+		callback_(callback),
+		stage_(shaderType),
+		slot_(slot)
 	{
 	}
 
-	void update(milk::graphics::Device& graphicsDevice, const RenderingContext& context) {
-		resource_ = callback_(graphicsDevice, context);
-	}
-
-	void bind(
-		milk::graphics::Device& graphicsDevice,
-		size_t slot,
-		milk::graphics::ShaderType shaderType
-		) {
-		// TODO: check if resource not null...
-		resource_->bind(graphicsDevice, shaderType, slot);
+	void bind(DrawCommand& drawCommand, const RenderingContext& context) {
+		drawCommand.addTexture(callback_(context), stage_, slot_);
 	}
 
 private:
 
 	Callback callback_;
 
-	milk::graphics::ShaderResourceSharedPtr resource_;
+	milk::graphics::ShaderType stage_;
+
+	size_t slot_;
 
 };
 

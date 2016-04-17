@@ -6,8 +6,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "coconut/milk/graphics/VertexShader.hpp"
-#include "coconut/milk/graphics/PixelShader.hpp"
+#include "coconut/milk/graphics/Shader.hpp"
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 
 #include "coconut/milk/math/Matrix.hpp"
@@ -28,18 +27,18 @@ using namespace coconut::pulp::renderer::shader;
 ShaderFactory::ShaderFactory() {
 }
 
-PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId) {
+PassUniquePtr ShaderFactory::createShader(milk::graphics::Renderer& graphicsRenderer, ShaderId) {
 	milk::graphics::InputLayoutUniquePtr inputLayout;
-	ShaderUniquePtr vertexShader;
-	ShaderUniquePtr pixelShader;
+	VertexShaderUniquePtr vertexShader;
+	PixelShaderUniquePtr pixelShader;
 
 	{
 		milk::graphics::ShaderType shaderType;
-		Shader::SceneData sceneData;
-		Shader::ActorData actorData;
-		Shader::MaterialData materialData;
-		Shader::Resources resources;
-		milk::graphics::VertexShaderSharedPtr binaryShader;
+		VertexShader::SceneData sceneData;
+		VertexShader::ActorData actorData;
+		VertexShader::MaterialData materialData;
+		VertexShader::Resources resources;
+		milk::graphics::VertexShaderUniquePtr binaryShader;
 
 		shaderType = milk::graphics::ShaderType::VERTEX;
 
@@ -75,11 +74,11 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 				)
 			);
 
-		inputLayout = std::make_unique<milk::graphics::InputLayout>(std::move(inputLayoutDesc), graphicsDevice, &vdata.front(), vdata.size());
+		inputLayout = std::make_unique<milk::graphics::InputLayout>(std::move(inputLayoutDesc), graphicsRenderer, &vdata.front(), vdata.size());
 
 		binaryShader.reset(
 			new milk::graphics::VertexShader(
-				graphicsDevice,
+				graphicsRenderer,
 				&vdata.front(),
 				vdata.size()
 				)
@@ -109,7 +108,7 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 
 			auto actorParameter = std::make_unique<StructuredParameter<Actor>>(std::move(actorFields));
 
-			actorData.emplace_back(std::make_unique<ConstantBuffer<Actor>>(graphicsDevice, shaderType, 0, std::move(actorParameter)));
+			actorData.emplace_back(std::make_unique<ConstantBuffer<Actor>>(graphicsRenderer, shaderType, 0, std::move(actorParameter)));
 		}
 
 		{
@@ -120,7 +119,7 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 					}
 					)
 				;
-			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsDevice, shaderType, 1, std::move(viewParameter)));
+			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsRenderer, shaderType, 1, std::move(viewParameter)));
 		}
 
 		{
@@ -131,12 +130,11 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 					}
 					)
 				;
-			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsDevice, shaderType, 2, std::move(projectionParameter)));
+			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsRenderer, shaderType, 2, std::move(projectionParameter)));
 		}
 
-		vertexShader = std::make_unique<Shader>(
-			binaryShader,
-			shaderType,
+		vertexShader = std::make_unique<VertexShader>(
+			*binaryShader,
 			std::move(sceneData),
 			std::move(actorData),
 			std::move(materialData),
@@ -146,11 +144,11 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 	
 	{
 		milk::graphics::ShaderType shaderType;
-		Shader::SceneData sceneData;
-		Shader::ActorData actorData;
-		Shader::MaterialData groupData; // TODO: change type to GroupParameters and dont restrict param to material (?)
-		Shader::Resources resources;
-		milk::graphics::ShaderSharedPtr binaryShader;
+		PixelShader::SceneData sceneData;
+		PixelShader::ActorData actorData;
+		PixelShader::MaterialData groupData; // TODO: change type to GroupParameters and dont restrict param to material (?)
+		PixelShader::Resources resources;
+		milk::graphics::PixelShaderUniquePtr binaryShader;
 
 		shaderType = milk::graphics::ShaderType::PIXEL;
 
@@ -169,7 +167,7 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 			throw std::runtime_error("Failed to read the pixel shader");
 		}
 
-		binaryShader.reset(new milk::graphics::PixelShader(graphicsDevice, &pdata.front(), pdata.size()));
+		binaryShader.reset(new milk::graphics::PixelShader(graphicsRenderer, &pdata.front(), pdata.size()));
 
 		{
 			auto eyeParameter =
@@ -265,7 +263,7 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 					lightFields
 				);
 
-			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsDevice, shaderType, 0, std::move(lightsParameter)));
+			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsRenderer, shaderType, 0, std::move(lightsParameter)));
 		}
 
 		{
@@ -301,22 +299,23 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice
 				std::move(materialFields)
 				);
 
-			groupData.emplace_back(std::make_unique<ConstantBuffer<material::Material>>(graphicsDevice, shaderType, 2, std::move(materialParameter)));
+			groupData.emplace_back(std::make_unique<ConstantBuffer<material::Material>>(graphicsRenderer, shaderType, 2, std::move(materialParameter)));
 			// TODO: verify that two constant buffers don't share a slot
 		}
 
 		{
 			auto resource = std::make_shared<Resource>(
-				[](milk::graphics::Device& graphicsDevice, const RenderingContext& context) {
-					return context.material->diffuseMap().asShaderResource(graphicsDevice);
-				}
+				[](const RenderingContext& context) {
+					return &context.material->diffuseMap();
+				},
+				milk::graphics::ShaderType::PIXEL,
+				0
 				);
 			resources.insert(std::make_pair(0, resource));
 		}
 
-		pixelShader = std::make_unique<Shader>(
-			binaryShader,
-			shaderType,
+		pixelShader = std::make_unique<PixelShader>(
+			*binaryShader,
 			std::move(sceneData),
 			std::move(actorData),
 			std::move(groupData),

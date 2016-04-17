@@ -15,7 +15,7 @@ class Model;
 // TODO: I don't like these pointers
 struct RenderingContext {
 
-	const shader::Pass* pass = nullptr;
+	shader::Pass* pass = nullptr;
 
 	const Scene* scene = nullptr;
 

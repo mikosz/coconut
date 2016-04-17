@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "coconut/milk/graphics/Renderer.hpp"
+
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "coconut/pulp/model/Data.hpp"
@@ -14,16 +16,18 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
+class CommandBuffer;
+
 class Model {
 public:
 
 	Model(
 		const model::Data& data,
-		milk::graphics::Device& graphicsDevice,
+		milk::graphics::Renderer& graphicsRenderer,
 		const milk::graphics::InputLayoutDescription& inputLayoutDescription
 		);
 
-	void render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
+	void render(CommandBuffer& commandBuffer, RenderingContext renderingContext);
 
 private:
 

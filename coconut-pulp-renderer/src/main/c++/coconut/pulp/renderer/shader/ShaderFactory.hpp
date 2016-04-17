@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "coconut/milk/graphics/Device.hpp"
+#include "coconut/milk/graphics/Renderer.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -21,7 +21,7 @@ public:
 
 	ShaderFactory();
 
-	PassUniquePtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
+	PassUniquePtr createShader(milk::graphics::Renderer& graphicsRenderer, ShaderId shaderId);
 
 };
 

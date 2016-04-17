@@ -43,11 +43,11 @@ public:
 		return specularExponent_;
 	}
 
-	void setDiffuseMap(milk::graphics::ConstTexture2dUniquePtr diffuseMap) override {
+	void setDiffuseMap(milk::graphics::Texture2dUniquePtr diffuseMap) override {
 		diffuseMap_ = std::move(diffuseMap);
 	}
 
-	const milk::graphics::Texture2d& diffuseMap() const override {
+	milk::graphics::Texture2d& diffuseMap() const override {
 		return *diffuseMap_;
 	}
 
@@ -61,7 +61,7 @@ private:
 
 	float specularExponent_;
 
-	milk::graphics::ConstTexture2dUniquePtr diffuseMap_;
+	milk::graphics::Texture2dUniquePtr diffuseMap_;
 
 };
 

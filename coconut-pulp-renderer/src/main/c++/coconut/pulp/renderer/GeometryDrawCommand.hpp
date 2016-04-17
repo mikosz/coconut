@@ -19,7 +19,7 @@ public:
 
 	Key key() const override;
 
-	void run(milk::graphics::CommandList& commandList) override;
+	void submit(milk::graphics::CommandList& commandList) override;
 
 	// TODO: pointers!
 	void setVertexBuffer(milk::graphics::VertexBuffer* vertexBuffer) {

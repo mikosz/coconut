@@ -6,8 +6,6 @@
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
-#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-
 #include "PixelFormat.hpp"
 #include "Texture.hpp"
 

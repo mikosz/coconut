@@ -10,6 +10,7 @@
 
 #include "coconut/pulp/renderer/material/Material.hpp"
 
+#include "Resource.hpp"
 #include "ConstantBuffer.hpp"
 
 namespace coconut {
@@ -19,11 +20,9 @@ namespace renderer {
 struct RenderingContext;
 class Actor;
 class Scene;
+class DrawCommand;
 
 namespace shader {
-
-class Resource;
-CCN_MAKE_POINTER_DEFINITIONS(Resource);
 
 namespace detail {
 
@@ -47,8 +46,8 @@ public:
 		Resources resources
 		);
 
-	void update(
-		milk::graphics::Device& graphicsDevice,
+	void bind(
+		DrawCommand& drawCommand,
 		const RenderingContext& renderingContext
 		) const;
 

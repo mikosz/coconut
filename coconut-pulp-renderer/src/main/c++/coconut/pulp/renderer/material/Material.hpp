@@ -72,11 +72,11 @@ public:
 		throw NotImplemented(CT_FUNCTION_NAME);
 	}
 
-	virtual void setDiffuseMap(milk::graphics::ConstTexture2dUniquePtr diffuseMap) {
+	virtual void setDiffuseMap(milk::graphics::Texture2dUniquePtr diffuseMap) {
 		throw NotImplemented(CT_FUNCTION_NAME);
 	}
 
-	virtual const milk::graphics::Texture2d& diffuseMap() const {
+	virtual milk::graphics::Texture2d& diffuseMap() const {
 		throw NotImplemented(CT_FUNCTION_NAME);
 	}
 

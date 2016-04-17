@@ -8,6 +8,8 @@
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+
 #include "PixelFormat.hpp"
 #include "Data.hpp"
 
@@ -53,6 +55,8 @@ private:
 	system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_;
 
 };
+
+CCN_MAKE_POINTER_DEFINITIONS(Texture);
 
 } // namespace graphics
 } // namespace milk

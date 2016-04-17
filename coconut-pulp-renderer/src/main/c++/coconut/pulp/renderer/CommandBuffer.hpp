@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstdint>
 
+#include "coconut/milk/graphics/CommandList.hpp"
+
 #include "DrawCommand.hpp"
 
 namespace coconut {
@@ -15,9 +17,13 @@ public:
 
 	void add(DrawCommandUniquePtr drawCommand);
 
+	void submit(milk::graphics::CommandList& commandList);
+
 private:
 
 	using Commands = std::vector<DrawCommandSharedPtr>;
+
+	Commands commands_;
 
 };
 

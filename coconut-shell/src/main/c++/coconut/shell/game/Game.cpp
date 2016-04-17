@@ -9,8 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
-#include "coconut/milk/graphics/VertexShader.hpp"
-#include "coconut/milk/graphics/PixelShader.hpp"
+#include "coconut/milk/graphics/Shader.hpp"
 
 #include "coconut/pulp/model/obj/Importer.hpp"
 
@@ -19,6 +18,7 @@
 #include "coconut/pulp/renderer/OrientedCamera.hpp"
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
+#include "coconut/pulp/renderer/CommandBuffer.hpp"
 
 #include "coconut/pulp/file-io/BinarySerialiser.hpp"
 #include "coconut/pulp/file-io/BinaryDeserialiser.hpp"
@@ -45,13 +45,13 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 	}
 
 	{
-		milk::graphics::Device::Configuration configuration;
+		milk::graphics::Renderer::Configuration configuration;
 		configuration.debugDevice = DEBUG;
 		configuration.vsync = false;
 		configuration.sampleCount = std::numeric_limits<std::uint32_t>::max();
 		configuration.sampleQuality = std::numeric_limits<std::uint32_t>::max();
 
-		graphicsDevice_.reset(new milk::graphics::Device(*window_, configuration));
+		graphicsRenderer_.reset(new milk::graphics::Renderer(*window_, configuration));
 	}
 }
 
@@ -87,9 +87,9 @@ void Game::loop() {
 	pulp::model::Data modelData;
 	deserialiser >> modelData;
 
-	pulp::renderer::Scene scene(*graphicsDevice_);
+	pulp::renderer::Scene scene(*graphicsRenderer_);
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsDevice_, scene.renderingPass().inputLayoutDescription()));
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription()));
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
@@ -112,6 +112,9 @@ void Game::loop() {
 	actor2->setTranslation(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
 	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
+	milk::graphics::CommandList commandList(*graphicsRenderer_); // TODO: access to immediate context as command list
+	pulp::renderer::CommandBuffer commandBuffer;
+
 	const auto start = std::chrono::steady_clock::now();
 	for (;;) {
 		auto now = std::chrono::steady_clock::now();
@@ -122,7 +125,7 @@ void Game::loop() {
 			break;
 		}
 
-		graphicsDevice_->beginScene();
+		graphicsRenderer_->beginScene();
 
 		auto dt = now - start;
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;
@@ -138,8 +141,11 @@ void Game::loop() {
 		actor->setTranslation(milk::math::Vector3d(0.0f, -.0f, 0.0f));
 		actor->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
-		scene.render(*graphicsDevice_);
+		scene.render(commandBuffer);
 
-		graphicsDevice_->endScene();
+		commandBuffer.submit(commandList);
+		graphicsRenderer_->submit(commandList);
+
+		graphicsRenderer_->endScene();
 	}
 }

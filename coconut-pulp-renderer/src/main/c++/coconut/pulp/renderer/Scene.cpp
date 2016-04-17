@@ -8,8 +8,8 @@ using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
-Scene::Scene(milk::graphics::Device& device) :
-	renderingPass_(std::move(shader::ShaderFactory().createShader(device, "")))
+Scene::Scene(milk::graphics::Renderer& graphicsRenderer) :
+	renderingPass_(std::move(shader::ShaderFactory().createShader(graphicsRenderer, "")))
 {
 }
 
@@ -29,12 +29,12 @@ void Scene::setLens(LensSharedPtr lens) {
 	lens_ = lens;
 }
 
-void Scene::render(milk::graphics::Device& device) {
+void Scene::render(CommandBuffer& commandBuffer) {
 	RenderingContext context;
 	context.scene = this;
 	context.pass = renderingPass_.get();
 
 	for (auto actor : actors_) {
-		actor->render(device, context);
+		actor->render(commandBuffer, context);
 	}
 }

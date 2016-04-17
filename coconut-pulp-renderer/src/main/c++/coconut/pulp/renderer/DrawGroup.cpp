@@ -169,9 +169,13 @@ DrawGroup::DrawGroup(
 void DrawGroup::render(CommandBuffer& commandBuffer, RenderingContext renderingContext) {
 	auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
+	drawCommand->setVertexShader(&renderingContext.pass->vertexShader().shaderData());
+	renderingContext.pass->vertexShader().bind(*drawCommand, renderingContext);
+	drawCommand->setPixelShader(&renderingContext.pass->pixelShader().shaderData());
+	renderingContext.pass->pixelShader().bind(*drawCommand, renderingContext);
+
 	drawCommand->setVertexBuffer(&vertexBuffer_);
 	drawCommand->setIndexBuffer(&indexBuffer_);
-	drawCommand->setRenderingContext(&renderingContext);
 	drawCommand->setIndexCount(indexCount_);
 	drawCommand->setPrimitiveTopology(primitiveTopology_);
 

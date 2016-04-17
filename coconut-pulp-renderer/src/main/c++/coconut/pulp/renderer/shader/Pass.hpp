@@ -9,7 +9,7 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-struct DrawCommand;
+class DrawCommand;
 struct RenderingContext;
 
 namespace shader {

@@ -4,7 +4,8 @@
 #include <vector>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-#include "coconut/milk/graphics/Device.hpp"
+
+#include "coconut/milk/graphics/Renderer.hpp"
 
 #include "shader/Pass.hpp"
 #include "lighting/DirectionalLight.hpp"
@@ -17,10 +18,12 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
+class CommandBuffer;
+
 class Scene {
 public:
 
-	Scene(milk::graphics::Device& device);
+	Scene(milk::graphics::Renderer& graphicsRenderer);
 
 	void add(ActorSharedPtr actor);
 
@@ -30,7 +33,7 @@ public:
 
 	void setLens(LensSharedPtr lens);
 
-	void render(milk::graphics::Device& device);
+	void render(CommandBuffer& commandBuffer);
 
 	const Camera& camera() const {
 		return *camera_;

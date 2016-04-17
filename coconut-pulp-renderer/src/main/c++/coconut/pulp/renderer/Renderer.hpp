@@ -3,8 +3,9 @@
 
 #include <vector>
 
-#include "coconut/milk/graphics/Device.hpp"
+#include "coconut/milk/graphics/CommandList.hpp"
 
+#include "CommandBuffer.hpp"
 #include "Scene.hpp"
 
 namespace coconut {
@@ -16,9 +17,11 @@ public:
 
 	void addScene(SceneSharedPtr scene);
 
-	void render(milk::graphics::Device& graphicsDevice);
+	void render(milk::graphics::CommandList& commandList);
 
 private:
+
+	CommandBuffer commandBuffer_;
 
 	std::vector<SceneSharedPtr> scenes_;
 

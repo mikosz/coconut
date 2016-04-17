@@ -2,10 +2,11 @@
 #define _COCONUT_PULP_RENDERER_SHADER_CONSTANTBUFFER_HPP_
 
 #include <memory>
+#include <vector>
 
 #include "coconut/milk/graphics/ConstantBuffer.hpp"
-#include "coconut/milk/graphics/Renderer.hpp"
 
+#include "../DrawCommand.hpp"
 #include "Parameter.hpp"
 
 namespace coconut {
@@ -23,10 +24,10 @@ public:
 		size_t slot,
 		std::unique_ptr<Parameter<UpdateArguments...>> parameter
 		) :
-		shaderType_(shaderType),
+		stage_(shaderType),
 		slot_(slot),
 		buffer_(
-			graphicsDevice,
+			renderer,
 			milk::graphics::Buffer::Configuration(
 				parameter->size(),
 				0,
@@ -35,22 +36,25 @@ public:
 				false
 				)
 			),
+		data_(parameter->size()),
 		parameter_(std::move(parameter))
 	{
 	}
 
-	void update(milk::graphics::CommandList& commandList, const UpdateArguments&... updateArguments) { // TODO: why doesn't perfect forwarding work here?
-		auto lockedData = commandList.lock(buffer_, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
-		parameter_->update(lockedData.get(), updateArguments...);
+	void bind(DrawCommand& drawCommand, const UpdateArguments&... updateArguments) { // TODO: why doesn't perfect forwarding work here?
+		parameter_->update(data_.data(), updateArguments...);
+		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, slot_);
 	}
 
 private:
 
-	milk::graphics::ShaderType shaderType_;
+	milk::graphics::ShaderType stage_;
 
 	size_t slot_;
 
 	milk::graphics::ConstantBuffer buffer_;
+
+	std::vector<std::uint8_t> data_;
 
 	std::unique_ptr<Parameter<UpdateArguments...>> parameter_;
 

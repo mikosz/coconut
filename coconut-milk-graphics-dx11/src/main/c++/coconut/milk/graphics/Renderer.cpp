@@ -165,8 +165,7 @@ void extractBackBuffer(
 
 	backBuffer->initialise(
 		renderer,
-		static_cast<Texture::CreationPurposeFlag>(Texture::CreationPurpose::RENDER_TARGET) |
-		static_cast<Texture::CreationPurposeFlag>(Texture::CreationPurpose::DEPTH_STENCIL),
+		static_cast<Texture::CreationPurposeFlag>(Texture::CreationPurpose::RENDER_TARGET),
 		texture
 		); // TODO: this interface needs work
 }
