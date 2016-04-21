@@ -10,6 +10,8 @@ using namespace coconut::pulp::renderer;
 
 void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	assert(rasteriser_ != nullptr);
+	assert(vertexShader_ != nullptr);
+	assert(pixelShader_ != nullptr);
 
 	commandList.setRasteriser(*rasteriser_);
 	
@@ -27,6 +29,7 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 		commandList.setTexture(*texture.texture, texture.stage, texture.slot);
 	}
 
+	commandList.setInputLayout(*inputLayout_);
 	commandList.setVertexShader(*vertexShader_);
 	commandList.setPixelShader(*pixelShader_);
 }

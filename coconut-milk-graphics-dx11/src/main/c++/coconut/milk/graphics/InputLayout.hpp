@@ -17,12 +17,12 @@ public:
 	{
 	}
 
-	void bind(Renderer& renderer) const {
-		renderer.internalDeviceContext().IASetInputLayout(dxInputLayout_);
-	}
-
 	const InputLayoutDescription& description() const {
 		return *description_;
+	}
+
+	ID3D11InputLayout& internalInputLayout() {
+		return *dxInputLayout_;
 	}
 
 private:

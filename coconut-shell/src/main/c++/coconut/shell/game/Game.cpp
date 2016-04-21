@@ -127,6 +127,9 @@ void Game::loop() {
 
 		graphicsRenderer_->beginScene();
 
+		auto* rtv = &graphicsRenderer_->backBuffer().internalRenderTargetView(); // TODO: TEMP TEMP TEMP
+		graphicsRenderer_->internalDeviceContext().OMSetRenderTargets(1, &rtv, nullptr);
+
 		auto dt = now - start;
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;
 

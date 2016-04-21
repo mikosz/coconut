@@ -12,6 +12,7 @@
 #include "DirectXError.hpp"
 #include "ShaderType.hpp"
 #include "PixelFormat.hpp"
+#include "InputLayout.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
@@ -48,6 +49,10 @@ void CommandList::setRenderTarget(Texture2d& renderTarget, Texture2d& depthStenc
 	auto* renderTargetView = &renderTarget.internalRenderTargetView();
 	auto* depthStencilView = &depthStencil.internalDepthStencilView();
 	d3dDeviceContext_->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+}
+
+void CommandList::setInputLayout(InputLayout& inputLayout) {
+	d3dDeviceContext_->IASetInputLayout(&inputLayout.internalInputLayout());
 }
 
 void CommandList::setVertexShader(VertexShader& vertexShader) {

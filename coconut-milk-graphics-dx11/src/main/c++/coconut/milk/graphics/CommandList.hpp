@@ -27,6 +27,7 @@ class Texture;
 class Texture2d;
 class Sampler;
 class Rasteriser;
+class InputLayout;
 enum class PixelFormat;
 
 class CommandList {
@@ -46,6 +47,8 @@ public:
 	LockedData lock(Data& data, LockPurpose lockPurpose);
 
 	void setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil);
+
+	void setInputLayout(InputLayout& inputLayout);
 
 	void setVertexShader(VertexShader& vertexShader);
 

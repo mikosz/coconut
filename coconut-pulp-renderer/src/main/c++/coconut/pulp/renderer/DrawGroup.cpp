@@ -133,6 +133,26 @@ std::vector<std::uint8_t> indexBufferData(const model::Data& modelData, size_t g
 	return data;
 }
 
+milk::graphics::Rasteriser::Configuration rasteriserConfiguration() {
+	milk::graphics::Rasteriser::Configuration configuration;
+
+	configuration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
+	configuration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
+
+	return configuration;
+}
+
+milk::graphics::Sampler::Configuration samplerConfiguration() {
+	milk::graphics::Sampler::Configuration configuration;
+
+	configuration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
+	configuration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
+	configuration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
+	configuration.filter = milk::graphics::Sampler::Filter::ANISOTROPIC;
+
+	return configuration;
+}
+
 } /* anonymous namespace */
 
 DrawGroup::DrawGroup(
@@ -152,7 +172,9 @@ DrawGroup::DrawGroup(
 		&indexBufferData(modelData, groupIndex).front()
 		),
 	indexCount_(modelData.drawGroups[groupIndex].indices.size()),
-	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology)
+	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology),
+	rasteriser_(graphicsRenderer, rasteriserConfiguration()),
+	sampler_(graphicsRenderer, samplerConfiguration())
 {
 	const auto& materialData = modelData.drawGroups[groupIndex].material;
 	material_.setAmbientColour(materialData.ambientColour);
@@ -169,6 +191,12 @@ DrawGroup::DrawGroup(
 void DrawGroup::render(CommandBuffer& commandBuffer, RenderingContext renderingContext) {
 	auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
+	drawCommand->setRasteriser(&rasteriser_);
+	drawCommand->addSampler(&sampler_, milk::graphics::ShaderType::PIXEL, 0);
+
+	renderingContext.material = &material_;
+
+	drawCommand->setInputLayout(&renderingContext.pass->inputLayout());
 	drawCommand->setVertexShader(&renderingContext.pass->vertexShader().shaderData());
 	renderingContext.pass->vertexShader().bind(*drawCommand, renderingContext);
 	drawCommand->setPixelShader(&renderingContext.pass->pixelShader().shaderData());

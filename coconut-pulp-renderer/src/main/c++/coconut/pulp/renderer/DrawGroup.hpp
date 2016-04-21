@@ -9,6 +9,8 @@
 #include "coconut/milk/graphics/VertexInterface.hpp"
 #include "coconut/milk/graphics/InputLayoutDescription.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
+#include "coconut/milk/graphics/Rasteriser.hpp"
+#include "coconut/milk/graphics/Sampler.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -47,6 +49,10 @@ private:
 	size_t indexCount_;
 
 	milk::graphics::PrimitiveTopology primitiveTopology_;
+
+	milk::graphics::Rasteriser rasteriser_; // TODO
+
+	milk::graphics::Sampler sampler_; // TODO
 
 };
 

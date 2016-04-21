@@ -76,13 +76,11 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Renderer& graphicsRend
 
 		inputLayout = std::make_unique<milk::graphics::InputLayout>(std::move(inputLayoutDesc), graphicsRenderer, &vdata.front(), vdata.size());
 
-		binaryShader.reset(
-			new milk::graphics::VertexShader(
+		binaryShader = std::make_unique<milk::graphics::VertexShader>(
 				graphicsRenderer,
 				&vdata.front(),
 				vdata.size()
-				)
-			);
+				);
 
 		{
 			auto worldParameter =
@@ -167,7 +165,11 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Renderer& graphicsRend
 			throw std::runtime_error("Failed to read the pixel shader");
 		}
 
-		binaryShader.reset(new milk::graphics::PixelShader(graphicsRenderer, &pdata.front(), pdata.size()));
+		binaryShader = std::make_unique<milk::graphics::PixelShader>(
+			graphicsRenderer,
+			&pdata.front(),
+			pdata.size()
+			);
 
 		{
 			auto eyeParameter =

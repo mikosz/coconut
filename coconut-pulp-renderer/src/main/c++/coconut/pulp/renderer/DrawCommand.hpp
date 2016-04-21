@@ -9,6 +9,7 @@
 #include "coconut/milk/graphics/Rasteriser.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
+#include "coconut/milk/graphics/InputLayout.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
 #include "coconut/milk/graphics/Texture.hpp"
 
@@ -37,6 +38,10 @@ public:
 
 	// TODO: submit should be purely virtual: put common stuff in other function, or have a purely virtual doSubmit
 	virtual void submit(milk::graphics::CommandList& commandList);
+
+	void setInputLayout(milk::graphics::InputLayout* inputLayout) {
+		inputLayout_ = inputLayout;
+	}
 
 	void setVertexShader(milk::graphics::VertexShader* vertexShader) {
 		vertexShader_ = vertexShader;
@@ -137,6 +142,8 @@ private:
 	using Textures = std::vector<Texture>; // TODO: ,,
 
 	// TODO: pointers
+	milk::graphics::InputLayout* inputLayout_ = nullptr;
+
 	milk::graphics::VertexShader* vertexShader_ = nullptr;
 
 	milk::graphics::PixelShader* pixelShader_ = nullptr;

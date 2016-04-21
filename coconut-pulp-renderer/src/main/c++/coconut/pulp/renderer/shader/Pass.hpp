@@ -32,6 +32,10 @@ public:
 		return inputLayout_->description();
 	}
 
+	milk::graphics::InputLayout& inputLayout() {
+		return *inputLayout_;
+	}
+
 	VertexShader& vertexShader() {
 		return *vertexShader_;
 	}
