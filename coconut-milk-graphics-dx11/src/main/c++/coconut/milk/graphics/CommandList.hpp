@@ -28,6 +28,7 @@ class Texture2d;
 class Sampler;
 class Rasteriser;
 class InputLayout;
+class Viewport;
 enum class PixelFormat;
 
 class CommandList {
@@ -40,13 +41,19 @@ public:
 		WRITE_NO_OVERWRITE = D3D11_MAP_WRITE_NO_OVERWRITE,
 	};
 
-	CommandList(Renderer& renderer);
+	CommandList();
+
+	CommandList(system::COMWrapper<ID3D11DeviceContext> internalDeviceContext);
+
+	void initialise(system::COMWrapper<ID3D11DeviceContext> internalDeviceContext);
 
 	void draw(size_t startingIndex, size_t indexCount, PrimitiveTopology primitiveTopology);
 
 	LockedData lock(Data& data, LockPurpose lockPurpose);
 
 	void setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil);
+
+	void setViewport(Viewport& viewport);
 
 	void setInputLayout(InputLayout& inputLayout);
 
@@ -67,12 +74,12 @@ public:
 	void setRasteriser(Rasteriser& rasteriser);
 
 	ID3D11DeviceContext& internalDeviceContext() {
-		return *d3dDeviceContext_;
+		return *deviceContext_;
 	}
 
 private:
 
-	system::COMWrapper<ID3D11DeviceContext> d3dDeviceContext_;
+	system::COMWrapper<ID3D11DeviceContext> deviceContext_;
 
 };
 

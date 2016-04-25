@@ -32,6 +32,8 @@ public:
 
 		FillMode fillMode;
 
+		bool frontCounterClockwise;
+
 	};
 
 	Rasteriser(Renderer& renderer, const Configuration& configuration);

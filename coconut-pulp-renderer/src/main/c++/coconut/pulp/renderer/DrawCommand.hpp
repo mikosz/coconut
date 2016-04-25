@@ -12,6 +12,7 @@
 #include "coconut/milk/graphics/InputLayout.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
 #include "coconut/milk/graphics/Texture.hpp"
+#include "coconut/milk/graphics/Viewport.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -75,6 +76,18 @@ public:
 		size_t slot
 		) {
 		textures_.emplace_back(texture, stage, slot);
+	}
+
+	void setRenderTarget(milk::graphics::Texture2d* texture) {
+		renderTarget_ = texture;
+	}
+
+	void setDepthStencil(milk::graphics::Texture2d* texture) {
+		depthStencil_ = texture;
+	}
+
+	void setViewport(milk::graphics::Viewport* viewport) {
+		viewport_ = viewport;
 	}
 
 private:
@@ -142,6 +155,12 @@ private:
 	using Textures = std::vector<Texture>; // TODO: ,,
 
 	// TODO: pointers
+	milk::graphics::Viewport* viewport_ = nullptr;
+
+	milk::graphics::Texture2d* renderTarget_ = nullptr;
+
+	milk::graphics::Texture2d* depthStencil_ = nullptr;
+
 	milk::graphics::InputLayout* inputLayout_ = nullptr;
 
 	milk::graphics::VertexShader* vertexShader_ = nullptr;

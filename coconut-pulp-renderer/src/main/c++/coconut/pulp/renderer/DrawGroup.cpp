@@ -106,7 +106,7 @@ std::vector<std::uint8_t> vertexBufferData(
 	std::vector<std::uint8_t> data;
 	data.resize(vertexSize * drawGroup.vertices.size());
 
-	std::uint8_t* target = &data.front();
+	auto* target = data.data();
 	for (
 		VertexDataAccessor vertexDataAccessor(modelData, groupIndex);
 		vertexDataAccessor.valid();
@@ -120,14 +120,30 @@ std::vector<std::uint8_t> vertexBufferData(
 }
 
 std::vector<std::uint8_t> indexBufferData(const model::Data& modelData, size_t groupIndex) {
-	std::vector<std::uint8_t> data;
-	data.resize(4 * modelData.drawGroups[groupIndex].indices.size());
+	const auto& indices = modelData.drawGroups[groupIndex].indices;
 
-	// TODO: index size should be 2 or 4 depending on max index, this is hardcoded to 4
-	std::uint32_t* target = reinterpret_cast<std::uint32_t*>(&data.front());
-	for (auto index : modelData.drawGroups[groupIndex].indices) {
-		*target = static_cast<std::uint32_t>(index);
-		++target;
+	// TODO: duplicated code and calculations with indexBufferConfiguration
+	const auto maxIndex = *std::max_element(indices.begin(), indices.end());
+	const auto max2ByteIndex = std::numeric_limits<std::uint16_t>::max();
+	const auto stride = (maxIndex <= max2ByteIndex ? 2 : 4);
+
+	std::vector<std::uint8_t> data;
+	data.resize(stride * indices.size());
+
+	if (stride == 2) {
+		std::transform(
+			indices.begin(),
+			indices.end(),
+			reinterpret_cast<std::uint16_t*>(data.data()),
+			[](size_t index) { return static_cast<std::uint16_t>(index); }
+			);
+	} else {
+		std::transform(
+			indices.begin(),
+			indices.end(),
+			reinterpret_cast<std::uint32_t*>(data.data()),
+			[](size_t index) { return static_cast<std::uint32_t>(index); }
+		);
 	}
 
 	return data;
@@ -136,8 +152,9 @@ std::vector<std::uint8_t> indexBufferData(const model::Data& modelData, size_t g
 milk::graphics::Rasteriser::Configuration rasteriserConfiguration() {
 	milk::graphics::Rasteriser::Configuration configuration;
 
-	configuration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
+	configuration.cullMode = milk::graphics::Rasteriser::CullMode::NONE;
 	configuration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
+	configuration.frontCounterClockwise = false;
 
 	return configuration;
 }
@@ -206,6 +223,10 @@ void DrawGroup::render(CommandBuffer& commandBuffer, RenderingContext renderingC
 	drawCommand->setIndexBuffer(&indexBuffer_);
 	drawCommand->setIndexCount(indexCount_);
 	drawCommand->setPrimitiveTopology(primitiveTopology_);
+
+	drawCommand->setRenderTarget(renderingContext.backBuffer); // TODO
+	drawCommand->setDepthStencil(renderingContext.screenDepthStencil); // TODO
+	drawCommand->setViewport(renderingContext.viewport); // TODO
 
 	commandBuffer.add(std::move(drawCommand));
 }

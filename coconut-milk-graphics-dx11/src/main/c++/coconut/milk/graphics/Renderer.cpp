@@ -180,14 +180,14 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	DXGI_RATIONAL refreshRate;
 	queryAdapterAndRefreshRate(*dxgiFactory, window, &adapter_, &refreshRate);
 
-	createD3DDevice(window, *dxgiFactory, configuration, refreshRate, &swapChain_, &d3dDevice_, &d3dDeviceContext_);
+	system::COMWrapper<ID3D11DeviceContext> immediateContext;
+	createD3DDevice(window, *dxgiFactory, configuration, refreshRate, &swapChain_, &d3dDevice_, &immediateContext);
+	immediateCommandList_.initialise(immediateContext);
 
 	extractBackBuffer(*this, swapChain_, &backBuffer_);
 
 	UINT quality;
-	system::COMWrapper<ID3D11Device> device;
-	d3dDeviceContext_->GetDevice(&device.get());
-	device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &quality); // TODO: literal in code
+	d3dDevice_->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &quality); // TODO: literal in code
 
 	Texture2d::Configuration depthStencilConfig;
 	depthStencilConfig.width = window.clientWidth();
@@ -205,22 +205,26 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	depthStencilConfig.sampleQuality = swapChainDesc.SampleDesc.Quality;
 
 	depthStencil_.initialise(*this, depthStencilConfig);
+}
 
-	D3D11_VIEWPORT viewport;
-	viewport.Height = static_cast<float>(window.clientHeight());
-	viewport.Width = static_cast<float>(window.clientWidth());
-	viewport.MaxDepth = D3D11_MAX_DEPTH;
-	viewport.MinDepth = D3D11_MIN_DEPTH;
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-	d3dDeviceContext_->RSSetViewports(1, &viewport);
+CommandList& Renderer::getImmediateCommandList() {
+	return immediateCommandList_;
+}
+
+CommandList Renderer::createDeferredCommandList() {
+	system::COMWrapper<ID3D11DeviceContext> deferredContext;
+	checkDirectXCall(
+		d3dDevice_->CreateDeferredContext(0, &deferredContext.get()),
+		"Failed to create a deferred context"
+		);
+	return CommandList(deferredContext);
 }
 
 void Renderer::beginScene() {
 	// TODO: move to pulp or disperse
 	float colour[] = { 1.0f, 0.0f, 1.0f, 1.0f };
-	d3dDeviceContext_->ClearRenderTargetView(&backBuffer_.internalRenderTargetView(), colour);
-	d3dDeviceContext_->ClearDepthStencilView(
+	immediateCommandList_.internalDeviceContext().ClearRenderTargetView(&backBuffer_.internalRenderTargetView(), colour);
+	immediateCommandList_.internalDeviceContext().ClearDepthStencilView(
 		&depthStencil_.internalDepthStencilView(),
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
@@ -235,23 +239,23 @@ void Renderer::endScene() {
 Renderer::LockedData Renderer::lock(Data& data, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
-		d3dDeviceContext_->Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		immediateCommandList_.internalDeviceContext().Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
 		"Failed to map the provided resource"
 		);
 
 	return LockedData(
 		mappedResource.pData,
-		[deviceContext = d3dDeviceContext_, &internalBuffer = data.internalResource()](void*) {
-			deviceContext->Unmap(&internalBuffer, 0);
+		[&deviceContext = immediateCommandList_, &internalBuffer = data.internalResource()](void*) {
+			deviceContext.internalDeviceContext().Unmap(&internalBuffer, 0);
 		}
 		);
 }
 
 void Renderer::submit(CommandList& commandList) {
-	system::COMWrapper<ID3D11CommandList> d3dCommandList;
+	/*system::COMWrapper<ID3D11CommandList> d3dCommandList;
 	checkDirectXCall(
 		commandList.internalDeviceContext().FinishCommandList(false, &d3dCommandList.get()),
 		"Failed to finish a command list"
 		); // TODO: false?
-	d3dDeviceContext_->ExecuteCommandList(d3dCommandList, false); // TODO: false?
+	immediateCommandList_.internalDeviceContext().ExecuteCommandList(d3dCommandList, false);*/ // TODO: false?
 }

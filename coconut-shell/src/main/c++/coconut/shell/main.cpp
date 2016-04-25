@@ -19,14 +19,14 @@ using namespace coconut::shell;
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow) {
-	try {
+	// try {
 		std::shared_ptr<milk::system::App> app(new milk::system::App(hInstance, pScmdline, iCmdshow));
 
 		game::Game theGame(app);
 		theGame.loop();
-	} catch (const std::exception& e) {
+	/* } catch (const std::exception& e) {
 		CT_LOG_CRITICAL << "Caught exception: " << e.what() << '\n';
-	}
+	}*/
 
 	return 0;
 }

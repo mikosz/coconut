@@ -50,6 +50,10 @@ public:
 
 	Renderer(system::Window& window, const Configuration& configuration);
 
+	CommandList& getImmediateCommandList();
+
+	CommandList createDeferredCommandList();
+
 	void beginScene();
 
 	void endScene();
@@ -62,12 +66,12 @@ public:
 		return backBuffer_;
 	}
 
-	ID3D11Device& internalDevice() {
-		return *d3dDevice_;
+	Texture2d& depthStencil() {
+		return depthStencil_;
 	}
 
-	ID3D11DeviceContext& internalDeviceContext() {
-		return *d3dDeviceContext_;
+	ID3D11Device& internalDevice() {
+		return *d3dDevice_;
 	}
 
 private:
@@ -78,7 +82,7 @@ private:
 
 	system::COMWrapper<ID3D11Device> d3dDevice_;
 
-	system::COMWrapper<ID3D11DeviceContext> d3dDeviceContext_;
+	CommandList immediateCommandList_;
 
 	system::COMWrapper<IDXGISwapChain> swapChain_;
 

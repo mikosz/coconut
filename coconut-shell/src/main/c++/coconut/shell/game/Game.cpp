@@ -22,6 +22,7 @@
 
 #include "coconut/pulp/file-io/BinarySerialiser.hpp"
 #include "coconut/pulp/file-io/BinaryDeserialiser.hpp"
+#include "coconut/pulp/file-io/JSONDeserialiser.hpp"
 
 #include "globals.hpp"
 #include "coconut/milk/system/Window.hpp"
@@ -84,6 +85,8 @@ void Game::loop() {
 
 	std::ifstream modelIFS("elexis.model", std::ifstream::in | std::ifstream::binary);
 	pulp::file_io::BinaryDeserialiser deserialiser(modelIFS);
+	// std::ifstream modelIFS("cube.json", std::ifstream::in);
+	// pulp::file_io::JSONDeserialiser deserialiser(modelIFS);
 	pulp::model::Data modelData;
 	deserialiser >> modelData;
 
@@ -112,7 +115,7 @@ void Game::loop() {
 	actor2->setTranslation(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
 	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
-	milk::graphics::CommandList commandList(*graphicsRenderer_); // TODO: access to immediate context as command list
+	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;
 
 	const auto start = std::chrono::steady_clock::now();
@@ -126,9 +129,6 @@ void Game::loop() {
 		}
 
 		graphicsRenderer_->beginScene();
-
-		auto* rtv = &graphicsRenderer_->backBuffer().internalRenderTargetView(); // TODO: TEMP TEMP TEMP
-		graphicsRenderer_->internalDeviceContext().OMSetRenderTargets(1, &rtv, nullptr);
 
 		auto dt = now - start;
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;

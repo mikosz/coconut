@@ -6,6 +6,7 @@
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "coconut/milk/graphics/Renderer.hpp"
+#include "coconut/milk/graphics/Viewport.hpp"
 
 #include "shader/Pass.hpp"
 #include "lighting/DirectionalLight.hpp"
@@ -61,7 +62,13 @@ private:
 
 	LensSharedPtr lens_;
 
-	shader::PassUniquePtr renderingPass_;
+	shader::PassUniquePtr renderingPass_; // TODO
+
+	milk::graphics::Texture2d* renderTarget_; // TODO
+
+	milk::graphics::Texture2d* depthStencil_; // TODO
+
+	milk::graphics::Viewport viewport_; // TODO
 
 };
 

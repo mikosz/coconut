@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <iterator>
 
+#include <iostream>
+#include <fstream>
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
@@ -23,6 +26,13 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 		auto lockedData = commandList.lock(
 			*constantBufferData.constantBuffer, milk::graphics::CommandList::LockPurpose::WRITE_DISCARD);
 		std::copy(constantBufferData.data.begin(), constantBufferData.data.end(), lockedData.get());
+
+		commandList.setConstantBuffer(
+			*constantBufferData.constantBuffer,
+			constantBufferData.stage,
+			constantBufferData.slot
+			);
+
 	}
 
 	for (auto& texture: textures_) {
@@ -32,6 +42,10 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	commandList.setInputLayout(*inputLayout_);
 	commandList.setVertexShader(*vertexShader_);
 	commandList.setPixelShader(*pixelShader_);
+
+	commandList.setRenderTarget(*renderTarget_, *depthStencil_); // TODO: needs to work with null
+
+	commandList.setViewport(*viewport_);
 }
 
 DrawCommand::ConstantBufferData::ConstantBufferData(
@@ -42,9 +56,9 @@ DrawCommand::ConstantBufferData::ConstantBufferData(
 	size_t slot
 	) :
 	constantBuffer(constantBuffer),
-	data(size),
 	stage(stage),
 	slot(slot)
 {
+	data.reserve(size);
 	std::copy(dataPtr, dataPtr + size, std::back_inserter(data));
 }
