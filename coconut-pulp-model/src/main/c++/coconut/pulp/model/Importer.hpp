@@ -28,7 +28,7 @@ protected:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Importer);
+CCN_MAKE_POINTER_DEFINITIONS(Importer);
 
 } // namespace model
 } // namespace pulp

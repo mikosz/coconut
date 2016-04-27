@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#define MAKE_POINTER_DEFINITIONS(className) \
+#define CCN_MAKE_POINTER_DEFINITIONS(className) \
 	using className##UniquePtr = std::unique_ptr<className>; \
 	using Const##className##UniquePtr = std::unique_ptr<const className>; \
 	using className##SharedPtr = std::shared_ptr<className>; \

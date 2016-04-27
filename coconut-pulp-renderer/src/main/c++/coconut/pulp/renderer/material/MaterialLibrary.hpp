@@ -16,7 +16,7 @@ namespace renderer {
 namespace material {
 
 class Material;
-MAKE_POINTER_DEFINITIONS(Material);
+CCN_MAKE_POINTER_DEFINITIONS(Material);
 
 class MaterialLibrary {
 public:

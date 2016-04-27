@@ -3,10 +3,14 @@
 
 #include <vector>
 
-#include "coconut/milk/graphics/Buffer.hpp"
+#include "coconut/milk/graphics/IndexBuffer.hpp"
+#include "coconut/milk/graphics/VertexBuffer.hpp"
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 #include "coconut/milk/graphics/VertexInterface.hpp"
 #include "coconut/milk/graphics/InputLayoutDescription.hpp"
+#include "coconut/milk/graphics/Renderer.hpp"
+#include "coconut/milk/graphics/Rasteriser.hpp"
+#include "coconut/milk/graphics/Sampler.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -20,33 +24,39 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
+class CommandBuffer;
+
 class DrawGroup {
 public:
 
 	DrawGroup(
 		const model::Data& modelData,
 		size_t groupIndex,
-		milk::graphics::Device& graphicsDevice,
+		milk::graphics::Renderer& graphicsRenderer,
 		const milk::graphics::InputLayoutDescription& inputLayoutDescription
 		);
 
-	void render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
+	void render(CommandBuffer& commandBuffer, RenderingContext renderingContext);
 
 private:
 
 	material::PhongMaterial material_; // TODO: currently only supports Phong materials
 
-	milk::graphics::Buffer vertexBuffer_;
+	milk::graphics::VertexBuffer vertexBuffer_;
 
-	milk::graphics::Buffer indexBuffer_;
+	milk::graphics::IndexBuffer indexBuffer_;
 
 	size_t indexCount_;
 
 	milk::graphics::PrimitiveTopology primitiveTopology_;
 
+	milk::graphics::Rasteriser rasteriser_; // TODO
+
+	milk::graphics::Sampler sampler_; // TODO
+
 };
 
-MAKE_POINTER_DEFINITIONS(DrawGroup);
+CCN_MAKE_POINTER_DEFINITIONS(DrawGroup);
 
 } // namespace renderer
 } // namespace pulp

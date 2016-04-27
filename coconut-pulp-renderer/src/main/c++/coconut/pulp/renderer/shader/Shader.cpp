@@ -1,26 +1,21 @@
 #include "Shader.hpp"
 
-#include "coconut/pulp/renderer/Actor.hpp"
-#include "coconut/pulp/renderer/Scene.hpp"
-#include "coconut/pulp/renderer/RenderingContext.hpp"
-
-#include "Resource.hpp"
+#include "../RenderingContext.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
-Shader::Shader(
-	milk::graphics::ShaderSharedPtr binaryShader,
-	milk::graphics::ShaderType shaderType,
+template <class GraphicsShaderType>
+detail::Shader<GraphicsShaderType>::Shader(
+	GraphicsShaderType shaderData,
 	SceneData sceneData,
 	ActorData actorData,
 	MaterialData materialData,
 	Resources resources
 	) :
-	binaryShader_(binaryShader),
-	shaderType_(shaderType),
+	shaderData_(shaderData),
 	sceneData_(std::move(sceneData)),
 	actorData_(std::move(actorData)),
 	materialData_(std::move(materialData)),
@@ -28,26 +23,28 @@ Shader::Shader(
 {
 }
 
-void Shader::bind(milk::graphics::Device& graphicsDevice, const RenderingContext& renderingContext) const {
+template <class GraphicsShaderType>
+void detail::Shader<GraphicsShaderType>::bind(
+	DrawCommand& drawCommand,
+	const RenderingContext& renderingContext
+	) const
+{
 	for (auto buffer : sceneData_) {
-		buffer->update(graphicsDevice, *renderingContext.scene); // TODO: update conditionally (if changed since last update)
-		buffer->bind(graphicsDevice);
+		buffer->bind(drawCommand, *renderingContext.scene); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto buffer : actorData_) {
-		buffer->update(graphicsDevice, *renderingContext.actor); // TODO: update conditionally (if changed since last update)
-		buffer->bind(graphicsDevice);
+		buffer->bind(drawCommand, *renderingContext.actor); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto buffer : materialData_) {
-		buffer->update(graphicsDevice, *renderingContext.material); // TODO: update conditionally (if changed since last update)
-		buffer->bind(graphicsDevice);
+		buffer->bind(drawCommand, *renderingContext.material); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto resource : resources_) {
-		resource.second->update(graphicsDevice, renderingContext);
-		resource.second->bind(graphicsDevice, resource.first, shaderType_);
+		resource.second->bind(drawCommand, renderingContext);
 	}
-
-	binaryShader_->bind(graphicsDevice);
 }
+
+template class detail::Shader<milk::graphics::VertexShader>;
+template class detail::Shader<milk::graphics::PixelShader>;

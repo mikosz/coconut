@@ -4,14 +4,13 @@
 #include <vector>
 #include <unordered_map>
 
-#include "coconut/milk/graphics/Device.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
-#include "coconut/milk/graphics/ShaderType.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "coconut/pulp/renderer/material/Material.hpp"
 
+#include "Resource.hpp"
 #include "ConstantBuffer.hpp"
 
 namespace coconut {
@@ -21,12 +20,13 @@ namespace renderer {
 struct RenderingContext;
 class Actor;
 class Scene;
+class DrawCommand;
 
 namespace shader {
 
-class Resource;
-MAKE_POINTER_DEFINITIONS(Resource);
+namespace detail {
 
+template <class GraphicsShaderType>
 class Shader {
 public:
 
@@ -39,8 +39,7 @@ public:
 	using Resources = std::unordered_map<size_t, ResourceSharedPtr>;
 
 	Shader(
-		milk::graphics::ShaderSharedPtr binaryShader,
-		milk::graphics::ShaderType shaderType,
+		GraphicsShaderType shaderData,
 		SceneData sceneData,
 		ActorData actorData,
 		MaterialData materialData,
@@ -48,19 +47,17 @@ public:
 		);
 
 	void bind(
-		milk::graphics::Device& graphicsDevice,
+		DrawCommand& drawCommand,
 		const RenderingContext& renderingContext
 		) const;
 
-	milk::graphics::ShaderSharedPtr binaryShader() {
-		return binaryShader_;
+	GraphicsShaderType& shaderData() {
+		return shaderData_;
 	}
 
 private:
 
-	milk::graphics::ShaderSharedPtr binaryShader_;
-
-	milk::graphics::ShaderType shaderType_;
+	GraphicsShaderType shaderData_;
 
 	SceneData sceneData_;
 
@@ -72,7 +69,13 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Shader);
+} // namespace detail
+
+using VertexShader = detail::Shader<milk::graphics::VertexShader>;
+using PixelShader = detail::Shader<milk::graphics::PixelShader>;
+
+CCN_MAKE_POINTER_DEFINITIONS(VertexShader);
+CCN_MAKE_POINTER_DEFINITIONS(PixelShader);
 
 } // namespace shader
 } // namespace renderer

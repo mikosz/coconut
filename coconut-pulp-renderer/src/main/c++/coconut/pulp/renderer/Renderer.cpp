@@ -8,12 +8,10 @@ void Renderer::addScene(SceneSharedPtr scene) {
 	scenes_.push_back(scene);
 }
 
-void Renderer::render(milk::graphics::Device& graphicsDevice) {
-	graphicsDevice.beginScene();
-
+void Renderer::render(milk::graphics::CommandList& commandList) {
 	for (auto scene : scenes_) {
-		scene->render(graphicsDevice);
+		scene->render(commandBuffer_);
 	}
 
-	graphicsDevice.endScene();
+	commandBuffer_.submit(commandList);
 }

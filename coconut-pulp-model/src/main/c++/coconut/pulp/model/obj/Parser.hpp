@@ -206,7 +206,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Parser);
+CCN_MAKE_POINTER_DEFINITIONS(Parser);
 
 } // namespace obj
 } // namespace model
