@@ -8,4 +8,4 @@ set(TEST_LIBRARIES
 	${Boost_TEST_EXEC_MONITOR_LIBRARY}
 	)
 
-library_module(coconut-milk-utils "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}")
+library_module(coconut-milk-utils "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" ${LIBRARY_TYPE})

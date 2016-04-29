@@ -16,9 +16,16 @@ set(coconut_VERSION
 	"${coconut_VERSION_MAJOR}.${coconut_VERSION_MINOR}.${coconut_VERSION_BUGFIX}${coconut_VERSION_EXTRA}"
 	)
 
+option(BUILD_STATIC_LIBS "Whether to build static libs" ON)
 option(COMPILER_IS_DEBUG_BUILD "Is debug build" ON)
 option(COMPILER_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(COMPILER_BOOST_USE_STATIC_LIBS "Use static boost libs" OFF)
+
+if(${BUILD_STATIC_LIBS})
+    set(LIBRARY_TYPE LINK_STATIC)
+else()
+  set(LIBRARY_TYPE LINK_DYNAMIC)
+endif()
 
 if(${COMPILER_IS_DEBUG_BUILD})
 	set(CMAKE_BUILD_TYPE "Debug")
