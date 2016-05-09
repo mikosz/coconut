@@ -13,7 +13,7 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-struct RenderingContext;
+struct PassContext;
 
 namespace shader {
 
@@ -21,7 +21,7 @@ class Resource {
 public:
 
 	// TODO: pointer?
-	using Callback = std::function<milk::graphics::Texture* (const RenderingContext&)>;
+	using Callback = std::function<milk::graphics::Texture* (const PassContext&)>;
 
 	Resource(Callback callback, milk::graphics::ShaderType shaderType, size_t slot) :
 		callback_(callback),
@@ -30,7 +30,7 @@ public:
 	{
 	}
 
-	void bind(DrawCommand& drawCommand, const RenderingContext& context) {
+	void bind(DrawCommand& drawCommand, const PassContext& context) {
 		drawCommand.addTexture(callback_(context), stage_, slot_);
 	}
 

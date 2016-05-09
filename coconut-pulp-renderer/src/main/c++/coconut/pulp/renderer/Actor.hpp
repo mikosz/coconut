@@ -7,7 +7,7 @@
 
 #include "Model.hpp"
 #include "Orientation.hpp"
-#include "RenderingContext.hpp"
+#include "PassContext.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -23,7 +23,7 @@ public:
 	{
 	}
 
-	void render(CommandBuffer& commandBuffer, RenderingContext renderingContext);
+	void render(CommandBuffer& commandBuffer, PassContext PassContext);
 
 	// TODO: move below functions to interface?
 	const milk::math::Matrix& worldTransformation() const {

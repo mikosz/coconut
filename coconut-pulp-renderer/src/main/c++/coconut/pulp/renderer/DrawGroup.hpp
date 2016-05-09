@@ -16,9 +16,10 @@
 
 #include "coconut/pulp/model/Data.hpp"
 
-#include "material/PhongMaterial.hpp"
 #include "shader/Shader.hpp"
-#include "RenderingContext.hpp"
+#include "Context.hpp"
+#include "PassContext.hpp"
+#include "Material.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -30,17 +31,18 @@ class DrawGroup {
 public:
 
 	DrawGroup(
+		Context& context,
 		const model::Data& modelData,
 		size_t groupIndex,
 		milk::graphics::Renderer& graphicsRenderer,
 		const milk::graphics::InputLayoutDescription& inputLayoutDescription
 		);
 
-	void render(CommandBuffer& commandBuffer, RenderingContext renderingContext);
+	void render(CommandBuffer& commandBuffer, PassContext PassContext);
 
 private:
 
-	material::PhongMaterial material_; // TODO: currently only supports Phong materials
+	MaterialSharedPtr material_;
 
 	milk::graphics::VertexBuffer vertexBuffer_;
 

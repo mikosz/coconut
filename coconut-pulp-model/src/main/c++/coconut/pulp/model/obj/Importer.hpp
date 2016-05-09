@@ -22,7 +22,7 @@ public:
 	{
 	}
 
-	Data import(std::istream& is) override;
+	Data import(std::istream& is, std::string name) override;
 
 protected:
 

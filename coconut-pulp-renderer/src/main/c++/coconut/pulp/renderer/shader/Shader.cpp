@@ -1,6 +1,6 @@
 #include "Shader.hpp"
 
-#include "../RenderingContext.hpp"
+#include "../PassContext.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -26,23 +26,23 @@ detail::Shader<GraphicsShaderType>::Shader(
 template <class GraphicsShaderType>
 void detail::Shader<GraphicsShaderType>::bind(
 	DrawCommand& drawCommand,
-	const RenderingContext& renderingContext
+	const PassContext& PassContext
 	) const
 {
 	for (auto buffer : sceneData_) {
-		buffer->bind(drawCommand, *renderingContext.scene); // TODO: update conditionally (if changed since last update)
+		buffer->bind(drawCommand, *PassContext.scene); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto buffer : actorData_) {
-		buffer->bind(drawCommand, *renderingContext.actor); // TODO: update conditionally (if changed since last update)
+		buffer->bind(drawCommand, *PassContext.actor); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto buffer : materialData_) {
-		buffer->bind(drawCommand, *renderingContext.material); // TODO: update conditionally (if changed since last update)
+		buffer->bind(drawCommand, *PassContext.material); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto resource : resources_) {
-		resource.second->bind(drawCommand, renderingContext);
+		resource.second->bind(drawCommand, PassContext);
 	}
 }
 

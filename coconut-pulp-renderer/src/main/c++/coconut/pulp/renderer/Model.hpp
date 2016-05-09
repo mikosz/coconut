@@ -9,7 +9,8 @@
 
 #include "coconut/pulp/model/Data.hpp"
 
-#include "RenderingContext.hpp"
+#include "Context.hpp"
+#include "PassContext.hpp"
 #include "DrawGroup.hpp"
 
 namespace coconut {
@@ -22,12 +23,13 @@ class Model {
 public:
 
 	Model(
+		Context& context,
 		const model::Data& data,
 		milk::graphics::Renderer& graphicsRenderer,
 		const milk::graphics::InputLayoutDescription& inputLayoutDescription
 		);
 
-	void render(CommandBuffer& commandBuffer, RenderingContext renderingContext);
+	void render(CommandBuffer& commandBuffer, PassContext PassContext);
 
 private:
 

@@ -19,14 +19,9 @@ namespace model {
 struct Data {
 public:
 
-	/* TODO:
-	 * renderer material is an abstract class designed to incorporate multiple material types (currently only implementation
-	 * is PhongMaterial). The struct below only allows Phong material, so there's no way to provide data for other material
-	 * types. Either rewrite this, or simplify renderer material.
-	 */
-	struct Material {
+	struct PhongMaterial {
 
-		std::string name; // TODO: necessary?
+		std::string name;
 
 		milk::math::Vector4d ambientColour;
 
@@ -58,9 +53,11 @@ public:
 
 		std::vector<size_t> indices;
 
-		Material material;
+		std::string materialId;
 
 	};
+
+	std::vector<PhongMaterial> phongMaterials;
 
 	std::vector<milk::math::Vector3d> positions;
 
@@ -74,20 +71,20 @@ public:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::DrawGroup, drawGroup) {
-	serialiser(SerialiserType::Label("primitiveTopology"), drawGroup.primitiveTopology);
-	serialiser(SerialiserType::Label("vertices"), drawGroup.vertices);
-	serialiser(SerialiserType::Label("indices"), drawGroup.indices);
-	serialiser(SerialiserType::Label("material"), drawGroup.material);
-}
-
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::Material, material) {
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::PhongMaterial, material) {
 	serialiser(SerialiserType::Label("name"), material.name);
 	serialiser(SerialiserType::Label("ambientColour"), material.ambientColour);
 	serialiser(SerialiserType::Label("diffuseColour"), material.diffuseColour);
 	serialiser(SerialiserType::Label("specularColour"), material.specularColour);
 	serialiser(SerialiserType::Label("specularExponent"), material.specularExponent);
 	serialiser(SerialiserType::Label("diffuseMap"), material.diffuseMap);
+}
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::DrawGroup, drawGroup) {
+	serialiser(SerialiserType::Label("primitiveTopology"), drawGroup.primitiveTopology);
+	serialiser(SerialiserType::Label("vertices"), drawGroup.vertices);
+	serialiser(SerialiserType::Label("indices"), drawGroup.indices);
+	serialiser(SerialiserType::Label("materialId"), drawGroup.materialId);
 }
 
 CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::VertexDescriptor, vertexDescriptor) {
@@ -97,6 +94,7 @@ CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data::VertexDescriptor, vertex
 }
 
 CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Data, data) {
+	serialiser(SerialiserType::Label("phongMaterials"), data.phongMaterials);
 	serialiser(SerialiserType::Label("positions"), data.positions);
 	serialiser(SerialiserType::Label("normals"), data.normals);
 	serialiser(SerialiserType::Label("textureCoordinates"), data.textureCoordinates);

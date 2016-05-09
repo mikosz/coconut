@@ -74,7 +74,7 @@ void Game::loop() {
 		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/");
 		pulp::model::obj::Importer importer(std::move(opener));
 
-		auto modelData = importer.import(modelIS);
+		auto modelData = importer.import(modelIS, "elexis");
 
 		{
 			std::ofstream modelOFS("elexis.model", std::ofstream::out | std::ofstream::binary);
@@ -82,6 +82,8 @@ void Game::loop() {
 			serialiser << modelData;
 		}
 	}
+
+	pulp::renderer::Context rendererContext;
 
 	std::ifstream modelIFS("elexis.model", std::ifstream::in | std::ifstream::binary);
 	pulp::file_io::BinaryDeserialiser deserialiser(modelIFS);
@@ -92,7 +94,7 @@ void Game::loop() {
 
 	pulp::renderer::Scene scene(*graphicsRenderer_);
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription()));
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(rendererContext, modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription()));
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),

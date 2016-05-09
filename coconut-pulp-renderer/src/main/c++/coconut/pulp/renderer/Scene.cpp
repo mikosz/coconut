@@ -1,6 +1,6 @@
 #include "Scene.hpp"
 
-#include "RenderingContext.hpp"
+#include "PassContext.hpp"
 
 #include "shader/ShaderFactory.hpp"
 
@@ -50,7 +50,7 @@ void Scene::setLens(LensSharedPtr lens) {
 }
 
 void Scene::render(CommandBuffer& commandBuffer) {
-	RenderingContext context;
+	PassContext context;
 	context.viewport = &viewport_;
 	context.backBuffer = renderTarget_;
 	context.screenDepthStencil = depthStencil_;

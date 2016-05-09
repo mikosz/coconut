@@ -173,11 +173,13 @@ milk::graphics::Sampler::Configuration samplerConfiguration() {
 } /* anonymous namespace */
 
 DrawGroup::DrawGroup(
+	Context& context,
 	const model::Data& modelData,
 	size_t groupIndex,
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::graphics::InputLayoutDescription& inputLayoutDescription
 	) :
+	material_(context.materialManager().get(modelData.drawGroups[groupIndex].materialId)),
 	vertexBuffer_(
 		graphicsRenderer,
 		vertexBufferConfiguration(modelData, groupIndex, inputLayoutDescription),
@@ -193,40 +195,30 @@ DrawGroup::DrawGroup(
 	rasteriser_(graphicsRenderer, rasteriserConfiguration()),
 	sampler_(graphicsRenderer, samplerConfiguration())
 {
-	const auto& materialData = modelData.drawGroups[groupIndex].material;
-	material_.setAmbientColour(materialData.ambientColour);
-	material_.setDiffuseColour(materialData.diffuseColour);
-
-	milk::graphics::ImageLoader imageLoader;
-	auto image = imageLoader.load(materialData.diffuseMap);
-	material_.setDiffuseMap(std::make_unique<milk::graphics::Texture2d>(graphicsRenderer, image));
-
-	material_.setSpecularColour(materialData.specularColour);
-	material_.setSpecularExponent(materialData.specularExponent);
 }
 
-void DrawGroup::render(CommandBuffer& commandBuffer, RenderingContext renderingContext) {
+void DrawGroup::render(CommandBuffer& commandBuffer, PassContext PassContext) {
 	auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
 	drawCommand->setRasteriser(&rasteriser_);
 	drawCommand->addSampler(&sampler_, milk::graphics::ShaderType::PIXEL, 0);
 
-	renderingContext.material = &material_;
+	PassContext.material = material_.get();
 
-	drawCommand->setInputLayout(&renderingContext.pass->inputLayout());
-	drawCommand->setVertexShader(&renderingContext.pass->vertexShader().shaderData());
-	renderingContext.pass->vertexShader().bind(*drawCommand, renderingContext);
-	drawCommand->setPixelShader(&renderingContext.pass->pixelShader().shaderData());
-	renderingContext.pass->pixelShader().bind(*drawCommand, renderingContext);
+	drawCommand->setInputLayout(&PassContext.pass->inputLayout());
+	drawCommand->setVertexShader(&PassContext.pass->vertexShader().shaderData());
+	PassContext.pass->vertexShader().bind(*drawCommand, PassContext);
+	drawCommand->setPixelShader(&PassContext.pass->pixelShader().shaderData());
+	PassContext.pass->pixelShader().bind(*drawCommand, PassContext);
 
 	drawCommand->setVertexBuffer(&vertexBuffer_);
 	drawCommand->setIndexBuffer(&indexBuffer_);
 	drawCommand->setIndexCount(indexCount_);
 	drawCommand->setPrimitiveTopology(primitiveTopology_);
 
-	drawCommand->setRenderTarget(renderingContext.backBuffer); // TODO
-	drawCommand->setDepthStencil(renderingContext.screenDepthStencil); // TODO
-	drawCommand->setViewport(renderingContext.viewport); // TODO
+	drawCommand->setRenderTarget(PassContext.backBuffer); // TODO
+	drawCommand->setDepthStencil(PassContext.screenDepthStencil); // TODO
+	drawCommand->setViewport(PassContext.viewport); // TODO
 
 	commandBuffer.add(std::move(drawCommand));
 }

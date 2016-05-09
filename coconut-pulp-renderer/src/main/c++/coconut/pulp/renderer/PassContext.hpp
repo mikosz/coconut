@@ -1,11 +1,11 @@
-#ifndef _COCONUT_PULP_RENDERER_RENDERINGCONTEXT_HPP_
-#define _COCONUT_PULP_RENDERER_RENDERINGCONTEXT_HPP_
-
-#include "material/Material.hpp"
-#include "shader/Pass.hpp"
+#ifndef _COCONUT_PULP_RENDERER_PASSCONTEXT_HPP_
+#define _COCONUT_PULP_RENDERER_PASSCONTEXT_HPP_
 
 #include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
+
+#include "shader/Pass.hpp"
+#include "Material.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -16,7 +16,7 @@ class Actor;
 class Model;
 
 // TODO: I don't like these pointers
-struct RenderingContext {
+struct PassContext {
 
 	milk::graphics::Viewport* viewport = nullptr;
 
@@ -32,7 +32,7 @@ struct RenderingContext {
 
 	const Model* model = nullptr;
 
-	const material::Material* material = nullptr;
+	const Material* material = nullptr;
 
 	void reset() {
 		viewport = nullptr;
@@ -51,4 +51,4 @@ struct RenderingContext {
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_RENDERINGCONTEXT_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_PASSCONTEXT_HPP_ */
