@@ -38,7 +38,7 @@ public:
 	}
 
 	PixelFormat pixelFormat() const {
-		return pixelFormat_;
+		return colourFormat_;
 	}
 
 private:
@@ -47,7 +47,7 @@ private:
 		pixels_(std::move(pixels)),
 		size_(size),
 		rowPitch_(rowPitch),
-		pixelFormat_(pixelFormat)
+		colourFormat_(pixelFormat)
 	{
 	}
 
@@ -57,7 +57,7 @@ private:
 
 	size_t rowPitch_;
 
-	PixelFormat pixelFormat_;
+	PixelFormat colourFormat_;
 
 	friend class ImageLoader;
 
