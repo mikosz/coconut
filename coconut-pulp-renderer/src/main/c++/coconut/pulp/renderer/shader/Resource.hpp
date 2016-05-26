@@ -13,7 +13,7 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-struct PassContext;
+class PassContext;
 
 namespace shader {
 

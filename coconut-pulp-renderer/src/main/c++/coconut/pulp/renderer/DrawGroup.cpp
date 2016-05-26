@@ -197,28 +197,31 @@ DrawGroup::DrawGroup(
 {
 }
 
-void DrawGroup::render(CommandBuffer& commandBuffer, PassContext PassContext) {
-	auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
+void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
+	auto* pass = passContext.getPass(material_->shaderPassType());
+	if (pass) {
+		auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
-	drawCommand->setRasteriser(&rasteriser_);
-	drawCommand->addSampler(&sampler_, milk::graphics::ShaderType::PIXEL, 0);
+		drawCommand->setRasteriser(&rasteriser_);
+		drawCommand->addSampler(&sampler_, milk::graphics::ShaderType::PIXEL, 0);
 
-	PassContext.material = material_.get();
+		passContext.material = material_.get();
 
-	drawCommand->setInputLayout(&PassContext.pass->inputLayout());
-	drawCommand->setVertexShader(&PassContext.pass->vertexShader().shaderData());
-	PassContext.pass->vertexShader().bind(*drawCommand, PassContext);
-	drawCommand->setPixelShader(&PassContext.pass->pixelShader().shaderData());
-	PassContext.pass->pixelShader().bind(*drawCommand, PassContext);
+		drawCommand->setInputLayout(&pass->inputLayout());
+		drawCommand->setVertexShader(&pass->vertexShader().shaderData());
+		pass->vertexShader().bind(*drawCommand, passContext);
+		drawCommand->setPixelShader(&pass->pixelShader().shaderData());
+		pass->pixelShader().bind(*drawCommand, passContext);
 
-	drawCommand->setVertexBuffer(&vertexBuffer_);
-	drawCommand->setIndexBuffer(&indexBuffer_);
-	drawCommand->setIndexCount(indexCount_);
-	drawCommand->setPrimitiveTopology(primitiveTopology_);
+		drawCommand->setVertexBuffer(&vertexBuffer_);
+		drawCommand->setIndexBuffer(&indexBuffer_);
+		drawCommand->setIndexCount(indexCount_);
+		drawCommand->setPrimitiveTopology(primitiveTopology_);
 
-	drawCommand->setRenderTarget(PassContext.backBuffer); // TODO
-	drawCommand->setDepthStencil(PassContext.screenDepthStencil); // TODO
-	drawCommand->setViewport(PassContext.viewport); // TODO
+		drawCommand->setRenderTarget(passContext.backBuffer); // TODO
+		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
+		drawCommand->setViewport(passContext.viewport); // TODO
 
-	commandBuffer.add(std::move(drawCommand));
+		commandBuffer.add(std::move(drawCommand));
+	}
 }

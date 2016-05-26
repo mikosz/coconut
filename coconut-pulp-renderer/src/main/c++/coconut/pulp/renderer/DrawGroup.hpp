@@ -38,7 +38,7 @@ public:
 		const milk::graphics::InputLayoutDescription& inputLayoutDescription
 		);
 
-	void render(CommandBuffer& commandBuffer, PassContext PassContext);
+	void render(CommandBuffer& commandBuffer, PassContext passContext);
 
 private:
 

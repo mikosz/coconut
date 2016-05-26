@@ -17,7 +17,7 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-struct PassContext;
+class PassContext;
 class Actor;
 class Scene;
 class DrawCommand;

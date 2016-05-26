@@ -55,7 +55,7 @@ void Scene::render(CommandBuffer& commandBuffer) {
 	context.backBuffer = renderTarget_;
 	context.screenDepthStencil = depthStencil_;
 	context.scene = this;
-	context.pass = renderingPass_.get();
+	context.setPass(ShaderPassType::OPAQUE, renderingPass_.get());
 
 	for (auto actor : actors_) {
 		actor->render(commandBuffer, context);
