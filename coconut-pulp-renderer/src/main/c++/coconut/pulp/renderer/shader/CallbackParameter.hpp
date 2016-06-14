@@ -14,23 +14,23 @@ template <class StoredType, class... UpdateArguments>
 class CallbackParameter : public Parameter<UpdateArguments...> {
 public:
 	
-	using Callback = std::function<void (StoredType&, const UpdateArguments&...)>;
+	using TextureCallback = std::function<void (StoredType&, const UpdateArguments&...)>;
 
-	CallbackParameter(Callback callback) :
+	CallbackParameter(TextureCallback callback) :
 		Parameter(sizeof(StoredType)),
-		callback_(callback)
+		textureCallback_(callback)
 	{
 	}
 
 protected:
 
 	void update(void* buffer, const UpdateArguments&... data) override {
-		callback_(*reinterpret_cast<StoredType*>(buffer), data...);
+		textureCallback_(*reinterpret_cast<StoredType*>(buffer), data...);
 	}
 
 private:
 
-	Callback callback_;
+	TextureCallback textureCallback_;
 
 };
 

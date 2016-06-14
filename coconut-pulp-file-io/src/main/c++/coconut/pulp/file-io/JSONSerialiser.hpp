@@ -30,6 +30,8 @@ protected:
 
 	void writeLabel(const std::string& label) override;
 
+	void write(bool b) override;
+
 	void write(std::uint8_t i) override;
 
 	void write(std::int8_t i) override;

@@ -149,37 +149,17 @@ std::vector<std::uint8_t> indexBufferData(const model::Data& modelData, size_t g
 	return data;
 }
 
-milk::graphics::Rasteriser::Configuration rasteriserConfiguration() {
-	milk::graphics::Rasteriser::Configuration configuration;
-
-	configuration.cullMode = milk::graphics::Rasteriser::CullMode::NONE;
-	configuration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
-	configuration.frontCounterClockwise = false;
-
-	return configuration;
-}
-
-milk::graphics::Sampler::Configuration samplerConfiguration() {
-	milk::graphics::Sampler::Configuration configuration;
-
-	configuration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
-	configuration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
-	configuration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
-	configuration.filter = milk::graphics::Sampler::Filter::ANISOTROPIC;
-
-	return configuration;
-}
-
 } /* anonymous namespace */
 
 DrawGroup::DrawGroup(
-	Context& context,
 	const model::Data& modelData,
 	size_t groupIndex,
 	milk::graphics::Renderer& graphicsRenderer,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription
+	const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+	const MaterialManager& materialManager
 	) :
-	material_(context.materialManager().get(modelData.drawGroups[groupIndex].materialId)),
+	material_(materialManager.get(modelData.drawGroups[groupIndex].materialId)),
+	rasteriser_(graphicsRenderer, modelData.rasteriserConfiguration),
 	vertexBuffer_(
 		graphicsRenderer,
 		vertexBufferConfiguration(modelData, groupIndex, inputLayoutDescription),
@@ -191,9 +171,7 @@ DrawGroup::DrawGroup(
 		&indexBufferData(modelData, groupIndex).front()
 		),
 	indexCount_(modelData.drawGroups[groupIndex].indices.size()),
-	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology),
-	rasteriser_(graphicsRenderer, rasteriserConfiguration()),
-	sampler_(graphicsRenderer, samplerConfiguration())
+	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology)
 {
 }
 
@@ -203,7 +181,6 @@ void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
 		auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
 		drawCommand->setRasteriser(&rasteriser_);
-		drawCommand->addSampler(&sampler_, milk::graphics::ShaderType::PIXEL, 0);
 
 		passContext.material = material_.get();
 

@@ -33,6 +33,9 @@ protected:
 	void readLabel(std::string label) override {
 	}
 
+	void read(bool& i) override {
+	}
+
 	void read(std::uint8_t& i) override {
 	}
 

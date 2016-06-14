@@ -4,6 +4,7 @@
 #include "coconut/milk/math/Vector.hpp"
 
 #include "coconut/milk/graphics/Texture2d.hpp"
+#include "coconut/milk/graphics/Sampler.hpp"
 
 #include "Material.hpp"
 
@@ -65,6 +66,14 @@ public:
 		return *diffuseMap_;
 	}
 
+	void setDiffuseMapSampler(milk::graphics::Sampler sampler) {
+		diffuseMapSampler_ = std::move(sampler);
+	}
+
+	milk::graphics::Sampler diffuseMapSampler() const {
+		return diffuseMapSampler_;
+	}
+
 private:
 
 	milk::math::Vector4d ambientColour_;
@@ -76,6 +85,8 @@ private:
 	float specularExponent_;
 
 	milk::graphics::Texture2dUniquePtr diffuseMap_;
+
+	milk::graphics::Sampler diffuseMapSampler_;
 
 };
 

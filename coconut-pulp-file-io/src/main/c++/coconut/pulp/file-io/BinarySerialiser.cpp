@@ -47,6 +47,10 @@ void BinarySerialiser::writeArrayEnd() {
 void BinarySerialiser::writeLabel(const std::string& label) {
 }
 
+void BinarySerialiser::write(bool b) {
+	writeBinaryData(os_, b);
+}
+
 void BinarySerialiser::write(std::uint8_t i) {
 	writeBinaryData(os_, i);
 }

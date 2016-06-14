@@ -19,7 +19,7 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	commandList.setRasteriser(*rasteriser_);
 	
 	for (auto& sampler: samplers_) {
-		commandList.setSampler(*sampler.sampler, sampler.stage, sampler.slot);
+		commandList.setSampler(sampler.sampler, sampler.stage, sampler.slot);
 	}
 
 	for (auto& constantBufferData: constantBuffersData_) {

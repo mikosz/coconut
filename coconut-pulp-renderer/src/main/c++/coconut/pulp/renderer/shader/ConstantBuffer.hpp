@@ -25,7 +25,7 @@ public:
 		std::unique_ptr<Parameter<UpdateArguments...>> parameter
 		) :
 		stage_(shaderType),
-		slot_(slot),
+		textureSlot_(slot),
 		buffer_(
 			renderer,
 			milk::graphics::Buffer::Configuration(
@@ -43,14 +43,14 @@ public:
 
 	void bind(DrawCommand& drawCommand, const UpdateArguments&... updateArguments) { // TODO: why doesn't perfect forwarding work here?
 		parameter_->update(data_.data(), updateArguments...);
-		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, slot_);
+		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, textureSlot_);
 	}
 
 private:
 
 	milk::graphics::ShaderType stage_;
 
-	size_t slot_;
+	size_t textureSlot_;
 
 	milk::graphics::ConstantBuffer buffer_;
 

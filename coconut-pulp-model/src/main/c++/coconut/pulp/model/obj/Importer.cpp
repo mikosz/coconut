@@ -52,6 +52,16 @@ Data obj::Importer::import(std::istream& is, std::string name) {
 
 	Data modelData;
 
+	modelData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
+	modelData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;
+	modelData.rasteriserConfiguration.frontCounterClockwise = false;
+
+	milk::graphics::Sampler::Configuration defaultSamplerConfiguration;
+	defaultSamplerConfiguration.addressModeU = milk::graphics::AddressMode::CLAMP;
+	defaultSamplerConfiguration.addressModeV = milk::graphics::AddressMode::CLAMP;
+	defaultSamplerConfiguration.addressModeW = milk::graphics::AddressMode::CLAMP;
+	defaultSamplerConfiguration.filter = milk::graphics::Filter::MIN_MAG_MIP_LINEAR; // TODO!
+
 	bool hasFaces = false;
 
 	const auto& materials = parser.materials();
@@ -69,6 +79,7 @@ Data obj::Importer::import(std::istream& is, std::string name) {
 		material.ambientColour = rgbToRgba(materialData.ambientColour);
 		material.diffuseColour = rgbToRgba(materialData.diffuseColour);
 		material.diffuseMap = materialFileOpener_->pathTo(materialData.diffuseMap).string();
+		material.diffuseMapSamplerConfiguration = defaultSamplerConfiguration;
 		material.specularColour = rgbToRgba(materialData.diffuseColour);
 		material.specularExponent = materialData.specularExponent;
 

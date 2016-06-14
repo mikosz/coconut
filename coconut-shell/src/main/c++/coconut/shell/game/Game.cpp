@@ -83,7 +83,7 @@ void Game::loop() {
 		}
 	}
 
-	pulp::renderer::Context rendererContext;
+	pulp::renderer::MaterialManager materialManager;
 
 	std::ifstream modelIFS("elexis.model", std::ifstream::in | std::ifstream::binary);
 	pulp::file_io::BinaryDeserialiser deserialiser(modelIFS);
@@ -94,7 +94,7 @@ void Game::loop() {
 
 	pulp::renderer::Scene scene(*graphicsRenderer_);
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(rendererContext, modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription()));
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager));
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),

@@ -45,7 +45,7 @@ public:
 		materials_.emplace(name, material);
 	}
 
-	MaterialSharedPtr get(const std::string& name) {
+	MaterialSharedPtr get(const std::string& name) const {
 		auto material = materials_.find(name);
 		if (material == materials_.end()) {
 			throw MaterialNotRegistered(name);

@@ -130,6 +130,10 @@ void JSONDeserialiser::readLabel(std::string label) {
 	currentNode_ = std::make_unique<ValueNode>(path_.top()->get().get_child(label));
 }
 
+void JSONDeserialiser::read(bool& b) {
+	readValue(b);
+}
+
 void JSONDeserialiser::read(std::uint8_t& i) {
 	readValue(i);
 }

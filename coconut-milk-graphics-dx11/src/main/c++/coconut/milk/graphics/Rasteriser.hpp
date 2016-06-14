@@ -4,27 +4,31 @@
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
+#include <coconut-tools/enum.hpp>
+
 #include "coconut/milk/system/COMWrapper.hpp"
 
 namespace coconut {
 namespace milk {
 namespace graphics {
 
+CCN_ENUM_VALUES(
+	CullMode,
+	(BACK)(D3D11_CULL_BACK)
+	(FRONT)(D3D11_CULL_FRONT)
+	(NONE)(D3D11_CULL_NONE)
+	);
+
+CCN_ENUM_VALUES(
+	FillMode,
+	(SOLID)(D3D11_FILL_SOLID)
+	(WIREFRAME)(D3D11_FILL_WIREFRAME)
+	);
+
 class Renderer;
 
 class Rasteriser {
 public:
-
-	enum class CullMode {
-		BACK = D3D11_CULL_BACK,
-		FRONT = D3D11_CULL_FRONT,
-		NONE = D3D11_CULL_NONE,
-	};
-
-	enum class FillMode {
-		SOLID = D3D11_FILL_SOLID,
-		WIREFRAME = D3D11_FILL_WIREFRAME,
-	};
 
 	struct Configuration {
 

@@ -8,18 +8,17 @@
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 #include "coconut/milk/graphics/VertexInterface.hpp"
 #include "coconut/milk/graphics/InputLayoutDescription.hpp"
-#include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/Rasteriser.hpp"
-#include "coconut/milk/graphics/Sampler.hpp"
+#include "coconut/milk/graphics/Renderer.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "coconut/pulp/model/Data.hpp"
 
 #include "shader/Shader.hpp"
-#include "Context.hpp"
 #include "PassContext.hpp"
 #include "Material.hpp"
+#include "MaterialManager.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -31,18 +30,24 @@ class DrawGroup {
 public:
 
 	DrawGroup(
-		Context& context,
 		const model::Data& modelData,
 		size_t groupIndex,
 		milk::graphics::Renderer& graphicsRenderer,
-		const milk::graphics::InputLayoutDescription& inputLayoutDescription
+		const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+		const MaterialManager& materialManager
 		);
 
 	void render(CommandBuffer& commandBuffer, PassContext passContext);
 
 private:
 
+	using Samplers = std::vector<std::string>;
+
 	MaterialSharedPtr material_;
+
+	milk::graphics::Rasteriser rasteriser_;
+
+	Samplers samplerIds_;
 
 	milk::graphics::VertexBuffer vertexBuffer_;
 
@@ -51,10 +56,6 @@ private:
 	size_t indexCount_;
 
 	milk::graphics::PrimitiveTopology primitiveTopology_;
-
-	milk::graphics::Rasteriser rasteriser_; // TODO
-
-	milk::graphics::Sampler sampler_; // TODO
 
 };
 

@@ -319,7 +319,13 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Renderer& graphicsRend
 					const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(*context.material);
 					return &phongMaterial.diffuseMap();
 				},
+				[](const PassContext& context) {
+					assert(context.material->type() == PhongMaterial::TYPE);
+					const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(*context.material);
+					return phongMaterial.diffuseMapSampler();
+				},
 				milk::graphics::ShaderType::PIXEL,
+				0,
 				0
 				);
 			resources.insert(std::make_pair(0, resource));

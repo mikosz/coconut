@@ -7,7 +7,7 @@
 <appenders>
   <appender>
     <id>debug-window</id>
-    <level>trace</level>
+    <level>info</level>
     <type>coconut_tools::logger::appender::DebugWindowAppender</type>
     <layout>detailed</layout>
   </appender>

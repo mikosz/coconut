@@ -11,42 +11,42 @@ namespace utils {
 class RAIIHelper {
 public:
 
-	typedef std::function<void ()> Callback;
+	typedef std::function<void ()> TextureCallback;
 
 	RAIIHelper() {
 	}
 
-	RAIIHelper(Callback callback) :
-		callback_(callback)
+	RAIIHelper(TextureCallback callback) :
+		textureCallback_(callback)
 	{
 	}
 
 	// TODO: probably the way copying is done should be handled by a template parameter
 	RAIIHelper(RAIIHelper& other) {
-		callback_.swap(other.callback_);
+		textureCallback_.swap(other.textureCallback_);
 	}
 
 	~RAIIHelper() {
-		if (callback_) {
-			callback_();
+		if (textureCallback_) {
+			textureCallback_();
 		}
 	}
 
 	// TODO: probably the way copying is done should be handled by a template parameter
 	RAIIHelper& operator=(RAIIHelper& other) {
 		if (this != &other) {
-			callback_.swap(other.callback_);
+			textureCallback_.swap(other.textureCallback_);
 		}
 		return *this;
 	}
 
 	void reset() {
-		callback_ = Callback();
+		textureCallback_ = TextureCallback();
 	}
 
 private:
 
-	Callback callback_;
+	TextureCallback textureCallback_;
 
 };
 

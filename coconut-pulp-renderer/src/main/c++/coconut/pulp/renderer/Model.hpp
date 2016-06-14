@@ -9,7 +9,7 @@
 
 #include "coconut/pulp/model/Data.hpp"
 
-#include "Context.hpp"
+#include "MaterialManager.hpp"
 #include "PassContext.hpp"
 #include "DrawGroup.hpp"
 
@@ -23,10 +23,10 @@ class Model {
 public:
 
 	Model(
-		Context& context,
 		const model::Data& data,
 		milk::graphics::Renderer& graphicsRenderer,
-		const milk::graphics::InputLayoutDescription& inputLayoutDescription
+		const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+		MaterialManager& materialManager
 		);
 
 	void render(CommandBuffer& commandBuffer, PassContext PassContext);

@@ -26,6 +26,8 @@ protected:
 
 	void readLabel(std::string label) override;
 
+	void read(bool& b) override;
+
 	void read(std::uint8_t& i) override;
 
 	void read(std::int8_t& i) override;
