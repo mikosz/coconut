@@ -57,9 +57,9 @@ Data obj::Importer::import(std::istream& is, std::string name) {
 	modelData.rasteriserConfiguration.frontCounterClockwise = false;
 
 	milk::graphics::Sampler::Configuration defaultSamplerConfiguration;
-	defaultSamplerConfiguration.addressModeU = milk::graphics::AddressMode::CLAMP;
-	defaultSamplerConfiguration.addressModeV = milk::graphics::AddressMode::CLAMP;
-	defaultSamplerConfiguration.addressModeW = milk::graphics::AddressMode::CLAMP;
+	defaultSamplerConfiguration.addressModeU = milk::graphics::AddressMode::WRAP;
+	defaultSamplerConfiguration.addressModeV = milk::graphics::AddressMode::WRAP;
+	defaultSamplerConfiguration.addressModeW = milk::graphics::AddressMode::WRAP;
 	defaultSamplerConfiguration.filter = milk::graphics::Filter::MIN_MAG_MIP_LINEAR; // TODO!
 
 	bool hasFaces = false;
