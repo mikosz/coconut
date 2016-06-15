@@ -56,8 +56,8 @@ public:
 		rasteriser_ = rasteriser;
 	}
 
-	void addSampler(milk::graphics::Sampler* sampler, milk::graphics::ShaderType stage, size_t slot) {
-		samplers_.emplace_back(sampler, stage, slot);
+	void addSampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) {
+		samplers_.emplace_back(std::move(sampler), stage, slot);
 	}
 
 	void addConstantBufferData(
@@ -94,13 +94,13 @@ private:
 
 	struct Sampler {
 
-		milk::graphics::Sampler* sampler; // TODO: pointer
+		milk::graphics::Sampler sampler;
 
 		milk::graphics::ShaderType stage;
 
 		size_t slot;
 
-		Sampler(milk::graphics::Sampler* sampler, milk::graphics::ShaderType stage, size_t slot) :
+		Sampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) :
 			sampler(sampler),
 			stage(stage),
 			slot(slot)

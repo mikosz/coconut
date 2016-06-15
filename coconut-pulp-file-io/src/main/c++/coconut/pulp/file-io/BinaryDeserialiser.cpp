@@ -54,6 +54,10 @@ void BinaryDeserialiser::readArrayEnd() {
 void BinaryDeserialiser::readLabel(std::string /* label */) {
 }
 
+void BinaryDeserialiser::read(bool& b) {
+	readBinaryData(is_, b, changeEndianness_);
+}
+
 void BinaryDeserialiser::read(std::uint8_t& i) {
 	readBinaryData(is_, i, changeEndianness_);
 }

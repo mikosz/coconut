@@ -10,7 +10,7 @@ namespace pulp {
 namespace renderer {
 
 class DrawCommand;
-struct RenderingContext;
+class PassContext;
 
 namespace shader {
 

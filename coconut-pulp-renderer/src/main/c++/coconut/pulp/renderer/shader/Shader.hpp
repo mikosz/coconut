@@ -8,7 +8,7 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "coconut/pulp/renderer/material/Material.hpp"
+#include "coconut/pulp/renderer/Material.hpp"
 
 #include "Resource.hpp"
 #include "ConstantBuffer.hpp"
@@ -17,7 +17,7 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-struct RenderingContext;
+class PassContext;
 class Actor;
 class Scene;
 class DrawCommand;
@@ -34,7 +34,7 @@ public:
 
 	using ActorData = std::vector<ConstantBufferSharedPtr<Actor>>;
 
-	using MaterialData = std::vector<ConstantBufferSharedPtr<material::Material>>;
+	using MaterialData = std::vector<ConstantBufferSharedPtr<Material>>;
 
 	using Resources = std::unordered_map<size_t, ResourceSharedPtr>;
 
@@ -48,7 +48,7 @@ public:
 
 	void bind(
 		DrawCommand& drawCommand,
-		const RenderingContext& renderingContext
+		const PassContext& PassContext
 		) const;
 
 	GraphicsShaderType& shaderData() {

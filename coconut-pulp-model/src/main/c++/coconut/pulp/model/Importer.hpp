@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_RENDERER_MODEL_IMPORTER_HPP_
 
 #include <iosfwd>
+#include <string>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -20,7 +21,7 @@ public:
 
 	void operator=(const Importer&) = delete;
 
-	virtual Data import(std::istream& is) = 0;
+	virtual Data import(std::istream& is, std::string name) = 0;
 
 protected:
 

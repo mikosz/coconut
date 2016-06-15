@@ -26,12 +26,8 @@ cbuffer GroupData : register(b2) {
 	Material material;
 }
 
-Texture2D diffuseMap;
-
-SamplerState ss {
-	Filter = ANISOTROPIC;
-	MaxAnisotropy = 4;
-};
+Texture2D diffuseMap : register(t0);
+SamplerState diffuseMapSamplerState : register(s0);
 
 struct PIn {
 	float4 posH : SV_POSITION;
@@ -76,7 +72,7 @@ float4 main(PIn pin) : SV_TARGET
 		specular += specularComp;
 	}
 
-	float4 textureColour = diffuseMap.Sample(ss, pin.tex);
+	float4 textureColour = diffuseMap.Sample(diffuseMapSamplerState, pin.tex);
 
 	float4 endColour = saturate(textureColour * (ambient + diffuse) + specular);
 	endColour.a = textureColour.a * diffuse.a;

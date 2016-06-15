@@ -35,6 +35,7 @@ struct BasicTypeStruct {
 	int i;
 	float f;
 	std::string s;
+	bool b;
 	std::vector<SubStruct> v;
 };
 
@@ -46,6 +47,7 @@ CCN_MAKE_SERIALISABLE(SerialiserType, s, BasicTypeStruct, bts) {
 	s(SerialiserType::Label("int"), bts.i);
 	s(SerialiserType::Label("float"), bts.f);
 	s(SerialiserType::Label("string"), bts.s);
+	s(SerialiserType::Label("bool"), bts.b);
 
 	std::vector<SubStruct> v(2);
 	s(SerialiserType::Label("sub-objects"), bts.v);
@@ -60,6 +62,7 @@ BOOST_AUTO_TEST_CASE(SerialiseAndDeserialiseToBinary) { // TODO: make templated 
 	toSerialise.i = 42;
 	toSerialise.f = 4.2f;
 	toSerialise.s = "fourty two";
+	toSerialise.b = false;
 	toSerialise.v = {
 		SubStruct(0),
 		SubStruct(1)
@@ -80,6 +83,7 @@ BOOST_AUTO_TEST_CASE(SerialiseAndDeserialiseToBinary) { // TODO: make templated 
 	BOOST_CHECK_EQUAL(toSerialise.i, deserialised.i);
 	BOOST_CHECK_EQUAL(toSerialise.f, deserialised.f);
 	BOOST_CHECK_EQUAL(toSerialise.s, deserialised.s);
+	BOOST_CHECK_EQUAL(toSerialise.b, deserialised.b);
 	BOOST_CHECK(toSerialise.v == deserialised.v);
 }
 

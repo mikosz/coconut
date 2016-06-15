@@ -6,6 +6,8 @@
 #include <cstddef>
 
 #include "coconut/milk/math/Vector.hpp"
+#include "coconut/milk/graphics/Rasteriser.hpp"
+#include "coconut/milk/graphics/Sampler.hpp"
 
 // TODO: move serialisation API to CoconutTools, document, support versioning
 
@@ -58,6 +60,11 @@ public:
 
 	Serialiser& operator<<(const Label& label) {
 		writeLabel(label.label);
+		return *this;
+	}
+
+	Serialiser& operator<<(bool b) {
+		write(b);
 		return *this;
 	}
 
@@ -142,6 +149,8 @@ protected:
 
 	virtual void writeLabel(const std::string& label) = 0;
 
+	virtual void write(bool b) = 0;
+
 	virtual void write(std::uint8_t i) = 0;
 
 	virtual void write(std::int8_t i) = 0;
@@ -173,6 +182,8 @@ private:
 void serialise(Serialiser& serialiser, const milk::math::Vector2d& vector);
 void serialise(Serialiser& serialiser, const milk::math::Vector3d& vector);
 void serialise(Serialiser& serialiser, const milk::math::Vector4d& vector);
+void serialise(Serialiser& serialiser, const milk::graphics::Rasteriser::Configuration& rasteriserConfiguration); // TODO: move somewhere else
+void serialise(Serialiser& serialiser, const milk::graphics::Sampler::Configuration& samplerConfiguration); // TODO: move somewhere else
 
 template <class EnumType>
 inline void serialise(file_io::Serialiser& serialiser, EnumType enumValue, std::enable_if_t<std::is_enum<EnumType>::value>* = nullptr) {

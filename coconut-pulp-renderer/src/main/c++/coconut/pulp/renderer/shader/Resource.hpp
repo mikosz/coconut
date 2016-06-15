@@ -13,7 +13,7 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-struct RenderingContext;
+class PassContext;
 
 namespace shader {
 
@@ -21,26 +21,41 @@ class Resource {
 public:
 
 	// TODO: pointer?
-	using Callback = std::function<milk::graphics::Texture* (const RenderingContext&)>;
+	using TextureCallback = std::function<milk::graphics::Texture* (const PassContext&)>;
 
-	Resource(Callback callback, milk::graphics::ShaderType shaderType, size_t slot) :
-		callback_(callback),
+	using SamplerCallback = std::function<milk::graphics::Sampler (const PassContext&)>;
+
+	Resource(
+		TextureCallback textureCallback,
+		SamplerCallback samplerCallback,
+		milk::graphics::ShaderType shaderType,
+		size_t textureSlot,
+		size_t samplerSlot
+		) :
+		textureCallback_(textureCallback),
+		samplerCallback_(samplerCallback),
 		stage_(shaderType),
-		slot_(slot)
+		textureSlot_(textureSlot),
+		samplerSlot_(samplerSlot)
 	{
 	}
 
-	void bind(DrawCommand& drawCommand, const RenderingContext& context) {
-		drawCommand.addTexture(callback_(context), stage_, slot_);
+	void bind(DrawCommand& drawCommand, const PassContext& context) {
+		drawCommand.addTexture(textureCallback_(context), stage_, textureSlot_);
+		drawCommand.addSampler(samplerCallback_(context), stage_, samplerSlot_);
 	}
 
 private:
 
-	Callback callback_;
+	TextureCallback textureCallback_;
+
+	SamplerCallback samplerCallback_;
 
 	milk::graphics::ShaderType stage_;
 
-	size_t slot_;
+	size_t textureSlot_;
+
+	size_t samplerSlot_;
 
 };
 

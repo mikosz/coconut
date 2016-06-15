@@ -46,11 +46,21 @@ struct hash<VertexDescriptor> {
 
 } // namespace std
 
-Data obj::Importer::import(std::istream& is) {
+Data obj::Importer::import(std::istream& is, std::string name) {
 	Parser parser;
 	parser.parse(is, *materialFileOpener_);
 
 	Data modelData;
+
+	modelData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
+	modelData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;
+	modelData.rasteriserConfiguration.frontCounterClockwise = false;
+
+	milk::graphics::Sampler::Configuration defaultSamplerConfiguration;
+	defaultSamplerConfiguration.addressModeU = milk::graphics::AddressMode::WRAP;
+	defaultSamplerConfiguration.addressModeV = milk::graphics::AddressMode::WRAP;
+	defaultSamplerConfiguration.addressModeW = milk::graphics::AddressMode::WRAP;
+	defaultSamplerConfiguration.filter = milk::graphics::Filter::MIN_MAG_MIP_LINEAR; // TODO!
 
 	bool hasFaces = false;
 
@@ -60,6 +70,21 @@ Data obj::Importer::import(std::istream& is) {
 	modelData.normals = parser.normals();
 
 	auto normalsNeedGeneration = false;
+
+	for (const auto& materialDataEntry : parser.materials()) {
+		const auto& materialData = materialDataEntry.second;
+
+		Data::PhongMaterial material;
+		material.name = name + "::" + materialData.name;
+		material.ambientColour = rgbToRgba(materialData.ambientColour);
+		material.diffuseColour = rgbToRgba(materialData.diffuseColour);
+		material.diffuseMap = materialFileOpener_->pathTo(materialData.diffuseMap).string();
+		material.diffuseMapSamplerConfiguration = defaultSamplerConfiguration;
+		material.specularColour = rgbToRgba(materialData.diffuseColour);
+		material.specularExponent = materialData.specularExponent;
+
+		modelData.phongMaterials.emplace_back(material);
+	}
 
 	// TODO: objects are merged here, is this ok? will we ever have more than one object?
 	for (size_t objectIndex = 0; objectIndex < parser.objects().size(); ++objectIndex) {
@@ -74,13 +99,7 @@ Data obj::Importer::import(std::istream& is) {
 
 				currentGroupData.primitiveTopology = milk::graphics::PrimitiveTopology::TRIANGLE_LIST;
 
-				const auto& materialData = parser.materials().at(group.material);
-				currentGroupData.material.name = materialData.name;
-				currentGroupData.material.ambientColour = rgbToRgba(materialData.ambientColour);
-				currentGroupData.material.diffuseColour = rgbToRgba(materialData.diffuseColour);
-				currentGroupData.material.diffuseMap = materialFileOpener_->pathTo(materialData.diffuseMap).string();
-				currentGroupData.material.specularColour = rgbToRgba(materialData.diffuseColour);
-				currentGroupData.material.specularExponent = materialData.specularExponent;
+				currentGroupData.materialId = name + "::" + group.material;
 
 				std::unordered_map<VertexDescriptor, size_t> vertexIndices;
 

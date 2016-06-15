@@ -149,35 +149,17 @@ std::vector<std::uint8_t> indexBufferData(const model::Data& modelData, size_t g
 	return data;
 }
 
-milk::graphics::Rasteriser::Configuration rasteriserConfiguration() {
-	milk::graphics::Rasteriser::Configuration configuration;
-
-	configuration.cullMode = milk::graphics::Rasteriser::CullMode::NONE;
-	configuration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
-	configuration.frontCounterClockwise = false;
-
-	return configuration;
-}
-
-milk::graphics::Sampler::Configuration samplerConfiguration() {
-	milk::graphics::Sampler::Configuration configuration;
-
-	configuration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
-	configuration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
-	configuration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
-	configuration.filter = milk::graphics::Sampler::Filter::ANISOTROPIC;
-
-	return configuration;
-}
-
 } /* anonymous namespace */
 
 DrawGroup::DrawGroup(
 	const model::Data& modelData,
 	size_t groupIndex,
 	milk::graphics::Renderer& graphicsRenderer,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription
+	const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+	const MaterialManager& materialManager
 	) :
+	material_(materialManager.get(modelData.drawGroups[groupIndex].materialId)),
+	rasteriser_(graphicsRenderer, modelData.rasteriserConfiguration),
 	vertexBuffer_(
 		graphicsRenderer,
 		vertexBufferConfiguration(modelData, groupIndex, inputLayoutDescription),
@@ -189,44 +171,34 @@ DrawGroup::DrawGroup(
 		&indexBufferData(modelData, groupIndex).front()
 		),
 	indexCount_(modelData.drawGroups[groupIndex].indices.size()),
-	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology),
-	rasteriser_(graphicsRenderer, rasteriserConfiguration()),
-	sampler_(graphicsRenderer, samplerConfiguration())
+	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology)
 {
-	const auto& materialData = modelData.drawGroups[groupIndex].material;
-	material_.setAmbientColour(materialData.ambientColour);
-	material_.setDiffuseColour(materialData.diffuseColour);
-
-	milk::graphics::ImageLoader imageLoader;
-	auto image = imageLoader.load(materialData.diffuseMap);
-	material_.setDiffuseMap(std::make_unique<milk::graphics::Texture2d>(graphicsRenderer, image));
-
-	material_.setSpecularColour(materialData.specularColour);
-	material_.setSpecularExponent(materialData.specularExponent);
 }
 
-void DrawGroup::render(CommandBuffer& commandBuffer, RenderingContext renderingContext) {
-	auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
+void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
+	auto* pass = passContext.getPass(material_->shaderPassType());
+	if (pass) {
+		auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
-	drawCommand->setRasteriser(&rasteriser_);
-	drawCommand->addSampler(&sampler_, milk::graphics::ShaderType::PIXEL, 0);
+		drawCommand->setRasteriser(&rasteriser_);
 
-	renderingContext.material = &material_;
+		passContext.material = material_.get();
 
-	drawCommand->setInputLayout(&renderingContext.pass->inputLayout());
-	drawCommand->setVertexShader(&renderingContext.pass->vertexShader().shaderData());
-	renderingContext.pass->vertexShader().bind(*drawCommand, renderingContext);
-	drawCommand->setPixelShader(&renderingContext.pass->pixelShader().shaderData());
-	renderingContext.pass->pixelShader().bind(*drawCommand, renderingContext);
+		drawCommand->setInputLayout(&pass->inputLayout());
+		drawCommand->setVertexShader(&pass->vertexShader().shaderData());
+		pass->vertexShader().bind(*drawCommand, passContext);
+		drawCommand->setPixelShader(&pass->pixelShader().shaderData());
+		pass->pixelShader().bind(*drawCommand, passContext);
 
-	drawCommand->setVertexBuffer(&vertexBuffer_);
-	drawCommand->setIndexBuffer(&indexBuffer_);
-	drawCommand->setIndexCount(indexCount_);
-	drawCommand->setPrimitiveTopology(primitiveTopology_);
+		drawCommand->setVertexBuffer(&vertexBuffer_);
+		drawCommand->setIndexBuffer(&indexBuffer_);
+		drawCommand->setIndexCount(indexCount_);
+		drawCommand->setPrimitiveTopology(primitiveTopology_);
 
-	drawCommand->setRenderTarget(renderingContext.backBuffer); // TODO
-	drawCommand->setDepthStencil(renderingContext.screenDepthStencil); // TODO
-	drawCommand->setViewport(renderingContext.viewport); // TODO
+		drawCommand->setRenderTarget(passContext.backBuffer); // TODO
+		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
+		drawCommand->setViewport(passContext.viewport); // TODO
 
-	commandBuffer.add(std::move(drawCommand));
+		commandBuffer.add(std::move(drawCommand));
+	}
 }

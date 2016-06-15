@@ -18,6 +18,7 @@
 #include "Resource.hpp"
 #include "../Actor.hpp"
 #include "../Scene.hpp"
+#include "../PhongMaterial.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -270,47 +271,61 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Renderer& graphicsRend
 
 		{
 			auto ambientParameter =
-				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, material::Material>>(
-					[](milk::math::Vector4d::ShaderParameter& result, const material::Material& material) {
-						result = material.ambientColour().shaderParameter();
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Material>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Material& material) {
+						assert(material.type() == PhongMaterial::TYPE);
+						const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(material);
+						result = phongMaterial.ambientColour().shaderParameter();
 					}
 					)
 				;
 			auto diffuseParameter =
-				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, material::Material>>(
-					[](milk::math::Vector4d::ShaderParameter& result, const material::Material& material) {
-						result = material.diffuseColour().shaderParameter();
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Material>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Material& material) {
+						assert(material.type() == PhongMaterial::TYPE);
+						const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(material);
+						result = phongMaterial.diffuseColour().shaderParameter();
 					}
 					)
 				;
 			auto specularParameter =
-				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, material::Material>>(
-					[](milk::math::Vector4d::ShaderParameter& result, const material::Material& material) {
-						result = material.specularColour().shaderParameter();
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Material>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Material& material) {
+						assert(material.type() == PhongMaterial::TYPE);
+						const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(material);
+						result = phongMaterial.specularColour().shaderParameter();
 					}
 					)
 				;
 
-			StructuredParameter<material::Material>::Subparameters materialFields;
+			StructuredParameter<Material>::Subparameters materialFields;
 			materialFields.reserve(3);
 			materialFields.emplace_back(std::move(ambientParameter));
 			materialFields.emplace_back(std::move(diffuseParameter));
 			materialFields.emplace_back(std::move(specularParameter));
 
-			auto materialParameter = std::make_unique<StructuredParameter<material::Material>>(
+			auto materialParameter = std::make_unique<StructuredParameter<Material>>(
 				std::move(materialFields)
 				);
 
-			groupData.emplace_back(std::make_unique<ConstantBuffer<material::Material>>(graphicsRenderer, shaderType, 2, std::move(materialParameter)));
+			groupData.emplace_back(std::make_unique<ConstantBuffer<Material>>(graphicsRenderer, shaderType, 2, std::move(materialParameter)));
 			// TODO: verify that two constant buffers don't share a slot
 		}
 
 		{
 			auto resource = std::make_shared<Resource>(
-				[](const RenderingContext& context) {
-					return &context.material->diffuseMap();
+				[](const PassContext& context) {
+					assert(context.material->type() == PhongMaterial::TYPE);
+					const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(*context.material);
+					return &phongMaterial.diffuseMap();
+				},
+				[](const PassContext& context) {
+					assert(context.material->type() == PhongMaterial::TYPE);
+					const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(*context.material);
+					return phongMaterial.diffuseMapSampler();
 				},
 				milk::graphics::ShaderType::PIXEL,
+				0,
 				0
 				);
 			resources.insert(std::make_pair(0, resource));

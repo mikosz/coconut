@@ -1,6 +1,6 @@
 #include "Scene.hpp"
 
-#include "RenderingContext.hpp"
+#include "PassContext.hpp"
 
 #include "shader/ShaderFactory.hpp"
 
@@ -50,12 +50,12 @@ void Scene::setLens(LensSharedPtr lens) {
 }
 
 void Scene::render(CommandBuffer& commandBuffer) {
-	RenderingContext context;
+	PassContext context;
 	context.viewport = &viewport_;
 	context.backBuffer = renderTarget_;
 	context.screenDepthStencil = depthStencil_;
 	context.scene = this;
-	context.pass = renderingPass_.get();
+	context.setPass(ShaderPassType::OPAQUE, renderingPass_.get());
 
 	for (auto actor : actors_) {
 		actor->render(commandBuffer, context);
