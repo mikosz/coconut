@@ -317,7 +317,11 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Renderer& graphicsRend
 				[](const PassContext& context) {
 					assert(context.material->type() == PhongMaterial::TYPE);
 					const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(*context.material);
-					return &phongMaterial.diffuseMap();
+					if (phongMaterial.hasDiffuseMap()) {
+						return &phongMaterial.diffuseMap();
+					} else {
+						return reinterpret_cast<milk::graphics::Texture2d*>(nullptr);
+					}
 				},
 				[](const PassContext& context) {
 					assert(context.material->type() == PhongMaterial::TYPE);

@@ -58,11 +58,16 @@ public:
 		return specularExponent_;
 	}
 
+	bool hasDiffuseMap() const {
+		return diffuseMap_ != nullptr;
+	}
+
 	void setDiffuseMap(milk::graphics::Texture2dUniquePtr diffuseMap) {
 		diffuseMap_ = std::move(diffuseMap);
 	}
 
 	milk::graphics::Texture2d& diffuseMap() const {
+		assert(diffuseMap_);
 		return *diffuseMap_;
 	}
 
