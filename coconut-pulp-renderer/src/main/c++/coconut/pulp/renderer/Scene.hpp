@@ -10,6 +10,7 @@
 
 #include "shader/Pass.hpp"
 #include "lighting/DirectionalLight.hpp"
+#include "lighting/PointLight.hpp"
 
 #include "Actor.hpp"
 #include "Camera.hpp"
@@ -29,6 +30,8 @@ public:
 	void add(ActorSharedPtr actor);
 
 	void add(lighting::DirectionalLight directionalLight);
+
+	void add(lighting::PointLight pointLight);
 
 	void setCamera(CameraSharedPtr camera);
 
@@ -52,11 +55,17 @@ public:
 		return directionalLights_;
 	}
 
+	const std::vector<lighting::PointLight>& pointLights() const {
+		return pointLights_;
+	}
+
 private:
 
 	std::vector<ActorSharedPtr> actors_;
 
 	std::vector<lighting::DirectionalLight> directionalLights_;
+
+	std::vector<lighting::PointLight> pointLights_;
 
 	CameraSharedPtr camera_;
 
