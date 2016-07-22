@@ -7,6 +7,8 @@
 
 #include <coconut-tools/exceptions/LogicError.hpp>
 
+#include "coconut/milk/utils/bits.hpp"
+
 #include "Parameter.hpp"
 
 namespace coconut {
@@ -39,13 +41,14 @@ public:
 	using PaddedSubparameters = std::vector<PaddedSubparameter>;
 
 	StructuredParameter(PaddedSubparameters subparameters) :
-		Parameter<UpdateArguments...>(totalSize(subparameters)), // TODO: eliminate double creation
+		Parameter<UpdateArguments...>(totalSize(subparameters)),
 		subparameters_(std::move(subparameters))
 	{
 	}
 
 	void update(void* buffer, const UpdateArguments&... data) override {
-		auto* fieldIt = reinterpret_cast<std::uint8_t*>(buffer);
+		auto* const bufferStart = reinterpret_cast<std::uint8_t*>(buffer);
+		auto* fieldIt = bufferStart;
 
 		for (auto& subparameter : subparameters_) {
 			fieldIt += subparameter.padding;
@@ -53,7 +56,9 @@ public:
 			fieldIt += subparameter.subparameter->size();
 		}
 
-		auto* const expected = reinterpret_cast<std::uint8_t*>(buffer) + size();
+		fieldIt = bufferStart + milk::utils::roundUpToMultipleOf(static_cast<ptrdiff_t>(fieldIt - bufferStart), 16);
+
+		auto* const expected = bufferStart + size();
 		if (fieldIt != expected) {
 			std::ostringstream err;
 			err << "Expected end pointer to be at " << expected << ", got " << *fieldIt;
@@ -72,9 +77,11 @@ private:
 	static size_t totalSize(const PaddedSubparameters& subparameters) {
 		auto result = static_cast<size_t>(0);
 		for (auto subparameter : subparameters) {
+			result += subparameter.padding;
 			result += subparameter.subparameter->size();
 		}
-		return result;
+
+		return milk::utils::roundUpToMultipleOf(result, 16);
 	}
 
 };
@@ -90,8 +97,9 @@ typename StructuredParameter<UpdateArguments...>::PaddedSubparameters layoutSubp
 	for (auto& subparameter : subparameters) {
 		const auto subparameterSize = subparameter->size();
 		const auto needsAlignment =
-			(subparameter->requires16ByteAlignment() && (offset % 16 != 0)) ||
-			((offset / 16) != ((offset + subparameterSize) / 16))
+			offset % 16 != 0 &&
+				(subparameter->requires16ByteAlignment() ||
+				((offset / 16) != ((offset + subparameterSize - 1) / 16)))
 			;
 		auto padding = static_cast<size_t>(0);
 		if (needsAlignment) {

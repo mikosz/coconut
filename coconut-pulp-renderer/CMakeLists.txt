@@ -12,4 +12,4 @@ set(TEST_LIBRARIES
   ${Boost_TEST_EXEC_MONITOR_LIBRARY}
   )
 
-library_module(coconut-pulp-renderer "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" ${LIBRARY_TYPE})
+library_module(coconut-pulp-renderer "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" USE_GMOCK ${LIBRARY_TYPE})
