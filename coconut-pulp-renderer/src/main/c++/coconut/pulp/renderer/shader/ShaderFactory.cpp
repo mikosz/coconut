@@ -189,14 +189,6 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Renderer& graphicsRend
 					)
 				;
 
-			auto pointLightCountParameter =
-				std::make_unique<CallbackParameter<std::uint32_t, Scene>>(
-					[](std::uint32_t& result, const Scene& scene) {
-						result = static_cast<std::uint32_t>(scene.pointLights().size()); // TODO: limit number of lights
-					}
-					)
-				;
-
 			auto ambientParameter =
 				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Scene, size_t>>(
 					[](milk::math::Vector4d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
@@ -252,6 +244,14 @@ PassUniquePtr ShaderFactory::createShader(milk::graphics::Renderer& graphicsRend
 				std::make_unique<ArrayParameter<Scene>>(
 					std::move(directionalLightParameter),
 					3
+					)
+				;
+
+			auto pointLightCountParameter =
+				std::make_unique<CallbackParameter<std::uint32_t, Scene>>(
+					[](std::uint32_t& result, const Scene& scene) {
+						result = static_cast<std::uint32_t>(scene.pointLights().size()); // TODO: limit number of lights
+					}
 					)
 				;
 

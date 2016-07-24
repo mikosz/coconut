@@ -102,7 +102,7 @@ void Game::loop() {
 		milk::math::Vector4d(0.7f, 0.7f, 0.7f, 1.0f),
 		milk::math::Vector4d(0.4f, 0.4f, 0.4f, 0.0f)
 		);
-	// scene.add(white);
+	scene.add(white);
 
 	pulp::renderer::lighting::PointLight yellow(
 		milk::math::Vector3d(0.0f, 1.5f, 3.5f),

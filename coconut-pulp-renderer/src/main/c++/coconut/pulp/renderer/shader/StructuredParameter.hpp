@@ -108,7 +108,7 @@ typename StructuredParameter<UpdateArguments...>::PaddedSubparameters layoutSubp
 
 		padded.emplace_back(padding, subparameter);
 
-		offset += subparameterSize;
+		offset += padding + subparameterSize;
 	}
 
 	return padded;
