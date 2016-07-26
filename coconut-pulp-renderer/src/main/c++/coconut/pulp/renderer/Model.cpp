@@ -28,15 +28,17 @@ Model::Model(
 		material->setAmbientColour(phongMaterial.ambientColour);
 		material->setDiffuseColour(phongMaterial.diffuseColour);
 
-		milk::graphics::ImageLoader imageLoader;
-		auto diffuseMap = std::make_unique<milk::graphics::Texture2d>(
-			graphicsRenderer, imageLoader.load(phongMaterial.diffuseMap));
-		material->setDiffuseMap(std::move(diffuseMap));
-		material->setDiffuseMapSampler(
-			milk::graphics::Sampler(
-				graphicsRenderer, phongMaterial.diffuseMapSamplerConfiguration
-				)
-			); // TODO: use configuration-deriven key, store samplers in manager
+		if (!phongMaterial.diffuseMap.empty()) {
+			milk::graphics::ImageLoader imageLoader;
+			auto diffuseMap = std::make_unique<milk::graphics::Texture2d>(
+				graphicsRenderer, imageLoader.load(phongMaterial.diffuseMap));
+			material->setDiffuseMap(std::move(diffuseMap));
+			material->setDiffuseMapSampler(
+				milk::graphics::Sampler(
+					graphicsRenderer, phongMaterial.diffuseMapSamplerConfiguration
+					)
+				); // TODO: use configuration-derived key, store samplers in manager
+		}
 
 		material->setSpecularColour(phongMaterial.specularColour);
 		material->setSpecularExponent(phongMaterial.specularExponent);

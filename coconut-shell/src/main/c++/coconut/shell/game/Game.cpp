@@ -104,6 +104,15 @@ void Game::loop() {
 		);
 	scene.add(white);
 
+	pulp::renderer::lighting::PointLight yellow(
+		milk::math::Vector3d(0.0f, 1.5f, -3.5f),
+		milk::math::Vector3d(0.0f, 1.0f, 0.0f),
+		milk::math::Vector4d(0.1f, 0.0f, 0.0f, 0.0f),
+		milk::math::Vector4d(0.7f, 0.0f, 0.0f, 1.0f),
+		milk::math::Vector4d(0.4f, 0.0f, 0.0f, 0.0f)
+		);
+	scene.add(yellow);
+
 	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
 
 	scene.add(actor);
@@ -116,6 +125,48 @@ void Game::loop() {
 	actor2->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
 	actor2->setTranslation(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
 	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
+
+	pulp::model::Data floorData;
+	{
+		floorData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
+		floorData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;
+		floorData.rasteriserConfiguration.frontCounterClockwise = false;
+
+		floorData.positions.emplace_back(2.0f, 0.0f, 2.0f);
+		floorData.positions.emplace_back(2.0f, 0.0f, -2.0f);
+		floorData.positions.emplace_back(-2.0f, 0.0f, 2.0f);
+		floorData.positions.emplace_back(-2.0f, 0.0f, -2.0f);
+
+		floorData.normals.emplace_back(0.0f, 1.0f, 0.0f);
+
+		floorData.textureCoordinates.emplace_back(0.0f, 0.0f);
+
+		floorData.phongMaterials.emplace_back();
+		floorData.phongMaterials.back().ambientColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
+		floorData.phongMaterials.back().diffuseColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
+		floorData.phongMaterials.back().specularColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
+		floorData.phongMaterials.back().name = "floor::white";
+
+		pulp::model::Data::DrawGroup drawGroup;
+
+		for (size_t i = 0; i < 4; ++i) {
+			drawGroup.vertices.emplace_back();
+			drawGroup.vertices.back().positionIndex = i;
+			drawGroup.vertices.back().normalIndex = 0;
+			drawGroup.vertices.back().textureCoordinateIndex = 0;
+
+			drawGroup.primitiveTopology = milk::graphics::PrimitiveTopology::TRIANGLE_STRIP;
+
+			drawGroup.indices.emplace_back(i);
+
+			drawGroup.materialId = "floor::white";
+		}
+
+		floorData.drawGroups.emplace_back(drawGroup);
+	}
+	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager);
+	auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
+	scene.add(floorActor);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;

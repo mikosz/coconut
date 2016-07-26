@@ -41,6 +41,10 @@ void Scene::add(lighting::DirectionalLight directionalLight) {
 	directionalLights_.emplace_back(directionalLight);
 }
 
+void Scene::add(lighting::PointLight pointLight) {
+	pointLights_.emplace_back(pointLight);
+}
+
 void Scene::setCamera(CameraSharedPtr camera) {
 	camera_ = camera;
 }
