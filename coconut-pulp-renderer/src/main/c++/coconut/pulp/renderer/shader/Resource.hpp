@@ -5,49 +5,64 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "coconut/milk/graphics/Device.hpp"
-#include "coconut/milk/graphics/ShaderResource.hpp"
+#include "coconut/milk/graphics/Texture.hpp"
+
+#include "../DrawCommand.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
 
-struct RenderingContext;
+class PassContext;
 
 namespace shader {
 
 class Resource {
 public:
 
-	using Callback = std::function<milk::graphics::ShaderResourceSharedPtr (milk::graphics::Device&, const RenderingContext&)>;
+	// TODO: pointer?
+	using TextureCallback = std::function<milk::graphics::Texture* (const PassContext&)>;
 
-	Resource(Callback callback) :
-		callback_(callback)
+	using SamplerCallback = std::function<milk::graphics::Sampler (const PassContext&)>;
+
+	Resource(
+		TextureCallback textureCallback,
+		SamplerCallback samplerCallback,
+		milk::graphics::ShaderType shaderType,
+		size_t textureSlot,
+		size_t samplerSlot
+		) :
+		textureCallback_(textureCallback),
+		samplerCallback_(samplerCallback),
+		stage_(shaderType),
+		textureSlot_(textureSlot),
+		samplerSlot_(samplerSlot)
 	{
 	}
 
-	void update(milk::graphics::Device& graphicsDevice, const RenderingContext& context) {
-		resource_ = callback_(graphicsDevice, context);
-	}
-
-	void bind(
-		milk::graphics::Device& graphicsDevice,
-		size_t slot,
-		milk::graphics::ShaderType shaderType
-		) {
-		// TODO: check if resource not null...
-		resource_->bind(graphicsDevice, shaderType, slot);
+	void bind(DrawCommand& drawCommand, const PassContext& context) {
+		auto* texture = textureCallback_(context);
+		if (texture) {
+			drawCommand.addTexture(texture, stage_, textureSlot_);
+			drawCommand.addSampler(samplerCallback_(context), stage_, samplerSlot_);
+		}
 	}
 
 private:
 
-	Callback callback_;
+	TextureCallback textureCallback_;
 
-	milk::graphics::ShaderResourceSharedPtr resource_;
+	SamplerCallback samplerCallback_;
+
+	milk::graphics::ShaderType stage_;
+
+	size_t textureSlot_;
+
+	size_t samplerSlot_;
 
 };
 
-MAKE_POINTER_DEFINITIONS(Resource);
+CCN_MAKE_POINTER_DEFINITIONS(Resource);
 
 } // namespace shader
 } // namespace renderer

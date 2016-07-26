@@ -34,6 +34,7 @@ void serialise(Serialiser& s, const BasicTypeStruct&) {
 	s << Serialiser::Label("int") << 123;
 	s << Serialiser::Label("float") << 1.3f;
 	s << Serialiser::Label("string") << "value";
+	s << Serialiser::Label("bool") << true;
 
 	std::vector<SubStruct> v(2);
 	s << Serialiser::Label("sub-objects") << v;
@@ -94,6 +95,7 @@ BOOST_AUTO_TEST_CASE(SerialisesDataToBinary) {
 		0, 0, 0, 123,
 		onePointThree.bytes[0], onePointThree.bytes[1], onePointThree.bytes[2], onePointThree.bytes[3],
 		'v', 'a', 'l', 'u', 'e', '\0',
+		1,
 		0, 0, 0, 2,
 		0, 0, 0, 42,
 		0, 0, 0, 42,
@@ -105,6 +107,7 @@ BOOST_AUTO_TEST_CASE(SerialisesDataToBinary) {
 		123, 0, 0, 0,
 		onePointThree.bytes[0], onePointThree.bytes[1], onePointThree.bytes[2], onePointThree.bytes[3],
 		'v', 'a', 'l', 'u', 'e', '\0',
+		1,
 		2, 0, 0, 0,
 		42, 0, 0, 0,
 		42, 0, 0, 0,

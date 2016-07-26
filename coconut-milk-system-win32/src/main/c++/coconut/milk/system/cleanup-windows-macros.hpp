@@ -13,4 +13,12 @@
 #	undef ERROR
 #endif /* ERROR */
 
+#if defined(OPAQUE)
+#	undef OPAQUE
+#endif /* OPAQUE */
+
+#if defined(TRANSPARENT)
+#	undef TRANSPARENT
+#endif /* TRANSPARENT */
+
 #endif /* _COCONUT_MILK_SYSTEM_WIN32_CLEANUP_WINDOWS_MACROS_HPP_ */

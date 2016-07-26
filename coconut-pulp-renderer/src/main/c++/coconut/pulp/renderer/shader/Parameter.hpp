@@ -23,6 +23,10 @@ public:
 
 	virtual void update(void* buffer, const UpdateArguments&... data) = 0;
 
+	virtual bool requires16ByteAlignment() const {
+		return false;
+	}
+
 	size_t size() const {
 		return size_;
 	}

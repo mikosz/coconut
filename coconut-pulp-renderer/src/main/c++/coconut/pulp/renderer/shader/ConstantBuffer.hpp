@@ -2,12 +2,11 @@
 #define _COCONUT_PULP_RENDERER_SHADER_CONSTANTBUFFER_HPP_
 
 #include <memory>
+#include <vector>
 
-#include "coconut/milk/graphics/Buffer.hpp"
-#include "coconut/milk/graphics/Device.hpp"
+#include "coconut/milk/graphics/ConstantBuffer.hpp"
 
-#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-
+#include "../DrawCommand.hpp"
 #include "Parameter.hpp"
 
 namespace coconut {
@@ -20,44 +19,42 @@ class ConstantBuffer {
 public:
 
 	ConstantBuffer(
-		milk::graphics::Device& graphicsDevice,
+		milk::graphics::Renderer& renderer,
 		milk::graphics::ShaderType shaderType,
 		size_t slot,
 		std::unique_ptr<Parameter<UpdateArguments...>> parameter
 		) :
-		shaderType_(shaderType),
-		slot_(slot),
+		stage_(shaderType),
+		textureSlot_(slot),
 		buffer_(
-			graphicsDevice,
+			renderer,
 			milk::graphics::Buffer::Configuration(
 				parameter->size(),
 				0,
 				true,
 				false,
-				false,
-				milk::graphics::Buffer::CreationPurpose::CONSTANT_BUFFER
+				false
 				)
 			),
+		data_(parameter->size()),
 		parameter_(std::move(parameter))
 	{
 	}
 
-	void update(milk::graphics::Device& graphicsDevice, const UpdateArguments&... updateArguments) { // TODO: why doesn't perfect forwarding work here?
-		auto lockedData = buffer_.lock(graphicsDevice, milk::graphics::Buffer::LockPurpose::WRITE_DISCARD);
-		parameter_->update(lockedData.get(), updateArguments...);
-	}
-
-	void bind(milk::graphics::Device& graphicsDevice) {
-		buffer_.bind(graphicsDevice, shaderType_, slot_);
+	void bind(DrawCommand& drawCommand, const UpdateArguments&... updateArguments) { // TODO: why doesn't perfect forwarding work here?
+		parameter_->update(data_.data(), updateArguments...);
+		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, textureSlot_);
 	}
 
 private:
 
-	milk::graphics::ShaderType shaderType_;
+	milk::graphics::ShaderType stage_;
 
-	size_t slot_;
+	size_t textureSlot_;
 
-	milk::graphics::Buffer buffer_;
+	milk::graphics::ConstantBuffer buffer_;
+
+	std::vector<std::uint8_t> data_;
 
 	std::unique_ptr<Parameter<UpdateArguments...>> parameter_;
 

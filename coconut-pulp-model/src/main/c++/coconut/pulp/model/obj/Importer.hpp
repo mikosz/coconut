@@ -22,7 +22,7 @@ public:
 	{
 	}
 
-	Data import(std::istream& is) override;
+	Data import(std::istream& is, std::string name) override;
 
 protected:
 
@@ -34,7 +34,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Importer);
+CCN_MAKE_POINTER_DEFINITIONS(Importer);
 
 } // namespace obj
 } // namespace model

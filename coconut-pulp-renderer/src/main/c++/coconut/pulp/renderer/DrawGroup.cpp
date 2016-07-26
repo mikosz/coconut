@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <cstdint>
 #include <limits>
+#include <memory>
 
 #include "coconut/milk/graphics/ImageLoader.hpp"
 
 #include "shader/Pass.hpp"
+#include "CommandBuffer.hpp"
+#include "GeometryDrawCommand.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -68,7 +71,6 @@ milk::graphics::Buffer::Configuration vertexBufferConfiguration(
 	configuration.allowCPURead = false;
 	configuration.allowGPUWrite = false;
 	configuration.allowModifications = false;
-	configuration.purpose =  milk::graphics::Buffer::CreationPurpose::VERTEX_BUFFER;
 	configuration.stride = inputLayoutDescription.vertexSize();
 	configuration.size = configuration.stride * modelData.drawGroups[groupIndex].vertices.size();
 
@@ -81,9 +83,13 @@ milk::graphics::Buffer::Configuration indexBufferConfiguration(const model::Data
 	configuration.allowCPURead = false;
 	configuration.allowGPUWrite = false;
 	configuration.allowModifications = false;
-	configuration.purpose =  milk::graphics::Buffer::CreationPurpose::INDEX_BUFFER;
-	// TODO: index size should be 2 or 4 depending on max index, this is hardcoded to 4
-	configuration.stride = 4;
+
+	const auto& indices = modelData.drawGroups[groupIndex].indices;
+	assert(!indices.empty());
+	size_t maxIndex = *std::max_element(indices.begin(), indices.end());
+	const auto max2ByteIndex = std::numeric_limits<std::uint16_t>::max();
+	configuration.stride = (maxIndex <= max2ByteIndex ? 2 : 4);
+
 	configuration.size = configuration.stride * modelData.drawGroups[groupIndex].indices.size();
 
 	return configuration;
@@ -100,7 +106,7 @@ std::vector<std::uint8_t> vertexBufferData(
 	std::vector<std::uint8_t> data;
 	data.resize(vertexSize * drawGroup.vertices.size());
 
-	std::uint8_t* target = &data.front();
+	auto* target = data.data();
 	for (
 		VertexDataAccessor vertexDataAccessor(modelData, groupIndex);
 		vertexDataAccessor.valid();
@@ -114,14 +120,30 @@ std::vector<std::uint8_t> vertexBufferData(
 }
 
 std::vector<std::uint8_t> indexBufferData(const model::Data& modelData, size_t groupIndex) {
-	std::vector<std::uint8_t> data;
-	data.resize(4 * modelData.drawGroups[groupIndex].indices.size());
+	const auto& indices = modelData.drawGroups[groupIndex].indices;
 
-	// TODO: index size should be 2 or 4 depending on max index, this is hardcoded to 4
-	std::uint32_t* target = reinterpret_cast<std::uint32_t*>(&data.front());
-	for (auto index : modelData.drawGroups[groupIndex].indices) {
-		*target = static_cast<std::uint32_t>(index);
-		++target;
+	// TODO: duplicated code and calculations with indexBufferConfiguration
+	const auto maxIndex = *std::max_element(indices.begin(), indices.end());
+	const auto max2ByteIndex = std::numeric_limits<std::uint16_t>::max();
+	const auto stride = (maxIndex <= max2ByteIndex ? 2 : 4);
+
+	std::vector<std::uint8_t> data;
+	data.resize(stride * indices.size());
+
+	if (stride == 2) {
+		std::transform(
+			indices.begin(),
+			indices.end(),
+			reinterpret_cast<std::uint16_t*>(data.data()),
+			[](size_t index) { return static_cast<std::uint16_t>(index); }
+			);
+	} else {
+		std::transform(
+			indices.begin(),
+			indices.end(),
+			reinterpret_cast<std::uint32_t*>(data.data()),
+			[](size_t index) { return static_cast<std::uint32_t>(index); }
+		);
 	}
 
 	return data;
@@ -132,38 +154,51 @@ std::vector<std::uint8_t> indexBufferData(const model::Data& modelData, size_t g
 DrawGroup::DrawGroup(
 	const model::Data& modelData,
 	size_t groupIndex,
-	milk::graphics::Device& graphicsDevice,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription
+	milk::graphics::Renderer& graphicsRenderer,
+	const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+	const MaterialManager& materialManager
 	) :
+	material_(materialManager.get(modelData.drawGroups[groupIndex].materialId)),
+	rasteriser_(graphicsRenderer, modelData.rasteriserConfiguration),
 	vertexBuffer_(
-		graphicsDevice,
+		graphicsRenderer,
 		vertexBufferConfiguration(modelData, groupIndex, inputLayoutDescription),
 		&vertexBufferData(modelData, groupIndex, inputLayoutDescription).front()
 		),
-	indexBuffer_(graphicsDevice, indexBufferConfiguration(modelData, groupIndex), &indexBufferData(modelData, groupIndex).front()),
+	indexBuffer_(
+		graphicsRenderer,
+		indexBufferConfiguration(modelData, groupIndex),
+		&indexBufferData(modelData, groupIndex).front()
+		),
 	indexCount_(modelData.drawGroups[groupIndex].indices.size()),
 	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology)
 {
-	const auto& materialData = modelData.drawGroups[groupIndex].material;
-	material_.setAmbientColour(materialData.ambientColour);
-	material_.setDiffuseColour(materialData.diffuseColour);
-
-	milk::graphics::ImageLoader imageLoader;
-	auto image = imageLoader.load(materialData.diffuseMap);
-	material_.setDiffuseMap(std::make_unique<milk::graphics::Texture2d>(graphicsDevice, image));
-
-	material_.setSpecularColour(materialData.specularColour);
-	material_.setSpecularExponent(materialData.specularExponent);
 }
 
-void DrawGroup::render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext) {
-	vertexBuffer_.bind(graphicsDevice, milk::graphics::ShaderType::VERTEX, 0);
-	indexBuffer_.bind(graphicsDevice, milk::graphics::ShaderType::PIXEL, 0);
+void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
+	auto* pass = passContext.getPass(material_->shaderPassType());
+	if (pass) {
+		auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
-	renderingContext.material = &material_;
+		drawCommand->setRasteriser(&rasteriser_);
 
-	renderingContext.pass->bind(graphicsDevice, renderingContext);
-	renderingContext.pass->bind(graphicsDevice, renderingContext);
+		passContext.material = material_.get();
 
-	graphicsDevice.draw(0, indexCount_, primitiveTopology_);
+		drawCommand->setInputLayout(&pass->inputLayout());
+		drawCommand->setVertexShader(&pass->vertexShader().shaderData());
+		pass->vertexShader().bind(*drawCommand, passContext);
+		drawCommand->setPixelShader(&pass->pixelShader().shaderData());
+		pass->pixelShader().bind(*drawCommand, passContext);
+
+		drawCommand->setVertexBuffer(&vertexBuffer_);
+		drawCommand->setIndexBuffer(&indexBuffer_);
+		drawCommand->setIndexCount(indexCount_);
+		drawCommand->setPrimitiveTopology(primitiveTopology_);
+
+		drawCommand->setRenderTarget(passContext.backBuffer); // TODO
+		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
+		drawCommand->setViewport(passContext.viewport); // TODO
+
+		commandBuffer.add(std::move(drawCommand));
+	}
 }

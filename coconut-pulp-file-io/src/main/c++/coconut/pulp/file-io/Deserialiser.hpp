@@ -6,6 +6,8 @@
 #include <cstddef>
 
 #include "coconut/milk/math/Vector.hpp"
+#include "coconut/milk/graphics/Rasteriser.hpp"
+#include "coconut/milk/graphics/Sampler.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -57,6 +59,11 @@ public:
 	}
 
 	// TODO: make this a template accepting all integral types
+	Deserialiser& operator>>(bool& b) {
+		read(b);
+		return* this;
+	}
+
 	Deserialiser& operator>>(std::uint8_t& i) {
 		read(i);
 		return *this;
@@ -133,6 +140,8 @@ protected:
 
 	virtual void readLabel(std::string label) = 0;
 
+	virtual void read(bool& b) = 0;
+
 	virtual void read(std::uint8_t& i) = 0;
 
 	virtual void read(std::int8_t& i) = 0;
@@ -164,6 +173,8 @@ private:
 void serialise(Deserialiser& deserialiser, milk::math::Vector2d& vector);
 void serialise(Deserialiser& deserialiser, milk::math::Vector3d& vector);
 void serialise(Deserialiser& deserialiser, milk::math::Vector4d& vector);
+void serialise(Deserialiser& deserialiser, milk::graphics::Rasteriser::Configuration& rasteriserConfiguration); // TODO: move somewhere else
+void serialise(Deserialiser& deserialiser, milk::graphics::Sampler::Configuration& samplerConfiguration); // TODO: move somewhere else
 
 template <class EnumType>
 inline void serialise(file_io::Deserialiser& deserialiser, EnumType& enumValue, std::enable_if_t<std::is_enum<EnumType>::value>* = nullptr) {

@@ -9,8 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
-#include "coconut/milk/graphics/VertexShader.hpp"
-#include "coconut/milk/graphics/PixelShader.hpp"
+#include "coconut/milk/graphics/Shader.hpp"
 
 #include "coconut/pulp/model/obj/Importer.hpp"
 
@@ -19,9 +18,11 @@
 #include "coconut/pulp/renderer/OrientedCamera.hpp"
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
+#include "coconut/pulp/renderer/CommandBuffer.hpp"
 
 #include "coconut/pulp/file-io/BinarySerialiser.hpp"
 #include "coconut/pulp/file-io/BinaryDeserialiser.hpp"
+#include "coconut/pulp/file-io/JSONDeserialiser.hpp"
 
 #include "globals.hpp"
 #include "coconut/milk/system/Window.hpp"
@@ -45,13 +46,13 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 	}
 
 	{
-		milk::graphics::Device::Configuration configuration;
+		milk::graphics::Renderer::Configuration configuration;
 		configuration.debugDevice = DEBUG;
 		configuration.vsync = false;
 		configuration.sampleCount = std::numeric_limits<std::uint32_t>::max();
 		configuration.sampleQuality = std::numeric_limits<std::uint32_t>::max();
 
-		graphicsDevice_.reset(new milk::graphics::Device(*window_, configuration));
+		graphicsRenderer_.reset(new milk::graphics::Renderer(*window_, configuration));
 	}
 }
 
@@ -73,7 +74,7 @@ void Game::loop() {
 		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/");
 		pulp::model::obj::Importer importer(std::move(opener));
 
-		auto modelData = importer.import(modelIS);
+		auto modelData = importer.import(modelIS, "elexis");
 
 		{
 			std::ofstream modelOFS("elexis.model", std::ofstream::out | std::ofstream::binary);
@@ -82,14 +83,18 @@ void Game::loop() {
 		}
 	}
 
+	pulp::renderer::MaterialManager materialManager;
+
 	std::ifstream modelIFS("elexis.model", std::ifstream::in | std::ifstream::binary);
 	pulp::file_io::BinaryDeserialiser deserialiser(modelIFS);
+	// std::ifstream modelIFS("cube.json", std::ifstream::in);
+	// pulp::file_io::JSONDeserialiser deserialiser(modelIFS);
 	pulp::model::Data modelData;
 	deserialiser >> modelData;
 
-	pulp::renderer::Scene scene(*graphicsDevice_);
+	pulp::renderer::Scene scene(*graphicsRenderer_);
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsDevice_, scene.renderingPass().inputLayoutDescription()));
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager));
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
@@ -98,6 +103,15 @@ void Game::loop() {
 		milk::math::Vector4d(0.4f, 0.4f, 0.4f, 0.0f)
 		);
 	scene.add(white);
+
+	pulp::renderer::lighting::PointLight yellow(
+		milk::math::Vector3d(0.0f, 1.5f, -3.5f),
+		milk::math::Vector3d(0.0f, 1.0f, 0.0f),
+		milk::math::Vector4d(0.1f, 0.0f, 0.0f, 0.0f),
+		milk::math::Vector4d(0.7f, 0.0f, 0.0f, 1.0f),
+		milk::math::Vector4d(0.4f, 0.0f, 0.0f, 0.0f)
+		);
+	scene.add(yellow);
 
 	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
 
@@ -112,6 +126,51 @@ void Game::loop() {
 	actor2->setTranslation(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
 	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
+	pulp::model::Data floorData;
+	{
+		floorData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
+		floorData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;
+		floorData.rasteriserConfiguration.frontCounterClockwise = false;
+
+		floorData.positions.emplace_back(2.0f, 0.0f, 2.0f);
+		floorData.positions.emplace_back(2.0f, 0.0f, -2.0f);
+		floorData.positions.emplace_back(-2.0f, 0.0f, 2.0f);
+		floorData.positions.emplace_back(-2.0f, 0.0f, -2.0f);
+
+		floorData.normals.emplace_back(0.0f, 1.0f, 0.0f);
+
+		floorData.textureCoordinates.emplace_back(0.0f, 0.0f);
+
+		floorData.phongMaterials.emplace_back();
+		floorData.phongMaterials.back().ambientColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
+		floorData.phongMaterials.back().diffuseColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
+		floorData.phongMaterials.back().specularColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
+		floorData.phongMaterials.back().name = "floor::white";
+
+		pulp::model::Data::DrawGroup drawGroup;
+
+		for (size_t i = 0; i < 4; ++i) {
+			drawGroup.vertices.emplace_back();
+			drawGroup.vertices.back().positionIndex = i;
+			drawGroup.vertices.back().normalIndex = 0;
+			drawGroup.vertices.back().textureCoordinateIndex = 0;
+
+			drawGroup.primitiveTopology = milk::graphics::PrimitiveTopology::TRIANGLE_STRIP;
+
+			drawGroup.indices.emplace_back(i);
+
+			drawGroup.materialId = "floor::white";
+		}
+
+		floorData.drawGroups.emplace_back(drawGroup);
+	}
+	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager);
+	auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
+	scene.add(floorActor);
+
+	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
+	pulp::renderer::CommandBuffer commandBuffer;
+
 	const auto start = std::chrono::steady_clock::now();
 	for (;;) {
 		auto now = std::chrono::steady_clock::now();
@@ -122,7 +181,7 @@ void Game::loop() {
 			break;
 		}
 
-		graphicsDevice_->beginScene();
+		graphicsRenderer_->beginScene();
 
 		auto dt = now - start;
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;
@@ -138,8 +197,11 @@ void Game::loop() {
 		actor->setTranslation(milk::math::Vector3d(0.0f, -.0f, 0.0f));
 		actor->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
-		scene.render(*graphicsDevice_);
+		scene.render(commandBuffer);
 
-		graphicsDevice_->endScene();
+		commandBuffer.submit(commandList);
+		graphicsRenderer_->submit(commandList);
+
+		graphicsRenderer_->endScene();
 	}
 }

@@ -9,7 +9,8 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-struct RenderingContext;
+class DrawCommand;
+class PassContext;
 
 namespace shader {
 
@@ -18,8 +19,8 @@ public:
 
 	Pass(
 		milk::graphics::InputLayoutUniquePtr inputLayout,
-		ShaderUniquePtr vertexShader,
-		ShaderUniquePtr pixelShader
+		VertexShaderUniquePtr vertexShader,
+		PixelShaderUniquePtr pixelShader
 		) :
 		inputLayout_(std::move(inputLayout)),
 		vertexShader_(std::move(vertexShader)),
@@ -27,32 +28,33 @@ public:
 	{
 	}
 
-	void bind(milk::graphics::Device& device, const RenderingContext& renderingContext) const {
-		inputLayout_->bind(device);
-
-		if (vertexShader_) {
-			vertexShader_->bind(device, renderingContext);
-		}
-		if (pixelShader_) {
-			pixelShader_->bind(device, renderingContext);
-		}
-	}
-
 	const milk::graphics::InputLayoutDescription& inputLayoutDescription() const {
 		return inputLayout_->description();
+	}
+
+	milk::graphics::InputLayout& inputLayout() {
+		return *inputLayout_;
+	}
+
+	VertexShader& vertexShader() {
+		return *vertexShader_;
+	}
+
+	PixelShader& pixelShader() {
+		return *pixelShader_;
 	}
 
 private:
 
 	milk::graphics::InputLayoutUniquePtr inputLayout_;
 
-	ShaderUniquePtr vertexShader_;
+	VertexShaderUniquePtr vertexShader_;
 
-	ShaderUniquePtr pixelShader_;
+	PixelShaderUniquePtr pixelShader_;
 
 };
 
-MAKE_POINTER_DEFINITIONS(Pass);
+CCN_MAKE_POINTER_DEFINITIONS(Pass);
 
 } // namespace shader
 } // namespace renderer

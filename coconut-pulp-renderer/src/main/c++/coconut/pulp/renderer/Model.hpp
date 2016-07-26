@@ -3,27 +3,33 @@
 
 #include <vector>
 
+#include "coconut/milk/graphics/Renderer.hpp"
+
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "coconut/pulp/model/Data.hpp"
 
-#include "RenderingContext.hpp"
+#include "MaterialManager.hpp"
+#include "PassContext.hpp"
 #include "DrawGroup.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
 
+class CommandBuffer;
+
 class Model {
 public:
 
 	Model(
 		const model::Data& data,
-		milk::graphics::Device& graphicsDevice,
-		const milk::graphics::InputLayoutDescription& inputLayoutDescription
+		milk::graphics::Renderer& graphicsRenderer,
+		const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+		MaterialManager& materialManager
 		);
 
-	void render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
+	void render(CommandBuffer& commandBuffer, PassContext PassContext);
 
 private:
 
@@ -36,7 +42,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Model);
+CCN_MAKE_POINTER_DEFINITIONS(Model);
 
 } // namespace renderer
 } // namespace pulp

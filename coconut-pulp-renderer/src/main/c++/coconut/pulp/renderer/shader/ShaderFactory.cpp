@@ -11,6 +11,7 @@
 
 #include "coconut/milk/graphics/VertexShader.hpp"
 #include "coconut/milk/graphics/PixelShader.hpp"
+#include "coconut/milk/graphics/Shader.hpp"
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 
 #include "coconut/milk/math/Matrix.hpp"
@@ -25,6 +26,7 @@
 #include "Resource.hpp"
 #include "../Actor.hpp"
 #include "../Scene.hpp"
+#include "../PhongMaterial.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -114,18 +116,18 @@ PassSharedPtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 #if 0
 PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDevice, PassId passId) {
 	milk::graphics::InputLayoutUniquePtr inputLayout;
-	ShaderUniquePtr vertexShader;
-	ShaderUniquePtr pixelShader;
+	VertexShaderUniquePtr vertexShader;
+	PixelShaderUniquePtr pixelShader;
 
 	createShader(graphicsDevice, "forward-opaque.vertex");
 
 	{
 		milk::graphics::ShaderType shaderType;
-		Shader::SceneData sceneData;
-		Shader::ActorData actorData;
-		Shader::MaterialData materialData;
-		Shader::Resources resources;
-		milk::graphics::VertexShaderSharedPtr binaryShader;
+		VertexShader::SceneData sceneData;
+		VertexShader::ActorData actorData;
+		VertexShader::MaterialData materialData;
+		VertexShader::Resources resources;
+		milk::graphics::VertexShaderUniquePtr binaryShader;
 
 		shaderType = milk::graphics::ShaderType::VERTEX;
 
@@ -161,15 +163,13 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 				)
 			);
 
-		inputLayout = std::make_unique<milk::graphics::InputLayout>(std::move(inputLayoutDesc), graphicsDevice, &vdata.front(), vdata.size());
+		inputLayout = std::make_unique<milk::graphics::InputLayout>(std::move(inputLayoutDesc), graphicsRenderer, &vdata.front(), vdata.size());
 
-		binaryShader.reset(
-			new milk::graphics::VertexShader(
-				graphicsDevice,
+		binaryShader = std::make_unique<milk::graphics::VertexShader>(
+				graphicsRenderer,
 				&vdata.front(),
 				vdata.size()
-				)
-			);
+				);
 
 		{
 			auto worldParameter =
@@ -193,9 +193,9 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 			actorFields.emplace_back(std::move(worldParameter));
 			actorFields.emplace_back(std::move(worldInvTransParameter));
 
-			auto actorParameter = std::make_unique<StructuredParameter<Actor>>(std::move(actorFields));
+			auto actorParameter = std::make_unique<StructuredParameter<Actor>>(std::move(layoutSubparameters<Actor>(actorFields)));
 
-			actorData.emplace_back(std::make_unique<ConstantBuffer<Actor>>(graphicsDevice, shaderType, 0, std::move(actorParameter)));
+			actorData.emplace_back(std::make_unique<ConstantBuffer<Actor>>(graphicsRenderer, shaderType, 0, std::move(actorParameter)));
 		}
 
 		{
@@ -206,7 +206,7 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 					}
 					)
 				;
-			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsDevice, shaderType, 1, std::move(viewParameter)));
+			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsRenderer, shaderType, 1, std::move(viewParameter)));
 		}
 
 		{
@@ -217,12 +217,11 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 					}
 					)
 				;
-			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsDevice, shaderType, 2, std::move(projectionParameter)));
+			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsRenderer, shaderType, 2, std::move(projectionParameter)));
 		}
 
-		vertexShader = std::make_unique<Shader>(
-			binaryShader,
-			shaderType,
+		vertexShader = std::make_unique<VertexShader>(
+			*binaryShader,
 			std::move(sceneData),
 			std::move(actorData),
 			std::move(materialData),
@@ -232,11 +231,11 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 	
 	{
 		milk::graphics::ShaderType shaderType;
-		Shader::SceneData sceneData;
-		Shader::ActorData actorData;
-		Shader::MaterialData groupData; // TODO: change type to GroupParameters and dont restrict param to material (?)
-		Shader::Resources resources;
-		milk::graphics::ShaderSharedPtr binaryShader;
+		PixelShader::SceneData sceneData;
+		PixelShader::ActorData actorData;
+		PixelShader::MaterialData groupData; // TODO: change type to GroupParameters and dont restrict param to material (?)
+		PixelShader::Resources resources;
+		milk::graphics::PixelShaderUniquePtr binaryShader;
 
 		shaderType = milk::graphics::ShaderType::PIXEL;
 
@@ -255,7 +254,11 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 			throw std::runtime_error("Failed to read the pixel shader");
 		}
 
-		binaryShader.reset(new milk::graphics::PixelShader(graphicsDevice, &pdata.front(), pdata.size()));
+		binaryShader = std::make_unique<milk::graphics::PixelShader>(
+			graphicsRenderer,
+			&pdata.front(),
+			pdata.size()
+			);
 
 		{
 			auto eyeParameter =
@@ -273,7 +276,7 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 					}
 					)
 				;
-			
+
 			auto ambientParameter =
 				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Scene, size_t>>(
 					[](milk::math::Vector4d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
@@ -312,97 +315,184 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 					)
 				;
 
-			auto paddingParameter =
-				std::make_unique<CallbackParameter<float, Scene, size_t>>(
-					[](float&, const Scene&, size_t) {
-					}
-					)
-				;
-
 			StructuredParameter<Scene, size_t>::Subparameters directionalLightFields;
 			directionalLightFields.reserve(5);
 			directionalLightFields.emplace_back(std::move(ambientParameter));
 			directionalLightFields.emplace_back(std::move(diffuseParameter));
 			directionalLightFields.emplace_back(std::move(specularParameter));
 			directionalLightFields.emplace_back(std::move(directionParameter));
-			directionalLightFields.emplace_back(std::move(paddingParameter));
 
 			auto directionalLightParameter =
 				std::make_unique<StructuredParameter<Scene, size_t>>(
-					std::move(directionalLightFields)// TODO: could structured parameter handle padding?
+					std::move(layoutSubparameters<Scene, size_t>(directionalLightFields))
 					)
 				;
 
 			auto directionalLightsParameterArray =
 				std::make_unique<ArrayParameter<Scene>>(
-					std::move(directionalLightParameter), // TODO: padding!
+					std::move(directionalLightParameter),
+					3
+					)
+				;
+
+			auto pointLightCountParameter =
+				std::make_unique<CallbackParameter<std::uint32_t, Scene>>(
+					[](std::uint32_t& result, const Scene& scene) {
+						result = static_cast<std::uint32_t>(scene.pointLights().size()); // TODO: limit number of lights
+					}
+					)
+				;
+
+			auto pPositionParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector3d::ShaderParameter, Scene, size_t>>(
+					[](milk::math::Vector3d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
+						if (scene.pointLights().size() > lightIndex) {
+							result = scene.pointLights()[lightIndex].position().shaderParameter();
+						}
+					}
+					)
+				;
+			auto pAttenuationParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector3d::ShaderParameter, Scene, size_t>>(
+					[](milk::math::Vector3d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
+						if (scene.pointLights().size() > lightIndex) {
+							result = scene.pointLights()[lightIndex].attenuation().shaderParameter();
+						}
+					}
+					)
+				;
+			auto pAmbientParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Scene, size_t>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
+						if (scene.pointLights().size() > lightIndex) {
+							result = scene.pointLights()[lightIndex].ambientColour().shaderParameter();
+						}
+					}
+					)
+				;
+			auto pDiffuseParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Scene, size_t>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
+						if (scene.pointLights().size() > lightIndex) {
+							result = scene.pointLights()[lightIndex].diffuseColour().shaderParameter();
+						}
+					}
+					)
+				;
+			auto pSpecularParameter =
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Scene, size_t>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Scene& scene, size_t lightIndex) {
+						if (scene.pointLights().size() > lightIndex) {
+							result = scene.pointLights()[lightIndex].specularColour().shaderParameter();
+						}
+					}
+					)
+				;
+
+			StructuredParameter<Scene, size_t>::Subparameters pointLightFields;
+			pointLightFields.reserve(6);
+			pointLightFields.emplace_back(std::move(pPositionParameter));
+			pointLightFields.emplace_back(std::move(pAttenuationParameter));
+			pointLightFields.emplace_back(std::move(pAmbientParameter));
+			pointLightFields.emplace_back(std::move(pDiffuseParameter));
+			pointLightFields.emplace_back(std::move(pSpecularParameter));
+
+			auto pointLightParameter =
+				std::make_unique<StructuredParameter<Scene, size_t>>(
+					std::move(layoutSubparameters<Scene, size_t>(std::move(pointLightFields)))
+					)
+				;
+			auto pointLightsParameterArray =
+				std::make_unique<ArrayParameter<Scene>>(
+					std::move(pointLightParameter),
 					3
 					)
 				;
 
 			StructuredParameter<Scene>::Subparameters lightFields;
-			lightFields.reserve(3);
+			lightFields.reserve(6);
 			lightFields.emplace_back(std::move(eyeParameter));
 			lightFields.emplace_back(std::move(directionalLightCountParameter));
 			lightFields.emplace_back(std::move(directionalLightsParameterArray));
+			lightFields.emplace_back(std::move(pointLightCountParameter));
+			lightFields.emplace_back(std::move(pointLightsParameterArray));
 
 			auto lightsParameter = 
 				std::make_unique<StructuredParameter<Scene>>(
-					lightFields
+					std::move(layoutSubparameters<Scene>(lightFields))
 				);
 
-			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsDevice, shaderType, 0, std::move(lightsParameter)));
+			sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(graphicsRenderer, shaderType, 0, std::move(lightsParameter)));
 		}
 
 		{
 			auto ambientParameter =
-				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, material::Material>>(
-					[](milk::math::Vector4d::ShaderParameter& result, const material::Material& material) {
-						result = material.ambientColour().shaderParameter();
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Material>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Material& material) {
+						assert(material.type() == PhongMaterial::TYPE);
+						const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(material);
+						result = phongMaterial.ambientColour().shaderParameter();
 					}
 					)
 				;
 			auto diffuseParameter =
-				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, material::Material>>(
-					[](milk::math::Vector4d::ShaderParameter& result, const material::Material& material) {
-						result = material.diffuseColour().shaderParameter();
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Material>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Material& material) {
+						assert(material.type() == PhongMaterial::TYPE);
+						const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(material);
+						result = phongMaterial.diffuseColour().shaderParameter();
 					}
 					)
 				;
 			auto specularParameter =
-				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, material::Material>>(
-					[](milk::math::Vector4d::ShaderParameter& result, const material::Material& material) {
-						result = material.specularColour().shaderParameter();
+				std::make_unique<CallbackParameter<milk::math::Vector4d::ShaderParameter, Material>>(
+					[](milk::math::Vector4d::ShaderParameter& result, const Material& material) {
+						assert(material.type() == PhongMaterial::TYPE);
+						const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(material);
+						result = phongMaterial.specularColour().shaderParameter();
 					}
 					)
 				;
 
-			StructuredParameter<material::Material>::Subparameters materialFields;
+			StructuredParameter<Material>::Subparameters materialFields;
 			materialFields.reserve(3);
 			materialFields.emplace_back(std::move(ambientParameter));
 			materialFields.emplace_back(std::move(diffuseParameter));
 			materialFields.emplace_back(std::move(specularParameter));
 
-			auto materialParameter = std::make_unique<StructuredParameter<material::Material>>(
-				std::move(materialFields)
+			auto materialParameter = std::make_unique<StructuredParameter<Material>>(
+				std::move(layoutSubparameters<Material>(materialFields))
 				);
 
-			groupData.emplace_back(std::make_unique<ConstantBuffer<material::Material>>(graphicsDevice, shaderType, 2, std::move(materialParameter)));
+			groupData.emplace_back(std::make_unique<ConstantBuffer<Material>>(graphicsRenderer, shaderType, 2, std::move(materialParameter)));
 			// TODO: verify that two constant buffers don't share a slot
 		}
 
 		{
 			auto resource = std::make_shared<Resource>(
-				[](milk::graphics::Device& graphicsDevice, const RenderingContext& context) {
-					return context.material->diffuseMap().asShaderResource(graphicsDevice);
-				}
+				[](const PassContext& context) {
+					assert(context.material->type() == PhongMaterial::TYPE);
+					const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(*context.material);
+					if (phongMaterial.hasDiffuseMap()) {
+						return &phongMaterial.diffuseMap();
+					} else {
+						return reinterpret_cast<milk::graphics::Texture2d*>(nullptr);
+					}
+				},
+				[](const PassContext& context) {
+					assert(context.material->type() == PhongMaterial::TYPE);
+					const auto& phongMaterial = reinterpret_cast<const PhongMaterial&>(*context.material);
+					return phongMaterial.diffuseMapSampler();
+				},
+				milk::graphics::ShaderType::PIXEL,
+				0,
+				0
 				);
 			resources.insert(std::make_pair(0, resource));
 		}
 
-		pixelShader = std::make_unique<Shader>(
-			binaryShader,
-			shaderType,
+		pixelShader = std::make_unique<PixelShader>(
+			*binaryShader,
 			std::move(sceneData),
 			std::move(actorData),
 			std::move(groupData),

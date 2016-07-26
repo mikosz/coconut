@@ -4,15 +4,16 @@
 #include <vector>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-#include "coconut/milk/graphics/Device.hpp"
 
 #include "Model.hpp"
 #include "Orientation.hpp"
-#include "RenderingContext.hpp"
+#include "PassContext.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
+
+class CommandBuffer;
 
 class Actor {
 public:
@@ -22,7 +23,7 @@ public:
 	{
 	}
 
-	void render(milk::graphics::Device& graphicsDevice, RenderingContext renderingContext);
+	void render(CommandBuffer& commandBuffer, PassContext PassContext);
 
 	// TODO: move below functions to interface?
 	const milk::math::Matrix& worldTransformation() const {
@@ -61,7 +62,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(Actor);
+CCN_MAKE_POINTER_DEFINITIONS(Actor);
 
 } // namespace renderer
 } // namespace pulp

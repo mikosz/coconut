@@ -52,7 +52,7 @@ private:
 
 };
 
-MAKE_POINTER_DEFINITIONS(OrientedCamera);
+CCN_MAKE_POINTER_DEFINITIONS(OrientedCamera);
 
 } // namespace renderer
 } // namespace pulp

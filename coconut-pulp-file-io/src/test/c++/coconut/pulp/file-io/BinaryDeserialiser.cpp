@@ -26,6 +26,7 @@ struct BasicTypeStruct {
 	int i;
 	float f;
 	std::string s;
+	bool b;
 	std::vector<SubStruct> ss;
 };
 
@@ -37,6 +38,7 @@ void serialise(Deserialiser& s, BasicTypeStruct& bts) {
 	s >> Deserialiser::Label("int") >> bts.i;
 	s >> Deserialiser::Label("float") >> bts.f;
 	s >> Deserialiser::Label("string") >> bts.s;
+	s >> Deserialiser::Label("bool") >> bts.b;
 
 	std::vector<SubStruct> v(2);
 	s >> Deserialiser::Label("sub-objects") >> bts.ss;
@@ -97,6 +99,7 @@ BOOST_AUTO_TEST_CASE(DeserialisesDataFromBinaryBigEndian) {
 		0, 0, 0, 123,
 		onePointThree.bytes[0], onePointThree.bytes[1], onePointThree.bytes[2], onePointThree.bytes[3],
 		'v', 'a', 'l', 'u', 'e', '\0',
+		1,
 		0, 0, 0, 2,
 		0, 0, 0, 42,
 		0, 0, 0, 42,
@@ -113,6 +116,7 @@ BOOST_AUTO_TEST_CASE(DeserialisesDataFromBinaryBigEndian) {
 	BOOST_CHECK_EQUAL(bts.i, 123);
 	BOOST_CHECK_EQUAL(bts.f, 1.3f);
 	BOOST_CHECK_EQUAL(bts.s, "value");
+	BOOST_CHECK_EQUAL(bts.b, true);
 	BOOST_ASSERT(bts.ss.size() == 2);
 	BOOST_CHECK_EQUAL(bts.ss[0].i, 42);
 	BOOST_CHECK_EQUAL(bts.ss[1].i, 42);
@@ -131,6 +135,7 @@ BOOST_AUTO_TEST_CASE(DeserialisesDataFromBinaryLittleEndian) {
 		123, 0, 0, 0,
 		onePointThree.bytes[0], onePointThree.bytes[1], onePointThree.bytes[2], onePointThree.bytes[3],
 		'v', 'a', 'l', 'u', 'e', '\0',
+		1,
 		2, 0, 0, 0,
 		42, 0, 0, 0,
 		42, 0, 0, 0,
@@ -147,6 +152,7 @@ BOOST_AUTO_TEST_CASE(DeserialisesDataFromBinaryLittleEndian) {
 	BOOST_CHECK_EQUAL(bts.i, 123);
 	BOOST_CHECK_EQUAL(bts.f, 1.3f);
 	BOOST_CHECK_EQUAL(bts.s, "value");
+	BOOST_CHECK_EQUAL(bts.b, true);
 	BOOST_ASSERT(bts.ss.size() == 2);
 	BOOST_CHECK_EQUAL(bts.ss[0].i, 42);
 	BOOST_CHECK_EQUAL(bts.ss[1].i, 42);

@@ -2,7 +2,7 @@
 #define _COCONUT_SHELL_GAME_GAME_HPP_
 
 #include "coconut/milk/system/App.hpp"
-#include "coconut/milk/graphics/Device.hpp"
+#include "coconut/milk/graphics/Renderer.hpp"
 
 namespace coconut {
 namespace shell {
@@ -21,7 +21,7 @@ private:
 
 	std::shared_ptr<milk::system::Window> window_;
 
-	std::shared_ptr<milk::graphics::Device> graphicsDevice_;
+	std::shared_ptr<milk::graphics::Renderer> graphicsRenderer_;
 
 };
 

@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "coconut/milk/graphics/Device.hpp"
+#include "coconut/milk/graphics/Renderer.hpp"
 
 #include "Pass.hpp"
 
@@ -24,7 +24,7 @@ public:
 
 	ShaderFactory();
 
-	PassSharedPtr createShaderPass(milk::graphics::Device& graphicsDevice, PassId passId);
+	PassSharedPtr createShaderPass(milk::graphics::Renderer& graphicsRenderer, PassId passId);
 
 private:
 

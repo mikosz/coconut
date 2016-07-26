@@ -11,7 +11,7 @@ namespace utils {
 class RAIIHelper {
 public:
 
-	typedef std::function<void ()> Callback;
+	using Callback = std::function<void ()>;
 
 	RAIIHelper() {
 	}

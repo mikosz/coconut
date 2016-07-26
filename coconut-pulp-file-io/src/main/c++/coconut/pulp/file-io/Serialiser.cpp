@@ -21,3 +21,22 @@ void coconut::pulp::file_io::serialise(Serialiser& serialiser, const milk::math:
 	serialiser(Serialiser::Label("z"), vector.z());
 	serialiser(Serialiser::Label("w"), vector.w());
 }
+
+void coconut::pulp::file_io::serialise(
+	Serialiser& serialiser,
+	const milk::graphics::Rasteriser::Configuration& rasteriserConfiguration
+	) {
+	serialiser(Serialiser::Label("cullMode"), rasteriserConfiguration.cullMode);
+	serialiser(Serialiser::Label("fillMode"), rasteriserConfiguration.fillMode);
+	serialiser(Serialiser::Label("frontCounterClockwise"), rasteriserConfiguration.frontCounterClockwise);
+}
+
+void coconut::pulp::file_io::serialise(
+	Serialiser& serialiser,
+	const milk::graphics::Sampler::Configuration& samplerConfiguration
+	) {
+	serialiser(Serialiser::Label("addressModeU"), samplerConfiguration.addressModeU);
+	serialiser(Serialiser::Label("addressModeV"), samplerConfiguration.addressModeV);
+	serialiser(Serialiser::Label("addressModeW"), samplerConfiguration.addressModeW);
+	serialiser(Serialiser::Label("filter"), samplerConfiguration.filter);
+}

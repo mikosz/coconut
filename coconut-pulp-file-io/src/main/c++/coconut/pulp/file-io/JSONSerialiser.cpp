@@ -46,6 +46,14 @@ void JSONSerialiser::writeLabel(const std::string& label) {
 	os_ << '"' << label << "\": ";
 }
 
+void JSONSerialiser::write(bool b) {
+	flushComma();
+	indent();
+	os_ << (b ? "true" : "false");
+	commaPending_ = true;
+	newLinePending_ = true;
+}
+
 void JSONSerialiser::write(std::uint8_t i) {
 	flushComma();
 	indent();
