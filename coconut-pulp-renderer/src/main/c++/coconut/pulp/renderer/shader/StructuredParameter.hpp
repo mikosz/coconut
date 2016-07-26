@@ -56,8 +56,6 @@ public:
 			fieldIt += subparameter.subparameter->size();
 		}
 
-		fieldIt = bufferStart + milk::utils::roundUpToMultipleOf(static_cast<ptrdiff_t>(fieldIt - bufferStart), 16);
-
 		auto* const expected = bufferStart + size();
 		if (fieldIt != expected) {
 			std::ostringstream err;
@@ -81,7 +79,7 @@ private:
 			result += subparameter.subparameter->size();
 		}
 
-		return milk::utils::roundUpToMultipleOf(result, 16);
+		return result;
 	}
 
 };

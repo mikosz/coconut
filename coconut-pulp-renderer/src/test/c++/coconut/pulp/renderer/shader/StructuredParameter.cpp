@@ -143,32 +143,6 @@ BOOST_AUTO_TEST_CASE(AddsPaddingToRequiredParametersWhenTheyNeedPadding) {
 	BOOST_CHECK(buffer == expected);
 }
 
-BOOST_AUTO_TEST_CASE(SizeIsAlwaysAMultipleOf16) {
-	StructuredParameter<>::Subparameters subparameters;
-
-	auto byteParameter = std::make_shared<MockParameter<1>>();
-	EXPECT_CALL(*byteParameter, requires16ByteAlignment()).WillRepeatedly(testing::Return(false));
-	subparameters.emplace_back(byteParameter);
-
-	auto paddedSubparameters = layoutSubparameters<>(subparameters);
-
-	BOOST_REQUIRE_EQUAL(paddedSubparameters.size(), 1);
-	BOOST_CHECK_EQUAL(paddedSubparameters[0].padding, 0);
-
-	StructuredParameter<> parameter(paddedSubparameters);
-
-	BOOST_REQUIRE_EQUAL(parameter.size(), (1) + 15);
-
-	std::vector<std::uint8_t> buffer(parameter.size(), 0);
-
-	parameter.update(buffer.data());
-
-	std::vector<std::uint8_t> expected(parameter.size(), 0xff);
-	std::memset(expected.data() + byteParameter->size(), 0x00, 15);
-
-	BOOST_CHECK(buffer == expected);
-}
-
 BOOST_AUTO_TEST_SUITE_END(/* PulpRendererStructuredParameterTestSuite */);
 
 } // anonymous namespace

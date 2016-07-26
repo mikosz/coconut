@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(CalculatesCorrectSizeFor16ByteMultipleElements) {
 
 BOOST_AUTO_TEST_CASE(CalculatesCorrectSizeForElementsRequiringPadding) {
 	ArrayParameter<> parameter(std::make_unique<MockParameter<16 + 13>>(), 10);
-	BOOST_CHECK_EQUAL(parameter.size(), 2 * 16 * 10);
+	BOOST_CHECK_EQUAL(parameter.size(), ((2 * 16) * 9) + (16 + 13));
 }
 
 BOOST_AUTO_TEST_CASE(DoesntAlign16ByteMultipleElements) {
@@ -84,15 +84,16 @@ BOOST_AUTO_TEST_CASE(Aligns12ByteMultipleElementsTo16ByteBoundary) {
 	EXPECT_CALL(*element, update(_, _))
 		.Times(10)
 		.WillRepeatedly(testing::Invoke([&expectedIndex](void* buffer, const size_t& index) {
-		BOOST_REQUIRE_EQUAL(index, expectedIndex);
+			BOOST_REQUIRE_EQUAL(index, expectedIndex);
 
-		auto* wordPtr = reinterpret_cast<std::uint32_t*>(buffer);
-		wordPtr[0] = static_cast<std::uint32_t>(~0);
-		wordPtr[1] = static_cast<std::uint32_t>(~0);
-		wordPtr[2] = static_cast<std::uint32_t>(~0);
+			auto* wordPtr = reinterpret_cast<std::uint32_t*>(buffer);
+			wordPtr[0] = static_cast<std::uint32_t>(~0);
+			wordPtr[1] = static_cast<std::uint32_t>(~0);
+			wordPtr[2] = static_cast<std::uint32_t>(~0);
 
-		++expectedIndex;
-	}));
+			++expectedIndex;
+		}))
+		;
 
 	std::vector<std::uint8_t> buffer(parameter.size(), 0);
 
