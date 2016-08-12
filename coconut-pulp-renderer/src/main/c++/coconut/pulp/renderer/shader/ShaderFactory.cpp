@@ -9,8 +9,6 @@
 
 #include <coconut-tools/exceptions/LogicError.hpp>
 
-#include "coconut/milk/graphics/VertexShader.hpp"
-#include "coconut/milk/graphics/PixelShader.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 
@@ -35,7 +33,7 @@ using namespace coconut::pulp::renderer::shader;
 
 namespace /* anonymous */ {
 
-struct ShaderInfo {
+struct BinaryShaderInfo {
 
 	milk::graphics::ShaderType shaderType;
 
@@ -43,20 +41,48 @@ struct ShaderInfo {
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, ShaderInfo, inputLayoutDescriptionInfo) {
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, BinaryShaderInfo, shaderInfo) {
 	serialiser(SerialiserType::Label("shaderType"), shaderInfo.shaderType);
 	serialiser(SerialiserType::Label("binaryShaderFile"), shaderInfo.binaryShaderFile);
 }
 
-struct VertexShaderInfo : ShaderInfo {
+struct VertexBinaryShaderInfo : BinaryShaderInfo {
 
 	std::string inputLayoutDescriptionId;
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, VertexShaderInfo, inputLayoutDescriptionInfo) {
-	serialise(serialiser, static_cast<ShaderInfo&>(*this));
-	serialiser(SerialiserType::Label("inputLayoutId"), shaderInfo.inputLayoutId);
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, VertexBinaryShaderInfo, shaderInfo) {
+	serialise(serialiser, static_cast<ShaderInfo&>(shaderInfo));
+	serialiser(SerialiserType::Label("inputLayoutDescriptionId"), shaderInfo.inputLayoutDescriptionId);
+}
+
+template <class ShaderInfoType>
+ShaderInfoType getShaderInfo(const ShaderFactory::ShaderId& shaderId) {
+	ShaderInfoType shaderInfo;
+
+	std::ifstream ifs((boost::filesystem::path("data/shaders") / (shaderId + ".cfg.json")).c_str()); // TODO: get path from config, filename?
+	// TODO: if description not present, try to guess from reflection
+	file_io::JSONDeserialiser deserialiser(ifs);
+	deserialiser >> shaderInfo;
+
+	return shaderInfo;
+}
+
+std::vector<std::uint8_t> getBinaryShaderData(const std::string& shaderFile) {
+	std::vector<std::uint8_t> data;
+
+	const auto shaderPath = boost::filesystem::path("data/shaders") / shaderFile;
+
+	const auto dataSize = static_cast<size_t>(boost::filesystem::file_size(shaderPath));
+	data.resize(dataSize);
+
+	std::ifstream ifs(shaderPath.c_str(), std::ios::binary);
+	ifs.exceptions(std::ios::badbit | std::ios::failbit);
+
+	ifs.read(reinterpret_cast<char*>(data.data()), dataSize);
+
+	return data;
 }
 
 struct InputLayoutDescriptionInfo {
@@ -79,8 +105,23 @@ CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, InputLayoutDescriptionInfo::El
 }
 
 CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, InputLayoutDescriptionInfo, inputLayoutInfo) {
-	serialiser(SerialiserType::Label("binaryShaderFile"), inputLayoutInfo.binaryShaderFile);
 	serialiser(SerialiserType::Label("elements"), inputLayoutInfo.elements);
+}
+
+struct ShaderPassInfo {
+
+	ShaderFactory::InputLayoutDescriptionId inputLayoutDescriptionId;
+
+	ShaderFactory::ShaderId vertexShaderId;
+
+	ShaderFactory::ShaderId pixelShaderId;
+
+};
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, ShaderPassInfo, shaderPassInfo) {
+	serialiser(SerialiserType::Label("inputLayoutDescriptionId"), shaderPassInfo.inputLayoutDescriptionId);
+	serialiser(SerialiserType::Label("vertexShaderId"), shaderPassInfo.vertexShaderId);
+	serialiser(SerialiserType::Label("pixelShaderId"), shaderPassInfo.pixelShaderId);
 }
 
 milk::graphics::FlexibleInputLayoutDescription::ElementUniquePtr makeInputLayoutElement(
@@ -100,17 +141,169 @@ milk::graphics::FlexibleInputLayoutDescription::ElementUniquePtr makeInputLayout
 	}
 }
 
+milk::graphics::InputLayoutUniquePtr createInputLayoutDescription(
+	milk::graphics::Renderer& renderer,
+	ShaderFactory::InputLayoutDescriptionId inputLayoutDescriptionId,
+	const std::vector<std::uint8_t>& binaryShaderData
+	) {
+	InputLayoutDescriptionInfo inputLayoutDescriptionInfo;
+
+	{
+		std::ifstream ifs((boost::filesystem::path("data/shaders") / (inputLayoutDescriptionId + ".cfg.json")).c_str()); // TODO: get path from config, filename?
+																														 // TODO: if description not present, try to guess from reflection
+		file_io::JSONDeserialiser deserialiser(ifs);
+		deserialiser >> inputLayoutDescriptionInfo;
+	}
+
+	auto inputLayoutDesc = std::make_unique<milk::graphics::FlexibleInputLayoutDescription>();
+
+	std::unordered_map<milk::graphics::FlexibleInputLayoutDescription::ElementType, size_t> lastSemanticIndex;
+
+	for (const auto& element : inputLayoutDescriptionInfo.elements) {
+		size_t semanticIndex = 0;
+		if (lastSemanticIndex.count(element.type) == 0) {
+			lastSemanticIndex[element.type] = 0;
+		} else {
+			semanticIndex = lastSemanticIndex[element.type]++;
+		}
+
+		inputLayoutDesc->push(makeInputLayoutElement(element.type, semanticIndex, element.format));
+	}
+
+	return std::make_unique<milk::graphics::InputLayout>(
+		std::move(inputLayoutDesc),
+		renderer,
+		const_cast<std::uint8_t*>(binaryShaderData.data()),
+		binaryShaderData.size()
+		);
+}
+
+template <class ShaderType>
+ShaderType makeBinaryShader(milk::graphics::Renderer& renderer, const ShaderFactory::ShaderId& shaderId) {
+	auto shaderInfo = getShaderInfo<ShaderInfo>(shaderId);
+	if (shaderInfo.shaderType != ShaderType::SHADER_TYPE) {
+		throw std::runtime_error("Bad shader type: " + toString(shaderInfo.shaderType));
+	}
+	auto binaryShaderData = getBinaryShaderData(shaderInfo.binaryShaderFile);
+	return ShaderType(renderer, &binaryShaderData.front(), binaryShaderData.size());
+}
+
+milk::graphics::InputLayoutUniquePtr makeInputLayout(
+	milk::graphics::Renderer& renderer,
+	const ShaderFactory::ShaderId& shaderId,
+	const std::vector<std::uint8_t>& binaryVertexShaderData
+	) {
+	auto shaderInfo = getShaderInfo<VertexShaderInfo>(shaderId);
+	if (shaderInfo.shaderType != milk::graphics::ShaderType::VERTEX) {
+		throw std::runtime_error("Bad shader type: " + toString(shaderInfo.shaderType));
+	}
+	return createInputLayoutDescription(renderer, shaderInfo.inputLayoutDescriptionId, binaryVertexShaderData);
+}
+
+CCN_ENUM(
+	ParameterType,
+	(STRUCTURE)
+	(WORLD_MATRIX)
+	(WORLD_MATRIX_INVERSE_TRANSPOSE)
+	(VIEW_MATRIX)
+	(PROJECTION_MATRIX)
+	)
+
+template <class ParameterInputType>
+struct ParameterInfo {
+
+	size_t index;
+
+	ParameterType parameterType;
+
+};
+
+struct ShaderInfo {
+
+	ShaderFactory::ShaderId name;
+
+	milk::graphics::ShaderType shaderType;
+
+	ShaderFactory::InputLayoutDescriptionId inputLayoutDescriptionId;
+
+	std::vector<ParametersInfo<Actor>> actorParameters;
+
+	std::vector<ParametersInfo<Scene>> sceneParameters;
+
+};
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, ShaderInfo, shaderInfo) {
+	serialiser(SerialiserType::Label("shaderType"), shaderInfo.shaderType);
+	serialiser(SerialiserType::Label("binaryShaderFile"), shaderInfo.binaryShaderFile);
+}
+
+template <class ShaderType>
+std::shared_ptr<ShaderType> makeShader(
+	milk::graphics::Renderer& renderer,
+	const ShaderFactory::ShaderId& shaderId)
+{
+	ShaderInfo shaderInfo;
+
+	{
+		std::ifstream ifs((boost::filesystem::path("data/shaders") / (shaderId + ".cfg.json")).c_str()); // TODO: get path from config, filename?
+																														 // TODO: if description not present, try to guess from reflection
+		file_io::JSONDeserialiser deserialiser(ifs);
+		deserialiser >> shaderInfo;
+	}
+
+
+}
+
+template <class ShaderType>
+std::shared_ptr<ShaderType> createShader(
+	milk::graphics::Renderer& renderer,
+	const ShaderFactory::ShaderId& shaderId,
+	std::unordered_map<ShaderFactory::ShaderId, ShaderType>& shaderCache
+	)
+{
+	auto shaderIt = shaderCache.find(shaderId);
+	if (shaderIt == shaderCache.end()) {
+		auto shader = makeShader(renderer, shaderId);
+		shaderCache.emplace(shaderId, shader);
+		return shader;
+	} else {
+		return shaderIt->second;
+	}
+}
+
 } // anonymous namespace
 
 ShaderFactory::ShaderFactory() {
 }
 
-PassSharedPtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDevice, PassId passId) {
-	PassCache::iterator passIt = passCache_.find(passId);
+PassSharedPtr ShaderFactory::createShaderPass(milk::graphics::Renderer& renderer, const PassId& passId) {
+	auto passIt = passCache_.find(passId);
 	if (passIt == passCache_.end()) {
-		auto shaderPass = buildShaderPass(graphicsDevice, passId);
-		passCache_.emplace(std::move(passId), shaderPass);
+		auto shaderPass = makeShaderPass(renderer, passId);
+		passCache_.emplace(passId, shaderPass);
+		return shaderPass;
+	} else {
+		return passIt->second;
 	}
+}
+
+PassSharedPtr ShaderFactory::makeShaderPass(milk::graphics::Renderer& renderer, const PassId& passId) {
+	ShaderPassInfo passInfo;
+
+	{
+		std::ifstream ifs((boost::filesystem::path("data/shaders") / (passId + ".cfg.json")).c_str()); // TODO: get path from config, filename?
+																									   // TODO: if description not present, try to guess from reflection
+		file_io::JSONDeserialiser deserialiser(ifs);
+		deserialiser >> passInfo;
+	}
+
+	auto pass = std::make_unique<Pass>();
+
+	pass->inputLayoutDescription = createInputLayoutDescription(renderer, passInfo.inputLayoutDescriptionId, pass.vertexShaderId);
+	pass->vertexShader = createShader<VertexShader>(renderer, passInfo.vertexShaderId);
+	pass->pixelShader = createShader<PixelShader>(renderer, passInfo.vertexShaderId);
+
+	return pass;
 }
 
 #if 0
@@ -543,98 +736,3 @@ milk::graphics::InputLayoutUniquePtr ShaderFactory::createInputLayoutDescription
 }
 
 #endif /* 0 */
-
-milk::graphics::InputLayoutUniquePtr ShaderFactory::createInputLayoutDescription(
-	milk::graphics::Device& graphicsDevice,
-	InputLayoutDescriptionId inputlayoutDescriptionId,
-	const std::vector<char>& binaryShaderData
-	) {
-	InputLayoutDescriptionInfo inputLayoutDescriptionInfo;
-
-	{
-		std::ifstream ifs((boost::filesystem::path("data/shaders") / (inputLayoutDescriptionId + ".cfg.json")).c_str()); // TODO: get path from config, filename?
-		file_io::JSONDeserialiser deserialiser(ifs);
-		deserialiser >> inputLayoutDescriptionInfo;
-	}
-
-	auto inputLayoutDesc = std::make_unique<milk::graphics::FlexibleInputLayoutDescription>();
-
-	std::unordered_map<milk::graphics::FlexibleInputLayoutDescription::ElementType, size_t> lastSemanticIndex;
-	
-	for (const auto& element : inputLayoutDescriptionInfo.elements) {
-		size_t semanticIndex = 0;
-		if (lastSemanticIndex.count(element.type) == 0) {
-			lastSemanticIndex[element.type] = 0;
-		} else {
-			semanticIndex = lastSemanticIndex[element.type]++;
-		}
-
-		switch (element.type) { // TODO: extract to input layout description element factory
-		case milk::graphics::FlexibleInputLayoutDescription::ElementType::POSITION:
-			inputLayoutDesc->push(
-				std::make_shared<milk::graphics::FlexibleInputLayoutDescription::PositionElement>(
-					semanticIndex, element.format)
-				);
-			break;
-		case milk::graphics::FlexibleInputLayoutDescription::ElementType::TEXTURE_COORDINATES:
-			inputLayoutDesc->push(
-				std::make_shared<milk::graphics::FlexibleInputLayoutDescription::TextureCoordinatesElement>(
-					semanticIndex, element.format)
-				);
-			break;
-		case milk::graphics::FlexibleInputLayoutDescription::ElementType::NORMAL:
-			inputLayoutDesc->push(
-				std::make_shared<milk::graphics::FlexibleInputLayoutDescription::NormalElement>(
-					semanticIndex, element.format)
-				);
-			break;
-		default:
-			throw coconut_tools::exceptions::RuntimeError("Unknown element type");
-		}
-	}
-
-	return std::make_unique<milk::graphics::InputLayout>(std::move(inputLayoutDesc), graphicsDevice, &binaryShaderData.front(), binaryShaderData.size());
-}
-
-ShaderUniquePtr ShaderFactory::createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId) {
-	ShaderInfo shaderInfo;
-
-	{
-		std::ifstream ifs((boost::filesystem::path("data/shaders") / (shaderId + ".cfg.json")).c_str()); // TODO: get path from config, filename?
-		file_io::JSONDeserialiser deserialiser(ifs);
-		deserialiser >> shaderInfo;
-	}
-
-	// TODO: handle shader source compilation and reloading?
-	milk::graphics::ShaderUniquePtr binaryShader;
-
-	std::vector<char> binaryShaderData;
-
-	{
-		const auto binaryShaderPath = boost::filesystem::path("data/shaders") / shaderInfo.binaryShaderFile;
-
-		const auto shaderDataSize = boost::filesystem::file_size(binaryShaderPath);
-		binaryShaderData.resize(static_cast<size_t>(shaderDataSize));
-
-		std::ifstream ifs(binaryShaderPath.c_str(), std::ios::binary);
-		ifs.exceptions(std::ios::badbit | std::ios::failbit);
-
-		ifs.read(binaryShaderData.data(), shaderDataSize);
-	}
-
-	switch (shaderInfo.shaderType) {
-	case milk::graphics::ShaderType::VERTEX:
-		{
-			auto layoutDescription = createInputLayoutDescription(graphicsDevice, std::move(shaderInfo.inputLayoutDescriptionId));
-			binaryShader = std::make_unique<milk::graphics::VertexShader>(graphicsDevice, &binaryShaderData.front(), binaryShaderData.size(), std::move(layoutDescription));
-			break;
-		}
-	case milk::graphics::ShaderType::PIXEL:
-		binaryShader = std::make_unique<milk::graphics::PixelShader>(graphicsDevice, &binaryShaderData.front(), binaryShaderData.size());
-		break;
-	default:
-		throw coconut_tools::exceptions::LogicError("Unhandled shader type: " + toString(shaderInfo.shaderType));
-	}
-
-	return nullptr;
-}

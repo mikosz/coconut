@@ -36,10 +36,10 @@ system::COMWrapper<ID3D11PixelShader> create<ID3D11PixelShader>(
 
 } // anonymous namespace
 
-template <class InternalShaderType>
-detail::Shader<InternalShaderType>::Shader(Renderer& renderer, void* data, size_t size) {
+template <class InternalShaderType, milk::graphics::ShaderType ShaderTypeEnumValue>
+detail::Shader<InternalShaderType, ShaderTypeEnumValue>::Shader(Renderer& renderer, void* data, size_t size) {
 	shader_ = create<InternalShaderType>(renderer, data, size);
 }
 
-template class detail::Shader<ID3D11VertexShader>;
-template class detail::Shader<ID3D11PixelShader>;
+template class detail::Shader<ID3D11VertexShader, milk::graphics::ShaderType::VERTEX>;
+template class detail::Shader<ID3D11PixelShader, milk::graphics::ShaderType::PIXEL>;

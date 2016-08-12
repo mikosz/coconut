@@ -1,21 +1,17 @@
 {
   "name": "forward-opaque.vertex",
   "type": "vertex",
-  "input-layout": [
-    "position",
-	"texture-coordinates",
-	"normal"
-  ],
+  "input-layout": "forward-opaque.input",
   "actor-parameters": [
     {
 	  "index": 0,
 	  "type": "structure",
 	  "fields": [
 	    {
-		  "type": "world-matrix"
+		  "type": "world_matrix"
 		},
 		{
-		  "type": "world-matrix-inverse-transpose"
+		  "type": "world_matrix_inverse_transpose"
 		}
 	  ]
 	}
@@ -23,11 +19,11 @@
   "scene-parameters": [
     {
 	  "index": 1,
-	  "type": "view-matrix"
+	  "type": "view_matrix"
 	},
 	{
 	  "index": 2,
-	  "type": "projection-matrix"
+	  "type": "projection_matrix"
 	}
   ]
 }

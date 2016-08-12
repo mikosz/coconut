@@ -5,6 +5,8 @@
 
 #include <d3d11.h>
 
+#include "coconut/milk/graphics/ShaderType.hpp"
+
 #include "coconut/milk/system/COMWrapper.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
@@ -17,9 +19,12 @@ class Renderer;
 
 namespace detail {
 
-template <class InternalShaderType>
+// TODO: silly, ShaderType needs to be deduced somehow (put template in ShaderType that resolves this)
+template <class InternalShaderType, milk::graphics::ShaderType ShaderTypeEnumValue>
 class Shader {
 public:
+
+	static const auto SHADER_TYPE = ShaderTypeEnumValue;
 
 	Shader(Renderer& renderer, void* data, size_t size);
 
@@ -35,8 +40,8 @@ private:
 
 } // namespace detail
 
-using VertexShader = detail::Shader<ID3D11VertexShader>;
-using PixelShader = detail::Shader<ID3D11PixelShader>;
+using VertexShader = detail::Shader<ID3D11VertexShader, milk::graphics::ShaderType::VERTEX>;
+using PixelShader = detail::Shader<ID3D11PixelShader, milk::graphics::ShaderType::PIXEL>;
 
 CCN_MAKE_POINTER_DEFINITIONS(VertexShader);
 CCN_MAKE_POINTER_DEFINITIONS(PixelShader);

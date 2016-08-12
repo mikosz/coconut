@@ -24,23 +24,25 @@ public:
 
 	ShaderFactory();
 
-	PassSharedPtr createShaderPass(milk::graphics::Renderer& graphicsRenderer, PassId passId);
+	PassSharedPtr createShaderPass(milk::graphics::Renderer& graphicsRenderer, const PassId& passId);
 
 private:
 
 	using PassCache = std::unordered_map<PassId, PassSharedPtr>;
 
-	milk::graphics::InputLayoutUniquePtr createInputLayoutDescription(
-		milk::graphics::Device& graphicsDevice,
-		InputLayoutDescriptionId inputlayoutDescriptionId,
-		const std::vector<char>& binaryShaderData
-		);
+	using VertexShaderCache = std::unordered_map<ShaderId, milk::graphics::VertexShader>;
 
-	ShaderSharedPtr createShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
-
-	ShaderSharedPtr createVertexShader(milk::graphics::Device& graphicsDevice, ShaderId shaderId);
+	using PixelShaderCache = std::unordered_map<ShaderId, milk::graphics::PixelShader>;
 
 	PassCache passCache_;
+
+	milk::graphics::InputLayoutUniquePtr createInputLayoutDescription(
+		milk::graphics::Renderer& renderer,
+		InputLayoutDescriptionId inputLayoutDescriptionId,
+		const std::vector<std::uint8_t>& binaryShaderData
+		);
+
+	PassSharedPtr makeShaderPass(milk::graphics::Renderer& renderer, const ShaderFactory::PassId& passId);
 
 };
 
