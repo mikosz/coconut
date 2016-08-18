@@ -91,6 +91,86 @@ BOOST_AUTO_TEST_CASE(RetrievesConstantBuffersWithNestedStructs) {
 	BOOST_CHECK_EQUAL(buffer.variables[0].name, "s");
 	BOOST_CHECK_EQUAL(buffer.variables[0].offset, 0);
 	BOOST_CHECK_EQUAL(buffer.variables[0].size, 8);
+
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.name, "S");
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.offset, 0);
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.scalarType, ShaderReflection::Type::ScalarType::VOID);
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.klass, ShaderReflection::Type::Class::STRUCT);
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.elements, 0);
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.members.size(), 2);
+
+	{
+		std::string name;
+		ShaderReflection::Type type;
+		std::tie(name, type) = buffer.variables[0].type.members[0];
+		BOOST_CHECK_EQUAL(name, "s");
+
+		BOOST_CHECK_EQUAL(type.name, "Sub");
+		BOOST_CHECK_EQUAL(type.offset, 0);
+		BOOST_CHECK_EQUAL(type.scalarType, ShaderReflection::Type::ScalarType::VOID);
+		BOOST_CHECK_EQUAL(type.klass, ShaderReflection::Type::Class::STRUCT);
+		BOOST_CHECK_EQUAL(type.elements, 0);
+		BOOST_CHECK_EQUAL(type.members.size(), 1);
+
+		{
+			std::string subName;
+			ShaderReflection::Type subType;
+			std::tie(subName, subType) = type.members[0];
+			BOOST_CHECK_EQUAL(subName, "ui");
+
+			BOOST_CHECK_EQUAL(subType.offset, 0);
+			BOOST_CHECK_EQUAL(subType.scalarType, ShaderReflection::Type::ScalarType::UINT);
+			BOOST_CHECK_EQUAL(subType.klass, ShaderReflection::Type::Class::SCALAR);
+			BOOST_CHECK_EQUAL(subType.elements, 0);
+			BOOST_CHECK_EQUAL(subType.members.size(), 0);
+		}
+	}
+
+	{
+		std::string name;
+		ShaderReflection::Type type;
+		std::tie(name, type) = buffer.variables[0].type.members[1];
+		BOOST_CHECK_EQUAL(name, "f");
+
+		BOOST_CHECK_EQUAL(type.offset, 4);
+		BOOST_CHECK_EQUAL(type.scalarType, ShaderReflection::Type::ScalarType::FLOAT);
+		BOOST_CHECK_EQUAL(type.klass, ShaderReflection::Type::Class::SCALAR);
+		BOOST_CHECK_EQUAL(type.elements, 0);
+		BOOST_CHECK_EQUAL(type.members.size(), 0);
+	}
+}
+
+BOOST_AUTO_TEST_CASE(RetrievesConstantBuffersWithArrays) {
+	auto reflection = reflect("Debug/ConstantBufferWithArrays.v.cso");
+
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers().size(), 1);
+
+	const auto& buffer = reflection.constantBuffers()[0];
+	BOOST_CHECK_EQUAL(buffer.size, 144);
+
+	BOOST_REQUIRE_EQUAL(buffer.variables.size(), 2);
+
+	BOOST_CHECK_EQUAL(buffer.variables[0].name, "s");
+	BOOST_CHECK_EQUAL(buffer.variables[0].offset, 0);
+	BOOST_CHECK_EQUAL(buffer.variables[0].size, 128);
+
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.name, "S");
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.offset, 0);
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.scalarType, ShaderReflection::Type::ScalarType::VOID);
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.klass, ShaderReflection::Type::Class::STRUCT);
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.elements, 2);
+	BOOST_CHECK_EQUAL(buffer.variables[0].type.members.size(), 1);
+
+	BOOST_CHECK_EQUAL(buffer.variables[1].name, "f");
+	BOOST_CHECK_EQUAL(buffer.variables[1].offset, 128);
+	BOOST_CHECK_EQUAL(buffer.variables[1].size, 4);
+
+	BOOST_CHECK_EQUAL(buffer.variables[1].type.name, "float");
+	BOOST_CHECK_EQUAL(buffer.variables[1].type.offset, 0);
+	BOOST_CHECK_EQUAL(buffer.variables[1].type.scalarType, ShaderReflection::Type::ScalarType::FLOAT);
+	BOOST_CHECK_EQUAL(buffer.variables[1].type.klass, ShaderReflection::Type::Class::SCALAR);
+	BOOST_CHECK_EQUAL(buffer.variables[1].type.elements, 0);
+	BOOST_CHECK_EQUAL(buffer.variables[1].type.members.size(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* MilkGraphicsShaderReflectionTestSuite */);

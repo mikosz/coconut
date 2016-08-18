@@ -21,4 +21,8 @@
 #	undef TRANSPARENT
 #endif /* TRANSPARENT */
 
+#if defined(VOID)
+#	undef VOID
+#endif /* VOID */
+
 #endif /* _COCONUT_MILK_SYSTEM_WIN32_CLEANUP_WINDOWS_MACROS_HPP_ */

@@ -44,7 +44,33 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 	return inputParameters;
 }
 
-ShaderReflection::ConstantBufferInfo::Variable buildConstantBufferVariable(
+ShaderReflection::Type buildTypeInfo(ID3D11ShaderReflectionType& typeInfo) {
+	D3D11_SHADER_TYPE_DESC desc;
+	checkDirectXCall(
+		typeInfo.GetDesc(&desc),
+		"Failed to get variable type desc"
+		);
+
+	CT_LOG_DEBUG << "Shader variable type: " << (desc.Name ? desc.Name : "<NULL>");
+
+	ShaderReflection::Type type;
+	type.name = (desc.Name ? desc.Name : "");
+	type.offset = desc.Offset;
+	fromIntegral(type.klass, static_cast<std::underlying_type_t<decltype(desc.Class)>>(desc.Class));
+	fromIntegral(type.scalarType, static_cast<std::underlying_type_t<decltype(desc.Type)>>(desc.Type));
+	type.elements = desc.Elements;
+
+	for (UINT memberIdx = 0; memberIdx < desc.Members; ++memberIdx) {
+		type.members.emplace_back(
+			typeInfo.GetMemberTypeName(memberIdx),
+			buildTypeInfo(*typeInfo.GetMemberTypeByIndex(memberIdx))
+			);
+	}
+
+	return type;
+}
+
+ShaderReflection::Variable buildVariableInfo(
 	ID3D11ShaderReflectionConstantBuffer& constantBufferInfo, size_t variableIdx
 	) {
 	auto* variableInfo = constantBufferInfo.GetVariableByIndex(static_cast<UINT>(variableIdx));
@@ -57,10 +83,11 @@ ShaderReflection::ConstantBufferInfo::Variable buildConstantBufferVariable(
 
 	CT_LOG_DEBUG << "Shader constant buffer variable " << variableIdx << ": " << desc.Name;
 
-	ShaderReflection::ConstantBufferInfo::Variable variable;
+	ShaderReflection::Variable variable;
 	variable.name = desc.Name;
 	variable.size = desc.Size;
 	variable.offset = desc.StartOffset;
+	variable.type = buildTypeInfo(*variableInfo->GetType());
 
 	return variable;
 }
@@ -85,7 +112,7 @@ ShaderReflection::ConstantBufferInfos buildConstantBufferInfos(
 
 		info.size = desc.Size;
 		for (size_t variableIdx = 0; variableIdx < desc.Variables; ++variableIdx) {
-			info.variables.emplace_back(buildConstantBufferVariable(*constantBufferInfo, variableIdx));
+			info.variables.emplace_back(buildVariableInfo(*constantBufferInfo, variableIdx));
 		}
 
 		constantBuffers.emplace_back(std::move(info));
