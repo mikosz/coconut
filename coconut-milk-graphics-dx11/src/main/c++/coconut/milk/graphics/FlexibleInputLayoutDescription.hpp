@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <d3d11.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include "coconut/milk/system/COMWrapper.hpp"
 

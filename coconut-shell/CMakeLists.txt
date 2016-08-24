@@ -1,8 +1,8 @@
 set(DEPENDENCY_LIBRARIES
     coconut-pulp-renderer
-    coconut-pulp-file-io
     coconut-tools-logger
     coconut-tools-configuration
+	coconut-tools-serialisation
     coconut-tools-system
     coconut-tools-exceptions
     )
