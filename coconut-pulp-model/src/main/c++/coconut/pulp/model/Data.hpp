@@ -6,13 +6,14 @@
 
 #include "coconut/milk/math/Vector.hpp"
 
+// TODO: make one include file
+#include <coconut-tools/serialisation/Serialiser.hpp>
+#include <coconut-tools/serialisation/Deserialiser.hpp>
+#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 #include "coconut/milk/graphics/Rasteriser.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
-
-#include "coconut/pulp/file-io/Serialiser.hpp"
-#include "coconut/pulp/file-io/Deserialiser.hpp"
-#include "coconut/pulp/file-io/make-serialisable-macro.hpp"
 
 namespace coconut {
 namespace pulp {

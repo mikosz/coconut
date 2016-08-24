@@ -5,6 +5,9 @@
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include <coconut-tools/enum.hpp>
+#include <coconut-tools/serialisation/Serialiser.hpp>
+#include <coconut-tools/serialisation/Deserialiser.hpp>
+#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
@@ -57,6 +60,13 @@ private:
 	system::COMWrapper<ID3D11SamplerState> samplerState_;
 
 };
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Sampler::Configuration, samplerConfiguration) {
+	serialiser(SerialiserType::Label("addressModeU"), samplerConfiguration.addressModeU);
+	serialiser(SerialiserType::Label("addressModeV"), samplerConfiguration.addressModeV);
+	serialiser(SerialiserType::Label("addressModeW"), samplerConfiguration.addressModeW);
+	serialiser(SerialiserType::Label("filter"), samplerConfiguration.filter);
+}
 
 } // namespace graphics
 } // namespace milk
