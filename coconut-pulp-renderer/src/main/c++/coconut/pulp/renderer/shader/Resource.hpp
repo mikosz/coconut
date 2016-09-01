@@ -41,8 +41,11 @@ public:
 	}
 
 	void bind(DrawCommand& drawCommand, const PassContext& context) {
-		drawCommand.addTexture(textureCallback_(context), stage_, textureSlot_);
-		drawCommand.addSampler(samplerCallback_(context), stage_, samplerSlot_);
+		auto* texture = textureCallback_(context);
+		if (texture) {
+			drawCommand.addTexture(texture, stage_, textureSlot_);
+			drawCommand.addSampler(samplerCallback_(context), stage_, samplerSlot_);
+		}
 	}
 
 private:

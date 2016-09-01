@@ -273,6 +273,8 @@ class Vector2d :
 {
 public:
 
+	using ShaderParameter = DirectX::XMFLOAT2;
+
 	Vector2d() {
 	}
 
