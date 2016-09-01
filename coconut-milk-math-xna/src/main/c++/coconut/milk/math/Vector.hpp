@@ -9,6 +9,10 @@
 
 #include <DirectXMath.h>
 
+#include <coconut-tools/serialisation/Serialiser.hpp>
+#include <coconut-tools/serialisation/Deserialiser.hpp>
+#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+
 namespace coconut {
 namespace milk {
 namespace math {
@@ -258,6 +262,10 @@ public:
 
 };
 
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector1d, vec) {
+	serialiser(SerialiserType::Label("x"), vec.x());
+}
+
 class Vector2d :
 	public Vector<2>,
 	boost::additive<Vector2d>,
@@ -329,6 +337,11 @@ public:
 	}
 
 };
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector2d, vec) {
+	serialiser(SerialiserType::Label("x"), vec.x());
+	serialiser(SerialiserType::Label("y"), vec.y());
+}
 
 class Vector4d;
 
@@ -441,6 +454,12 @@ inline Vector3d cross(const Vector3d& lhs, const Vector3d& rhs) {
 	return lhs.cross(rhs);
 }
 
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector3d, vec) {
+	serialiser(SerialiserType::Label("x"), vec.x());
+	serialiser(SerialiserType::Label("y"), vec.y());
+	serialiser(SerialiserType::Label("z"), vec.z());
+}
+
 class Vector4d :
 	public Vector<4>,
 	boost::additive<Vector4d>,
@@ -546,6 +565,13 @@ public:
 	}
 
 };
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector4d, vec) {
+	serialiser(SerialiserType::Label("x"), vec.x());
+	serialiser(SerialiserType::Label("y"), vec.y());
+	serialiser(SerialiserType::Label("z"), vec.z());
+	serialiser(SerialiserType::Label("w"), vec.w());
+}
 
 }
 } // namespace milk

@@ -15,7 +15,7 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.MODEL.DATA");
 
 struct Vector3dLexicographicalCompare {
 
-	bool operator()(const milk::math::Vector3d& lhs, const milk::math::Vector3d& rhs) {
+	bool operator()(const milk::math::Vector3d& lhs, const milk::math::Vector3d& rhs) const {
 		if (lhs == rhs) {
 			return false;
 		}
@@ -58,7 +58,7 @@ void Data::generateNormals() {
 		}
 
 		std::unordered_map<size_t, milk::math::Vector3d> faceNormals;
-		std::map<milk::math::Vector3d, size_t, Vector3dLexicographicalCompare> storedNormals;
+		std::map<milk::math::Vector3d, size_t, Vector3dLexicographicalCompare> storedNormals; // TODO: hash map?
 
 		for (size_t vertexIdx = 0; vertexIdx < currentGroup.vertices.size(); ++vertexIdx) {
 			auto range = affectingFaces.equal_range(vertexIdx);

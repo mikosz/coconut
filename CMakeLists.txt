@@ -75,7 +75,6 @@ set(MODULES
     "coconut-milk-math-${MODULE_MATHS}"
     "coconut-milk-system-${MODULE_SYSTEM}"
     "coconut-milk-utils"
-    "coconut-pulp-file-io"
     "coconut-pulp-model"
     "coconut-pulp-renderer"
     "coconut-shell"

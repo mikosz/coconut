@@ -8,6 +8,10 @@
 
 #include <boost/filesystem.hpp>
 
+#include <coconut-tools/serialisation/BinarySerialiser.hpp>
+#include <coconut-tools/serialisation/BinaryDeserialiser.hpp>
+#include <coconut-tools/serialisation/JSONDeserialiser.hpp>
+
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
 
@@ -19,10 +23,6 @@
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
-
-#include "coconut/pulp/file-io/BinarySerialiser.hpp"
-#include "coconut/pulp/file-io/BinaryDeserialiser.hpp"
-#include "coconut/pulp/file-io/JSONDeserialiser.hpp"
 
 #include "globals.hpp"
 #include "coconut/milk/system/Window.hpp"
@@ -78,7 +78,7 @@ void Game::loop() {
 
 		{
 			std::ofstream modelOFS("elexis.model", std::ofstream::out | std::ofstream::binary);
-			pulp::file_io::BinarySerialiser serialiser(modelOFS);
+			coconut_tools::serialisation::BinarySerialiser serialiser(modelOFS);
 			serialiser << modelData;
 		}
 	}
@@ -86,9 +86,9 @@ void Game::loop() {
 	pulp::renderer::MaterialManager materialManager;
 
 	std::ifstream modelIFS("elexis.model", std::ifstream::in | std::ifstream::binary);
-	pulp::file_io::BinaryDeserialiser deserialiser(modelIFS);
+	coconut_tools::serialisation::BinaryDeserialiser deserialiser(modelIFS);
 	// std::ifstream modelIFS("cube.json", std::ifstream::in);
-	// pulp::file_io::JSONDeserialiser deserialiser(modelIFS);
+	// coconut_tools::serialisation::JSONDeserialiser deserialiser(modelIFS);
 	pulp::model::Data modelData;
 	deserialiser >> modelData;
 
