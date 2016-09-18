@@ -24,10 +24,16 @@ class DrawCommand;
 
 namespace shader {
 
+struct UnknownShader {
+
+	virtual ~UnknownShader() = default;
+
+};
+
 namespace detail {
 
 template <class GraphicsShaderType>
-class Shader {
+class Shader : public UnknownShader {
 public:
 
 	using SceneData = std::vector<ConstantBufferSharedPtr<Scene>>;

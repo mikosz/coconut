@@ -6,6 +6,9 @@
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 #include <coconut-tools/logger.hpp>
 
+#include "coconut/milk/utils/bits.hpp"
+#include "coconut/milk/utils/integralValue.hpp"
+
 #include "DirectXError.hpp"
 
 #pragma comment(lib, "dxguid.lib")
@@ -35,6 +38,8 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 		ShaderReflection::InputParameterInfo info;
 		fromString(info.semantic, desc.SemanticName);
 		info.semanticIndex = desc.SemanticIndex;
+		fromIntegral(info.dataType, milk::utils::integralValue(desc.ComponentType));
+		info.elements = milk::utils::numberOfBitsOn(desc.Mask);
 
 		CT_LOG_DEBUG << "Shader input parameter " << i << ": " << toString(info.semantic) << "#" << info.semanticIndex;
 
@@ -56,8 +61,8 @@ ShaderReflection::Type buildTypeInfo(ID3D11ShaderReflectionType& typeInfo) {
 	ShaderReflection::Type type;
 	type.name = (desc.Name ? desc.Name : "");
 	type.offset = desc.Offset;
-	fromIntegral(type.klass, static_cast<std::underlying_type_t<decltype(desc.Class)>>(desc.Class));
-	fromIntegral(type.scalarType, static_cast<std::underlying_type_t<decltype(desc.Type)>>(desc.Type));
+	fromIntegral(type.klass, milk::utils::integralValue(desc.Class));
+	fromIntegral(type.scalarType, milk::utils::integralValue(desc.Type));
 	type.elements = desc.Elements;
 
 	for (UINT memberIdx = 0; memberIdx < desc.Members; ++memberIdx) {

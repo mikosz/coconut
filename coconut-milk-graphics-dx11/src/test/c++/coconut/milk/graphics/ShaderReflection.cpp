@@ -33,8 +33,10 @@ BOOST_AUTO_TEST_CASE(RetrievesSimpleInputParameters) {
 	BOOST_REQUIRE_EQUAL(reflection.inputParameters().size(), 1);
 
 	const auto& inputParameter = reflection.inputParameters()[0];
-	BOOST_CHECK_EQUAL(inputParameter.semantic, ShaderReflection::InputParameterSemantic::POSITION);
+	BOOST_CHECK_EQUAL(inputParameter.semantic, ShaderReflection::InputParameterInfo::Semantic::POSITION);
 	BOOST_CHECK_EQUAL(inputParameter.semanticIndex, 0);
+	BOOST_CHECK_EQUAL(inputParameter.dataType, ShaderReflection::InputParameterInfo::DataType::UINT);
+	BOOST_CHECK_EQUAL(inputParameter.elements, 4);
 }
 
 BOOST_AUTO_TEST_CASE(RetrievesComplexInputParameters) {
@@ -42,17 +44,25 @@ BOOST_AUTO_TEST_CASE(RetrievesComplexInputParameters) {
 
 	BOOST_REQUIRE_EQUAL(reflection.inputParameters().size(), 4);
 
-	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].semantic, ShaderReflection::InputParameterSemantic::POSITION);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].semantic, ShaderReflection::InputParameterInfo::Semantic::POSITION);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].semanticIndex, 0);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].dataType, ShaderReflection::InputParameterInfo::DataType::FLOAT);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].elements, 4);
 
-	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].semantic, ShaderReflection::InputParameterSemantic::TEXCOORD);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].semantic, ShaderReflection::InputParameterInfo::Semantic::TEXCOORD);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].semanticIndex, 0);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].dataType, ShaderReflection::InputParameterInfo::DataType::FLOAT);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].elements, 2);
 
-	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].semantic, ShaderReflection::InputParameterSemantic::TEXCOORD);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].semantic, ShaderReflection::InputParameterInfo::Semantic::TEXCOORD);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].semanticIndex, 1);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].dataType, ShaderReflection::InputParameterInfo::DataType::FLOAT);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].elements, 2);
 
-	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].semantic, ShaderReflection::InputParameterSemantic::NORMAL);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].semantic, ShaderReflection::InputParameterInfo::Semantic::NORMAL);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].semanticIndex, 0);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].dataType, ShaderReflection::InputParameterInfo::DataType::FLOAT);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].elements, 3);
 }
 
 BOOST_AUTO_TEST_CASE(RetrievesSimpleConstantBuffers) {

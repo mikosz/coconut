@@ -1,50 +1,40 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_SHADERFACTORY_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_SHADERFACTORY_HPP_
 
-#include <string>
-#include <unordered_map>
+#include <mutex>
+
+#include <coconut-tools/factory.hpp>
 
 #include "coconut/milk/graphics/Renderer.hpp"
 
-#include "Pass.hpp"
+#include "Shader.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
 namespace shader {
 
-class ShaderFactory {
+namespace detail {
+
+class ShaderCreator {
 public:
 
-	using ShaderId = std::string;
+	ShaderCreator();
 
-	using PassId = std::string;
-
-	using InputLayoutDescriptionId = std::string;
-
-	ShaderFactory();
-
-	PassSharedPtr createShaderPass(milk::graphics::Renderer& graphicsRenderer, const PassId& passId);
-
-private:
-
-	using PassCache = std::unordered_map<PassId, PassSharedPtr>;
-
-	using VertexShaderCache = std::unordered_map<ShaderId, milk::graphics::VertexShader>;
-
-	using PixelShaderCache = std::unordered_map<ShaderId, milk::graphics::PixelShader>;
-
-	PassCache passCache_;
-
-	milk::graphics::InputLayoutUniquePtr createInputLayoutDescription(
-		milk::graphics::Renderer& renderer,
-		InputLayoutDescriptionId inputLayoutDescriptionId,
-		const std::vector<std::uint8_t>& binaryShaderData
-		);
-
-	PassSharedPtr makeShaderPass(milk::graphics::Renderer& renderer, const ShaderFactory::PassId& passId);
+	std::unique_ptr<UnknownShader> doCreate(const std::string& shaderId, milk::graphics::Renderer& graphicsRenderer);
 
 };
+
+} // namespace detail
+
+using ShaderFactory = 
+	coconut_tools::Factory<
+		std::string,
+		UnknownShader,
+		coconut_tools::factory::storage::Volatile,
+		detail::ShaderCreator,
+		std::mutex
+		>;
 
 } // namespace shader
 } // namespace renderer

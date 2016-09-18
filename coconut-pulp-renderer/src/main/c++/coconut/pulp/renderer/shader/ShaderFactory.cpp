@@ -1,5 +1,49 @@
 #include "ShaderFactory.hpp"
 
+#include "coconut/milk/graphics/Shader.hpp"
+
+using namespace coconut;
+using namespace coconut::pulp;
+using namespace coconut::pulp::renderer;
+using namespace coconut::pulp::renderer::shader;
+
+namespace /* anonymous */ {
+}
+
+std::unique_ptr<UnknownShader> detail::ShaderCreator::doCreate(
+	const std::string& shaderId, milk::graphics::Renderer& graphicsRenderer
+	)
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
 #include <fstream>
 #include <stdexcept>
 #include <vector>
@@ -734,5 +778,7 @@ milk::graphics::InputLayoutUniquePtr ShaderFactory::createInputLayoutDescription
 	return std::make_unique<milk::graphics::InputLayout>(
 		std::move(inputLayoutDesc), graphicsDevice, &binaryShaderData.front(), binaryShaderData.size());
 }
+
+#endif /* 0 */
 
 #endif /* 0 */

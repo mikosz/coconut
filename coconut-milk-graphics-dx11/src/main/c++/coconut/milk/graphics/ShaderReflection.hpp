@@ -5,13 +5,12 @@
 #include <vector>
 #include <tuple>
 
-#include <D3DCommon.h>
+#include <d3dcommon.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include <coconut-tools/enum.hpp>
 
 #include "coconut/milk/system/COMWrapper.hpp"
-
-#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 namespace coconut {
 namespace milk {
@@ -20,18 +19,29 @@ namespace graphics {
 class ShaderReflection {
 public:
 
-	CCN_MEMBER_ENUM(
-		InputParameterSemantic,
-		(POSITION)
-		(TEXCOORD)
-		(NORMAL)
-		);
-
 	struct InputParameterInfo {
 
-		InputParameterSemantic semantic;
+		CCN_MEMBER_ENUM(
+			Semantic,
+			(POSITION)
+			(TEXCOORD)
+			(NORMAL)
+			);
+
+		CCN_MEMBER_ENUM_VALUES(
+			DataType,
+			(FLOAT)(D3D_REGISTER_COMPONENT_FLOAT32)
+			(UINT)(D3D_REGISTER_COMPONENT_UINT32)
+			(INT)(D3D_REGISTER_COMPONENT_SINT32)
+			);
+
+		Semantic semantic;
 
 		size_t semanticIndex;
+
+		DataType dataType;
+
+		size_t elements;
 
 	};
 
