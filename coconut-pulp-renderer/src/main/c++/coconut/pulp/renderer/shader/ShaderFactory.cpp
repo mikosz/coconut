@@ -1,6 +1,12 @@
 #include "ShaderFactory.hpp"
 
-#include "coconut/milk/graphics/Shader.hpp"
+#include <vector>
+#include <fstream>
+
+#include <coconut-tools/exceptions/RuntimeError.hpp>
+
+#include "coconut/milk/graphics/compile-shader.hpp"
+#include "coconut/milk/graphics/ShaderReflection.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -8,26 +14,95 @@ using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
 namespace /* anonymous */ {
-}
 
-std::unique_ptr<UnknownShader> detail::ShaderCreator::doCreate(
-	const std::string& shaderId, milk::graphics::Renderer& graphicsRenderer
+std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
+	milk::graphics::Renderer& graphicsRenderer,
+	std::vector<std::uint8_t>& shaderData,
+	milk::graphics::ShaderType shaderType
 	)
 {
+	milk::graphics::ShaderReflection reflection(shaderData.data(), shaderData.size());
 
+	switch (shaderType) {
+	case milk::graphics::ShaderType::VERTEX:
+		return std::make_unique<VertexShader>(
+			std::move(shaderData), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(Resources));
+	case milk::graphics::ShaderType::PIXEL:
+		return std::make_unique<PixelShader>(
+			std::move(shaderData), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(Resources));
+	}
+
+	throw coconut_tools::exceptions::RuntimeError("Unexpected shader type: " + toString(shaderType));
 }
 
+std::vector<std::uint8_t> readContents(const boost::filesystem::path& path) {
+	std::vector<std::uint8_t> contents;
+	std::ifstream ifs(path.string().c_str()); // TODO: this needs to move to some utility place
+	std::ostringstream oss;
+	oss << ifs.rdbuf();
+	auto s = oss.str();
+	contents.reserve(s.length());
+	std::copy(s.begin(), s.end(), std::back_inserter(contents));
 
+	return contents;
+}
 
+std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
+	milk::graphics::Renderer& graphicsRenderer,
+	const detail::ShaderCreator::CompiledShaderInfo& compiledShaderInfo
+	)
+{
+	return createShaderFromCompiledShader(
+		graphicsRenderer,
+		readContents(path),
+		compiledShaderInfo.shaderType
+		);
+}
 
+std::unique_ptr<UnknownShader> createShaderFromShaderCode(
+	milk::graphics::Renderer& graphicsRenderer,
+	const detail::ShaderCreator::ShaderCodeInfo& shaderCodeInfo
+	)
+{
+	auto shaderData = milk::graphics::compileShader(
+		readContents(shaderCodeInfo.shaderCodePath), shaderCodeInfo.entrypoint);
 
+	return createShaderFromCompiledShader(
+		graphicsRenderer,
+		shaderData,
+		shaderCodeInfo.shaderType
+		);
+}
 
+} // anonymous namespace
 
+std::unique_ptr<UnknownShader> detail::ShaderCreator::doCreate(
+	const std::string& id, milk::graphics::Renderer& graphicsRenderer)
+{
+	if (shaderCodeInfos_.count(id) != 0) {
+		return createShaderFromShaderCode(graphicsRenderer, shaderCodeInfos_[id]);
+	} else if (compiledShaderInfos_.count(id) != 0) {
+		return createShaderFromCompiledShader(graphicsRenderer, compiledShaderInfos_[id]);
+	} else {
+		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
+	}
+}
 
+void detail::ShaderCreator::registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo) {
+	if (shaderCodeInfos_.count(id) != 0 || compiledShaderInfos_.count(id) != 0) {
+		throw coconut_tools::factory::error_policy::CreatorAlreadyRegistered<std::string>(id);
+	}
 
+	shaderCodeInfos_.emplace(std::move(id), std::move(shaderCodeInfo));
+}
 
+void detail::ShaderCreator::registerCompiledShader(std::string id, const CompiledShaderInfo& compiledShaderInfo) {
+	if (shaderCodeInfos_.count(id) != 0 || compiledShaderInfos_.count(id) != 0) {
+		throw coconut_tools::factory::error_policy::CreatorAlreadyRegistered<std::string>(id);
+	}
 
-
+	compiledShaderInfos_.emplace(std::move(id), std::move(compiledShaderInfo));
+}
 
 
 
@@ -738,45 +813,6 @@ PassUniquePtr ShaderFactory::createShaderPass(milk::graphics::Device& graphicsDe
 	}
 
 	return std::make_unique<Pass>(std::move(inputLayout), std::move(vertexShader), std::move(pixelShader));
-}
-
-milk::graphics::InputLayoutUniquePtr ShaderFactory::createInputLayoutDescription(
-	milk::graphics::Device& graphicsDevice, InputLayoutDescriptionId inputLayoutDescriptionId) {
-	InputLayoutDescriptionInfo inputLayoutInfo;
-
-	{
-		std::ifstream ifs((boost::filesystem::path("data/shaders") / (inputLayoutDescriptionId + ".cfg.json")).c_str()); // TODO: get path from config, filename?
-		file_io::JSONDeserialiser deserialiser(ifs);
-		deserialiser >> inputLayoutInfo;
-	}
-
-	auto inputLayoutDesc = std::make_unique<milk::graphics::FlexibleInputLayoutDescription>();
-
-	std::unordered_map<milk::graphics::FlexibleInputLayoutDescription::ElementType, size_t> elementCounts;
-
-	for (const auto& element : inputLayoutInfo.elements) {
-		if (elementCounts.count(element.type) == 0) {
-			elementCounts[element.type] = 0;
-		}
-		inputLayoutDesc->push(makeInputLayoutElement(element.type, elementCounts[element.type]++, element.format));
-	}
-
-	std::vector<char> binaryShaderData;
-
-	{
-		const auto binaryShaderPath = boost::filesystem::path("data/shaders") / inputLayoutInfo.binaryShaderFile;
-
-		const auto shaderDataSize = boost::filesystem::file_size(binaryShaderPath);
-		binaryShaderData.resize(static_cast<size_t>(shaderDataSize));
-
-		std::ifstream ifs(binaryShaderPath.c_str(), std::ios::binary);
-		ifs.exceptions(std::ios::badbit | std::ios::failbit);
-
-		ifs.read(binaryShaderData.data(), shaderDataSize);
-	}
-	
-	return std::make_unique<milk::graphics::InputLayout>(
-		std::move(inputLayoutDesc), graphicsDevice, &binaryShaderData.front(), binaryShaderData.size());
 }
 
 #endif /* 0 */

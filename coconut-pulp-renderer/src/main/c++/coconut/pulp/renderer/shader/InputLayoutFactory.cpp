@@ -4,6 +4,8 @@
 #include <fstream>
 #include <memory>
 
+#include <coconut-tools/exceptions/RuntimeError.hpp>
+
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/compile-shader.hpp"
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
@@ -15,10 +17,33 @@ using namespace coconut::pulp::renderer::shader;
 
 namespace /* anonymous */ {
 
-makeFormat
+milk::graphics::FlexibleInputLayoutDescription::Format makeFormat(
+	milk::graphics::ShaderReflection::InputParameterInfo::DataType dataType,
+	size_t elements
+	)
+{
+	using milk::graphics::ShaderReflection;
+	using milk::graphics::FlexibleInputLayoutDescription;
+
+	switch (dataType) {
+	case ShaderReflection::InputParameterInfo::DataType::FLOAT:
+		switch (elements) {
+		case 2:
+			return FlexibleInputLayoutDescription::Format::R32G32_FLOAT;
+		case 3:
+			return FlexibleInputLayoutDescription::Format::R32G32B32_FLOAT;
+		case 4:
+			return FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT;
+		}
+	}
+
+	throw coconut_tools::exceptions::RuntimeError(
+		"Unsupported input parameter format: " + toString(dataType) + "x" + std::to_string(elements)
+		);
+}
 
 std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
-	milk::graphics::Renderer& graphicsRenderer, const std::vector<std::uint8_t>& shaderData)
+	milk::graphics::Renderer& graphicsRenderer, std::vector<std::uint8_t>& shaderData)
 {
 	milk::graphics::ShaderReflection reflection(shaderData.data(), shaderData.size());
 
@@ -29,14 +54,22 @@ std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
 	for (const auto& inputParameter : reflection.inputParameters()) {
 		using milk::graphics::ShaderReflection;
 		using milk::graphics::FlexibleInputLayoutDescription;
+
+		auto format = makeFormat(inputParameter.dataType, inputParameter.elements);
+
 		switch (inputParameter.semantic) {
-		case ShaderReflection::InputParameterSemantic::POSITION:
-			description.push(
-				std::make_shared<FlexibleInputLayoutDescription::PositionElement>(
-					inputParameter.semanticIndex,
-					inputParameter.
-					)
-				);
+		case ShaderReflection::InputParameterInfo::Semantic::POSITION:
+			description->push(
+				std::make_shared<FlexibleInputLayoutDescription::PositionElement>(inputParameter.semanticIndex, format));
+			break;
+		case ShaderReflection::InputParameterInfo::Semantic::NORMAL:
+			description->push(
+				std::make_shared<FlexibleInputLayoutDescription::NormalElement>(inputParameter.semanticIndex, format));
+			break;
+		case ShaderReflection::InputParameterInfo::Semantic::TEXCOORD:
+			description->push(
+				std::make_shared<FlexibleInputLayoutDescription::TextureCoordinatesElement>(inputParameter.semanticIndex, format));
+			break;
 		}
 	}
 
@@ -45,9 +78,7 @@ std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
 		);
 }
 
-std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
-	milk::graphics::Renderer& graphicsRenderer, const boost::filesystem::path& path)
-{
+std::vector<std::uint8_t> readContents(const boost::filesystem::path& path) {
 	std::vector<std::uint8_t> contents;
 	std::ifstream ifs(path.string().c_str()); // TODO: this needs to move to some utility place
 	std::ostringstream oss;
@@ -56,7 +87,13 @@ std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
 	contents.reserve(s.length());
 	std::copy(s.begin(), s.end(), std::back_inserter(contents));
 
-	return createInputLayoutFromVertexShader(graphicsRenderer, contents);
+	return contents;
+}
+
+std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
+	milk::graphics::Renderer& graphicsRenderer, const boost::filesystem::path& path)
+{
+	return createInputLayoutFromVertexShader(graphicsRenderer, readContents(path));
 }
 
 std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShaderCode(
@@ -65,15 +102,7 @@ std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShaderCo
 	const std::string& entrypoint
 	)
 {
-	std::vector<std::uint8_t> contents;
-	std::ifstream ifs(path.string().c_str()); // TODO: this needs to move to some utility place
-	std::ostringstream oss;
-	oss << ifs.rdbuf();
-	auto s = oss.str();
-	contents.reserve(s.length());
-	std::copy(s.begin(), s.end(), std::back_inserter(contents));
-
-	auto shaderData = milk::graphics::compileShader(contents, entrypoint);
+	auto shaderData = milk::graphics::compileShader(readContents(path), entrypoint);
 
 	return createInputLayoutFromVertexShader(graphicsRenderer, shaderData);
 }
@@ -88,7 +117,7 @@ std::unique_ptr<milk::graphics::InputLayout> detail::InputLayoutCreator::doCreat
 		return createInputLayoutFromVertexShaderCode(
 			graphicsRenderer, shaderCodeInfo.shaderCodePath, shaderCodeInfo.entrypoint);
 	} else if (compiledShaderPaths_.count(id) != 0) {
-
+		return createInputLayoutFromVertexShader(graphicsRenderer, compiledShaderPaths_[id]);
 	} else {
 		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
 	}

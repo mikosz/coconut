@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_RENDERER_SHADER_PASSFACTORY_HPP_
 
 #include <mutex>
+#include <memory>
 
 #include <coconut-tools/factory.hpp>
 
@@ -26,6 +27,8 @@ public:
 	std::unique_ptr<Pass> doCreate(const std::string& passId, milk::graphics::Renderer& graphicsRenderer);
 
 private:
+
+	InputLayoutFactory inputLayoutFactory_;
 
 	ShaderFactory shaderFactory_;
 

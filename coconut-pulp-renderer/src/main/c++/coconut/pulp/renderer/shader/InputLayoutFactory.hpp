@@ -3,6 +3,7 @@
 
 #include <string>
 #include <mutex>
+#include <memory>
 
 #include <unordered_map>
 
@@ -40,13 +41,13 @@ public:
 
 private:
 
-	using ShaderCodePaths = std::unordered_map<std::string, ShaderCodeInfo>;
+	using ShaderCodeInfos = std::unordered_map<std::string, ShaderCodeInfo>;
 
-	using CompiledShaderPaths = std::unordered_map<std::string, boost::filesystem::path>;
+	using CompiledShaderInfos = std::unordered_map<std::string, boost::filesystem::path>;
 
-	ShaderCodePaths shaderCodeInfos_;
+	ShaderCodeInfos shaderCodeInfos_;
 
-	CompiledShaderPaths compiledShaderPaths_;
+	CompiledShaderInfos compiledShaderPaths_;
 
 };
 
