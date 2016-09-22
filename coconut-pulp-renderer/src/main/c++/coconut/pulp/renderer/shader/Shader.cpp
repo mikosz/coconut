@@ -7,19 +7,6 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
-UnknownShader::UnknownShader(
-	SceneData sceneData,
-	ActorData actorData,
-	MaterialData materialData,
-	Resources resources
-	) :
-	sceneData_(std::move(sceneData)),
-	actorData_(std::move(actorData)),
-	materialData_(std::move(materialData)),
-	resources_(std::move(resources))
-{
-}
-
 template <class GraphicsShaderType>
 detail::Shader<GraphicsShaderType>::Shader(
 	GraphicsShaderType shaderData,
@@ -28,8 +15,11 @@ detail::Shader<GraphicsShaderType>::Shader(
 	MaterialData materialData,
 	Resources resources
 	) :
-	UnknownShader(std::move(sceneData), std::move(actorData), std::move(materialData), std::move(Resources)),
-	shaderData_(shaderData)
+	shaderData_(shaderData),
+	sceneData_(std::move(sceneData)),
+	actorData_(std::move(actorData)),
+	materialData_(std::move(materialData)),
+	resources_(std::move(resources))
 {
 }
 

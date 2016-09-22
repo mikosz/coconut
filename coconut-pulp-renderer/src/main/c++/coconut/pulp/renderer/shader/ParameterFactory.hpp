@@ -4,8 +4,10 @@
 #include <mutex>
 #include <memory>
 #include <string>
+#include <functional>
 
 #include <coconut-tools/factory.hpp>
+#include <coconut-tools/policy/creation/Functor.hpp>
 
 #include "coconut/milk/graphics/Renderer.hpp"
 
@@ -18,27 +20,41 @@ namespace shader {
 
 namespace detail {
 
-template <class... UpdateArguments>
-class ParameterCreator { // TODO: use CreatorRegistry and let it accept params?
+class ParameterCreator :
+	public coconut_tools::factory::CreatorRegistry<
+		std::string,
+		coconut_tools::policy::creation::Functor<std::function<std::unique_ptr<UnknownParameter> ()>>,
+		coconut_tools::factory::error_policy::ExceptionThrowing
+		>
+{
 public:
 
-	std::unique_ptr<Parameter> doCreate(
-		const std::string& id,
-		UpdateArguments&&... arguments
-		) {
-	}
+	ParameterCreator();
+
+protected:
+
+	std::unique_ptr<UnknownParameter> doCreate(const std::string& id);
+
+private:
+
+	using Super = coconut_tools::factory::CreatorRegistry<
+		std::string,
+		coconut_tools::policy::creation::Functor<std::function<std::unique_ptr<UnknownParameter> ()>>,
+		coconut_tools::factory::error_policy::ExceptionThrowing
+		>;
+
+	void registerBuiltins();
 
 };
 
 } // namespace detail
 
-template <class... UpdateArguments>
 using ParameterFactory = 
 	coconut_tools::Factory<
 		std::string,
-		Parameter<UpdateArguments...>,
+		UnknownParameter,
 		coconut_tools::factory::storage::Volatile,
-		detail::ParameterCreator<UpdateArguments...>,
+		detail::ParameterCreator,
 		std::mutex
 		>;
 

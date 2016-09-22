@@ -35,24 +35,7 @@ public:
 
 	using Resources = std::unordered_map<size_t, ResourceSharedPtr>;
 
-	UnknownShader(
-		SceneData sceneData,
-		ActorData actorData,
-		MaterialData materialData,
-		Resources resources
-		);
-
 	virtual ~UnknownShader() = default;
-
-private:
-
-	SceneData sceneData_;
-
-	ActorData actorData_;
-
-	MaterialData materialData_;
-
-	Resources resources_;
 
 };
 
@@ -82,6 +65,14 @@ public:
 private:
 
 	GraphicsShaderType shaderData_;
+
+	SceneData sceneData_;
+
+	ActorData actorData_;
+
+	MaterialData materialData_;
+
+	Resources resources_;
 
 };
 

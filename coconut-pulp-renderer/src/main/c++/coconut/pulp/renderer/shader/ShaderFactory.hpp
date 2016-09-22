@@ -14,6 +14,7 @@
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
 
+#include "ParameterFactory.hpp"
 #include "Shader.hpp"
 
 namespace coconut {
@@ -54,6 +55,8 @@ private:
 	ShaderCodeInfos shaderCodeInfos_;
 
 	CompiledShaderInfos compiledShaderInfos_;
+
+	ParameterFactory parameterFactory_;
 
 };
 

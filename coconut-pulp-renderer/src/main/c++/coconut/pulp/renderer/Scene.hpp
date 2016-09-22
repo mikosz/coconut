@@ -71,7 +71,7 @@ private:
 
 	LensSharedPtr lens_;
 
-	shader::PassUniquePtr renderingPass_; // TODO
+	shader::PassSharedPtr renderingPass_; // TODO
 
 	milk::graphics::Texture2d* renderTarget_; // TODO
 

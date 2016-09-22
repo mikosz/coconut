@@ -24,6 +24,7 @@ public:
 		CCN_MEMBER_ENUM(
 			Semantic,
 			(POSITION)
+			(SV_POSITION)
 			(TEXCOORD)
 			(NORMAL)
 			);

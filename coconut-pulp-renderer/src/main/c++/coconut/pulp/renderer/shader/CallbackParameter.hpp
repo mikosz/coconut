@@ -22,6 +22,14 @@ public:
 	{
 	}
 
+	OperandType inputType() const noexcept override {
+		return DeducedOperandType<UpdateArguments...>::type;
+	}
+
+	OperandType outputType() const noexcept override {
+		return DeducedOperandType<StoredType>::type;
+	}
+
 protected:
 
 	void update(void* buffer, const UpdateArguments&... data) override {

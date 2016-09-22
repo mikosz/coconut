@@ -2,7 +2,7 @@
 
 #include "PassContext.hpp"
 
-#include "shader/ShaderFactory.hpp"
+#include "shader/PassFactory.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -26,7 +26,7 @@ milk::graphics::Viewport::Configuration viewportConfiguration() {
 } // anonymous namespace
 
 Scene::Scene(milk::graphics::Renderer& graphicsRenderer) :
-	renderingPass_(std::move(shader::ShaderFactory().createShader(graphicsRenderer, ""))),
+	renderingPass_(std::move(shader::PassFactory().create("sprite", graphicsRenderer))),
 	renderTarget_(&graphicsRenderer.backBuffer()), // TODO
 	depthStencil_(&graphicsRenderer.depthStencil()), // TODO
 	viewport_(viewportConfiguration()) // TODO

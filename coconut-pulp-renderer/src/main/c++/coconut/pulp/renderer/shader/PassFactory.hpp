@@ -22,9 +22,7 @@ namespace detail {
 class PassCreator {
 public:
 
-	PassCreator();
-
-	std::unique_ptr<Pass> doCreate(const std::string& passId, milk::graphics::Renderer& graphicsRenderer);
+	std::unique_ptr<Pass> doCreate(const std::string& id, milk::graphics::Renderer& graphicsRenderer);
 
 private:
 
