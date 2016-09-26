@@ -33,7 +33,7 @@ public:
 	{
 	}
 
-	void update(void* buffer, const UpdateArguments&... data) override {
+	void update(void* buffer, const UpdateArguments&... data) const override {
 		auto padding = milk::utils::roundUpToMultipleOf(element_->size(), 16) - element_->size();
 
 		auto* fieldIt = reinterpret_cast<std::uint8_t*>(buffer);

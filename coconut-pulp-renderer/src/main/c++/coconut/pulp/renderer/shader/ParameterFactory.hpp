@@ -8,6 +8,7 @@
 
 #include <coconut-tools/factory.hpp>
 #include <coconut-tools/policy/creation/Functor.hpp>
+#include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "coconut/milk/graphics/Renderer.hpp"
 
@@ -48,6 +49,25 @@ private:
 };
 
 } // namespace detail
+
+class BadParameterType : public coconut_tools::exceptions::RuntimeError {
+public:
+
+	BadParameterType(UnknownParameter::OperandType type) :
+		coconut_tools::exceptions::RuntimeError("Provided type: " + toString(type) + " cannot be used as a parameter basic type"),
+		type_(type)
+	{
+	}
+
+	UnknownParameter::OperandType type() const noexcept {
+		return type_;
+	}
+
+private:
+
+	UnknownParameter::OperandType type_;
+
+};
 
 using ParameterFactory = 
 	coconut_tools::Factory<

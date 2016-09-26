@@ -46,7 +46,7 @@ public:
 	{
 	}
 
-	void update(void* buffer, const UpdateArguments&... data) override {
+	void update(void* buffer, const UpdateArguments&... data) const override {
 		auto* const bufferStart = reinterpret_cast<std::uint8_t*>(buffer);
 		auto* fieldIt = bufferStart;
 

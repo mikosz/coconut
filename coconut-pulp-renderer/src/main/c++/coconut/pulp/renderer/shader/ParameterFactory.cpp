@@ -12,6 +12,7 @@
 #include "../Material.hpp"
 
 #include "CallbackParameter.hpp"
+#include "ParameterChain.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -119,15 +120,44 @@ std::unique_ptr<UnknownParameter> detail::ParameterCreator::doCreate(const std::
 
 	IdentifierSlices tail;
 
-	std::unique_ptr<UnknownParameter> result; // TODO: result should be a compound parameter type, executing a chain of parameters
+	auto isChain = false;
+	std::unique_ptr<UnknownParameter> result;
 
 	while (!slices.empty()) {
 		const auto subId = boost::join(slices, "_");
 
 		if (isCreatorRegistered(subId)) {
 			CT_LOG_DEBUG << "Found registered parameter for \"" << subId << "\"";
-			if (result) {
-				result = Super::doCreate(subId);
+			auto next = Super::doCreate(subId); // TODO: problem here is that we call the superclass going around the factory type
+					// we could have params world and world_inv and world would be created twice
+			if (!result) {
+				result = std::move(next); 
+			} else {
+				// TODO: could we have less of these switches?
+				switch (result->inputType()) {
+				case UnknownParameter::OperandType::SCENE:
+					if (!isChain) {
+						result = std::make_unique<ParameterChain<Scene>>(std::move(result));
+					}
+					dynamic_cast<ParameterChain<Scene>&>(*result).push(std::move(next));
+					break;
+				case UnknownParameter::OperandType::ACTOR:
+					if (!isChain) {
+						result = std::make_unique<ParameterChain<Actor>>(std::move(result));
+					}
+					dynamic_cast<ParameterChain<Actor>&>(*result).push(std::move(next));
+					break;
+				case UnknownParameter::OperandType::MATERIAL:
+					if (!isChain) {
+						result = std::make_unique<ParameterChain<Material>>(std::move(result));
+					}
+					dynamic_cast<ParameterChain<Material>&>(*result).push(std::move(next));
+					break;
+				default:
+					throw BadParameterType(result->inputType());
+				}
+
+				isChain = true;
 			}
 			tail.swap(slices);
 			tail.clear();
@@ -142,7 +172,7 @@ std::unique_ptr<UnknownParameter> detail::ParameterCreator::doCreate(const std::
 		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id); // TODO: custom exception specifying partial id?
 	}
 
-	return std::unique_ptr<UnknownParameter>();
+	return result;
 }
 
 void detail::ParameterCreator::registerBuiltins() {
@@ -162,8 +192,8 @@ void detail::ParameterCreator::registerBuiltins() {
 	registerCreator("world", &createWorldMatrixParameter);
 
 	// MATRIX
-	registerCreator("inv", &createWorldMatrixParameter);
-	registerCreator("inverse", &createWorldMatrixParameter);
+	registerCreator("inv", &createInverterParameter);
+	registerCreator("inverse", &createInverterParameter);
 
 	registerCreator("transpose", &createTransposedParameter);
 }

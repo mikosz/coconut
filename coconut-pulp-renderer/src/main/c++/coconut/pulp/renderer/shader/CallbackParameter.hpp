@@ -17,7 +17,6 @@ public:
 	using Callback = std::function<void (StoredType&, const UpdateArguments&...)>;
 
 	CallbackParameter(Callback callback) :
-		Parameter(sizeof(StoredType)),
 		callback_(callback)
 	{
 	}
@@ -30,9 +29,13 @@ public:
 		return DeducedOperandType<StoredType>::type;
 	}
 
+	size_t size() const noexcept override {
+		return sizeof(StoredType);
+	}
+
 protected:
 
-	void update(void* buffer, const UpdateArguments&... data) override {
+	void update(void* buffer, const UpdateArguments&... data) const override {
 		callback_(*reinterpret_cast<StoredType*>(buffer), data...);
 	}
 
