@@ -2,12 +2,14 @@
 
 #include <vector>
 #include <fstream>
+#include <algorithm>
 
 #include <coconut-tools/logger.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "coconut/milk/graphics/compile-shader.hpp"
 #include "coconut/milk/graphics/ShaderReflection.hpp"
+#include "StructuredParameter.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -18,22 +20,52 @@ namespace /* anonymous */ {
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.SHADER_FACTORY");
 
+using milk::graphics::ShaderReflection;
+
 std::shared_ptr<UnknownParameter> createParameter(
 	ParameterFactory& parameterFactory,
-	const milk::graphics::ShaderReflection::Variable& variable
+	const std::string& name,
+	const ShaderReflection::Type& type,
+	const std::string& parentTypeName
 	)
 {
-	CT_LOG_DEBUG << "Creating parameter for variable " << variable.name;
+	CT_LOG_DEBUG << "Creating parameter for variable " << name;
 
-	using milk::graphics::ShaderReflection;
+	std::vector<int> indices = { -1 };
 
-	//switch (variable.type.klass) {
-	//case ShaderReflection::Type::Class::SCALAR:
-		return parameterFactory.create(variable.name);
-	// TODO
-	//}
+	if (type.elements > 0) {
+		indices.resize(type.elements);
+		auto index = 0;
+		std::for_each(indices.begin(), indices.end(), [&index](int& element) { element = index++; });
+	}
 
-	//throw "";
+	if (type == ShaderReflection::Type::Class::STRUCT) {
+		StructuredParameter<???>::Subparameters structureParameters;
+
+		for (const auto& member : type.members) {
+			std::string memberName;
+			ShaderReflection::Type memberType;
+			std::tie(memberName, memberType) = member;
+
+			structureParameters.emplace_back(
+				createParameter(parameterFactory, memberName, memberType, parentTypeName + "::" + type.name)
+				);
+		}
+	}
+
+	ParameterFactoryInstanceDetails instanceDetails(name);
+
+	for (size_t arrayElementIndex = 0; arrayElementIndex < arrayElements; ++arrayElementIndex) {
+		instanceDetails.id = ;
+		instanceDetails.arrayedElementIndex = arrayElementIndex;
+
+		switch (variable.type.klass) {
+		case ShaderReflection::Type::Class::SCALAR:
+			return parameterFactory.create(instanceDetails);
+		}
+	}
+
+	throw "";
 }
 
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
@@ -54,7 +86,7 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 
 	for (const auto& constantBuffer : reflection.constantBuffers()) {
 		for (const auto& variable : constantBuffer.variables) {
-			auto parameter = createParameter(parameterFactory, variable);
+			auto parameter = createParameter(parameterFactory, variable.name, variable.type, "");
 		}
 	}
 

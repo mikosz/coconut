@@ -21,10 +21,10 @@ struct PointLight {
 
 cbuffer SceneData : register(b0) {
 	float3 eye;
-	uint directionalLightCount;
-	DirectionalLight directionalLight[3];
-	uint pointLightCount;
-	PointLight pointLight[3];
+	uint directionalLightsCount;
+	DirectionalLight directionalLights[3];
+	uint politLightsCount;
+	PointLight politLights[3];
 }
 
 cbuffer ObjectData : register(b1) {
@@ -90,9 +90,9 @@ float4 main(PIn pin) : SV_TARGET
 	float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	[unroll]
-	for (uint di = 0; di < directionalLightCount; ++di) {
+	for (uint di = 0; di < directionalLightsCount; ++di) {
 		float4 ambientComp, diffuseComp, specularComp;
-		computeDirectional(material, directionalLight[di], pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
+		computeDirectional(material, directionalLights[di], pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
 
 		ambient += ambientComp;
 		diffuse += diffuseComp;
@@ -100,9 +100,9 @@ float4 main(PIn pin) : SV_TARGET
 	}
 
 	[unroll]
-	for (uint pi = 0; pi < pointLightCount; ++pi) {
+	for (uint pi = 0; pi < politLightsCount; ++pi) {
 		float4 ambientComp, diffuseComp, specularComp;
-		computePoint(material, pointLight[pi], pin.posW, pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
+		computePoint(material, politLights[pi], pin.posW, pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
 
 		ambient += ambientComp;
 		diffuse += diffuseComp;

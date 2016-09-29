@@ -29,7 +29,7 @@ std::unique_ptr<Pass> detail::PassCreator::doCreate(
 	shaderFactory_.registerCompiledShader("sprite.p", info);
 
 	shaderFactory_.create(id + ".v", graphicsRenderer);
-	// shaderFactory_.create(id + ".p", graphicsRenderer);
+	shaderFactory_.create(id + ".p", graphicsRenderer);
 
 	throw "demo endddd";
 

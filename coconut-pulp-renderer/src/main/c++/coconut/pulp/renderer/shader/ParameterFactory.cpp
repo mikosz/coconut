@@ -11,6 +11,7 @@
 #include "../Actor.hpp"
 #include "../Material.hpp"
 
+#include "ArrayParameter.hpp"
 #include "CallbackParameter.hpp"
 #include "ParameterChain.hpp"
 
@@ -59,7 +60,17 @@ IdentifierSlices sliceIdentifier(const std::string& id) {
 using milk::math::Matrix;
 using milk::math::Vector3d;
 
-std::unique_ptr<Parameter<Scene>> createViewMatrixParameter() {
+void verifyNotAnArray(const ParameterFactoryInstanceDetails& instanceDetails) {
+	if (instanceDetails.arrayedElementIndex != -1) {
+		throw coconut_tools::factory::error_policy::NoSuchType<ParameterFactoryInstanceDetails>(
+			instanceDetails
+			); // TODO: throw an error specifying that an array is used when not expected
+	}
+}
+
+std::unique_ptr<Parameter<Scene>> createViewMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
 	return std::make_unique<CallbackParameter<Matrix, Scene>>(
 		[](Matrix& result, const Scene& scene) {
 			result = scene.camera().viewTransformation();
@@ -67,7 +78,9 @@ std::unique_ptr<Parameter<Scene>> createViewMatrixParameter() {
 		);
 }
 
-std::unique_ptr<Parameter<Scene>> createProjectionMatrixParameter() {
+std::unique_ptr<Parameter<Scene>> createProjectionMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
 	return std::make_unique<CallbackParameter<Matrix, Scene>>(
 		[](Matrix& result, const Scene& scene) {
 			result = scene.lens().projectionTransformation();
@@ -75,7 +88,9 @@ std::unique_ptr<Parameter<Scene>> createProjectionMatrixParameter() {
 		);
 }
 
-std::unique_ptr<Parameter<Scene>> createEyePositionParameter() {
+std::unique_ptr<Parameter<Scene>> createEyePositionParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
 	return std::make_unique<CallbackParameter<Vector3d, Scene>>(
 		[](Vector3d& result, const Scene& scene) {
 			result = scene.camera().position();
@@ -83,7 +98,9 @@ std::unique_ptr<Parameter<Scene>> createEyePositionParameter() {
 		);
 }
 
-std::unique_ptr<Parameter<Actor>> createWorldMatrixParameter() {
+std::unique_ptr<Parameter<Actor>> createWorldMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
 	return std::make_unique<CallbackParameter<Matrix, Actor>>(
 		[](Matrix& result, const Actor& actor) {
 			result = actor.worldTransformation();
@@ -91,7 +108,9 @@ std::unique_ptr<Parameter<Actor>> createWorldMatrixParameter() {
 		);
 }
 
-std::unique_ptr<Parameter<Matrix>> createInverterParameter() {
+std::unique_ptr<Parameter<Matrix>> createInverterParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
 	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
 		[](Matrix& result, const Matrix& matrix) {
 			result = matrix.inverted();
@@ -99,7 +118,9 @@ std::unique_ptr<Parameter<Matrix>> createInverterParameter() {
 		);
 }
 
-std::unique_ptr<Parameter<Matrix>> createTransposedParameter() {
+std::unique_ptr<Parameter<Matrix>> createTransposedParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
 	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
 		[](Matrix& result, const Matrix& matrix) {
 			result = matrix.transposed();
@@ -109,29 +130,53 @@ std::unique_ptr<Parameter<Matrix>> createTransposedParameter() {
 
 } // anonymous namespace
 
+bool coconut::pulp::renderer::shader::operator==(
+	const ParameterFactoryInstanceDetails& lhs, const ParameterFactoryInstanceDetails& rhs)
+{
+	return lhs.id == rhs.id &&
+		lhs.structurePrefix == rhs.structurePrefix;
+}
+
+std::ostream& coconut::pulp::renderer::shader::operator<<(
+	std::ostream& os, const ParameterFactoryInstanceDetails& instanceDetails)
+{
+	os
+		<< instanceDetails.structurePrefix
+		<< "::" << instanceDetails.id
+		<< "[" << instanceDetails.arrayedElementIndex << "]";
+	return os;
+}
+
 detail::ParameterCreator::ParameterCreator() {
 	registerBuiltins();
 }
 
-std::unique_ptr<UnknownParameter> detail::ParameterCreator::doCreate(const std::string& id) {
-	CT_LOG_INFO << "Creating shader parameter " << id;
+std::unique_ptr<UnknownParameter> detail::ParameterCreator::doCreate(
+	const ParameterFactoryInstanceDetails& instanceDetails
+	)
+{
+	CT_LOG_INFO << "Creating shader parameter " << instanceDetails;
 
-	auto slices = sliceIdentifier(id);
+	auto slices = sliceIdentifier(instanceDetails.id);
 
 	IdentifierSlices tail;
+	ParameterFactoryInstanceDetails sliceDetails = instanceDetails;
 
 	auto isChain = false;
 	std::unique_ptr<UnknownParameter> result;
 
 	while (!slices.empty()) {
 		const auto subId = boost::join(slices, "_");
+		sliceDetails.id = subId;
 
-		if (isCreatorRegistered(subId)) {
+		if (isCreatorRegistered(sliceDetails)) {
 			CT_LOG_DEBUG << "Found registered parameter for \"" << subId << "\"";
-			auto next = Super::doCreate(subId); // TODO: problem here is that we call the superclass going around the factory type
+			auto next = Super::doCreate(sliceDetails, sliceDetails);
+					// TODO: problem here is that we call the superclass going around the factory type
 					// we could have params world and world_inv and world would be created twice
 			if (!result) {
-				result = std::move(next); 
+				result = std::move(next);
+				sliceDetails = ParameterFactoryInstanceDetails("");
 			} else {
 				// TODO: could we have less of these switches?
 				switch (result->inputType()) {
@@ -169,7 +214,8 @@ std::unique_ptr<UnknownParameter> detail::ParameterCreator::doCreate(const std::
 	}
 	
 	if (!tail.empty()) {
-		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id); // TODO: custom exception specifying partial id?
+		throw coconut_tools::factory::error_policy::NoSuchType<ParameterFactoryInstanceDetails>(instanceDetails);
+			// TODO: custom exception specifying partial id?
 	}
 
 	return result;
@@ -177,23 +223,23 @@ std::unique_ptr<UnknownParameter> detail::ParameterCreator::doCreate(const std::
 
 void detail::ParameterCreator::registerBuiltins() {
 	// SCENE
-	registerCreator("view_matrix", &createViewMatrixParameter);
-	registerCreator("view", &createViewMatrixParameter);
+	registerCreator(ParameterFactoryInstanceDetails("view_matrix"), &createViewMatrixParameter);
+	registerCreator(ParameterFactoryInstanceDetails("view"), &createViewMatrixParameter);
 
-	registerCreator("projection_matrix", &createProjectionMatrixParameter);
-	registerCreator("projection", &createProjectionMatrixParameter);
+	registerCreator(ParameterFactoryInstanceDetails("projection_matrix"), &createProjectionMatrixParameter);
+	registerCreator(ParameterFactoryInstanceDetails("projection"), &createProjectionMatrixParameter);
 
-	registerCreator("eye_position", &createEyePositionParameter);
-	registerCreator("eye_pos", &createEyePositionParameter);
-	registerCreator("eye", &createEyePositionParameter);
+	registerCreator(ParameterFactoryInstanceDetails("eye_position"), &createEyePositionParameter);
+	registerCreator(ParameterFactoryInstanceDetails("eye_pos"), &createEyePositionParameter);
+	registerCreator(ParameterFactoryInstanceDetails("eye"), &createEyePositionParameter);
 
 	// ACTOR
-	registerCreator("world_matrix", &createWorldMatrixParameter);
-	registerCreator("world", &createWorldMatrixParameter);
+	registerCreator(ParameterFactoryInstanceDetails("world_matrix"), &createWorldMatrixParameter);
+	registerCreator(ParameterFactoryInstanceDetails("world"), &createWorldMatrixParameter);
 
 	// MATRIX
-	registerCreator("inv", &createInverterParameter);
-	registerCreator("inverse", &createInverterParameter);
+	registerCreator(ParameterFactoryInstanceDetails("inv"), &createInverterParameter);
+	registerCreator(ParameterFactoryInstanceDetails("inverse"), &createInverterParameter);
 
-	registerCreator("transpose", &createTransposedParameter);
+	registerCreator(ParameterFactoryInstanceDetails("transpose"), &createTransposedParameter);
 }
