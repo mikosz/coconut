@@ -14,7 +14,7 @@ namespace pulp {
 namespace renderer {
 namespace shader {
 
-template <class... UpdateArguments>
+template <class UpdateArgument>
 class ConstantBuffer {
 public:
 
@@ -22,7 +22,7 @@ public:
 		milk::graphics::Renderer& renderer,
 		milk::graphics::ShaderType shaderType,
 		size_t slot,
-		std::unique_ptr<Parameter<UpdateArguments...>> parameter
+		std::unique_ptr<Parameter> parameter
 		) :
 		stage_(shaderType),
 		textureSlot_(slot),
@@ -41,8 +41,10 @@ public:
 	{
 	}
 
-	void bind(DrawCommand& drawCommand, const UpdateArguments&... updateArguments) { // TODO: why doesn't perfect forwarding work here?
-		parameter_->update(data_.data(), updateArguments...);
+	void bind(DrawCommand& drawCommand, const UpdateArgument& updateArgument) {
+		// TODO: check parameter input type against UpdateArgument
+
+		parameter_->update(data_.data(), &updateArgument);
 		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, textureSlot_);
 	}
 
@@ -56,7 +58,7 @@ private:
 
 	std::vector<std::uint8_t> data_;
 
-	std::unique_ptr<Parameter<UpdateArguments...>> parameter_;
+	std::unique_ptr<Parameter> parameter_; // TODO: not a single one surely?
 
 };
 

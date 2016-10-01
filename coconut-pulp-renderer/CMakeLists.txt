@@ -6,6 +6,7 @@ set(DEPENDENCY_LIBRARIES
     coconut-tools-configuration
     coconut-tools-system
     coconut-tools-exceptions
+    coconut-tools-utils
     )
 
 set(TEST_LIBRARIES

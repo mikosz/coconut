@@ -7,13 +7,14 @@
 
 #include <coconut-tools/logger.hpp>
 
+#include "../lighting/DirectionalLight.hpp"
+#include "../lighting/PointLight.hpp"
 #include "../Scene.hpp"
 #include "../Actor.hpp"
 #include "../Material.hpp"
 
 #include "ArrayParameter.hpp"
 #include "CallbackParameter.hpp"
-#include "ParameterChain.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -61,54 +62,87 @@ using milk::math::Matrix;
 using milk::math::Vector3d;
 
 void verifyNotAnArray(const ParameterFactoryInstanceDetails& instanceDetails) {
-	if (instanceDetails.arrayedElementIndex != -1) {
+	if (instanceDetails.arraySize != 0) {
 		throw coconut_tools::factory::error_policy::NoSuchType<ParameterFactoryInstanceDetails>(
 			instanceDetails
 			); // TODO: throw an error specifying that an array is used when not expected
 	}
 }
 
-std::unique_ptr<Parameter<Scene>> createViewMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+void verifyIsArray(const ParameterFactoryInstanceDetails& instanceDetails) {
+	if (instanceDetails.arraySize == 0) {
+		throw coconut_tools::factory::error_policy::NoSuchType<ParameterFactoryInstanceDetails>(
+			instanceDetails
+			); // TODO: throw an error specifying that an array is expected
+	}
+}
+
+std::unique_ptr<Parameter> createViewMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Matrix, Scene>>(
+	return std::make_unique<CallbackParameter<Scene, Matrix>>(
 		[](Matrix& result, const Scene& scene) {
 			result = scene.camera().viewTransformation();
 		}
 		);
 }
 
-std::unique_ptr<Parameter<Scene>> createProjectionMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+std::unique_ptr<Parameter> createProjectionMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Matrix, Scene>>(
+	return std::make_unique<CallbackParameter<Scene, Matrix>>(
 		[](Matrix& result, const Scene& scene) {
 			result = scene.lens().projectionTransformation();
 		}
 		);
 }
 
-std::unique_ptr<Parameter<Scene>> createEyePositionParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+std::unique_ptr<Parameter> createEyePositionParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Vector3d, Scene>>(
+	return std::make_unique<CallbackParameter<Scene, Vector3d>>(
 		[](Vector3d& result, const Scene& scene) {
 			result = scene.camera().position();
 		}
 		);
 }
 
-std::unique_ptr<Parameter<Actor>> createWorldMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+std::unique_ptr<Parameter> createDirectionalLightsParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyIsArray(instanceDetails);
+
+	return std::make_unique<ArrayParameter<Scene, const lighting::DirectionalLight*>>(
+		[](const lighting::DirectionalLight*& result, const Scene& scene, size_t index) {
+			if (index < scene.directionalLights().size()) {
+				result = &scene.directionalLights()[index];
+			} else {
+				result = nullptr;
+			}
+		},
+		instanceDetails.arraySize
+		);
+}
+
+std::unique_ptr<Parameter> createDirectionalLightsCountParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Matrix, Actor>>(
+	return std::make_unique<CallbackParameter<Scene, std::uint32_t>>(
+		[](std::uint32_t& result, const Scene& scene) {
+			result = static_cast<std::uint32_t>(scene.directionalLights().size());
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createWorldMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<Actor, Matrix>>(
 		[](Matrix& result, const Actor& actor) {
 			result = actor.worldTransformation();
 		}
 		);
 }
 
-std::unique_ptr<Parameter<Matrix>> createInverterParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+std::unique_ptr<Parameter> createInverterParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
@@ -118,7 +152,7 @@ std::unique_ptr<Parameter<Matrix>> createInverterParameter(const ParameterFactor
 		);
 }
 
-std::unique_ptr<Parameter<Matrix>> createTransposedParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+std::unique_ptr<Parameter> createTransposedParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
@@ -134,16 +168,16 @@ bool coconut::pulp::renderer::shader::operator==(
 	const ParameterFactoryInstanceDetails& lhs, const ParameterFactoryInstanceDetails& rhs)
 {
 	return lhs.id == rhs.id &&
-		lhs.structurePrefix == rhs.structurePrefix;
+		lhs.parentType == rhs.parentType;
 }
 
 std::ostream& coconut::pulp::renderer::shader::operator<<(
 	std::ostream& os, const ParameterFactoryInstanceDetails& instanceDetails)
 {
 	os
-		<< instanceDetails.structurePrefix
+		<< instanceDetails.parentType
 		<< "::" << instanceDetails.id
-		<< "[" << instanceDetails.arrayedElementIndex << "]";
+		<< "[" << instanceDetails.arraySize << "]";
 	return os;
 }
 
@@ -151,7 +185,7 @@ detail::ParameterCreator::ParameterCreator() {
 	registerBuiltins();
 }
 
-std::unique_ptr<UnknownParameter> detail::ParameterCreator::doCreate(
+std::unique_ptr<Parameter> detail::ParameterCreator::doCreate(
 	const ParameterFactoryInstanceDetails& instanceDetails
 	)
 {
@@ -162,8 +196,8 @@ std::unique_ptr<UnknownParameter> detail::ParameterCreator::doCreate(
 	IdentifierSlices tail;
 	ParameterFactoryInstanceDetails sliceDetails = instanceDetails;
 
-	auto isChain = false;
-	std::unique_ptr<UnknownParameter> result;
+	std::unique_ptr<Parameter> result;
+	Parameter* last = nullptr;
 
 	while (!slices.empty()) {
 		const auto subId = boost::join(slices, "_");
@@ -176,33 +210,12 @@ std::unique_ptr<UnknownParameter> detail::ParameterCreator::doCreate(
 					// we could have params world and world_inv and world would be created twice
 			if (!result) {
 				result = std::move(next);
+				last = result.get();
 				sliceDetails = ParameterFactoryInstanceDetails("");
 			} else {
-				// TODO: could we have less of these switches?
-				switch (result->inputType()) {
-				case UnknownParameter::OperandType::SCENE:
-					if (!isChain) {
-						result = std::make_unique<ParameterChain<Scene>>(std::move(result));
-					}
-					dynamic_cast<ParameterChain<Scene>&>(*result).push(std::move(next));
-					break;
-				case UnknownParameter::OperandType::ACTOR:
-					if (!isChain) {
-						result = std::make_unique<ParameterChain<Actor>>(std::move(result));
-					}
-					dynamic_cast<ParameterChain<Actor>&>(*result).push(std::move(next));
-					break;
-				case UnknownParameter::OperandType::MATERIAL:
-					if (!isChain) {
-						result = std::make_unique<ParameterChain<Material>>(std::move(result));
-					}
-					dynamic_cast<ParameterChain<Material>&>(*result).push(std::move(next));
-					break;
-				default:
-					throw BadParameterType(result->inputType());
-				}
-
-				isChain = true;
+				auto* newLast = next.get();
+				last->setNext(std::move(next));
+				last = newLast;
 			}
 			tail.swap(slices);
 			tail.clear();
@@ -232,6 +245,9 @@ void detail::ParameterCreator::registerBuiltins() {
 	registerCreator(ParameterFactoryInstanceDetails("eye_position"), &createEyePositionParameter);
 	registerCreator(ParameterFactoryInstanceDetails("eye_pos"), &createEyePositionParameter);
 	registerCreator(ParameterFactoryInstanceDetails("eye"), &createEyePositionParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("directional_lights"), &createDirectionalLightsParameter);
+	registerCreator(ParameterFactoryInstanceDetails("directional_lights_count"), &createDirectionalLightsCountParameter);
 
 	// ACTOR
 	registerCreator(ParameterFactoryInstanceDetails("world_matrix"), &createWorldMatrixParameter);

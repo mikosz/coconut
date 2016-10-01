@@ -1,7 +1,10 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_PARAMETER_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_PARAMETER_HPP_
 
+#include <memory>
+
 #include <coconut-tools/enum.hpp>
+#include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "coconut/milk/math/Matrix.hpp"
 
@@ -15,7 +18,7 @@ class Material;
 
 namespace shader {
 
-class UnknownParameter {
+class Parameter {
 public:
 
 	CCN_MEMBER_ENUM(
@@ -26,30 +29,18 @@ public:
 
 		(MATRIX)
 		(VECTOR3D)
+		(UINT32)
+
+		(OBJECT)
 	);
-
-	UnknownParameter() = default;
-
-	virtual ~UnknownParameter() noexcept = default;
-
-	UnknownParameter(const UnknownParameter&) = delete;
-
-	void operator=(const UnknownParameter&) = delete;
-
-	virtual OperandType inputType() const noexcept = 0;
-
-	virtual OperandType outputType() const noexcept = 0;
-
-	virtual size_t size() const noexcept = 0;
-
-	virtual bool requires16ByteAlignment() const noexcept {
-		return false;
-	}
-
-protected:
 
 	template <class T>
 	struct DeducedOperandType;
+
+	template <class T>
+	struct DeducedOperandType<T*> {
+		static const auto type = OperandType::OBJECT;
+	};
 
 	template <>
 	struct DeducedOperandType<Scene> {
@@ -76,17 +67,109 @@ protected:
 		static const auto type = OperandType::VECTOR3D;
 	};
 
+	template <>
+	struct DeducedOperandType<std::uint32_t> {
+		static const auto type = OperandType::UINT32;
+	};
+
+	Parameter() = default;
+
+	virtual ~Parameter() noexcept = default;
+
+	Parameter(const Parameter&) = delete;
+
+	void operator=(const Parameter&) = delete;
+
+	virtual OperandType inputType() const noexcept = 0;
+
+	size_t size() const noexcept;
+
+	virtual bool requires16ByteAlignment() const noexcept {
+		return false;
+	}
+
+	void update(void* output, const void* input) const; // TODO: accept two std::vector<uint8> buffers to be able to check sizes and reuse memory?
+
+	OperandType outputType() const noexcept;
+
+	void setNext(std::shared_ptr<Parameter> next); // TODO: put this in a subclass? StrucutredParameter doesn't want it
+
+protected:
+
+	virtual void updateThis(void* output, const void* input) const = 0;
+
+	virtual OperandType thisOutputType() const noexcept = 0;
+
+	virtual size_t thisSize() const noexcept = 0;
+
+private:
+
+	std::shared_ptr<Parameter> next_;
+
 };
 
-template <class... UpdateArguments>
-class Parameter : public UnknownParameter {
+class IncompatibleParameters : public coconut_tools::exceptions::RuntimeError {
 public:
 
-	virtual void update(void* buffer, const UpdateArguments&... data) const = 0;
+	IncompatibleParameters(const Parameter& parameter, const Parameter& next) :
+		coconut_tools::exceptions::RuntimeError(
+			"Incopatible parameters - original parameters output type is " +
+			toString(parameter.outputType()) +
+			", next parameter input type is " +
+			toString(next.inputType())
+			),
+		parameterOutput_(parameter.outputType()),
+		nextInput_(next.inputType())
+	{
+	}
+
+	Parameter::OperandType output() const noexcept {
+		return parameterOutput_;
+	}
+
+	Parameter::OperandType input() const noexcept {
+		return nextInput_;
+	}
+	
+private:
+
+	Parameter::OperandType parameterOutput_;
+
+	Parameter::OperandType nextInput_;
+	
+};
+
+template <class InputType, class OutputType>
+class ConcreteParameter : public Parameter {
+public:
+
+	OperandType inputType() const noexcept override final {
+		return typename DeducedOperandType<InputType>::type;
+	}
+
+protected:
+
+	virtual void updateThis(OutputType& output, const InputType& input) const = 0;
+
+	void updateThis(void* output, const void* input) const override final {
+		const auto& concreteInput = *reinterpret_cast<const InputType*>(input);
+		auto& concreteOutput = *reinterpret_cast<OutputType*>(output);
+
+		updateThis(concreteOutput, concreteInput);
+	}
+
+	OperandType thisOutputType() const noexcept override final {
+		return typename DeducedOperandType<OutputType>::type;
+	}
+
+	size_t thisSize() const noexcept override final {
+		return sizeof(OutputType); // TODO: accept offset and size as constructor parameters (wont need size() and requires16ByteAlignment())
+	}
 
 };
 
 } // namespace shader
+
 } // namespace renderer
 } // namespace pulp
 } // namespace coconut

@@ -12,7 +12,7 @@ using namespace coconut::pulp::renderer::shader;
 namespace /* anonymous */ {
 
 template <size_t SIZE>
-class MockParameter : public Parameter<size_t> {
+class MockParameter : public Parameter {
 public:
 
 	MockParameter() :

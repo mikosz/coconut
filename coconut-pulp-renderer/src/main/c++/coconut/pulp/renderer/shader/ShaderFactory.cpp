@@ -9,6 +9,7 @@
 
 #include "coconut/milk/graphics/compile-shader.hpp"
 #include "coconut/milk/graphics/ShaderReflection.hpp"
+
 #include "StructuredParameter.hpp"
 
 using namespace coconut;
@@ -22,50 +23,46 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.SHADER_FACTORY");
 
 using milk::graphics::ShaderReflection;
 
-std::shared_ptr<UnknownParameter> createParameter(
+std::shared_ptr<Parameter> createParameter(
 	ParameterFactory& parameterFactory,
 	const std::string& name,
 	const ShaderReflection::Type& type,
-	const std::string& parentTypeName
+	const std::string& parentType = std::string()
 	)
 {
 	CT_LOG_DEBUG << "Creating parameter for variable " << name;
 
-	std::vector<int> indices = { -1 };
+	std::shared_ptr<Parameter> result;
 
-	if (type.elements > 0) {
-		indices.resize(type.elements);
-		auto index = 0;
-		std::for_each(indices.begin(), indices.end(), [&index](int& element) { element = index++; });
-	}
+	ParameterFactoryInstanceDetails instanceDetails(name);
 
-	if (type == ShaderReflection::Type::Class::STRUCT) {
-		StructuredParameter<???>::Subparameters structureParameters;
+	instanceDetails.arraySize = type.elements;
+	instanceDetails.parentType = parentType;
+
+	auto parameter = parameterFactory.create(instanceDetails);
+
+	if (parameter->outputType() == Parameter::OperandType::OBJECT) {
+		if (type.klass != ShaderReflection::Type::Class::STRUCT) {
+#pragma message("!!! TODO: exception + want a common superclass for shader factory exceptions")
+			throw "";
+		}
+
+		auto& structuredParameter = dynamic_cast<StructuredParameter&>(*parameter);
 
 		for (const auto& member : type.members) {
 			std::string memberName;
 			ShaderReflection::Type memberType;
 			std::tie(memberName, memberType) = member;
 
-			structureParameters.emplace_back(
-				createParameter(parameterFactory, memberName, memberType, parentTypeName + "::" + type.name)
+			structuredParameter.addSubparameter(
+				createParameter(parameterFactory, memberName, memberType, type.name)
 				);
 		}
 	}
 
-	ParameterFactoryInstanceDetails instanceDetails(name);
+#pragma message("!!! TODO: verify size and output type before returning") // TODO
 
-	for (size_t arrayElementIndex = 0; arrayElementIndex < arrayElements; ++arrayElementIndex) {
-		instanceDetails.id = ;
-		instanceDetails.arrayedElementIndex = arrayElementIndex;
-
-		switch (variable.type.klass) {
-		case ShaderReflection::Type::Class::SCALAR:
-			return parameterFactory.create(instanceDetails);
-		}
-	}
-
-	throw "";
+	return parameter;
 }
 
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
@@ -86,7 +83,7 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 
 	for (const auto& constantBuffer : reflection.constantBuffers()) {
 		for (const auto& variable : constantBuffer.variables) {
-			auto parameter = createParameter(parameterFactory, variable.name, variable.type, "");
+			auto parameter = createParameter(parameterFactory, variable.name, variable.type);
 		}
 	}
 

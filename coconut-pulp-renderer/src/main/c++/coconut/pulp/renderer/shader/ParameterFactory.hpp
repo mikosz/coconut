@@ -25,24 +25,24 @@ struct ParameterFactoryInstanceDetails {
 	
 	std::string id;
 
-	int arrayedElementIndex;
+	size_t arraySize;
 
-	std::string structurePrefix;
+	std::string parentType;
 
 	ParameterFactoryInstanceDetails(
 		std::string id,
-		std::string structurePrefix = "",
-		int arrayedElementIndex = -1
+		std::string parentType = "",
+		int arraySize = 0
 		) :
 		id(std::move(id)),
-		arrayedElementIndex(arrayedElementIndex),
-		structurePrefix(std::move(structurePrefix))
+		arraySize(arraySize),
+		parentType(std::move(parentType))
 	{
 	}
 
 };
 
-// NOTE: comparison ignores the arrayedElementIndex field
+// NOTE: comparison ignores the arraySize field
 bool operator==(const ParameterFactoryInstanceDetails& lhs, const ParameterFactoryInstanceDetails& rhs);
 std::ostream& operator<<(std::ostream& os, const ParameterFactoryInstanceDetails& instanceDetails);
 
@@ -59,8 +59,8 @@ struct hash<coconut::pulp::renderer::shader::ParameterFactoryInstanceDetails> {
 	size_t operator()(const coconut::pulp::renderer::shader::ParameterFactoryInstanceDetails& instanceDetails) const {
 		size_t seed = 0;
 		coconut_tools::utils::hashCombine(seed, std::hash_value(instanceDetails.id));
-		coconut_tools::utils::hashCombine(seed, std::hash_value(instanceDetails.arrayedElementIndex));
-		coconut_tools::utils::hashCombine(seed, std::hash_value(instanceDetails.structurePrefix));
+		coconut_tools::utils::hashCombine(seed, std::hash_value(instanceDetails.arraySize));
+		coconut_tools::utils::hashCombine(seed, std::hash_value(instanceDetails.parentType));
 		return seed;
 	}
 
@@ -81,7 +81,7 @@ class ParameterCreator :
 	public coconut_tools::factory::CreatorRegistry<
 		ParameterFactoryInstanceDetails,
 		coconut_tools::policy::creation::Functor<
-			std::function<std::unique_ptr<UnknownParameter> (const ParameterFactoryInstanceDetails&)>,
+			std::function<std::unique_ptr<Parameter> (const ParameterFactoryInstanceDetails&)>,
 			const ParameterFactoryInstanceDetails&
 			>,
 		coconut_tools::factory::error_policy::ExceptionThrowing
@@ -93,14 +93,14 @@ public:
 
 protected:
 
-	std::unique_ptr<UnknownParameter> doCreate(const ParameterFactoryInstanceDetails& instanceDetails);
+	std::unique_ptr<Parameter> doCreate(const ParameterFactoryInstanceDetails& instanceDetails);
 
 private:
 
 	using Super = coconut_tools::factory::CreatorRegistry<
 		ParameterFactoryInstanceDetails,
 		coconut_tools::policy::creation::Functor<
-			std::function<std::unique_ptr<UnknownParameter> (const ParameterFactoryInstanceDetails&)>,
+			std::function<std::unique_ptr<Parameter> (const ParameterFactoryInstanceDetails&)>,
 			const ParameterFactoryInstanceDetails&
 			>,
 		coconut_tools::factory::error_policy::ExceptionThrowing
@@ -115,26 +115,26 @@ private:
 class BadParameterType : public coconut_tools::exceptions::RuntimeError {
 public:
 
-	BadParameterType(UnknownParameter::OperandType type) :
+	BadParameterType(Parameter::OperandType type) :
 		coconut_tools::exceptions::RuntimeError("Provided type: " + toString(type) + " cannot be used as a parameter basic type"),
 		type_(type)
 	{
 	}
 
-	UnknownParameter::OperandType type() const noexcept {
+	Parameter::OperandType type() const noexcept {
 		return type_;
 	}
 
 private:
 
-	UnknownParameter::OperandType type_;
+	Parameter::OperandType type_;
 
 };
 
 using ParameterFactory = 
 	coconut_tools::Factory<
 		ParameterFactoryInstanceDetails,
-		UnknownParameter,
+		Parameter,
 		coconut_tools::factory::storage::Volatile,
 		detail::ParameterCreator,
 		std::mutex

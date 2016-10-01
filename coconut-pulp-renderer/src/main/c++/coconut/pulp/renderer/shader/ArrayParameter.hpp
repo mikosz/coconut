@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <functional>
 
 #include <coconut-tools/exceptions/LogicError.hpp>
 
@@ -15,61 +16,50 @@ namespace pulp {
 namespace renderer {
 namespace shader {
 
-template <class... UpdateArguments>
-class ArrayParameter : public Parameter<UpdateArguments...> {
+template <class ElementInputType, class ElementOutputType>
+class ArrayParameter final : public Parameter {
 public:
 
-	using Element = Parameter<UpdateArguments..., size_t>;
+	using Callback = std::function<void (ElementOutputType&, const ElementInputType&, size_t)>;
 
-	using ElementPtr = std::shared_ptr<Element>;
-
-	ArrayParameter(
-		ElementPtr element,
-		size_t count
-		) :
-		Parameter(totalSize(element->size(), count)),
-		element_(element),
-		count_(count)
+	ArrayParameter(Callback callback, size_t size) :
+		callback_(callback),
+		size_(size)
 	{
 	}
 
-	void update(void* buffer, const UpdateArguments&... data) const override {
-		auto padding = milk::utils::roundUpToMultipleOf(element_->size(), 16) - element_->size();
+	OperandType inputType() const noexcept override {
+		return typename DeducedOperandType<ElementInputType>::type;
+	}
 
-		auto* fieldIt = reinterpret_cast<std::uint8_t*>(buffer);
-		for (size_t i = 0; i < count_; ++i) {
-			if (i > 0) {
-				fieldIt += padding;
-			}
-			element_->update(fieldIt, data..., i);
-			fieldIt += element_->size();
-		}
 
-		auto* const expected = reinterpret_cast<std::uint8_t*>(buffer) + size();
-		if (fieldIt != expected) {
-			std::ostringstream err;
-			err << "Expected end pointer to be at " << expected << ", got " << *fieldIt;
-			throw coconut_tools::exceptions::LogicError(err.str());
+
+protected:
+
+	virtual void updateThis(void* output, const void* input) const override {
+		auto* outputPtr = reinterpret_cast<ElementOutputType*>(output);
+		const auto& concreteInput = *reinterpret_cast<const ElementInputType*>(input);
+#pragma message("!!! TODO: padding!")
+		for (size_t i = 0; i < size_; ++i) {
+			callback_(*outputPtr, concreteInput, i);
+			++outputPtr;
 		}
 	}
 
-	bool requires16ByteAlignment() const override {
-		return true;
+	virtual OperandType thisOutputType() const noexcept override {
+		return typename DeducedOperandType<ElementOutputType>::type;
+	}
+
+	virtual size_t thisSize() const noexcept override {
+#pragma message("!!! TODO: padding!")
+		return sizeof(ElementOutputType) * size_;
 	}
 
 private:
 
-	ElementPtr element_;
+	Callback callback_;
 
-	size_t count_;
-
-	static size_t totalSize(size_t elementSize, size_t elementCount) {
-		if (elementCount <= 1) {
-			return elementSize * elementCount;
-		} else {
-			return (milk::utils::roundUpToMultipleOf(elementSize, 16) * (elementCount - 1)) + elementSize;
-		}
-	}
+	size_t size_;
 
 };
 
