@@ -5,10 +5,10 @@
   </appenders>
 </root-logger>
 <loggers>
-  <logger>
+  <!-- <logger>
     <id>COCONUT.PULP.RENDERER.SHADER</id>
-	<level>debug</level>
-  </logger>
+    <level>debug</level>
+  </logger> -->
 </loggers>
 <appenders>
   <appender>

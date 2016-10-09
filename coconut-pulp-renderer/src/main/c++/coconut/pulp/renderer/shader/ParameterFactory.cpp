@@ -11,10 +11,10 @@
 #include "../lighting/PointLight.hpp"
 #include "../Scene.hpp"
 #include "../Actor.hpp"
-#include "../Material.hpp"
+#include "../PhongMaterial.hpp"
 
-#include "ArrayParameter.hpp"
 #include "CallbackParameter.hpp"
+#include "StructuredParameter.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -60,6 +60,7 @@ IdentifierSlices sliceIdentifier(const std::string& id) {
 // TODO: extract creators to external file?
 using milk::math::Matrix;
 using milk::math::Vector3d;
+using milk::math::Vector4d;
 
 void verifyNotAnArray(const ParameterFactoryInstanceDetails& instanceDetails) {
 	if (instanceDetails.arraySize != 0) {
@@ -81,7 +82,8 @@ std::unique_ptr<Parameter> createViewMatrixParameter(const ParameterFactoryInsta
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Scene, Matrix>>(
-		[](Matrix& result, const Scene& scene) {
+		[](Matrix& result, const Scene& scene, size_t arrayIndex) {
+			assert(arrayIndex == 0);
 			result = scene.camera().viewTransformation();
 		}
 		);
@@ -91,7 +93,8 @@ std::unique_ptr<Parameter> createProjectionMatrixParameter(const ParameterFactor
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Scene, Matrix>>(
-		[](Matrix& result, const Scene& scene) {
+		[](Matrix& result, const Scene& scene, size_t arrayIndex) {
+			assert(arrayIndex == 0);
 			result = scene.lens().projectionTransformation();
 		}
 		);
@@ -101,7 +104,8 @@ std::unique_ptr<Parameter> createEyePositionParameter(const ParameterFactoryInst
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Scene, Vector3d>>(
-		[](Vector3d& result, const Scene& scene) {
+		[](Vector3d& result, const Scene& scene, size_t arrayIndex) {
+			assert(arrayIndex == 0);
 			result = scene.camera().position();
 		}
 		);
@@ -110,14 +114,17 @@ std::unique_ptr<Parameter> createEyePositionParameter(const ParameterFactoryInst
 std::unique_ptr<Parameter> createDirectionalLightsParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyIsArray(instanceDetails);
 
-	return std::make_unique<ArrayParameter<Scene, const lighting::DirectionalLight*>>(
-		[](const lighting::DirectionalLight*& result, const Scene& scene, size_t index) {
+	return std::make_unique<StructuredParameter>(
+		[](const void* scenePtr, size_t index) -> const lighting::DirectionalLight* {
+			const auto& scene = *reinterpret_cast<const Scene*>(scenePtr);
+
 			if (index < scene.directionalLights().size()) {
-				result = &scene.directionalLights()[index];
+				return &scene.directionalLights()[index];
 			} else {
-				result = nullptr;
+				return nullptr;
 			}
 		},
+		Parameter::OperandType::SCENE,
 		instanceDetails.arraySize
 		);
 }
@@ -126,8 +133,38 @@ std::unique_ptr<Parameter> createDirectionalLightsCountParameter(const Parameter
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Scene, std::uint32_t>>(
-		[](std::uint32_t& result, const Scene& scene) {
+		[](std::uint32_t& result, const Scene& scene, size_t arrayIndex) {
+			assert(arrayIndex == 0);
 			result = static_cast<std::uint32_t>(scene.directionalLights().size());
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createPointLightsParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyIsArray(instanceDetails);
+
+	return std::make_unique<StructuredParameter>(
+		[](const void* scenePtr, size_t index) -> const lighting::PointLight* {
+			const auto& scene = *reinterpret_cast<const Scene*>(scenePtr);
+
+			if (index < scene.pointLights().size()) {
+				return &scene.pointLights()[index];
+			} else {
+				return nullptr;
+			}
+		},
+		Parameter::OperandType::SCENE,
+		instanceDetails.arraySize
+		);
+}
+
+std::unique_ptr<Parameter> createPointLightsCountParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<Scene, std::uint32_t>>(
+		[](std::uint32_t& result, const Scene& scene, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = static_cast<std::uint32_t>(scene.pointLights().size());
 		}
 		);
 }
@@ -136,9 +173,25 @@ std::unique_ptr<Parameter> createWorldMatrixParameter(const ParameterFactoryInst
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Actor, Matrix>>(
-		[](Matrix& result, const Actor& actor) {
+		[](Matrix& result, const Actor& actor, size_t arrayIndex) {
+			assert(arrayIndex == 0);
 			result = actor.worldTransformation();
 		}
+		);
+}
+
+std::unique_ptr<Parameter> createPhongMaterialParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<StructuredParameter>(
+		[](const void* materialPtr, size_t index) {
+			assert(index == 0);
+
+			const auto& material = *reinterpret_cast<const Material*>(materialPtr);
+
+			return &dynamic_cast<const PhongMaterial&>(material);
+		},
+		Parameter::OperandType::MATERIAL
 		);
 }
 
@@ -146,7 +199,8 @@ std::unique_ptr<Parameter> createInverterParameter(const ParameterFactoryInstanc
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
-		[](Matrix& result, const Matrix& matrix) {
+		[](Matrix& result, const Matrix& matrix, size_t arrayIndex) {
+			assert(arrayIndex == 0);
 			result = matrix.inverted();
 		}
 		);
@@ -156,8 +210,141 @@ std::unique_ptr<Parameter> createTransposedParameter(const ParameterFactoryInsta
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
-		[](Matrix& result, const Matrix& matrix) {
+		[](Matrix& result, const Matrix& matrix, size_t arrayIndex) {
+			assert(arrayIndex == 0);
 			result = matrix.transposed();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createDirectionalLightAmbientColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vector4d>>(
+		[](Vector4d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->ambientColour();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createDirectionalLightDiffuseColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vector4d>>(
+		[](Vector4d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->diffuseColour();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createDirectionalLightSpecularColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vector4d>>(
+		[](Vector4d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->specularColour();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createDirectionalLightDirectionParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vector3d>>(
+		[](Vector3d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->direction();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createPointLightAmbientColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector4d>>(
+		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->ambientColour();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createPointLightDiffuseColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector4d>>(
+		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->diffuseColour();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createPointLightSpecularColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector4d>>(
+		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->specularColour();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createPointLightPositionParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector3d>>(
+		[](Vector3d& result, const lighting::PointLight* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->position();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createPointLightAttenuationParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector3d>>(
+		[](Vector3d& result, const lighting::PointLight* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->attenuation();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createPhongMaterialAmbientColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<PhongMaterial*, Vector4d>>(
+		[](Vector4d& result, const PhongMaterial* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->ambientColour();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createPhongMaterialDiffuseColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<PhongMaterial*, Vector4d>>(
+		[](Vector4d& result, const PhongMaterial* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->diffuseColour();
+		}
+		);
+}
+
+std::unique_ptr<Parameter> createPhongMaterialSpecularColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+	verifyNotAnArray(instanceDetails);
+
+	return std::make_unique<CallbackParameter<PhongMaterial*, Vector4d>>(
+		[](Vector4d& result, const PhongMaterial* light, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = light->specularColour();
 		}
 		);
 }
@@ -249,13 +436,58 @@ void detail::ParameterCreator::registerBuiltins() {
 	registerCreator(ParameterFactoryInstanceDetails("directional_lights"), &createDirectionalLightsParameter);
 	registerCreator(ParameterFactoryInstanceDetails("directional_lights_count"), &createDirectionalLightsCountParameter);
 
+	registerCreator(ParameterFactoryInstanceDetails("point_lights"), &createPointLightsParameter);
+	registerCreator(ParameterFactoryInstanceDetails("point_lights_count"), &createPointLightsCountParameter);
+
 	// ACTOR
 	registerCreator(ParameterFactoryInstanceDetails("world_matrix"), &createWorldMatrixParameter);
 	registerCreator(ParameterFactoryInstanceDetails("world"), &createWorldMatrixParameter);
+
+	// MATERIAL
+	registerCreator(ParameterFactoryInstanceDetails("phong_material"), &createPhongMaterialParameter);
 
 	// MATRIX
 	registerCreator(ParameterFactoryInstanceDetails("inv"), &createInverterParameter);
 	registerCreator(ParameterFactoryInstanceDetails("inverse"), &createInverterParameter);
 
 	registerCreator(ParameterFactoryInstanceDetails("transpose"), &createTransposedParameter);
+
+	// DIRECTIONAL LIGHT
+	// TODO: group types with similar interface perhaps?
+	// TODO: create a special parameter type that would facilitate calling getters?
+	// TODO: have a EXPOSE_SHADER_PARAMETER macro that somehow facilitates all this shit?
+	registerCreator(ParameterFactoryInstanceDetails("ambient_colour", "DirectionalLight"), &createDirectionalLightAmbientColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("ambient", "DirectionalLight"), &createDirectionalLightAmbientColourParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("diffuse_colour", "DirectionalLight"), &createDirectionalLightDiffuseColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("diffuse", "DirectionalLight"), &createDirectionalLightDiffuseColourParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("specular_colour", "DirectionalLight"), &createDirectionalLightSpecularColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("specular", "DirectionalLight"), &createDirectionalLightSpecularColourParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("direction", "DirectionalLight"), &createDirectionalLightDirectionParameter);
+
+	// POINT LIGHT
+	registerCreator(ParameterFactoryInstanceDetails("ambient_colour", "PointLight"), &createPointLightAmbientColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("ambient", "PointLight"), &createPointLightAmbientColourParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("diffuse_colour", "PointLight"), &createPointLightDiffuseColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("diffuse", "PointLight"), &createPointLightDiffuseColourParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("specular_colour", "PointLight"), &createPointLightSpecularColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("specular", "PointLight"), &createPointLightSpecularColourParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("position", "PointLight"), &createPointLightPositionParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("attenuation", "PointLight"), &createPointLightAttenuationParameter);
+
+	// PHONG MATERIAL
+	registerCreator(ParameterFactoryInstanceDetails("ambient_colour", "PhongMaterial"), &createPhongMaterialAmbientColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("ambient", "PhongMaterial"), &createPhongMaterialAmbientColourParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("diffuse_colour", "PhongMaterial"), &createPhongMaterialDiffuseColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("diffuse", "PhongMaterial"), &createPhongMaterialDiffuseColourParameter);
+
+	registerCreator(ParameterFactoryInstanceDetails("specular_colour", "PhongMaterial"), &createPhongMaterialSpecularColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("specular", "PhongMaterial"), &createPhongMaterialSpecularColourParameter);
 }

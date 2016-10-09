@@ -29,6 +29,7 @@ public:
 
 		(MATRIX)
 		(VECTOR3D)
+		(VECTOR4D)
 		(UINT32)
 
 		(OBJECT)
@@ -68,11 +69,19 @@ public:
 	};
 
 	template <>
+	struct DeducedOperandType<milk::math::Vector4d> {
+		static const auto type = OperandType::VECTOR4D;
+	};
+
+	template <>
 	struct DeducedOperandType<std::uint32_t> {
 		static const auto type = OperandType::UINT32;
 	};
 
-	Parameter() = default;
+	Parameter(size_t arrayElements = 0) :
+		arrayElements_(arrayElements)
+	{
+	}
 
 	virtual ~Parameter() noexcept = default;
 
@@ -82,29 +91,40 @@ public:
 
 	virtual OperandType inputType() const noexcept = 0;
 
-	size_t size() const noexcept;
+	size_t size() const noexcept; // TODO: doesn't work for structured parameters
 
 	virtual bool requires16ByteAlignment() const noexcept {
 		return false;
 	}
 
-	void update(void* output, const void* input) const; // TODO: accept two std::vector<uint8> buffers to be able to check sizes and reuse memory?
+	virtual void* update(void* output, const void* input) const; // TODO: accept a smarter buffer pointer, to know the size
 
-	OperandType outputType() const noexcept;
+	OperandType outputType() const noexcept; // TODO: doesn't work for structured parameters
 
 	void setNext(std::shared_ptr<Parameter> next); // TODO: put this in a subclass? StrucutredParameter doesn't want it
+		// OR drop StructuredParameter altogether and replace setNext with addNext?
 
 protected:
 
-	virtual void updateThis(void* output, const void* input) const = 0;
+	virtual void* updateThis(void* output, const void* input, size_t arrayIndex) const = 0;
 
 	virtual OperandType thisOutputType() const noexcept = 0;
 
 	virtual size_t thisSize() const noexcept = 0;
 
+	Parameter* getNext() {
+		return next_.get();
+	}
+
+	const Parameter* getNext() const {
+		return next_.get();
+	}
+
 private:
 
 	std::shared_ptr<Parameter> next_;
+
+	size_t arrayElements_;
 
 };
 
@@ -143,19 +163,26 @@ template <class InputType, class OutputType>
 class ConcreteParameter : public Parameter {
 public:
 
+	ConcreteParameter(size_t arrayElements = 0) :
+		Parameter(arrayElements)
+	{
+	}
+
 	OperandType inputType() const noexcept override final {
 		return typename DeducedOperandType<InputType>::type;
 	}
 
 protected:
 
-	virtual void updateThis(OutputType& output, const InputType& input) const = 0;
+	virtual void updateThis(OutputType& output, const InputType& input, size_t arrayIndex) const = 0;
 
-	void updateThis(void* output, const void* input) const override final {
+	void* updateThis(void* output, const void* input, size_t arrayIndex) const override final {
 		const auto& concreteInput = *reinterpret_cast<const InputType*>(input);
 		auto& concreteOutput = *reinterpret_cast<OutputType*>(output);
 
-		updateThis(concreteOutput, concreteInput);
+		updateThis(concreteOutput, concreteInput, arrayIndex);
+
+		return reinterpret_cast<std::uint8_t*>(output) + thisSize();
 	}
 
 	OperandType thisOutputType() const noexcept override final {

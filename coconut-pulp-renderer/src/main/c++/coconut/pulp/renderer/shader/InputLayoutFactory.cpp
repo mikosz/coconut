@@ -80,7 +80,7 @@ std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
 
 std::vector<std::uint8_t> readContents(const boost::filesystem::path& path) {
 	std::vector<std::uint8_t> contents;
-	std::ifstream ifs(path.string().c_str()); // TODO: this needs to move to some utility place
+	std::ifstream ifs(path.string().c_str(), std::ios::binary); // TODO: this needs to move to some utility place
 	std::ostringstream oss;
 	oss << ifs.rdbuf();
 	auto s = oss.str();

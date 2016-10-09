@@ -14,17 +14,18 @@ template <class InputType, class OutputType>
 class CallbackParameter final : public ConcreteParameter<InputType, OutputType> {
 public:
 	
-	using Callback = std::function<void (OutputType&, const InputType&)>;
+	using Callback = std::function<void (OutputType&, const InputType&, size_t)>;
 
-	CallbackParameter(Callback callback) :
+	CallbackParameter(Callback callback, size_t arrayElements = 0) :
+		ConcreteParameter(arrayElements),
 		callback_(callback)
 	{
 	}
 
 protected:
 
-	void updateThis(OutputType& output, const InputType& input) const override {
-		callback_(output, input);
+	void updateThis(OutputType& output, const InputType& input, size_t arrayIndex) const override {
+		callback_(output, input, arrayIndex);
 	}
 
 private:

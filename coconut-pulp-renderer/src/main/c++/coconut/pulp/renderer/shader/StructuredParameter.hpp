@@ -16,39 +16,57 @@ namespace shader {
 class StructuredParameter final : public Parameter {
 public:
 
+	using Callback = std::function<const void* (const void*, size_t)>;
+
 	using Subparameter = std::shared_ptr<Parameter>;
 
+	StructuredParameter(Callback callback, OperandType inputType, size_t arrayElements = 0) :
+		Parameter(arrayElements),
+		inputType_(inputType),
+		callback_(callback)
+	{
+	}
+
 	void addSubparameter(Subparameter subparameter) {
+#pragma message("if this class stays - verify input of subparameter is OBJECT")
 		subparameters_.emplace_back(std::move(subparameter));
+	}
+
+	OperandType inputType() const noexcept override {
+		return inputType_;
 	}
 
 protected:
 
-	void updateThis(void* output, const void* input) const override {
-		auto* const bufferStart = reinterpret_cast<std::uint8_t*>(output);
-		auto* fieldIt = bufferStart;
+	void* updateThis(void* output, const void* input, size_t arrayIndex) const override {
+		const void* object = callback_(input, arrayIndex);
 
 		for (auto& subparameter : subparameters_) {
-			subparameter->update(fieldIt, input);
-			fieldIt += subparameter->size();
+			output = subparameter->update(output, object);
 		}
 
-		auto* const expected = bufferStart + size();
-		if (fieldIt != expected) {
-			std::ostringstream err;
-			err << "Expected end pointer to be at " << expected << ", got " << *fieldIt;
-#pragma message("!!! TODO: exception")
-			throw coconut_tools::exceptions::LogicError(err.str());
-		}
+		return output;
 	}
 
 	bool requires16ByteAlignment() const noexcept override {
 		return true;
 	}
 
+	OperandType thisOutputType() const noexcept override {
+		return OperandType::OBJECT;
+	}
+
+	size_t thisSize() const noexcept {
+		return sizeof(void*);
+	}
+
 private:
 
 	using Subparameters = std::vector<Subparameter>;
+
+	OperandType inputType_;
+
+	Callback callback_;
 
 	Subparameters subparameters_;
 

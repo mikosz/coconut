@@ -1,4 +1,4 @@
-struct Material {
+struct PhongMaterial {
 	float4 ambientColour;
 	float4 diffuseColour;
 	float4 specularColour;
@@ -23,19 +23,19 @@ cbuffer SceneData : register(b0) {
 	float3 eye;
 	uint directionalLightsCount;
 	DirectionalLight directionalLights[3];
-	uint politLightsCount;
-	PointLight politLights[3];
+	uint pointLightsCount;
+	PointLight pointLights[3];
 }
 
 cbuffer ObjectData : register(b1) {
 }
 
 cbuffer GroupData : register(b2) {
-	Material material;
+	PhongMaterial phongMaterial;
 }
 
-Texture2D diffuseMap : register(t0);
-SamplerState diffuseMapSamplerState : register(s0);
+// Texture2D diffuseMap : register(t0);
+// SamplerState diffuseMapSamplerState : register(s0);
 
 struct PIn {
 	float4 posH : SV_POSITION;
@@ -44,7 +44,7 @@ struct PIn {
 	float3 normalW : NORMAL;
 };
 
-void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
+void computeDirectional(PhongMaterial mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
 	ambient = mat.ambientColour * l.ambientColour;
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -60,7 +60,7 @@ void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 
 	}
 }
 
-void computePoint(Material mat, PointLight l, float3 position, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
+void computePoint(PhongMaterial mat, PointLight l, float3 position, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
 	ambient = mat.ambientColour * l.ambientColour;
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -92,24 +92,24 @@ float4 main(PIn pin) : SV_TARGET
 	[unroll]
 	for (uint di = 0; di < directionalLightsCount; ++di) {
 		float4 ambientComp, diffuseComp, specularComp;
-		computeDirectional(material, directionalLights[di], pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
+		computeDirectional(phongMaterial, directionalLights[di], pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
 
 		ambient += ambientComp;
 		diffuse += diffuseComp;
 		specular += specularComp;
 	}
-
+	
 	[unroll]
-	for (uint pi = 0; pi < politLightsCount; ++pi) {
+	for (uint pi = 0; pi < pointLightsCount; ++pi) {
 		float4 ambientComp, diffuseComp, specularComp;
-		computePoint(material, politLights[pi], pin.posW, pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
+		computePoint(phongMaterial, pointLights[pi], pin.posW, pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
 
 		ambient += ambientComp;
 		diffuse += diffuseComp;
 		specular += specularComp;
 	}
 
-	float4 textureColour = diffuseMap.Sample(diffuseMapSamplerState, pin.tex);
+	float4 textureColour = float4(1.0f, 1.0f, 1.0f, 1.0f);// = diffuseMap.Sample(diffuseMapSamplerState, pin.tex);
 
 	float4 endColour = saturate(textureColour * (ambient + diffuse) + specular);
 	endColour.a = textureColour.a * diffuse.a;
