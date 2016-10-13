@@ -116,6 +116,7 @@ ShaderReflection::ConstantBufferInfos buildConstantBufferInfos(
 		CT_LOG_DEBUG << "Shader constant buffer " << bufferIdx << ": " << desc.Name;
 
 		info.size = desc.Size;
+		info.slot = bufferIdx; // TODO: verify can't get manually set slot
 		for (size_t variableIdx = 0; variableIdx < desc.Variables; ++variableIdx) {
 			info.variables.emplace_back(buildVariableInfo(*constantBufferInfo, variableIdx));
 		}

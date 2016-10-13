@@ -36,6 +36,7 @@ std::shared_ptr<Parameter> createParameter(
 
 	ParameterFactoryInstanceDetails instanceDetails(name);
 
+	instanceDetails.padding = type.offset;
 	instanceDetails.arraySize = type.elements;
 	instanceDetails.parentType = parentType;
 
@@ -82,8 +83,41 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	UnknownShader::Resources resources;
 
 	for (const auto& constantBuffer : reflection.constantBuffers()) {
+		std::vector<ParameterSharedPtr> parameters;
+		parameters.reserve(constantBuffer.variables.size());
+
 		for (const auto& variable : constantBuffer.variables) {
 			auto parameter = createParameter(parameterFactory, variable.name, variable.type);
+
+			if (!parameters.empty() && parameters.back()->inputType() != parameter->inputType()) {
+#pragma message("!!! TODO: exception") // TODO
+				throw "";
+			}
+
+			parameters.emplace_back(parameter);
+		}
+
+		if (!parameters.empty()) {
+			switch (parameters.back()->inputType()) {
+			case Parameter::OperandType::SCENE:
+				sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(
+					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
+					));
+				break;
+			case Parameter::OperandType::ACTOR:
+				actorData.emplace_back(std::make_unique<ConstantBuffer<Actor>>(
+					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
+					));
+				break;
+			case Parameter::OperandType::MATERIAL:
+				materialData.emplace_back(std::make_unique<ConstantBuffer<Material>>(
+					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
+					));
+				break;
+			default:
+				throw "";
+#pragma message("!!! TODO: exception") // TODO
+			}
 		}
 	}
 

@@ -25,24 +25,29 @@ struct ParameterFactoryInstanceDetails {
 	
 	std::string id;
 
-	size_t arraySize;
+	size_t padding;
 
 	std::string parentType;
+
+	size_t arraySize;
 
 	ParameterFactoryInstanceDetails(
 		std::string id,
 		std::string parentType = "",
-		int arraySize = 0
+		size_t padding = 0,
+		size_t arraySize = 0
 		) :
 		id(std::move(id)),
-		arraySize(arraySize),
-		parentType(std::move(parentType))
+		parentType(std::move(parentType)),
+		padding(padding),
+		arraySize(arraySize)
 	{
 	}
 
 };
 
 // NOTE: comparison ignores the arraySize field
+// TODO: separate TypeDetails from instance details?
 bool operator==(const ParameterFactoryInstanceDetails& lhs, const ParameterFactoryInstanceDetails& rhs);
 std::ostream& operator<<(std::ostream& os, const ParameterFactoryInstanceDetails& instanceDetails);
 

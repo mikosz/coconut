@@ -20,8 +20,8 @@ public:
 
 	using Subparameter = std::shared_ptr<Parameter>;
 
-	StructuredParameter(Callback callback, OperandType inputType, size_t arrayElements = 0) :
-		Parameter(arrayElements),
+	StructuredParameter(Callback callback, OperandType inputType, size_t padding, size_t arrayElements = 0) :
+		Parameter(padding, arrayElements),
 		inputType_(inputType),
 		callback_(callback)
 	{
@@ -41,11 +41,23 @@ protected:
 	void* updateThis(void* output, const void* input, size_t arrayIndex) const override {
 		const void* object = callback_(input, arrayIndex);
 
-		for (auto& subparameter : subparameters_) {
-			output = subparameter->update(output, object);
+		if (object != nullptr) {
+			for (auto& subparameter : subparameters_) {
+				output = subparameter->update(output, &object);
+			}
 		}
 
 		return output;
+	}
+
+	size_t thisSize() const noexcept override {
+		size_t totalSize = 0;
+
+		for (auto& subparameter : subparameters_) {
+			totalSize += subparameter->size();
+		}
+
+		return totalSize;
 	}
 
 	bool requires16ByteAlignment() const noexcept override {
@@ -54,10 +66,6 @@ protected:
 
 	OperandType thisOutputType() const noexcept override {
 		return OperandType::OBJECT;
-	}
-
-	size_t thisSize() const noexcept {
-		return sizeof(void*);
 	}
 
 private:

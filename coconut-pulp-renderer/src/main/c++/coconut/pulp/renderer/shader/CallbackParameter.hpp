@@ -16,8 +16,8 @@ public:
 	
 	using Callback = std::function<void (OutputType&, const InputType&, size_t)>;
 
-	CallbackParameter(Callback callback, size_t arrayElements = 0) :
-		ConcreteParameter(arrayElements),
+	CallbackParameter(Callback callback, size_t padding, size_t arrayElements = 0) :
+		ConcreteParameter(padding, arrayElements),
 		callback_(callback)
 	{
 	}

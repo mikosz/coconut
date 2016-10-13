@@ -85,7 +85,8 @@ std::unique_ptr<Parameter> createViewMatrixParameter(const ParameterFactoryInsta
 		[](Matrix& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = scene.camera().viewTransformation();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -96,7 +97,8 @@ std::unique_ptr<Parameter> createProjectionMatrixParameter(const ParameterFactor
 		[](Matrix& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = scene.lens().projectionTransformation();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -107,7 +109,8 @@ std::unique_ptr<Parameter> createEyePositionParameter(const ParameterFactoryInst
 		[](Vector3d& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = scene.camera().position();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -125,6 +128,7 @@ std::unique_ptr<Parameter> createDirectionalLightsParameter(const ParameterFacto
 			}
 		},
 		Parameter::OperandType::SCENE,
+		instanceDetails.padding,
 		instanceDetails.arraySize
 		);
 }
@@ -136,7 +140,8 @@ std::unique_ptr<Parameter> createDirectionalLightsCountParameter(const Parameter
 		[](std::uint32_t& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = static_cast<std::uint32_t>(scene.directionalLights().size());
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -154,6 +159,7 @@ std::unique_ptr<Parameter> createPointLightsParameter(const ParameterFactoryInst
 			}
 		},
 		Parameter::OperandType::SCENE,
+		instanceDetails.padding,
 		instanceDetails.arraySize
 		);
 }
@@ -165,7 +171,8 @@ std::unique_ptr<Parameter> createPointLightsCountParameter(const ParameterFactor
 		[](std::uint32_t& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = static_cast<std::uint32_t>(scene.pointLights().size());
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -176,7 +183,8 @@ std::unique_ptr<Parameter> createWorldMatrixParameter(const ParameterFactoryInst
 		[](Matrix& result, const Actor& actor, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = actor.worldTransformation();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -191,7 +199,8 @@ std::unique_ptr<Parameter> createPhongMaterialParameter(const ParameterFactoryIn
 
 			return &dynamic_cast<const PhongMaterial&>(material);
 		},
-		Parameter::OperandType::MATERIAL
+		Parameter::OperandType::MATERIAL,
+		instanceDetails.padding
 		);
 }
 
@@ -202,7 +211,8 @@ std::unique_ptr<Parameter> createInverterParameter(const ParameterFactoryInstanc
 		[](Matrix& result, const Matrix& matrix, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = matrix.inverted();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -213,7 +223,8 @@ std::unique_ptr<Parameter> createTransposedParameter(const ParameterFactoryInsta
 		[](Matrix& result, const Matrix& matrix, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = matrix.transposed();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -224,7 +235,8 @@ std::unique_ptr<Parameter> createDirectionalLightAmbientColourParameter(const Pa
 		[](Vector4d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->ambientColour();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -235,7 +247,8 @@ std::unique_ptr<Parameter> createDirectionalLightDiffuseColourParameter(const Pa
 		[](Vector4d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->diffuseColour();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -246,7 +259,8 @@ std::unique_ptr<Parameter> createDirectionalLightSpecularColourParameter(const P
 		[](Vector4d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->specularColour();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -257,7 +271,8 @@ std::unique_ptr<Parameter> createDirectionalLightDirectionParameter(const Parame
 		[](Vector3d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->direction();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -268,7 +283,8 @@ std::unique_ptr<Parameter> createPointLightAmbientColourParameter(const Paramete
 		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->ambientColour();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -279,7 +295,8 @@ std::unique_ptr<Parameter> createPointLightDiffuseColourParameter(const Paramete
 		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->diffuseColour();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -290,7 +307,8 @@ std::unique_ptr<Parameter> createPointLightSpecularColourParameter(const Paramet
 		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->specularColour();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -301,7 +319,8 @@ std::unique_ptr<Parameter> createPointLightPositionParameter(const ParameterFact
 		[](Vector3d& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->position();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -312,7 +331,8 @@ std::unique_ptr<Parameter> createPointLightAttenuationParameter(const ParameterF
 		[](Vector3d& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->attenuation();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -323,7 +343,8 @@ std::unique_ptr<Parameter> createPhongMaterialAmbientColourParameter(const Param
 		[](Vector4d& result, const PhongMaterial* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->ambientColour();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -334,7 +355,8 @@ std::unique_ptr<Parameter> createPhongMaterialDiffuseColourParameter(const Param
 		[](Vector4d& result, const PhongMaterial* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->diffuseColour();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -345,7 +367,8 @@ std::unique_ptr<Parameter> createPhongMaterialSpecularColourParameter(const Para
 		[](Vector4d& result, const PhongMaterial* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->specularColour();
-		}
+		},
+		instanceDetails.padding
 		);
 }
 
@@ -354,17 +377,20 @@ std::unique_ptr<Parameter> createPhongMaterialSpecularColourParameter(const Para
 bool coconut::pulp::renderer::shader::operator==(
 	const ParameterFactoryInstanceDetails& lhs, const ParameterFactoryInstanceDetails& rhs)
 {
-	return lhs.id == rhs.id &&
-		lhs.parentType == rhs.parentType;
+	return
+		lhs.id == rhs.id &&
+		lhs.parentType == rhs.parentType &&
+		lhs.padding == rhs.padding
+		;
 }
 
 std::ostream& coconut::pulp::renderer::shader::operator<<(
 	std::ostream& os, const ParameterFactoryInstanceDetails& instanceDetails)
 {
-	os
-		<< instanceDetails.parentType
-		<< "::" << instanceDetails.id
-		<< "[" << instanceDetails.arraySize << "]";
+	os << instanceDetails.parentType << "::" << instanceDetails.id;
+	if (instanceDetails.arraySize != 0) {
+		os << "[" << instanceDetails.arraySize << "]";
+	}
 	return os;
 }
 
@@ -390,9 +416,12 @@ std::unique_ptr<Parameter> detail::ParameterCreator::doCreate(
 		const auto subId = boost::join(slices, "_");
 		sliceDetails.id = subId;
 
-		if (isCreatorRegistered(sliceDetails)) {
+		auto sliceDetailsNoPadding = sliceDetails;
+		sliceDetailsNoPadding.padding = 0;
+
+		if (isCreatorRegistered(sliceDetailsNoPadding)) {
 			CT_LOG_DEBUG << "Found registered parameter for \"" << subId << "\"";
-			auto next = Super::doCreate(sliceDetails, sliceDetails);
+			auto next = Super::doCreate(sliceDetailsNoPadding, sliceDetails);
 					// TODO: problem here is that we call the superclass going around the factory type
 					// we could have params world and world_inv and world would be created twice
 			if (!result) {

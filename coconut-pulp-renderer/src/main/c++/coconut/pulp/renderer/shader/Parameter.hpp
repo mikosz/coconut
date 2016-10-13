@@ -7,6 +7,7 @@
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "coconut/milk/math/Matrix.hpp"
+#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -78,7 +79,8 @@ public:
 		static const auto type = OperandType::UINT32;
 	};
 
-	Parameter(size_t arrayElements = 0) :
+	Parameter(size_t padding, size_t arrayElements = 0) :
+		padding_(padding),
 		arrayElements_(arrayElements)
 	{
 	}
@@ -91,8 +93,6 @@ public:
 
 	virtual OperandType inputType() const noexcept = 0;
 
-	size_t size() const noexcept; // TODO: doesn't work for structured parameters
-
 	virtual bool requires16ByteAlignment() const noexcept {
 		return false;
 	}
@@ -104,13 +104,15 @@ public:
 	void setNext(std::shared_ptr<Parameter> next); // TODO: put this in a subclass? StrucutredParameter doesn't want it
 		// OR drop StructuredParameter altogether and replace setNext with addNext?
 
+	size_t size() const noexcept;
+
 protected:
 
 	virtual void* updateThis(void* output, const void* input, size_t arrayIndex) const = 0;
 
-	virtual OperandType thisOutputType() const noexcept = 0;
-
 	virtual size_t thisSize() const noexcept = 0;
+
+	virtual OperandType thisOutputType() const noexcept = 0;
 
 	Parameter* getNext() {
 		return next_.get();
@@ -122,11 +124,15 @@ protected:
 
 private:
 
-	std::shared_ptr<Parameter> next_;
+	size_t padding_;
 
 	size_t arrayElements_;
 
+	std::shared_ptr<Parameter> next_;
+
 };
+
+CCN_MAKE_POINTER_DEFINITIONS(Parameter);
 
 class IncompatibleParameters : public coconut_tools::exceptions::RuntimeError {
 public:
@@ -163,8 +169,8 @@ template <class InputType, class OutputType>
 class ConcreteParameter : public Parameter {
 public:
 
-	ConcreteParameter(size_t arrayElements = 0) :
-		Parameter(arrayElements)
+	ConcreteParameter(size_t padding, size_t arrayElements = 0) :
+		Parameter(padding, arrayElements)
 	{
 	}
 
@@ -190,7 +196,7 @@ protected:
 	}
 
 	size_t thisSize() const noexcept override final {
-		return sizeof(OutputType); // TODO: accept offset and size as constructor parameters (wont need size() and requires16ByteAlignment())
+		return sizeof(OutputType);
 	}
 
 };

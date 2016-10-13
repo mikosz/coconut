@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <numeric>
 
 #include "coconut/milk/graphics/ConstantBuffer.hpp"
 
@@ -18,33 +19,52 @@ template <class UpdateArgument>
 class ConstantBuffer {
 public:
 
+	using Parameters = std::vector<ParameterSharedPtr>;
+
 	ConstantBuffer(
 		milk::graphics::Renderer& renderer,
 		milk::graphics::ShaderType shaderType,
+		size_t size,
 		size_t slot,
-		std::unique_ptr<Parameter> parameter
+		Parameters parameters
 		) :
 		stage_(shaderType),
 		textureSlot_(slot),
 		buffer_(
 			renderer,
 			milk::graphics::Buffer::Configuration(
-				parameter->size(),
+				size,
 				0,
 				true,
 				false,
 				false
 				)
 			),
-		data_(parameter->size()),
-		parameter_(std::move(parameter))
+		data_(size),
+		parameters_(std::move(parameters))
 	{
+		// TODO: check parameter input type against UpdateArgument
+		const auto totalParameterSize = std::accumulate(
+			parameters.begin(),
+			parameters.end(),
+			static_cast<size_t>(0),
+			[](size_t total, ParameterSharedPtr parameter) { return total + parameter->size(); }
+			);
+
+		if (totalParameterSize > size) {
+			throw "";
+#pragma message("!!! TODO: exception") // TODO
+		}
 	}
 
 	void bind(DrawCommand& drawCommand, const UpdateArgument& updateArgument) {
-		// TODO: check parameter input type against UpdateArgument
+		auto* bufferPtr = reinterpret_cast<void*>(data_.data());
+		for (const auto parameter : parameters_) {
+			bufferPtr = parameter->update(bufferPtr, &updateArgument);
+		}
 
-		parameter_->update(data_.data(), &updateArgument);
+		// TODO: check data fits in buffer...
+
 		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, textureSlot_);
 	}
 
@@ -58,7 +78,7 @@ private:
 
 	std::vector<std::uint8_t> data_;
 
-	std::unique_ptr<Parameter> parameter_; // TODO: not a single one surely?
+	Parameters parameters_;
 
 };
 
