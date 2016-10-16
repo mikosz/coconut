@@ -36,13 +36,14 @@ auto Parameter::outputType() const noexcept -> OperandType {
 }
 
 void Parameter::setNext(std::shared_ptr<Parameter> next) {
-	assert(!next_);
-
-	if (next->inputType() != thisOutputType()) {
-		throw IncompatibleParameters(*this, *next);
+	if (next_) {
+		next_->setNext(next);
+	} else {
+		if (next->inputType() != thisOutputType()) {
+			throw IncompatibleParameters(*this, *next);
+		}
+		next_ = std::move(next);
 	}
-
-	next_ = std::move(next);
 }
 
 size_t Parameter::size() const noexcept {

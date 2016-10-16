@@ -72,7 +72,7 @@ private:
 
 	MaterialData materialData_;
 
-	Resources resources_;
+	// Resources resources_;
 
 };
 

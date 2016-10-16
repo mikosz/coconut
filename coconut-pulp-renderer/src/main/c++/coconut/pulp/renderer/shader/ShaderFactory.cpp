@@ -59,6 +59,12 @@ std::shared_ptr<Parameter> createParameter(
 				createParameter(parameterFactory, memberName, memberType, type.name)
 				);
 		}
+	} else if (parameter->outputType() == Parameter::OperandType::MATRIX) {
+		if (type.klass == ShaderReflection::Type::Class::MATRIX_COLUMN_MAJOR) {
+			ParameterFactoryInstanceDetails instanceDetails("transpose"); // TODO: not elegant really
+			parameter->setNext(parameterFactory.create(instanceDetails));
+			// TODO: remove last if last is transpose
+		}
 	}
 
 #pragma message("!!! TODO: verify size and output type before returning") // TODO
