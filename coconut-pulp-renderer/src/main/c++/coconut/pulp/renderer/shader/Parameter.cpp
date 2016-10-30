@@ -5,26 +5,29 @@
 #include <cassert>
 #include <algorithm>
 
+#include "coconut/milk/utils/bits.hpp"
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
-void* Parameter::update(void* output, const void* input) const {
+void Parameter::update(void* output, const void* input) const {
 	auto* buffer = reinterpret_cast<std::uint8_t*>(output);
-	buffer += padding_;
+	buffer += offset_;
 
 	for (size_t i = 0; i < std::max<size_t>(1, arrayElements_); ++i) {
+		buffer += i * (milk::utils::roundUpToMultipleOf(thisSize(), 16)); // TODO: will it work for an array of ints for instance?
+			// TODO: also, roundUp may only be required for DX, push this down to shader reflection
+
 		if (next_) {
-			std::vector<std::uint8_t> thisOutputBuffer(thisSize()); // TODO: avoid this allocation somehow
+			std::vector<std::uint8_t> thisOutputBuffer(thisSize()); // TODO: avoid this allocation somehow + it's too big?
 			updateThis(thisOutputBuffer.data(), input, i);
-			buffer = reinterpret_cast<std::uint8_t*>(next_->update(buffer, thisOutputBuffer.data()));
+			next_->update(buffer, thisOutputBuffer.data());
 		} else {
-			buffer = reinterpret_cast<std::uint8_t*>(updateThis(buffer, input, i));
+			updateThis(buffer, input, i);
 		}
 	}
-
-	return buffer;
 }
 
 auto Parameter::outputType() const noexcept -> OperandType {
@@ -48,8 +51,8 @@ void Parameter::setNext(std::shared_ptr<Parameter> next) {
 
 size_t Parameter::size() const noexcept {
 	if (next_) {
-		return next_->size() + padding_;
+		return next_->size();
 	} else {
-		return thisSize() + padding_;
+		return thisSize();
 	}
 }

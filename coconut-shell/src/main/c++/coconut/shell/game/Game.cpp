@@ -23,6 +23,7 @@
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
+#include "coconut/pulp/renderer/shader/PassFactory.hpp"
 
 #include "globals.hpp"
 #include "coconut/milk/system/Window.hpp"
@@ -93,6 +94,7 @@ void Game::loop() {
 	deserialiser >> modelData;
 
 	pulp::renderer::Scene scene(*graphicsRenderer_);
+	scene.setRenderingPass(pulp::renderer::shader::PassFactory().create("sprite", *graphicsRenderer_));
 
 	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager));
 

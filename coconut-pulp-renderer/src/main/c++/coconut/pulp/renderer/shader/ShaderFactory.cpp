@@ -27,6 +27,7 @@ std::shared_ptr<Parameter> createParameter(
 	ParameterFactory& parameterFactory,
 	const std::string& name,
 	const ShaderReflection::Type& type,
+	size_t offset,
 	const std::string& parentType = std::string()
 	)
 {
@@ -36,7 +37,7 @@ std::shared_ptr<Parameter> createParameter(
 
 	ParameterFactoryInstanceDetails instanceDetails(name);
 
-	instanceDetails.padding = type.offset;
+	instanceDetails.padding = offset + type.offset;
 	instanceDetails.arraySize = type.elements;
 	instanceDetails.parentType = parentType;
 
@@ -56,7 +57,7 @@ std::shared_ptr<Parameter> createParameter(
 			std::tie(memberName, memberType) = member;
 
 			structuredParameter.addSubparameter(
-				createParameter(parameterFactory, memberName, memberType, type.name)
+				createParameter(parameterFactory, memberName, memberType, type.offset, type.name)
 				);
 		}
 	} else if (parameter->outputType() == Parameter::OperandType::MATRIX) {
@@ -93,7 +94,7 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 		parameters.reserve(constantBuffer.variables.size());
 
 		for (const auto& variable : constantBuffer.variables) {
-			auto parameter = createParameter(parameterFactory, variable.name, variable.type);
+			auto parameter = createParameter(parameterFactory, variable.name, variable.type, variable.offset);
 
 			if (!parameters.empty() && parameters.back()->inputType() != parameter->inputType()) {
 #pragma message("!!! TODO: exception") // TODO

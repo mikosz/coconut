@@ -47,6 +47,10 @@ public:
 		return *lens_;
 	}
 
+	void setRenderingPass(shader::PassSharedPtr renderingPass) {
+		renderingPass_ = std::move(renderingPass);
+	}
+
 	const shader::Pass& renderingPass() const {
 		return *renderingPass_;
 	}

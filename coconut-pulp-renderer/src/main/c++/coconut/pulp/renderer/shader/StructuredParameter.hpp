@@ -38,16 +38,14 @@ public:
 
 protected:
 
-	void* updateThis(void* output, const void* input, size_t arrayIndex) const override {
+	void updateThis(void* output, const void* input, size_t arrayIndex) const override {
 		const void* object = callback_(input, arrayIndex);
 
 		if (object != nullptr) {
 			for (auto& subparameter : subparameters_) {
-				output = subparameter->update(output, &object);
+				subparameter->update(output, &object);
 			}
 		}
-
-		return output;
 	}
 
 	size_t thisSize() const noexcept override {

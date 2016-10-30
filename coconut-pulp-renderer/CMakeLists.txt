@@ -13,4 +13,6 @@ set(TEST_LIBRARIES
   ${Boost_TEST_EXEC_MONITOR_LIBRARY}
   )
 
+set(coconut-pulp-renderer_test_windowed 1)
+  
 library_module(coconut-pulp-renderer "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" USE_GMOCK ${LIBRARY_TYPE})

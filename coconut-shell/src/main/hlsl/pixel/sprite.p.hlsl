@@ -19,7 +19,7 @@ struct PointLight {
 	float4 specularColour;
 };
 
-cbuffer SceneData : register(b0) {
+cbuffer SceneData {
 	float3 eye;
 	uint directionalLightsCount;
 	DirectionalLight directionalLights[3];
@@ -27,10 +27,10 @@ cbuffer SceneData : register(b0) {
 	PointLight pointLights[3];
 }
 
-cbuffer ObjectData : register(b1) {
+cbuffer ObjectData {
 }
 
-cbuffer GroupData : register(b2) {
+cbuffer GroupData {
 	PhongMaterial phongMaterial;
 }
 

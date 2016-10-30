@@ -111,7 +111,7 @@ private:
 
 	struct ConstantBufferData {
 
-		using Data = std::vector<std::uint8_t>; // TODO: array?
+		using Data = std::vector<std::uint8_t>; // TODO: array? pointer?
 
 		milk::graphics::ConstantBuffer* constantBuffer;
 

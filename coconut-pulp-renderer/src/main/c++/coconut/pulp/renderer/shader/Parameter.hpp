@@ -42,6 +42,12 @@ public:
 	template <class T>
 	struct DeducedOperandType<T*> {
 		static const auto type = OperandType::OBJECT;
+		static const auto size = sizeof(T*);
+
+		static void store(void* buffer, T* data) {
+			auto*& storedPtr = reinterpret_cast<T*&>(buffer);
+			storedPtr = buffer;
+		}
 	};
 
 	template <>
@@ -62,25 +68,48 @@ public:
 	template <>
 	struct DeducedOperandType<milk::math::Matrix> {
 		static const auto type = OperandType::MATRIX;
+		static const auto size = sizeof(float) * 16;
+
+		static void store(void* buffer, const milk::math::Matrix& matrix) {
+			std::memcpy(buffer, &matrix, size); // TODO: can't assume that Matrix is 1:1 represented in buffer
+		}
 	};
 
 	template <>
 	struct DeducedOperandType<milk::math::Vector3d> {
 		static const auto type = OperandType::VECTOR3D;
+		static const auto size = sizeof(float) * 3;
+
+		static void store(void* buffer, const milk::math::Vector3d& vector) {
+			const auto shaderParameter = vector.shaderParameter(); // TODO: messy
+			std::memcpy(buffer, &shaderParameter, size);
+		}
 	};
 
 	template <>
 	struct DeducedOperandType<milk::math::Vector4d> {
 		static const auto type = OperandType::VECTOR4D;
+		static const auto size = sizeof(float) * 4;
+
+		static void store(void* buffer, const milk::math::Vector4d& vector) {
+			const auto shaderParameter = vector.shaderParameter(); // TODO: messy
+			std::memcpy(buffer, &shaderParameter, size);
+		}
 	};
 
 	template <>
 	struct DeducedOperandType<std::uint32_t> {
 		static const auto type = OperandType::UINT32;
+		static const auto size = 4;
+
+		static void store(void* buffer, std::uint32_t ui) {
+			auto* stored = reinterpret_cast<std::uint32_t*>(buffer); // TODO: messy
+			*stored = ui;
+		}
 	};
 
-	Parameter(size_t padding, size_t arrayElements = 0) :
-		padding_(padding),
+	Parameter(size_t offset, size_t arrayElements = 0) :
+		offset_(offset),
 		arrayElements_(arrayElements)
 	{
 	}
@@ -97,7 +126,7 @@ public:
 		return false;
 	}
 
-	virtual void* update(void* output, const void* input) const; // TODO: accept a smarter buffer pointer, to know the size
+	virtual void update(void* output, const void* input) const; // TODO: accept a smarter buffer pointer, to know the size
 
 	OperandType outputType() const noexcept; // TODO: doesn't work for structured parameters
 
@@ -108,7 +137,7 @@ public:
 
 protected:
 
-	virtual void* updateThis(void* output, const void* input, size_t arrayIndex) const = 0;
+	virtual void updateThis(void* output, const void* input, size_t arrayIndex) const = 0;
 
 	virtual size_t thisSize() const noexcept = 0;
 
@@ -124,7 +153,7 @@ protected:
 
 private:
 
-	size_t padding_;
+	size_t offset_;
 
 	size_t arrayElements_;
 
@@ -182,13 +211,13 @@ protected:
 
 	virtual void updateThis(OutputType& output, const InputType& input, size_t arrayIndex) const = 0;
 
-	void* updateThis(void* output, const void* input, size_t arrayIndex) const override final {
+	void updateThis(void* output, const void* input, size_t arrayIndex) const override final {
 		const auto& concreteInput = *reinterpret_cast<const InputType*>(input);
-		auto& concreteOutput = *reinterpret_cast<OutputType*>(output);
-
+		
+		OutputType concreteOutput;
 		updateThis(concreteOutput, concreteInput, arrayIndex);
 
-		return reinterpret_cast<std::uint8_t*>(output) + thisSize();
+		DeducedOperandType<OutputType>::store(output, concreteOutput);
 	}
 
 	OperandType thisOutputType() const noexcept override final {
@@ -196,7 +225,7 @@ protected:
 	}
 
 	size_t thisSize() const noexcept override final {
-		return sizeof(OutputType);
+		return DeducedOperandType<OutputType>::size;
 	}
 
 };

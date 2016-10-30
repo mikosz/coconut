@@ -25,7 +25,7 @@ struct ParameterFactoryInstanceDetails {
 	
 	std::string id;
 
-	size_t padding;
+	size_t padding; // TODO: rename to offset
 
 	std::string parentType;
 

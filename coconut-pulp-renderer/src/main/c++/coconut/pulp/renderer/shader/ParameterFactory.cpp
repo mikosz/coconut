@@ -340,9 +340,9 @@ std::unique_ptr<Parameter> createPhongMaterialAmbientColourParameter(const Param
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<PhongMaterial*, Vector4d>>(
-		[](Vector4d& result, const PhongMaterial* light, size_t arrayIndex) {
+		[](Vector4d& result, const PhongMaterial* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = light->ambientColour();
+			result = material->ambientColour();
 		},
 		instanceDetails.padding
 		);
@@ -352,9 +352,9 @@ std::unique_ptr<Parameter> createPhongMaterialDiffuseColourParameter(const Param
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<PhongMaterial*, Vector4d>>(
-		[](Vector4d& result, const PhongMaterial* light, size_t arrayIndex) {
+		[](Vector4d& result, const PhongMaterial* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = light->diffuseColour();
+			result = material->diffuseColour();
 		},
 		instanceDetails.padding
 		);
@@ -364,9 +364,9 @@ std::unique_ptr<Parameter> createPhongMaterialSpecularColourParameter(const Para
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<PhongMaterial*, Vector4d>>(
-		[](Vector4d& result, const PhongMaterial* light, size_t arrayIndex) {
+		[](Vector4d& result, const PhongMaterial* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = light->specularColour();
+			result = material->specularColour();
 		},
 		instanceDetails.padding
 		);
@@ -391,6 +391,7 @@ std::ostream& coconut::pulp::renderer::shader::operator<<(
 	if (instanceDetails.arraySize != 0) {
 		os << "[" << instanceDetails.arraySize << "]";
 	}
+	os << " at offset " << instanceDetails.padding;
 	return os;
 }
 

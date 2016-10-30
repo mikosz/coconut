@@ -45,8 +45,8 @@ public:
 	{
 		// TODO: check parameter input type against UpdateArgument
 		const auto totalParameterSize = std::accumulate(
-			parameters.begin(),
-			parameters.end(),
+			parameters_.begin(),
+			parameters_.end(),
 			static_cast<size_t>(0),
 			[](size_t total, ParameterSharedPtr parameter) { return total + parameter->size(); }
 			);
@@ -58,12 +58,9 @@ public:
 	}
 
 	void bind(DrawCommand& drawCommand, const UpdateArgument& updateArgument) {
-		auto* bufferPtr = reinterpret_cast<void*>(data_.data());
 		for (const auto parameter : parameters_) {
-			bufferPtr = parameter->update(bufferPtr, &updateArgument);
+			parameter->update(data_.data(), &updateArgument);
 		}
-
-		// TODO: check data fits in buffer...
 
 		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, textureSlot_);
 	}

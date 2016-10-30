@@ -26,7 +26,6 @@ milk::graphics::Viewport::Configuration viewportConfiguration() {
 } // anonymous namespace
 
 Scene::Scene(milk::graphics::Renderer& graphicsRenderer) :
-	renderingPass_(std::move(shader::PassFactory().create("sprite", graphicsRenderer))),
 	renderTarget_(&graphicsRenderer.backBuffer()), // TODO
 	depthStencil_(&graphicsRenderer.depthStencil()), // TODO
 	viewport_(viewportConfiguration()) // TODO
@@ -59,7 +58,7 @@ void Scene::render(CommandBuffer& commandBuffer) {
 	context.backBuffer = renderTarget_;
 	context.screenDepthStencil = depthStencil_;
 	context.scene = this;
-	context.setPass(ShaderPassType::OPAQUE, renderingPass_.get());
+	context.setPass(ShaderPassType::OPAQUE, renderingPass_.get()); // TODO!
 
 	for (auto actor : actors_) {
 		actor->render(commandBuffer, context);

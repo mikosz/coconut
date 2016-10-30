@@ -153,34 +153,52 @@ BOOST_AUTO_TEST_CASE(RetrievesConstantBuffersWithNestedStructs) {
 BOOST_AUTO_TEST_CASE(RetrievesConstantBuffersWithArrays) {
 	auto reflection = reflect("Debug/ConstantBufferWithArrays.v.cso");
 
-	BOOST_REQUIRE_EQUAL(reflection.constantBuffers().size(), 1);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers().size(), 2);
 
-	const auto& buffer = reflection.constantBuffers()[0];
-	BOOST_CHECK_EQUAL(buffer.size, 144);
+	{
+		const auto& buffer = reflection.constantBuffers()[0];
+		BOOST_CHECK_EQUAL(buffer.size, 144);
 
-	BOOST_REQUIRE_EQUAL(buffer.variables.size(), 2);
+		BOOST_REQUIRE_EQUAL(buffer.variables.size(), 2);
 
-	BOOST_CHECK_EQUAL(buffer.variables[0].name, "s");
-	BOOST_CHECK_EQUAL(buffer.variables[0].offset, 0);
-	BOOST_CHECK_EQUAL(buffer.variables[0].size, 128);
+		BOOST_CHECK_EQUAL(buffer.variables[0].name, "s");
+		BOOST_CHECK_EQUAL(buffer.variables[0].offset, 0);
+		BOOST_CHECK_EQUAL(buffer.variables[0].size, 128);
 
-	BOOST_CHECK_EQUAL(buffer.variables[0].type.name, "S");
-	BOOST_CHECK_EQUAL(buffer.variables[0].type.offset, 0);
-	BOOST_CHECK_EQUAL(buffer.variables[0].type.scalarType, ShaderReflection::Type::ScalarType::VOID);
-	BOOST_CHECK_EQUAL(buffer.variables[0].type.klass, ShaderReflection::Type::Class::STRUCT);
-	BOOST_CHECK_EQUAL(buffer.variables[0].type.elements, 2);
-	BOOST_CHECK_EQUAL(buffer.variables[0].type.members.size(), 1);
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.name, "S");
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.offset, 0);
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.scalarType, ShaderReflection::Type::ScalarType::VOID);
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.klass, ShaderReflection::Type::Class::STRUCT);
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.elements, 2);
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.members.size(), 1);
 
-	BOOST_CHECK_EQUAL(buffer.variables[1].name, "f");
-	BOOST_CHECK_EQUAL(buffer.variables[1].offset, 128);
-	BOOST_CHECK_EQUAL(buffer.variables[1].size, 4);
+		BOOST_CHECK_EQUAL(buffer.variables[1].name, "f");
+		BOOST_CHECK_EQUAL(buffer.variables[1].offset, 128);
+		BOOST_CHECK_EQUAL(buffer.variables[1].size, 4);
 
-	BOOST_CHECK_EQUAL(buffer.variables[1].type.name, "float");
-	BOOST_CHECK_EQUAL(buffer.variables[1].type.offset, 0);
-	BOOST_CHECK_EQUAL(buffer.variables[1].type.scalarType, ShaderReflection::Type::ScalarType::FLOAT);
-	BOOST_CHECK_EQUAL(buffer.variables[1].type.klass, ShaderReflection::Type::Class::SCALAR);
-	BOOST_CHECK_EQUAL(buffer.variables[1].type.elements, 0);
-	BOOST_CHECK_EQUAL(buffer.variables[1].type.members.size(), 0);
+		BOOST_CHECK_EQUAL(buffer.variables[1].type.name, "float");
+		BOOST_CHECK_EQUAL(buffer.variables[1].type.offset, 0);
+		BOOST_CHECK_EQUAL(buffer.variables[1].type.scalarType, ShaderReflection::Type::ScalarType::FLOAT);
+		BOOST_CHECK_EQUAL(buffer.variables[1].type.klass, ShaderReflection::Type::Class::SCALAR);
+		BOOST_CHECK_EQUAL(buffer.variables[1].type.elements, 0);
+		BOOST_CHECK_EQUAL(buffer.variables[1].type.members.size(), 0);
+	}
+
+	{
+		const auto& buffer = reflection.constantBuffers()[1];
+		BOOST_CHECK_EQUAL(buffer.size, 48);
+
+		BOOST_REQUIRE_EQUAL(buffer.variables.size(), 1);
+
+		BOOST_CHECK_EQUAL(buffer.variables[0].name, "fs");
+		BOOST_CHECK_EQUAL(buffer.variables[0].offset, 0);
+		BOOST_CHECK_EQUAL(buffer.variables[0].size, 44);
+
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.offset, 0);
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.scalarType, ShaderReflection::Type::ScalarType::FLOAT);
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.klass, ShaderReflection::Type::Class::VECTOR);
+		BOOST_CHECK_EQUAL(buffer.variables[0].type.elements, 3);
+	}
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* MilkGraphicsShaderReflectionTestSuite */);
