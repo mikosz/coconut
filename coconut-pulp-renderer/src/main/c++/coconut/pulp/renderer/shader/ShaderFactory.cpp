@@ -73,9 +73,27 @@ std::shared_ptr<Parameter> createParameter(
 	return parameter;
 }
 
+std::shared_ptr<Resource> createResource(
+	ResourceFactory& resourceFactory,
+	const ShaderReflection::ResourceInfo& resourceInfo,
+	milk::graphics::ShaderType shaderType
+	)
+{
+	switch (resourceInfo.type) {
+		case ShaderReflection::ResourceInfo::Type::TEXTURE:
+			// fallthrough
+		case ShaderReflection::ResourceInfo::Type::SAMPLER:
+			return resourceFactory.create(resourceInfo.name, shaderType, resourceInfo.slot);
+		default:
+			throw "";
+#pragma message("!!! TODO: exception") // TODO
+	}
+}
+
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	milk::graphics::Renderer& graphicsRenderer,
 	ParameterFactory& parameterFactory,
+	ResourceFactory& resourceFactory,
 	std::vector<std::uint8_t> shaderData,
 	milk::graphics::ShaderType shaderType
 	)
@@ -128,6 +146,10 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 		}
 	}
 
+	for (const auto& resource : reflection.resources()) {
+		resources.emplace_back(createResource(resourceFactory, resource, shaderType));
+	}
+
 	switch (shaderType) {
 	case milk::graphics::ShaderType::VERTEX:
 	{
@@ -161,12 +183,14 @@ std::vector<std::uint8_t> readContents(const boost::filesystem::path& path) {
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	milk::graphics::Renderer& graphicsRenderer,
 	ParameterFactory& parameterFactory,
+	ResourceFactory& resourceFactory,
 	const detail::ShaderCreator::CompiledShaderInfo& compiledShaderInfo
 	)
 {
 	return createShaderFromCompiledShader(
 		graphicsRenderer,
 		parameterFactory,
+		resourceFactory,
 		readContents(compiledShaderInfo.compiledShaderPath),
 		compiledShaderInfo.shaderType
 		);
@@ -175,6 +199,7 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 	milk::graphics::Renderer& graphicsRenderer,
 	ParameterFactory& parameterFactory,
+	ResourceFactory& resourceFactory,
 	const detail::ShaderCreator::ShaderCodeInfo& shaderCodeInfo
 	)
 {
@@ -186,6 +211,7 @@ std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 	return createShaderFromCompiledShader(
 		graphicsRenderer,
 		parameterFactory,
+		resourceFactory,
 		shaderData,
 		shaderCodeInfo.shaderType
 		);
@@ -200,10 +226,10 @@ std::unique_ptr<UnknownShader> detail::ShaderCreator::doCreate(
 
 	if (shaderCodeInfos_.count(id) != 0) {
 		CT_LOG_DEBUG << "Found \"" << id << "\" registered as shader code";
-		return createShaderFromShaderCode(graphicsRenderer, parameterFactory_, shaderCodeInfos_[id]);
+		return createShaderFromShaderCode(graphicsRenderer, parameterFactory_, resourceFactory_, shaderCodeInfos_[id]);
 	} else if (compiledShaderInfos_.count(id) != 0) {
 		CT_LOG_DEBUG << "Found \"" << id << "\" registered as a compiled shader";
-		return createShaderFromCompiledShader(graphicsRenderer, parameterFactory_, compiledShaderInfos_[id]);
+		return createShaderFromCompiledShader(graphicsRenderer, parameterFactory_, resourceFactory_, compiledShaderInfos_[id]);
 	} else {
 		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
 	}

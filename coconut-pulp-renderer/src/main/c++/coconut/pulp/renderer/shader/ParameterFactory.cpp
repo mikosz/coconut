@@ -1,11 +1,12 @@
 #include "ParameterFactory.hpp"
 
-#include <locale>
 #include <deque>
 
 #include <boost/algorithm/string/join.hpp>
 
 #include <coconut-tools/logger.hpp>
+
+#include "coconut/milk/utils/sliceIdentifier.hpp"
 
 #include "../lighting/DirectionalLight.hpp"
 #include "../lighting/PointLight.hpp"
@@ -24,38 +25,6 @@ using namespace coconut::pulp::renderer::shader;
 namespace /* anonymous */ {
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.PARAMETER_FACTORY");
-
-using IdentifierSlices = std::deque<std::string>;
-
-IdentifierSlices sliceIdentifier(const std::string& id) {
-	IdentifierSlices result;
-	
-	std::locale locale;
-
-	std::string next;
-	next.reserve(id.length());
-
-	for (auto c : id) {
-		if (std::isupper(c, locale) && !next.empty()) {
-			result.emplace_back(next);
-			next.clear();
-		} else if (c == '_' && !next.empty()) {
-			result.emplace_back(next);
-			next.clear();
-			continue;
-		}
-
-		next.push_back(std::tolower(c, locale));
-	}
-
-	if (!next.empty()) {
-		result.emplace_back(next);
-	}
-
-	CT_LOG_DEBUG << "Parameter id " << id << " sliced into [ " << result << " ]";
-
-	return result;
-}
 
 // TODO: extract creators to external file?
 using milk::math::Matrix;
@@ -405,9 +374,10 @@ std::unique_ptr<Parameter> detail::ParameterCreator::doCreate(
 {
 	CT_LOG_INFO << "Creating shader parameter " << instanceDetails;
 
-	auto slices = sliceIdentifier(instanceDetails.id);
+	auto slices = milk::utils::sliceIdentifier<std::deque>(instanceDetails.id);
+	CT_LOG_DEBUG << "Parameter id " << instanceDetails.id << " sliced into [ " << slices << " ]";
 
-	IdentifierSlices tail;
+	decltype(slices) tail;
 	ParameterFactoryInstanceDetails sliceDetails = instanceDetails;
 
 	std::unique_ptr<Parameter> result;

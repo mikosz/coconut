@@ -34,8 +34,8 @@ cbuffer GroupData {
 	PhongMaterial phongMaterial;
 }
 
-// Texture2D diffuseMap : register(t0);
-// SamplerState diffuseMapSamplerState : register(s0);
+Texture2D diffuseMap : register(t0);
+SamplerState diffuseMapSamplerState : register(s0);
 
 struct PIn {
 	float4 posH : SV_POSITION;
@@ -109,7 +109,7 @@ float4 main(PIn pin) : SV_TARGET
 		specular += specularComp;
 	}
 
-	float4 textureColour = float4(1.0f, 1.0f, 1.0f, 1.0f);// = diffuseMap.Sample(diffuseMapSamplerState, pin.tex);
+	float4 textureColour = diffuseMap.Sample(diffuseMapSamplerState, pin.tex);
 
 	float4 endColour = saturate(textureColour * (ambient + diffuse) + specular);
 	endColour.a = textureColour.a * diffuse.a;

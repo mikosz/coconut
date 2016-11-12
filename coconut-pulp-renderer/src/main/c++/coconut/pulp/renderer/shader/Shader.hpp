@@ -33,7 +33,7 @@ public:
 
 	using MaterialData = std::vector<ConstantBufferSharedPtr<Material>>;
 
-	using Resources = std::unordered_map<size_t, ResourceSharedPtr>;
+	using Resources = std::vector<ResourceSharedPtr>;
 
 	virtual ~UnknownShader() = default;
 
@@ -72,7 +72,7 @@ private:
 
 	MaterialData materialData_;
 
-	// Resources resources_;
+	Resources resources_;
 
 };
 

@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 			rectangleData.phongMaterials.back().ambientColour = milk::math::Vector4d(0.01f, 0.02f, 0.03f, 0.04f);
 			rectangleData.phongMaterials.back().diffuseColour = milk::math::Vector4d(0.05f, 0.06f, 0.07f, 0.08f);
 			rectangleData.phongMaterials.back().specularColour = milk::math::Vector4d(0.09f, 0.1f, 0.11f, 0.12f);
-///
+
 			rectangleData.phongMaterials.back().name = "rectangle::white";
 
 			pulp::model::Data::DrawGroup drawGroup;

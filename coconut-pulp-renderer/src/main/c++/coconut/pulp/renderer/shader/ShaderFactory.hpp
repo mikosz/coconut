@@ -8,13 +8,13 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include <coconut-tools/configuration/hierarchical/HierarchicalConfiguration.hpp>
 #include <coconut-tools/factory.hpp>
 
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
 
 #include "ParameterFactory.hpp"
+#include "ResourceFactory.hpp"
 #include "Shader.hpp"
 
 namespace coconut {
@@ -42,8 +42,6 @@ public:
 
 	void registerCompiledShader(std::string id, const CompiledShaderInfo& compiledShaderInfo);
 
-	void registerConfig(coconut_tools::configuration::hierarchical::HierarchicalConfigurationSharedPtr config);
-
 	std::unique_ptr<UnknownShader> doCreate(const std::string& id, milk::graphics::Renderer& graphicsRenderer);
 
 private:
@@ -57,6 +55,8 @@ private:
 	CompiledShaderInfos compiledShaderInfos_;
 
 	ParameterFactory parameterFactory_;
+
+	ResourceFactory resourceFactory_;
 
 };
 

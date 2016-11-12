@@ -29,7 +29,7 @@ public:
 		Parameters parameters
 		) :
 		stage_(shaderType),
-		textureSlot_(slot),
+		slot_(slot),
 		buffer_(
 			renderer,
 			milk::graphics::Buffer::Configuration(
@@ -62,14 +62,14 @@ public:
 			parameter->update(data_.data(), &updateArgument);
 		}
 
-		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, textureSlot_);
+		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, slot_);
 	}
 
 private:
 
 	milk::graphics::ShaderType stage_;
 
-	size_t textureSlot_;
+	size_t slot_;
 
 	milk::graphics::ConstantBuffer buffer_;
 

@@ -127,6 +127,36 @@ ShaderReflection::ConstantBufferInfos buildConstantBufferInfos(
 	return constantBuffers;
 }
 
+ShaderReflection::ResourceInfos buildResourceInfos(
+	system::COMWrapper<ID3D11ShaderReflection> reflectionData, const D3D11_SHADER_DESC& shaderDescription
+	) {
+	ShaderReflection::ResourceInfos	 resources;
+
+	for (size_t resourceIdx = 0; resourceIdx < shaderDescription.BoundResources; ++resourceIdx) {
+		D3D11_SHADER_INPUT_BIND_DESC resourceDesc;
+		checkDirectXCall(
+			reflectionData->GetResourceBindingDesc(static_cast<UINT>(resourceIdx), &resourceDesc),
+			"Failed to get resource description"
+			);
+
+		ShaderReflection::ResourceInfo info;
+		
+		if (resourceDesc.Type != D3D_SIT_SAMPLER && resourceDesc.Type != D3D_SIT_TEXTURE) {
+			continue;
+		}
+
+		fromIntegral(info.type, milk::utils::integralValue(resourceDesc.Type));
+		info.name = resourceDesc.Name;
+		info.slot = resourceDesc.BindPoint;
+		assert(resourceDesc.BindCount == 1);
+		info.dimensions = resourceDesc.Dimension;
+
+		resources.emplace_back(std::move(info));
+	}
+
+	return resources;
+}
+
 } // anonymous namespace
 
 ShaderReflection::ShaderReflection(const void* shaderData, size_t shaderSize) {
@@ -145,4 +175,5 @@ ShaderReflection::ShaderReflection(const void* shaderData, size_t shaderSize) {
 
 	inputParameters_ = buildInputParameterInfos(reflectionData, shaderDescription);
 	constantBuffers_ = buildConstantBufferInfos(reflectionData, shaderDescription);
+	resources_ = buildResourceInfos(reflectionData, shaderDescription);
 }

@@ -117,6 +117,26 @@ public:
 
 	using ConstantBufferInfos = std::vector<ConstantBufferInfo>;
 
+	struct ResourceInfo {
+
+		CCN_MEMBER_ENUM_VALUES(
+			Type,
+			(SAMPLER)(D3D_SIT_SAMPLER)
+			(TEXTURE)(D3D_SIT_TEXTURE)
+			);
+
+		Type type;
+
+		std::string name;
+
+		size_t slot;
+
+		size_t dimensions;
+
+	};
+
+	using ResourceInfos = std::vector<ResourceInfo>;
+
 	ShaderReflection(const void* shaderData, size_t shaderSize);
 
 	const InputParameterInfos& inputParameters() const {
@@ -127,11 +147,17 @@ public:
 		return constantBuffers_;
 	}
 
+	const ResourceInfos& resources() const {
+		return resources_;
+	}
+
 private:
 
 	InputParameterInfos inputParameters_;
 
 	ConstantBufferInfos constantBuffers_;
+
+	ResourceInfos resources_;
 
 };
 
