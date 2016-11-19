@@ -4,6 +4,8 @@
 #include <mutex>
 #include <memory>
 
+#include <boost/filesystem/path.hpp>
+
 #include <coconut-tools/factory.hpp>
 
 #include "coconut/milk/graphics/Renderer.hpp"
@@ -23,6 +25,10 @@ class PassCreator {
 public:
 
 	std::unique_ptr<Pass> doCreate(const std::string& id, milk::graphics::Renderer& graphicsRenderer);
+
+	void scanShaderCodeDirectory(const boost::filesystem::path& directory, const std::string& entrypointName = "main");
+
+	void scanCompiledShaderDirectory(const boost::filesystem::path& directory);
 
 private:
 

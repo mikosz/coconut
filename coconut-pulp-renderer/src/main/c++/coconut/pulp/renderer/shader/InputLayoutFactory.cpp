@@ -4,6 +4,7 @@
 #include <fstream>
 #include <memory>
 
+#include <coconut-tools/logger.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "coconut/milk/graphics/ShaderReflection.hpp"
@@ -16,6 +17,8 @@ using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
 namespace /* anonymous */ {
+
+CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.INPUT_LAYOUT_FACTORY");
 
 milk::graphics::FlexibleInputLayoutDescription::Format makeFormat(
 	milk::graphics::ShaderReflection::InputParameterInfo::DataType dataType,
@@ -112,11 +115,15 @@ std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShaderCo
 std::unique_ptr<milk::graphics::InputLayout> detail::InputLayoutCreator::doCreate(
 	const std::string& id, milk::graphics::Renderer& graphicsRenderer)
 {
+	CT_LOG_INFO << "Creating input layout: \"" << id << "\"";
+
 	if (shaderCodeInfos_.count(id) != 0) {
+		CT_LOG_DEBUG << "Found \"" << id << "\" registered as shader code";
 		const auto& shaderCodeInfo = shaderCodeInfos_[id];
 		return createInputLayoutFromVertexShaderCode(
 			graphicsRenderer, shaderCodeInfo.shaderCodePath, shaderCodeInfo.entrypoint);
 	} else if (compiledShaderPaths_.count(id) != 0) {
+		CT_LOG_DEBUG << "Found \"" << id << "\" registered as a compiled shader";
 		return createInputLayoutFromVertexShader(graphicsRenderer, compiledShaderPaths_[id]);
 	} else {
 		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
@@ -124,6 +131,9 @@ std::unique_ptr<milk::graphics::InputLayout> detail::InputLayoutCreator::doCreat
 }
 
 void detail::InputLayoutCreator::registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo) {
+	CT_LOG_INFO << "Registering shader code \"" << id << "\" at " << shaderCodeInfo.shaderCodePath.string()
+		<< "::" << shaderCodeInfo.entrypoint << " for input analysis";
+
 	if (shaderCodeInfos_.count(id) != 0 || compiledShaderPaths_.count(id) != 0) {
 		throw coconut_tools::factory::error_policy::CreatorAlreadyRegistered<std::string>(id);
 	}
@@ -132,6 +142,9 @@ void detail::InputLayoutCreator::registerShaderCode(std::string id, const Shader
 }
 
 void detail::InputLayoutCreator::registerCompiledShader(std::string id, boost::filesystem::path compiledShaderPath) {
+	CT_LOG_INFO << "Registering compiled shader \"" << id << "\" at " << compiledShaderPath.string()
+		<< " for input analysis";
+
 	if (shaderCodeInfos_.count(id) != 0 || compiledShaderPaths_.count(id) != 0) {
 		throw coconut_tools::factory::error_policy::CreatorAlreadyRegistered<std::string>(id);
 	}

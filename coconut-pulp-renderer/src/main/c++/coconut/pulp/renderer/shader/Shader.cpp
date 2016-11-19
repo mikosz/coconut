@@ -13,13 +13,13 @@ detail::Shader<GraphicsShaderType>::Shader(
 	SceneData sceneData,
 	ActorData actorData,
 	MaterialData materialData,
-	Resources /*resources*/
+	Resources resources
 	) :
 	shaderData_(shaderData),
 	sceneData_(std::move(sceneData)),
 	actorData_(std::move(actorData)),
-	materialData_(std::move(materialData))//,
-	// resources_(std::move(resources))
+	materialData_(std::move(materialData)),
+	resources_(std::move(resources))
 {
 }
 
@@ -41,9 +41,9 @@ void detail::Shader<GraphicsShaderType>::bind(
 		buffer->bind(drawCommand, *PassContext.material); // TODO: update conditionally (if changed since last update)
 	}
 
-/*	for (auto resource : resources_) {
-		resource.second->bind(drawCommand, PassContext);
-	} */
+	for (auto resource : resources_) {
+		resource->bind(drawCommand, PassContext);
+	}
 }
 
 template class detail::Shader<milk::graphics::VertexShader>;

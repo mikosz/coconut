@@ -5,10 +5,10 @@
   </appenders>
 </root-logger>
 <loggers>
-  <!-- <logger>
-    <id>COCONUT.PULP.RENDERER.SHADER</id>
+  <logger>
+    <id>COCONUT.PULP.RENDERER.SHADER.PASS_FACTORY</id>
     <level>debug</level>
-  </logger> -->
+  </logger>
 </loggers>
 <appenders>
   <appender>
