@@ -34,7 +34,7 @@ public:
 
 		float specularExponent;
 
-		std::string diffuseMap; // TODO: string?
+		std::string diffuseMap;
 
 		milk::graphics::Sampler::Configuration diffuseMapSamplerConfiguration;
 

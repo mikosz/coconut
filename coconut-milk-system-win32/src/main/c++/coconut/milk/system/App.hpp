@@ -95,6 +95,6 @@ private:
 				); \
 		}
 
-#define CCN_END_MAIN() } // TODO: bad style
+#define CCN_END_MAIN() }
 
 #endif /* _COCONUT_MILK_SYSTEM_WIN32_APP_HPP_ */
