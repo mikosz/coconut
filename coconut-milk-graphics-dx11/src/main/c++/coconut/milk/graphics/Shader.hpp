@@ -24,7 +24,7 @@ template <class InternalShaderType>
 class Shader {
 public:
 
-	static const auto SHADER_TYPE = fromShader<InternalShaderType>();
+	static const auto SHADER_TYPE = shaderTypeFromShader<InternalShaderType>();
 
 	Shader(Renderer& renderer, void* data, size_t size);
 

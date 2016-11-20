@@ -16,15 +16,15 @@ CCN_ENUM(ShaderType,
 	);
 
 template <class Shader>
-constexpr ShaderType fromShader();
+constexpr ShaderType shaderTypeFromShader();
 
 template <>
-constexpr ShaderType fromShader<ID3D11VertexShader>() {
+constexpr ShaderType shaderTypeFromShader<ID3D11VertexShader>() {
 	return ShaderType::VERTEX;
 }
 
 template <>
-constexpr ShaderType fromShader<ID3D11PixelShader>() {
+constexpr ShaderType shaderTypeFromShader<ID3D11PixelShader>() {
 	return ShaderType::PIXEL;
 }
 

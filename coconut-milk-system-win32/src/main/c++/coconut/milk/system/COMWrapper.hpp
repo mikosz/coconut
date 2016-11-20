@@ -57,6 +57,8 @@ public:
 			comObject_ = other.comObject_;
 			other.comObject_ = nullptr;
 		}
+
+		return *this;
 	}
 
 	T* operator ->() const {

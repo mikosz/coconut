@@ -1,9 +1,12 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_CONSTANTBUFFER_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_CONSTANTBUFFER_HPP_
 
+#include <cassert>
 #include <memory>
 #include <vector>
 #include <numeric>
+
+#include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "coconut/milk/graphics/ConstantBuffer.hpp"
 
@@ -43,7 +46,15 @@ public:
 		data_(size),
 		parameters_(std::move(parameters))
 	{
-		// TODO: check parameter input type against UpdateArgument
+		for (const auto& parameter : parameters) {
+			const auto inputType = parameter->inputType();
+			const auto updateArgumentType = Parameter::DeducedOperandType<UpdateArgument>::type;
+
+			if (updateArgumentType != inputType) {
+				throw IncompatibleParameterAndConstantBufferTypes(updateArgumentType, inputType);
+			}
+		}
+
 		const auto totalParameterSize = std::accumulate(
 			parameters_.begin(),
 			parameters_.end(),
@@ -51,10 +62,7 @@ public:
 			[](size_t total, ParameterSharedPtr parameter) { return total + parameter->size(); }
 			);
 
-		if (totalParameterSize > size) {
-			throw "";
-#pragma message("!!! TODO: exception") // TODO
-		}
+		assert (totalParameterSize <= size);
 	}
 
 	void bind(DrawCommand& drawCommand, const UpdateArgument& updateArgument) {
@@ -84,6 +92,17 @@ using ConstantBufferUniquePtr = std::unique_ptr<ConstantBuffer<UpdateArguments..
 
 template <class... UpdateArguments>
 using ConstantBufferSharedPtr = std::shared_ptr<ConstantBuffer<UpdateArguments...>>;
+
+class IncompatibleParameterAndConstantBufferTypes : public coconut_tools::exceptions::RuntimeError {
+public:
+
+	IncompatibleParameterAndConstantBufferTypes(Parameter::OperandType constantBufferType, Parameter::OperandType parameterType) :
+		coconut_tools::exceptions::RuntimeError(
+			"Incompatible constant buffer and parameter types provided: " + toString(constantBufferType) + " and " + toString(parameterType))
+	{
+	}
+
+};
 
 } // namespace shader
 } // namespace renderer
