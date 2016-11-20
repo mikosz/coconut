@@ -20,11 +20,11 @@ class Renderer;
 namespace detail {
 
 // TODO: silly, ShaderType needs to be deduced somehow (put template in ShaderType that resolves this)
-template <class InternalShaderType, milk::graphics::ShaderType ShaderTypeEnumValue>
+template <class InternalShaderType>
 class Shader {
 public:
 
-	static const auto SHADER_TYPE = ShaderTypeEnumValue;
+	static const auto SHADER_TYPE = fromShader<InternalShaderType>();
 
 	Shader(Renderer& renderer, void* data, size_t size);
 
@@ -40,8 +40,8 @@ private:
 
 } // namespace detail
 
-using VertexShader = detail::Shader<ID3D11VertexShader, milk::graphics::ShaderType::VERTEX>;
-using PixelShader = detail::Shader<ID3D11PixelShader, milk::graphics::ShaderType::PIXEL>;
+using VertexShader = detail::Shader<ID3D11VertexShader>;
+using PixelShader = detail::Shader<ID3D11PixelShader>;
 
 CCN_MAKE_POINTER_DEFINITIONS(VertexShader);
 CCN_MAKE_POINTER_DEFINITIONS(PixelShader);
