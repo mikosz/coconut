@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 		pulp::model::Data rectangleData;
 
 		{
-			rectangleData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
-			rectangleData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;
+			rectangleData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
+			rectangleData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
 			rectangleData.rasteriserConfiguration.frontCounterClockwise = false;
 
 			rectangleData.positions.emplace_back(-1.0f, 1.0f, 0.0f);

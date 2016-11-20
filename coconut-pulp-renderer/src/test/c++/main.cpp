@@ -7,7 +7,13 @@
 
 #include <boost/test/auto_unit_test.hpp>
 
+#include <coconut-tools/system/platform.hpp>
+
 #include "coconut/milk/system/App.hpp"
+
+#ifdef CT_COMPILER_VISUAL_CXX
+#	pragma comment(linker, "/subsystem:windows")
+#endif
 
 namespace /* anonymous */
 {

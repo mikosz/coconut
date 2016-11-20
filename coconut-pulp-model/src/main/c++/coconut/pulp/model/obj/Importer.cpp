@@ -45,8 +45,8 @@ Data obj::Importer::import(std::istream& is, std::string name) {
 
 	Data modelData;
 
-	modelData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
-	modelData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;
+	modelData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
+	modelData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
 	modelData.rasteriserConfiguration.frontCounterClockwise = false;
 
 	milk::graphics::Sampler::Configuration defaultSamplerConfiguration;

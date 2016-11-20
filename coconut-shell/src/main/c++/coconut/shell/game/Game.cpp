@@ -133,8 +133,8 @@ void Game::loop() {
 
 	pulp::model::Data floorData;
 	{
-		floorData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
-		floorData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;
+		floorData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
+		floorData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
 		floorData.rasteriserConfiguration.frontCounterClockwise = false;
 
 		floorData.positions.emplace_back(2.0f, 0.0f, 2.0f);
