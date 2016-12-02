@@ -1,4 +1,5 @@
 set(DEPENDENCY_LIBRARIES
+	coconut-tools-exceptions
     )
 
 set(TEST_LIBRARIES

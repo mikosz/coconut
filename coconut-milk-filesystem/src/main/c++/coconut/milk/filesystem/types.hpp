@@ -24,10 +24,10 @@ using IStream = std::unique_ptr<std::istream>;
 namespace std {
 
 template <>
-struct hash<coconut::milk::filesystem::Path> {
+struct hash<coconut::milk::filesystem::Path> : std::hash<std::string> {
 
 	size_t operator()(const coconut::milk::filesystem::Path& path) const {
-		return std::hash<std::string>()(path.string());
+		return reinterpret_cast<const std::hash<std::string>&>(*this)(path.string());
 	}
 
 };
