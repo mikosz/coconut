@@ -8,6 +8,7 @@
 #include <functional>
 #include <memory>
 
+#include "Filesystem.hpp"
 #include "types.hpp"
 
 namespace coconut {
@@ -21,7 +22,7 @@ public:
 
 	using StreamOpener = std::function<IStream()>;
 
-	FutureRawData load(const Path& path, StreamOpener opener) volatile;
+	FutureRawData load(const Path& path, const Filesystem& filesystem) volatile;
 
 private:
 

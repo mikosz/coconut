@@ -2,10 +2,13 @@
 #define _COCONUT_MILK_FILESYSTEM_FILESYSTEM_HPP_
 
 #include <vector>
+#include <string>
 #include <iosfwd>
+#include <memory>
+#include <functional>
+#include <unordered_map>
 
-#include <coconut-tools/exceptions/RuntimeError.hpp>
-
+#include "MountRoot.hpp"
 #include "types.hpp"
 
 namespace coconut {
@@ -15,27 +18,21 @@ namespace filesystem {
 class Filesystem {
 public:
 
+	void mount(Path mountPoint, std::unique_ptr<MountRoot> mountRoot);
 
+	std::vector<std::string> list(const Path& path) const;
 
-	void mount(Path directory);
+	IStream open(const Path& path) const;
 
 private:
 
-	std::vector<Path> mounts_;
+	using WalkOp = std::function<void (const MountRoot&, const Path&)>;
+
+	std::unordered_map<Path, std::unique_ptr<MountRoot>> mounts_;
+
+	void walk(const Path& path, const WalkOp& walkOp) const;
 
 };
-
-class FailedToReadData : public coconut_tools::exceptions::RuntimeError {
-public:
-
-	FailedToReadData(const Path& path, const std::runtime_error& cause) :
-		coconut_tools::exceptions::RuntimeError("Failed to read data from \"" + path.string() + "\"", cause)
-	{
-	}
-
-};
-
-std::shared_ptr<const RawData> readRawData(const Path& path, const IStream& is);
 
 } // namespace filesystem
 } // namespace milk
