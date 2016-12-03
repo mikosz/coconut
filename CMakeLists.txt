@@ -54,7 +54,7 @@ enable_testing()
 # find boost
 set(Boost_USE_STATIC_LIBS ${COMPILER_BOOST_USE_STATIC_LIBS})
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost COMPONENTS system thread test_exec_monitor filesystem regex REQUIRED)
+find_package(Boost COMPONENTS system thread unit_test_framework filesystem regex REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
