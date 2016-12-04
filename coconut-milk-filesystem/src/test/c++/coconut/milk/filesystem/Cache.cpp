@@ -18,7 +18,8 @@ namespace /* anonymous */ {
 BOOST_AUTO_TEST_SUITE(MilkFilesystemCacheTestSuite);
 
 BOOST_AUTO_TEST_CASE(LoadReturnsDataFuture) {
-	Cache cache;
+	BOOST_FAIL("commented out");
+/*	Cache cache;
 	auto future = cache.load(
 		"path",
 		[]() -> IStream {
@@ -75,7 +76,7 @@ BOOST_AUTO_TEST_CASE(ThrowsExceptionOnReadErrors) {
 		);
 
 	BOOST_REQUIRE(future.valid());
-	BOOST_CHECK_THROW(future.get(), std::runtime_error);
+	BOOST_CHECK_THROW(future.get(), std::runtime_error); */
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* MilkFilesystemCacheTestSuite */);
