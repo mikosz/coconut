@@ -108,9 +108,10 @@ public:
 		}
 	};
 
-	Parameter(size_t offset, size_t arrayElements = 0) :
+	Parameter(size_t offset, size_t arrayElements = 0, size_t arrayElementOffset = 0) :
 		offset_(offset),
-		arrayElements_(arrayElements)
+		arrayElements_(arrayElements),
+		arrayElementOffset_(arrayElementOffset)
 	{
 	}
 
@@ -154,6 +155,8 @@ protected:
 private:
 
 	size_t offset_;
+
+	size_t arrayElementOffset_;
 
 	size_t arrayElements_;
 

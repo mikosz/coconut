@@ -87,6 +87,8 @@ public:
 
 		size_t elements;
 
+		size_t elementOffset;
+
 		Members members;
 
 	};

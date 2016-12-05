@@ -31,16 +31,20 @@ struct ParameterFactoryInstanceDetails {
 
 	size_t arraySize;
 
+	size_t arrayElementOffset;
+
 	ParameterFactoryInstanceDetails(
 		std::string id,
 		std::string parentType = "",
 		size_t padding = 0,
-		size_t arraySize = 0
+		size_t arraySize = 0,
+		size_t arrayElementOffset = 0
 		) :
 		id(std::move(id)),
 		parentType(std::move(parentType)),
 		padding(padding),
-		arraySize(arraySize)
+		arraySize(arraySize),
+		arrayElementOffset(arrayElementOffset)
 	{
 	}
 

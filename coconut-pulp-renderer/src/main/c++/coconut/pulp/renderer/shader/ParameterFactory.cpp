@@ -98,7 +98,8 @@ std::unique_ptr<Parameter> createDirectionalLightsParameter(const ParameterFacto
 		},
 		Parameter::OperandType::SCENE,
 		instanceDetails.padding,
-		instanceDetails.arraySize
+		instanceDetails.arraySize,
+		instanceDetails.arrayElementOffset
 		);
 }
 
@@ -129,7 +130,8 @@ std::unique_ptr<Parameter> createPointLightsParameter(const ParameterFactoryInst
 		},
 		Parameter::OperandType::SCENE,
 		instanceDetails.padding,
-		instanceDetails.arraySize
+		instanceDetails.arraySize,
+		instanceDetails.arrayElementOffset
 		);
 }
 
@@ -346,10 +348,12 @@ std::unique_ptr<Parameter> createPhongMaterialSpecularColourParameter(const Para
 bool coconut::pulp::renderer::shader::operator==(
 	const ParameterFactoryInstanceDetails& lhs, const ParameterFactoryInstanceDetails& rhs)
 {
+#pragma message("TODO: figure out what should be compared here, possibly change operator== to some other name if possible")
 	return
 		lhs.id == rhs.id &&
 		lhs.parentType == rhs.parentType &&
-		lhs.padding == rhs.padding
+		lhs.padding == rhs.padding /* &&
+		lhs.arrayElementOffset == rhs.arrayElementOffset */
 		;
 }
 
@@ -360,7 +364,10 @@ std::ostream& coconut::pulp::renderer::shader::operator<<(
 	if (instanceDetails.arraySize != 0) {
 		os << "[" << instanceDetails.arraySize << "]";
 	}
-	os << " at offset " << instanceDetails.padding;
+	os << " at offset: " << instanceDetails.padding;
+	if (instanceDetails.arraySize != 0) {
+		os << ", array element offset: " << instanceDetails.arrayElementOffset;
+	}
 	return os;
 }
 

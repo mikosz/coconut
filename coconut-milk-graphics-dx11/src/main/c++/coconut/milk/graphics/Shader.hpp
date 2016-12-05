@@ -26,7 +26,7 @@ public:
 
 	static const auto SHADER_TYPE = shaderTypeFromShader<InternalShaderType>();
 
-	Shader(Renderer& renderer, void* data, size_t size);
+	Shader(Renderer& renderer, const void* data, size_t size);
 
 	InternalShaderType& internalShader() {
 		return *shader_;

@@ -39,6 +39,7 @@ std::shared_ptr<Parameter> createParameter(
 
 	instanceDetails.padding = offset + type.offset;
 	instanceDetails.arraySize = type.elements;
+	instanceDetails.arrayElementOffset = type.elementOffset; // TODO: nope
 	instanceDetails.parentType = parentType;
 
 	auto parameter = parameterFactory.create(instanceDetails);
@@ -80,8 +81,7 @@ std::shared_ptr<Resource> createResource(
 	)
 {
 	switch (resourceInfo.type) {
-		case ShaderReflection::ResourceInfo::Type::TEXTURE:
-			// fallthrough
+		case ShaderReflection::ResourceInfo::Type::TEXTURE: // fallthrough
 		case ShaderReflection::ResourceInfo::Type::SAMPLER:
 			return resourceFactory.create(resourceInfo.name, shaderType, resourceInfo.slot);
 		default:

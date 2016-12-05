@@ -4,7 +4,12 @@
 #include <string>
 #include <sstream>
 
+#include "coconut/milk/graphics/ConstantBuffer.hpp"
 #include "coconut/milk/graphics/ShaderReflection.hpp"
+#include "coconut/milk/graphics/TestSuite.hpp"
+#include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
+#include "coconut/milk/graphics/InputLayout.hpp"
+#include "coconut/milk/graphics/Shader.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
@@ -12,16 +17,21 @@ using namespace coconut::milk::graphics;
 
 namespace /* anonymous */ {
 
-ShaderReflection reflect(const std::string& path) {
+std::string readBinaryData(const std::string& path) {
 	// TODO: temp! shader object needs to be copied in correct place
 	std::ifstream ifs(path.c_str(), std::ios::in | std::ios::binary);
 	std::ostringstream oss;
 	oss << ifs.rdbuf();
-	auto shaderData = oss.str();
+	auto data = oss.str();
 
 	BOOST_REQUIRE(!ifs.bad());
-	BOOST_REQUIRE(!shaderData.empty());
+	BOOST_REQUIRE(!data.empty());
 
+	return data;
+}
+
+ShaderReflection reflect(const std::string& path) {
+	auto shaderData = readBinaryData(path);
 	return ShaderReflection(shaderData.data(), shaderData.size());
 }
 
@@ -199,6 +209,98 @@ BOOST_AUTO_TEST_CASE(RetrievesConstantBuffersWithArrays) {
 		BOOST_CHECK_EQUAL(buffer.variables[0].type.klass, ShaderReflection::Type::Class::VECTOR);
 		BOOST_CHECK_EQUAL(buffer.variables[0].type.elements, 3);
 	}
+}
+
+BOOST_FIXTURE_TEST_CASE(ArrayElementAlignmentIsCorrect, TestSuite) {
+	using namespace std::string_literals;
+
+	setDefaultRenderingParameters();
+
+	const auto VERTEX_SHADER = "Debug/ArrayElementAlignment.v.cso"s;
+	const auto PIXEL_SHADER = "Debug/ArrayElementAlignment.p.cso"s;
+
+	auto vertexShaderData = readBinaryData(VERTEX_SHADER);
+	auto pixelShaderData = readBinaryData(PIXEL_SHADER);
+	const auto reflection = reflect(PIXEL_SHADER);
+
+	auto layoutDesciption = std::make_unique<FlexibleInputLayoutDescription>();
+	layoutDesciption->push(
+		std::make_unique<FlexibleInputLayoutDescription::PositionElement>(0, FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT)
+		);
+
+	InputLayout inputLayout(std::move(layoutDesciption), renderer(), vertexShaderData.data(), vertexShaderData.size());
+	VertexShader vertexShader(renderer(), vertexShaderData.data(), vertexShaderData.size());
+	PixelShader pixelShader(renderer(), pixelShaderData.data(), pixelShaderData.size());
+
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers().size(), 1);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers()[0].variables.size(), 4);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers()[0].variables[0].name, "smallStructs"s);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers()[0].variables[0].type.elements, 3);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers()[0].variables[1].name, "floats"s);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers()[0].variables[1].type.elements, 5);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers()[0].variables[2].name, "bigStructs"s);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers()[0].variables[2].type.elements, 2);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers()[0].variables[3].name, "withArray"s);
+	BOOST_REQUIRE_EQUAL(reflection.constantBuffers()[0].variables[3].type.members.size(), 1);
+
+	ConstantBuffer::Configuration cbConf;
+	cbConf.size = reflection.constantBuffers()[0].size;
+	cbConf.stride = 0;
+	cbConf.allowCPURead = false;
+	cbConf.allowGPUWrite = false;
+	cbConf.allowModifications = false;
+
+	std::vector<std::uint8_t> cbData(cbConf.size);
+
+	const auto& smallStructs = reflection.constantBuffers()[0].variables[0];
+	for (size_t i = 0; i < smallStructs.type.elements; ++i) {
+		auto* ptr = cbData.data() + smallStructs.offset + (smallStructs.type.elementOffset * i);
+		*reinterpret_cast<float*>(ptr) = (i + 1) * 0.01f;
+	}
+
+	const auto& floats = reflection.constantBuffers()[0].variables[1];
+	for (size_t i = 0; i < floats.type.elements; ++i) {
+		auto* ptr = cbData.data() + floats.offset + (floats.type.elementOffset * i);
+		*reinterpret_cast<float*>(ptr) = (i + 4) * 0.01f;
+	}
+
+	const auto& bigStructs = reflection.constantBuffers()[0].variables[2];
+	for (size_t i = 0; i < bigStructs.type.elements; ++i) {
+		auto* ptr = cbData.data() + bigStructs.offset + (bigStructs.type.elementOffset * i);
+		*reinterpret_cast<float*>(ptr) = (i + 9) * 0.01f;
+	}
+
+	const auto& withArray = reflection.constantBuffers()[0].variables[3];
+	std::string memberName;
+	ShaderReflection::Type memberType;
+	std::tie(memberName, memberType) = withArray.type.members[0];
+	BOOST_REQUIRE_EQUAL(memberName, "bigStructs"s);
+	BOOST_REQUIRE_EQUAL(memberType.elements, 2);
+	for (size_t i = 0; i < memberType.elements; ++i) {
+		auto* ptr = cbData.data() + withArray.offset + memberType.offset + (memberType.elementOffset * i);
+		*reinterpret_cast<float*>(ptr) = (i + 11) * 0.01f;
+	}
+
+	ConstantBuffer cb(renderer(), cbConf, cbData.data());
+
+	auto& commandList = renderer().getImmediateCommandList();
+
+	setSquareData();
+
+	commandList.setInputLayout(inputLayout);
+	commandList.setVertexShader(vertexShader);
+	commandList.setPixelShader(pixelShader);
+	commandList.setConstantBuffer(cb, ShaderType::PIXEL, 0);
+
+	for (;;) {
+		renderer().beginScene();
+
+		drawSquare();
+
+		renderer().endScene();
+	}
+
+	BOOST_FAIL("");
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* MilkGraphicsShaderReflectionTestSuite */);

@@ -3,3 +3,6 @@
 
 # visual-studio files
 .vs/
+
+# renderdoc .cap files
+*.cap

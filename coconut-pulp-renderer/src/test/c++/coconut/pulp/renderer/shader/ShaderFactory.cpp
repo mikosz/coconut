@@ -2,9 +2,7 @@
 
 #include <memory>
 
-#include "coconut/milk/graphics/Renderer.hpp"
-#include "coconut/milk/system/App.hpp"
-#include "coconut/milk/system/Window.hpp"
+#include "coconut/milk/graphics/TestSuite.hpp"
 
 #include "coconut/pulp/renderer/shader/InputLayoutFactory.hpp"
 #include "coconut/pulp/renderer/shader/ShaderFactory.hpp"
@@ -19,58 +17,7 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
-namespace /* anonymous */ {
-
-class GraphicsTestSuite {
-public:
-
-	GraphicsTestSuite() :
-		app_(std::make_unique<milk::system::App>(*milk::system::GlobalMainArguments::instance())),
-		window_(windowConfiguration(), app_),
-		renderer_(window_, rendererConfiguration())
-	{
-	}
-
-	milk::graphics::Renderer& renderer() {
-		return renderer_;
-	}
-
-	milk::system::App& app() {
-		return *app_;
-	}
-
-private:
-
-	std::shared_ptr<milk::system::App> app_;
-
-	milk::system::Window window_;
-
-	milk::graphics::Renderer renderer_;
-
-	static milk::system::Window::Configuration windowConfiguration() {
-		milk::system::Window::Configuration conf;
-		conf.className = "GraphicsTestSuiteWindow";
-		conf.fullscreen = false;
-		conf.height = 600;
-		conf.width = 800;
-		conf.title = "GraphicsTestSuite window";
-		return conf;
-	}
-
-	static milk::graphics::Renderer::Configuration rendererConfiguration() {
-		milk::graphics::Renderer::Configuration conf;
-		conf.debugDevice = true;
-		conf.sampleCount = 1;
-		conf.sampleQuality = 0;
-		conf.vsync = true;
-		return conf;
-	}
-
-};
-
-} // anonymous namespace
-
-BOOST_FIXTURE_TEST_SUITE(PulpRendererShaderShaderFactoryTestSuite, GraphicsTestSuite);
+BOOST_FIXTURE_TEST_SUITE(PulpRendererShaderShaderFactoryTestSuite, milk::graphics::TestSuite);
 
 BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 	// init shaders
@@ -193,7 +140,7 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 	scene.setRenderingPass(renderingPass);
 
 	// render
-	{
+	for (;;) {
 		app().update();
 
 		renderer().beginScene();

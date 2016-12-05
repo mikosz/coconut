@@ -156,9 +156,10 @@ void FlexibleInputLayoutDescription::NormalElement::make(
 
 system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout(
 	Renderer& renderer,
-	void* shaderData,
+	const void* shaderData,
 	size_t shaderSize
-	) const {
+	) const
+{
 	std::vector<D3D11_INPUT_ELEMENT_DESC> descs;
 	descs.resize(elements_.size());
 
@@ -171,7 +172,7 @@ system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout
 		renderer.internalDevice().CreateInputLayout(
 			&descs.front(),
 			static_cast<UINT>(descs.size()),
-			shaderData,
+			const_cast<void*>(shaderData),
 			shaderSize,
 			&layout.get()
 			),
@@ -202,7 +203,7 @@ void FlexibleInputLayoutDescription::makeVertex(const VertexInterface& vertex, v
 		);
 }
 
-void FlexibleInputLayoutDescription::push(std::shared_ptr<Element> element) {
+void FlexibleInputLayoutDescription::push(std::shared_ptr<Element> element) { // TODO: why shared?
 	elements_.push_back(element);
 }
 

@@ -20,8 +20,14 @@ public:
 
 	using Subparameter = std::shared_ptr<Parameter>;
 
-	StructuredParameter(Callback callback, OperandType inputType, size_t padding, size_t arrayElements = 0) :
-		Parameter(padding, arrayElements),
+	StructuredParameter(
+		Callback callback,
+		OperandType inputType,
+		size_t padding,
+		size_t arrayElements = 0,
+		size_t arrayElementOffset = 0
+	) :
+		Parameter(padding, arrayElements, arrayElementOffset),
 		inputType_(inputType),
 		callback_(callback)
 	{

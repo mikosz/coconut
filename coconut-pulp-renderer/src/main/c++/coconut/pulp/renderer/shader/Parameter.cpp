@@ -5,6 +5,8 @@
 #include <cassert>
 #include <algorithm>
 
+#include "coconut/milk/graphics/ShaderReflection.hpp"
+
 #include "coconut/milk/utils/bits.hpp"
 
 using namespace coconut;
@@ -17,8 +19,7 @@ void Parameter::update(void* output, const void* input) const {
 	buffer += offset_;
 
 	for (size_t i = 0; i < std::max<size_t>(1, arrayElements_); ++i) {
-		buffer += i * (milk::utils::roundUpToMultipleOf(thisSize(), 16)); // TODO: will it work for an array of ints for instance?
-			// TODO: also, roundUp may only be required for DX, push this down to shader reflection
+		buffer += i * arrayElementOffset_;
 
 		if (next_) {
 			std::vector<std::uint8_t> thisOutputBuffer(thisSize()); // TODO: avoid this allocation somehow + it's too big?

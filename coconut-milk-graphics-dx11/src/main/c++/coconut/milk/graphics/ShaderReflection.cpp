@@ -1,5 +1,7 @@
 #include "ShaderReflection.hpp"
 
+#include <algorithm>
+
 #include <d3d11shader.h>
 #include <d3dcompiler.h>
 
@@ -49,12 +51,9 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 	return inputParameters;
 }
 
-ShaderReflection::Type buildTypeInfo(ID3D11ShaderReflectionType& typeInfo) {
+ShaderReflection::Type buildTypeInfo(ID3D11ShaderReflectionType& typeInfo, size_t size) {
 	D3D11_SHADER_TYPE_DESC desc;
-	checkDirectXCall(
-		typeInfo.GetDesc(&desc),
-		"Failed to get variable type desc"
-		);
+	checkDirectXCall(typeInfo.GetDesc(&desc), "Failed to get variable type desc");
 
 	CT_LOG_DEBUG << "Shader variable type: " << (desc.Name ? desc.Name : "<NULL>");
 
@@ -65,10 +64,28 @@ ShaderReflection::Type buildTypeInfo(ID3D11ShaderReflectionType& typeInfo) {
 	fromIntegral(type.scalarType, milk::utils::integralValue(desc.Type));
 	type.elements = desc.Elements;
 
+	const auto elementSize = size / std::max<size_t>(type.elements, 1);
+	type.elementOffset = milk::utils::roundUpToMultipleOf(elementSize, 16);
+
 	for (UINT memberIdx = 0; memberIdx < desc.Members; ++memberIdx) {
+		auto* memberType = typeInfo.GetMemberTypeByIndex(memberIdx);
+		D3D11_SHADER_TYPE_DESC memberTypeDesc;
+		checkDirectXCall(typeInfo.GetDesc(&memberTypeDesc), "Failed to get member type desc");
+
+		size_t memberSize; // hehehe
+
+		if (memberIdx < desc.Members - 1) {
+			auto* nextMemberType = typeInfo.GetMemberTypeByIndex(memberIdx + 1);
+			D3D11_SHADER_TYPE_DESC nextMemberTypeDesc;
+			checkDirectXCall(typeInfo.GetDesc(&nextMemberTypeDesc), "Failed to get member type desc");
+			memberSize = nextMemberTypeDesc.Offset - memberTypeDesc.Offset;
+		} else {
+			memberSize = desc.Offset + size - memberTypeDesc.Offset;
+		}
+
 		type.members.emplace_back(
 			typeInfo.GetMemberTypeName(memberIdx),
-			buildTypeInfo(*typeInfo.GetMemberTypeByIndex(memberIdx))
+			buildTypeInfo(*memberType, memberSize)
 			);
 	}
 
@@ -92,7 +109,7 @@ ShaderReflection::Variable buildVariableInfo(
 	variable.name = desc.Name;
 	variable.size = desc.Size;
 	variable.offset = desc.StartOffset;
-	variable.type = buildTypeInfo(*variableInfo->GetType());
+	variable.type = buildTypeInfo(*variableInfo->GetType(), variable.size);
 
 	return variable;
 }

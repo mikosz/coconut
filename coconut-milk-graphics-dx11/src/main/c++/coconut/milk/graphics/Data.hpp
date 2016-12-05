@@ -13,13 +13,20 @@ public:
 
 	Data() = default;
 
-	Data(const Data&) = delete;
-
 	virtual ~Data() = default;
 
-	void operator=(const Data&) = delete;
-
 	virtual ID3D11Resource& internalResource() = 0;
+
+protected:
+
+	// TODO: is this how it's supposed to be done?
+	Data(const Data&) = default;
+
+	Data(Data&&) = default;
+
+	Data& operator=(const Data&) = default;
+
+	Data& operator=(Data&&) = default;
 
 };
 
