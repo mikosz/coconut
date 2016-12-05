@@ -24,7 +24,7 @@ public:
 
 };
 
-BOOST_FIXTURE_TEST_SUITE(MilkFilesystemFilesystemTestSuite, coconut_tools::test_utils::GMockFixture);
+BOOST_FIXTURE_TEST_SUITE(MilkFsFilesystemTestSuite, coconut_tools::test_utils::GMockFixture);
 
 BOOST_AUTO_TEST_CASE(ListsFilesInDirectory) {
 	using namespace std::string_literals;
@@ -45,6 +45,6 @@ BOOST_AUTO_TEST_CASE(ListsFilesInDirectory) {
 	BOOST_CHECK(fs.list("a/b/c"s) == (std::vector<std::string>{ "f1"s, "f2"s, "f3"s }));
 }
 
-BOOST_AUTO_TEST_SUITE_END(/* MilkFilesystemFilesystemTestSuite */);
+BOOST_AUTO_TEST_SUITE_END(/* MilkFsFilesystemTestSuite */);
 
 } // anonymous namespace

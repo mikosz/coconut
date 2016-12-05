@@ -15,7 +15,7 @@ using namespace std::string_literals;
 
 namespace /* anonymous */ {
 
-BOOST_AUTO_TEST_SUITE(MilkFilesystemCacheTestSuite);
+BOOST_AUTO_TEST_SUITE(MilkFsCacheTestSuite);
 
 BOOST_AUTO_TEST_CASE(LoadReturnsDataFuture) {
 	BOOST_FAIL("commented out");
@@ -79,6 +79,6 @@ BOOST_AUTO_TEST_CASE(ThrowsExceptionOnReadErrors) {
 	BOOST_CHECK_THROW(future.get(), std::runtime_error); */
 }
 
-BOOST_AUTO_TEST_SUITE_END(/* MilkFilesystemCacheTestSuite */);
+BOOST_AUTO_TEST_SUITE_END(/* MilkFsCacheTestSuite */);
 
 } // anonymous namespace

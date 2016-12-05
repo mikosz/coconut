@@ -8,6 +8,8 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include <coconut-tools/exceptions/RuntimeError.hpp>
+
 namespace coconut {
 namespace milk {
 namespace fs {
@@ -16,6 +18,13 @@ using Path = boost::filesystem::path;
 using Byte = std::uint8_t;
 using RawData = std::vector<Byte>;
 using IStream = std::unique_ptr<std::istream>;
+
+class InvalidPath : public coconut_tools::exceptions::RuntimeError {
+public:
+
+	using coconut_tools::exceptions::RuntimeError::RuntimeError;
+
+};
 
 } // namespace fs
 } // namespace milk
