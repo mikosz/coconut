@@ -71,7 +71,7 @@ link_directories(${CoconutTools_LIBRARY_DIR})
 find_package(Threads REQUIRED)
 
 set(MODULES
-    "coconut-milk-filesystem"
+    "coconut-milk-fs"
     "coconut-milk-graphics-${MODULE_RENDERER}"
     "coconut-milk-math-${MODULE_MATHS}"
     "coconut-milk-system-${MODULE_SYSTEM}"

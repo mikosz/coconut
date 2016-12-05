@@ -6,4 +6,4 @@ set(TEST_LIBRARIES
     ${Boost_TEST_EXEC_MONITOR_LIBRARY}
     )
 
-library_module(coconut-milk-filesystem "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" USE_GMOCK ${LIBRARY_TYPE})
+library_module(coconut-milk-fs "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" USE_GMOCK ${LIBRARY_TYPE})

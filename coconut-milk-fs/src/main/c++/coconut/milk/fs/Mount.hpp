@@ -1,5 +1,5 @@
-#ifndef _COCONUT_MILK_FILESYSTEM_MOUNTROOT_HPP_
-#define _COCONUT_MILK_FILESYSTEM_MOUNTROOT_HPP_
+#ifndef _COCONUT_MILK_FILESYSTEM_MOUNT_HPP_
+#define _COCONUT_MILK_FILESYSTEM_MOUNT_HPP_
 
 #include <vector>
 #include <string>
@@ -8,12 +8,12 @@
 
 namespace coconut {
 namespace milk {
-namespace filesystem {
+namespace fs {
 
-class MountRoot {
+class Mount {
 public:
 
-	virtual ~MountRoot() = default;
+	virtual ~Mount() = default;
 
 	virtual std::vector<std::string> list(const Path& path) const = 0;
 
@@ -21,8 +21,8 @@ public:
 
 };
 
-} // namespace filesystem
+} // namespace fs
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_FILESYSTEM_MOUNTROOT_HPP_ */
+#endif /* _COCONUT_MILK_FILESYSTEM_MOUNT_HPP_ */

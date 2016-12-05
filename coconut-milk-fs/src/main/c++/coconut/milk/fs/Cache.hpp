@@ -13,7 +13,7 @@
 
 namespace coconut {
 namespace milk {
-namespace filesystem {
+namespace fs {
 
 class Cache {
 public:
@@ -22,7 +22,7 @@ public:
 
 	using StreamOpener = std::function<IStream()>;
 
-	FutureRawData load(const Path& path, const Filesystem& filesystem) volatile;
+	FutureRawData load(const Path& path, const Filesystem& fs) volatile;
 
 private:
 
@@ -32,7 +32,7 @@ private:
 
 };
 
-} // namespace filesystem
+} // namespace fs
 } // namespace milk
 } // namespace coconut
 

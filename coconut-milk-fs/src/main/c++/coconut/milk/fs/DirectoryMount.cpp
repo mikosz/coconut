@@ -1,4 +1,4 @@
-#include "DirectoryMountRoot.hpp"
+#include "DirectoryMount.hpp"
 
 #include <algorithm>
 #include <iterator>
@@ -10,9 +10,9 @@
 
 using namespace coconut;
 using namespace coconut::milk;
-using namespace coconut::milk::filesystem;
+using namespace coconut::milk::fs;
 
-DirectoryMountRoot::DirectoryMountRoot(Path root) :
+DirectoryMount::DirectoryMount(Path root) :
 	root_(std::move(root))
 {
 	if (boost::filesystem::exists(root) && !boost::filesystem::is_directory(root)) {
@@ -20,7 +20,7 @@ DirectoryMountRoot::DirectoryMountRoot(Path root) :
 	}
 }
 
-std::vector<std::string> DirectoryMountRoot::list(const Path& path) const {
+std::vector<std::string> DirectoryMount::list(const Path& path) const {
 	std::vector<std::string> contents;
 	std::transform(
 		boost::filesystem::directory_iterator(path),
@@ -31,6 +31,6 @@ std::vector<std::string> DirectoryMountRoot::list(const Path& path) const {
 	return contents;
 }
 
-IStream DirectoryMountRoot::open(const Path& path) const {
+IStream DirectoryMount::open(const Path& path) const {
 	return std::make_unique<std::ifstream>(path.c_str());
 }

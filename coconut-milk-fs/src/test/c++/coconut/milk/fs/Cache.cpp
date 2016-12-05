@@ -5,11 +5,11 @@
 #include <chrono>
 #include <atomic>
 
-#include "coconut/milk/filesystem/Cache.hpp"
+#include "coconut/milk/fs/Cache.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
-using namespace coconut::milk::filesystem;
+using namespace coconut::milk::fs;
 
 using namespace std::string_literals;
 
