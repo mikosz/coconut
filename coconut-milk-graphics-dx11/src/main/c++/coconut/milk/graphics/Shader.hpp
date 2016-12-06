@@ -19,7 +19,6 @@ class Renderer;
 
 namespace detail {
 
-// TODO: silly, ShaderType needs to be deduced somehow (put template in ShaderType that resolves this)
 template <class InternalShaderType>
 class Shader {
 public:

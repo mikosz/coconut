@@ -24,7 +24,6 @@ boost::unit_test::test_suite* initUnitTest(int, char**) {
 
 } // anonymous namespace
 
-// TODO: platform dependent
 CCN_BEGIN_MAIN();
 	return boost::unit_test::unit_test_main(&initUnitTest, __argc, __argv);
 CCN_END_MAIN();
