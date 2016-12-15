@@ -5,7 +5,7 @@ set(DEPENDENCY_LIBRARIES
     )
 
 set(TEST_LIBRARIES
-    ${Boost_TEST_EXEC_MONITOR_LIBRARY}
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
     )
     
 library_module(coconut-milk-math-xna "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" ${LIBRARY_TYPE})
