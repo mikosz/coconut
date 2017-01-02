@@ -6,22 +6,24 @@
 
 #include <boost/filesystem.hpp>
 
+#include "Path.hpp"
+
 using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::fs;
 
 using namespace std::string_literals;
 
-DirectoryMount::DirectoryMount(Path root) :
+DirectoryMount::DirectoryMount(boost::filesystem::path root) :
 	root_(std::move(root))
 {
-	if (!boost::filesystem::is_directory(root)) {
-		throw InvalidPath("Not a path to an existing directory: \""s + root.string() + '"');
+	if (!boost::filesystem::is_directory(root_)) {
+		throw InvalidPath("Not a path to an existing directory: \""s + root_.string() + '"');
 	}
 }
 
 std::vector<std::string> DirectoryMount::list(const Path& path) const {
-	const auto effectivePath = root_ / path;
+	const auto effectivePath = root_ / path.physicalPath();
 
 	if (!boost::filesystem::is_directory(effectivePath)) {
 		throw InvalidPath("Not a path to an existing directory: \""s + effectivePath.string() + '"');
@@ -37,5 +39,5 @@ std::vector<std::string> DirectoryMount::list(const Path& path) const {
 }
 
 IStream DirectoryMount::open(const Path& path) const {
-	return std::make_unique<std::ifstream>((root_ / path).c_str());
+	return std::make_unique<std::ifstream>((root_ / path.physicalPath()).c_str());
 }

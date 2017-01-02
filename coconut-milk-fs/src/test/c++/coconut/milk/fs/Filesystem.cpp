@@ -1,3 +1,4 @@
+#define BOOST_TEST_NO_LIB
 #include <boost/test/auto_unit_test.hpp>
 
 #include <sstream>

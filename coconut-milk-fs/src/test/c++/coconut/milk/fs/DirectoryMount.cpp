@@ -1,3 +1,4 @@
+#define BOOST_TEST_NO_LIB
 #include <boost/test/auto_unit_test.hpp>
 
 #include <algorithm>
@@ -7,6 +8,7 @@
 #include <coconut-tools/test-utils/test-utils.hpp>
 
 #include "coconut/milk/fs/DirectoryMount.hpp"
+#include "coconut/milk/fs/Path.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;

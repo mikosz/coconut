@@ -1,17 +1,20 @@
 #ifndef _COCONUT_MILK_FILESYSTEM_DIRECTORYMOUNT_HPP_
 #define _COCONUT_MILK_FILESYSTEM_DIRECTORYMOUNT_HPP_
 
-#include "Types.hpp"
+#include <boost/filesystem/path.hpp>
+
 #include "Mount.hpp"
 
 namespace coconut {
 namespace milk {
 namespace fs {
 
+class Path;
+
 class DirectoryMount : public Mount {
 public:
 
-	DirectoryMount(Path root);
+	DirectoryMount(boost::filesystem::path root);
 
 	std::vector<std::string> list(const Path& path) const override;
 
@@ -19,7 +22,7 @@ public:
 
 private:
 
-	Path root_;
+	boost::filesystem::path root_;
 
 };
 

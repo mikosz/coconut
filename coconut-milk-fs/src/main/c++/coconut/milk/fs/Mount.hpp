@@ -10,6 +10,8 @@ namespace coconut {
 namespace milk {
 namespace fs {
 
+class Path;
+
 class Mount {
 public:
 

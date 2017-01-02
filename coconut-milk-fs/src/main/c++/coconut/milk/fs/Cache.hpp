@@ -1,34 +1,51 @@
 #ifndef _COCONUT_MILK_FILESYSTEM_CACHE_HPP_
 #define _COCONUT_MILK_FILESYSTEM_CACHE_HPP_
 
-#include <coconut-tools/concurrent/LockableInstance.hpp>
-
-#include <unordered_map>
 #include <future>
-#include <functional>
+#include <mutex>
 #include <memory>
+#include <list>
+#include <unordered_map>
 
-#include "Filesystem.hpp"
+#include "Path.hpp"
 #include "types.hpp"
 
 namespace coconut {
 namespace milk {
 namespace fs {
 
+class Filesystem;
+
 class Cache {
 public:
 
-	using FutureRawData = std::shared_future<std::shared_ptr<const RawData>>;
+	using CachedData = std::shared_ptr<const RawData>;
 
-	using StreamOpener = std::function<IStream()>;
-
-	FutureRawData load(const Path& path, const Filesystem& fs) volatile;
+	std::shared_future<CachedData> load(const Filesystem& filesystem, const Path& path);
 
 private:
 
-	using Data = std::unordered_map<Path, FutureRawData>;
+	using RemovalQueue = std::list<Path>;
 
-	coconut_tools::concurrent::LockableInstance<Data> data_;
+	struct Entry {
+	
+		std::shared_future<CachedData> dataFuture;
+
+		RemovalQueue::iterator removalIt;
+	
+		Entry(std::shared_future<CachedData> dataFuture, RemovalQueue::iterator removalIt) :
+			dataFuture(std::move(dataFuture)),
+			removalIt(std::move(removalIt))
+		{
+		}
+
+	};
+
+	using CachedFiles = std::unordered_map<Path, Entry>;
+
+	CachedFiles cachedFiles_;
+
+	RemovalQueue removalQueue_;
 
 };
 

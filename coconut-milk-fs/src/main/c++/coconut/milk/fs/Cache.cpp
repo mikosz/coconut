@@ -6,17 +6,24 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::fs;
 
-std::shared_future<std::shared_ptr<const RawData>> Cache::load(const Path& path, const Filesystem& fs) volatile {
-	auto lockedData = data_.lock();
-	auto dataIt = lockedData->find(path);
+auto Cache::load(const Filesystem& filesystem, const Path& path) -> std::shared_future<CachedData> {
+	auto cachedIt = cachedFiles_.find(path);
 
-	if (dataIt == lockedData->end()) {
-		auto future = std::async([&path, &fs]() -> auto {
-			auto rawData = readRawData(path, *fs.open(path));
-			return std::make_shared<const RawData>(std::move(rawData));
-		});
-		dataIt = lockedData->emplace_hint(dataIt, path, future.share());
+	if (cachedIt == cachedFiles_.end()) {
+		// TODO: filesystem must be valid until this operation completes, which is not great,
+		// figure out something better
+		auto dataFuture = std::async([&filesystem, path]() -> CachedData {
+				auto rawData = readRawData(path, *filesystem.open(path));
+				auto cachedData = std::make_shared<RawData>(std::move(rawData));
+				return cachedData;
+			});
+		auto removalIt = removalQueue_.emplace(removalQueue_.end(), path);
+		bool inserted;
+		Entry entry(dataFuture.share(), removalIt);
+		std::tie(cachedIt, inserted) = cachedFiles_.emplace(path, std::move(entry));
+
+		assert(inserted);
 	}
 
-	return dataIt->second;
+	return cachedIt->second.dataFuture;
 }

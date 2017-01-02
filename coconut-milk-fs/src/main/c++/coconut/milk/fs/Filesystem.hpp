@@ -11,6 +11,7 @@
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "Mount.hpp"
+#include "Path.hpp"
 #include "types.hpp"
 
 namespace coconut {
@@ -30,7 +31,9 @@ private:
 
 	using WalkOp = std::function<void (const Mount&, const Path&)>;
 
-	std::unordered_map<Path, std::unique_ptr<Mount>> mounts_;
+	using Mounts = std::unordered_map<Path, std::unique_ptr<Mount>>;
+
+	Mounts mounts_;
 
 	void walk(const Path& path, const WalkOp& walkOp) const;
 

@@ -51,10 +51,10 @@ void Filesystem::walk(const Path& path, const WalkOp& walkOp) const {
 		}
 
 		if (toMountPath.empty()) {
-			throw "Abc"; // TODO
+			throw InvalidPath("No such file or directory: " + path.string());
 		} else {
-			mountPath = toMountPath.filename() / mountPath;
-			toMountPath.remove_filename();
+			mountPath = toMountPath / mountPath;
+			toMountPath = toMountPath.parent();
 		}
 	}
 }
