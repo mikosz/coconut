@@ -142,6 +142,24 @@ BOOST_AUTO_TEST_CASE(ParentYieldsPathParent) {
 	BOOST_CHECK_EQUAL(Path("dir/subdir").parent(), "dir");
 }
 
+BOOST_AUTO_TEST_CASE(BaseYieldsBasePath) {
+	BOOST_CHECK(Path().base().empty());
+	
+	BOOST_CHECK_EQUAL(Path("/").base(), "/");
+	BOOST_CHECK_EQUAL(Path("/dir").base(), "dir");
+	BOOST_CHECK_EQUAL(Path("/dir/file.txt").base(), "file.txt");
+}
+
+BOOST_AUTO_TEST_CASE(AbsolutePathAcceptsOnlyAbsolutePaths) {
+	BOOST_CHECK_EQUAL(AbsolutePath("/"), Path("/"));
+	BOOST_CHECK_EQUAL(AbsolutePath("/dir"s), Path("/dir"));
+	BOOST_CHECK_EQUAL(AbsolutePath(Path("/dir")), Path("/dir"));
+
+	BOOST_CHECK_THROW(AbsolutePath(""), InvalidPath);
+	BOOST_CHECK_THROW(AbsolutePath("dir"s), InvalidPath);
+	BOOST_CHECK_THROW(AbsolutePath(Path("dir")), InvalidPath);
+}
+
 BOOST_AUTO_TEST_SUITE_END(/* MilkFsPathTestSuite */);
 
 } // anonymous namespace

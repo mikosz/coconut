@@ -21,35 +21,35 @@ namespace fs {
 class Filesystem {
 public:
 
-	void mount(Path mountPoint, std::unique_ptr<Mount> mountRoot);
+	void mount(AbsolutePath mountPoint, std::unique_ptr<Mount> mountRoot);
 
-	std::vector<std::string> list(const Path& path) const;
+	std::vector<std::string> list(const AbsolutePath& path) const;
 
-	IStream open(const Path& path) const;
+	IStream open(const AbsolutePath& path) const;
 
 private:
 
 	using WalkOp = std::function<void (const Mount&, const Path&)>;
 
-	using Mounts = std::unordered_map<Path, std::unique_ptr<Mount>>;
+	using Mounts = std::unordered_map<AbsolutePath, std::unique_ptr<Mount>>;
 
 	Mounts mounts_;
 
-	void walk(const Path& path, const WalkOp& walkOp) const;
+	void walk(const AbsolutePath& path, const WalkOp& walkOp) const;
 
 };
 
 class FailedToReadData : public coconut_tools::exceptions::RuntimeError {
 public:
 
-	FailedToReadData(const Path& path, const std::runtime_error& cause) :
+	FailedToReadData(const AbsolutePath& path, const std::runtime_error& cause) :
 		coconut_tools::exceptions::RuntimeError("Failed to read data from \"" + path.string() + '\"', cause)
 	{
 	}
 
 };
 
-RawData readRawData(const Path& path, std::istream& is);
+RawData readRawData(const AbsolutePath& path, std::istream& is);
 
 } // namespace fs
 } // namespace milk

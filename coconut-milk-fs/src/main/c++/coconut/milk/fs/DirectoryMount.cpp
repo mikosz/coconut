@@ -39,5 +39,11 @@ std::vector<std::string> DirectoryMount::list(const Path& path) const {
 }
 
 IStream DirectoryMount::open(const Path& path) const {
-	return std::make_unique<std::ifstream>((root_ / path.physicalPath()).c_str());
+	const auto effectivePath = root_ / path.physicalPath();
+
+	if (!boost::filesystem::is_regular_file(effectivePath)) {
+		throw InvalidPath("Not a path to a regular file: \"" + effectivePath.string() + '"');
+	}
+
+	return std::make_unique<std::ifstream>(effectivePath.c_str());
 }

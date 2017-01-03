@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(LoadReturnsDataFuture) {
 	Filesystem fs;
 	auto mount = std::make_unique<MockMount>(false);
 	
-	EXPECT_CALL(*mount, openContents(Path("/f"))).WillOnce(testing::Return("data\0"s));
+	EXPECT_CALL(*mount, openContents(Path("f"))).WillOnce(testing::Return("data\0"s));
 
 	fs.mount("/", std::move(mount));
 
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(DuplicateLoadWillNotSpawnAnotherThread) {
 	Filesystem fs;
 	auto mount = std::make_unique<MockMount>(false);
 	
-	EXPECT_CALL(*mount, openContents(Path(path))).WillOnce(testing::InvokeWithoutArgs(loader));
+	EXPECT_CALL(*mount, openContents(Path("f"))).WillOnce(testing::InvokeWithoutArgs(loader));
 
 	fs.mount("/", std::move(mount));
 

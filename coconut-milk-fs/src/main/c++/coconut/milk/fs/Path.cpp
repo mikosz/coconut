@@ -52,3 +52,26 @@ Path& Path::operator/=(const Path& tail) {
 	unifiedPath_ = unify(std::move(unifiedPath_));
 	return *this;
 }
+
+AbsolutePath::AbsolutePath(boost::filesystem::path physicalPath) :
+	Path(physicalPath)
+{
+	if (relative()) {
+		throw InvalidPath("Absolute path required, but relative provided: \"" + physicalPath.string() + "\"");
+	}
+}
+
+AbsolutePath::AbsolutePath(const Path& path) :
+	AbsolutePath(path.physicalPath())
+{
+}
+
+AbsolutePath::AbsolutePath(const char* pathString) :
+	AbsolutePath(boost::filesystem::path(pathString))
+{
+}
+
+AbsolutePath::AbsolutePath(const std::string& pathString) :
+	AbsolutePath(boost::filesystem::path(pathString))
+{
+}

@@ -53,6 +53,10 @@ public:
 		return unifiedPath_.parent_path();
 	}
 
+	Path base() const {
+		return unifiedPath_.filename();
+	}
+
 	const boost::filesystem::path& physicalPath() const noexcept {
 		return unifiedPath_;
 	}
@@ -78,6 +82,21 @@ inline std::ostream& operator<<(std::ostream& os, const Path& path) {
 	return os << path.string();
 }
 
+class AbsolutePath : public Path {
+public:
+
+	AbsolutePath() = default;
+
+	AbsolutePath(boost::filesystem::path physicalPath);
+
+	AbsolutePath(const Path& path);
+
+	AbsolutePath(const char* pathString);
+
+	AbsolutePath(const std::string& pathString);
+
+};
+
 } // namespace fs
 } // namespace milk
 } // namespace coconut
@@ -91,6 +110,10 @@ struct hash<coconut::milk::fs::Path> {
 		return path.hashValue();
 	}
 
+};
+
+template <>
+struct hash<coconut::milk::fs::AbsolutePath> : public hash<coconut::milk::fs::Path> {
 };
 
 } // namespace std

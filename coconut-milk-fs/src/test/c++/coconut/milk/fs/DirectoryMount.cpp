@@ -54,6 +54,7 @@ BOOST_AUTO_TEST_CASE(ReturnsEmptyVectorForEmptyDirectories) {
 
 BOOST_AUTO_TEST_CASE(ThrowsOnInvalidPath) {
 	coconut_tools::test_utils::writeToFile(resourcesDir() / "is-file", ""s);
+	boost::filesystem::create_directory(resourcesDir() / "directory");
 
 	BOOST_CHECK_THROW(DirectoryMount(resourcesDir() / "doesnt-exist"), InvalidPath);
 	BOOST_CHECK_THROW(DirectoryMount(resourcesDir() / "is-file"), InvalidPath);
@@ -62,6 +63,7 @@ BOOST_AUTO_TEST_CASE(ThrowsOnInvalidPath) {
 
 	BOOST_CHECK_THROW(mount.list("doesnt-exist"), InvalidPath);
 	BOOST_CHECK_THROW(mount.list("is-file"), InvalidPath);
+	BOOST_CHECK_THROW(mount.open("directory"), InvalidPath);
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* MilkFsDirectoryMountTestSuite */);

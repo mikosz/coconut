@@ -8,12 +8,12 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::fs;
 
-void Filesystem::mount(Path mountPoint, std::unique_ptr<Mount> mountRoot) {
+void Filesystem::mount(AbsolutePath mountPoint, std::unique_ptr<Mount> mountRoot) {
 	mounts_.emplace(std::move(mountPoint), std::move(mountRoot));
 }
 
-std::vector<std::string> Filesystem::list(const Path& path) const {
-	std::vector<std::string> result;
+std::vector<std::string> Filesystem::list(const AbsolutePath& path) const {
+	auto result = std::vector<std::string>();
 
 	walk(path, [&result](const Mount& mountRoot, const Path& path) {
 			auto files = mountRoot.list(path);
@@ -29,37 +29,39 @@ std::vector<std::string> Filesystem::list(const Path& path) const {
 	return result;
 }
 
-IStream Filesystem::open(const Path& path) const {
-	IStream is;
+IStream Filesystem::open(const AbsolutePath& path) const {
+	auto is = IStream();
+
 	walk(path, [&is](const Mount& mountRoot, const Path& path) {
 			is = mountRoot.open(path);
 		}
 		);
+
 	return is;
 }
 
-void Filesystem::walk(const Path& path, const WalkOp& walkOp) const {
-	Path toMountPath = path;
-	Path mountPath;
+void Filesystem::walk(const AbsolutePath& path, const WalkOp& walkOp) const {
+	auto mountPoint = static_cast<Path>(path);
+	auto subPath = Path();
 
 	for (;;) {
-		auto mountIt = mounts_.find(toMountPath);
+		auto mountIt = mounts_.find(mountPoint);
 
 		if (mountIt != mounts_.end()) {
-			walkOp(*mountIt->second, mountPath);
+			walkOp(*mountIt->second, subPath);
 			return;
 		}
 
-		if (toMountPath.empty()) {
+		subPath = mountPoint.base() / subPath;
+		mountPoint = mountPoint.parent();
+
+		if (mountPoint.empty()) {
 			throw InvalidPath("No such file or directory: " + path.string());
-		} else {
-			mountPath = toMountPath / mountPath;
-			toMountPath = toMountPath.parent();
 		}
 	}
 }
 
-RawData coconut::milk::fs::readRawData(const Path& path, std::istream& is) {
+RawData coconut::milk::fs::readRawData(const AbsolutePath& path, std::istream& is) {
 	try {
 		is.exceptions(std::ios::badbit);
 
