@@ -5,6 +5,7 @@
 #include <iosfwd>
 
 #include <boost/operators.hpp>
+#include <boost/optional.hpp> // TODO: change to std::optional after switching to c++ latest
 #include <boost/filesystem/path.hpp>
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
@@ -94,6 +95,8 @@ public:
 	AbsolutePath(const char* pathString);
 
 	AbsolutePath(const std::string& pathString);
+
+	boost::optional<Path> relativeTo(const AbsolutePath& parent) const;
 
 };
 

@@ -47,3 +47,9 @@ IStream DirectoryMount::open(const Path& path) const {
 
 	return std::make_unique<std::ifstream>(effectivePath.c_str());
 }
+
+bool DirectoryMount::exists(const Path& path) const {
+	const auto effectivePath = root_ / path.physicalPath();
+
+	return boost::filesystem::exists(effectivePath);
+}

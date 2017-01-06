@@ -20,6 +20,8 @@ public:
 
 	IStream open(const Path& path) const override;
 
+	bool exists(const Path& path) const override;
+
 private:
 
 	boost::filesystem::path root_;

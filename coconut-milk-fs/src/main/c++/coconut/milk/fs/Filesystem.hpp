@@ -6,9 +6,9 @@
 #include <iosfwd>
 #include <memory>
 #include <functional>
-#include <unordered_map>
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
+#include <coconut-tools/enum.hpp>
 
 #include "Mount.hpp"
 #include "Path.hpp"
@@ -21,21 +21,49 @@ namespace fs {
 class Filesystem {
 public:
 
-	void mount(AbsolutePath mountPoint, std::unique_ptr<Mount> mountRoot);
+	CCN_MEMBER_ENUM(
+		PredecessorHidingPolicy,
+		(HIDE)
+		(ADD)
+		);
 
-	std::vector<std::string> list(const AbsolutePath& path) const;
+	using Filenames = std::vector<std::string>;
+
+	void mount(
+		AbsolutePath mountPoint,
+		std::unique_ptr<Mount> mount,
+		PredecessorHidingPolicy predecessorHidingPolicy
+		);
+
+	Filenames list(const AbsolutePath& path) const;
 
 	IStream open(const AbsolutePath& path) const;
 
 private:
 
+	struct MountEntry {
+
+		AbsolutePath mountPoint;
+
+		std::unique_ptr<Mount> mount;
+
+		PredecessorHidingPolicy predecessorHidingPolicy;
+
+		MountEntry(
+			AbsolutePath mountPoint,
+			std::unique_ptr<Mount> mount,
+			PredecessorHidingPolicy predecessorHidingPolicy
+			);
+
+	};
+
 	using WalkOp = std::function<void (const Mount&, const Path&)>;
 
-	using Mounts = std::unordered_map<AbsolutePath, std::unique_ptr<Mount>>;
+	using Mounts = std::vector<MountEntry>;
 
 	Mounts mounts_;
 
-	void walk(const AbsolutePath& path, const WalkOp& walkOp) const;
+	void walk(const AbsolutePath& path, const WalkOp& walkOp, bool allowMultiple) const;
 
 };
 

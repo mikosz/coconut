@@ -2,6 +2,10 @@
 
 #include <algorithm>
 
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::fs;
@@ -74,4 +78,26 @@ AbsolutePath::AbsolutePath(const char* pathString) :
 AbsolutePath::AbsolutePath(const std::string& pathString) :
 	AbsolutePath(boost::filesystem::path(pathString))
 {
+}
+
+boost::optional<Path> AbsolutePath::relativeTo(const AbsolutePath& parent) const {
+	const auto isSlash = boost::is_any_of("/");
+
+	auto parentSplit = std::vector<std::string>();
+	boost::split(parentSplit, parent.physicalPath().string(), isSlash, boost::algorithm::token_compress_on);
+	parentSplit.erase(std::remove(parentSplit.begin(), parentSplit.end(), ""), parentSplit.end());
+
+	auto thisSplit = std::vector<std::string>();
+	boost::split(thisSplit, physicalPath().string(), isSlash, boost::algorithm::token_compress_on);
+	thisSplit.erase(std::remove(thisSplit.begin(), thisSplit.end(), ""), thisSplit.end());
+
+	if (parentSplit.size() <= thisSplit.size()) {
+		if (std::equal(parentSplit.begin(), parentSplit.end(), thisSplit.begin())) {
+			const auto subPath = boost::join(
+				std::vector<std::string>(thisSplit.begin() + parentSplit.size(), thisSplit.end()), "/");
+			return Path(subPath);
+		}
+	}
+	
+	return boost::optional<Path>();
 }

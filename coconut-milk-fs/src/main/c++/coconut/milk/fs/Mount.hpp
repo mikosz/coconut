@@ -21,6 +21,8 @@ public:
 
 	virtual IStream open(const Path& path) const = 0;
 
+	virtual bool exists(const Path& path) const = 0;
+
 };
 
 } // namespace fs

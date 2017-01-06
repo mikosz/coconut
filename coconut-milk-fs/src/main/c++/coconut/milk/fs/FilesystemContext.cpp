@@ -2,8 +2,6 @@
 
 #include <cassert>
 
-#include "Filesystem.hpp"
-
 using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::fs;
@@ -21,8 +19,12 @@ void FilesystemContext::changeWorkingDirectory(const Path& path) {
 	currentWorkingDirectory_ = toAbsolutePath(path);
 }
 
-void FilesystemContext::mount(Path mountPoint, std::unique_ptr<Mount> mountRoot) {
-	filesystem_->mount(toAbsolutePath(mountPoint), std::move(mountRoot));
+void FilesystemContext::mount(
+	Path mountPoint,
+	std::unique_ptr<Mount> mountRoot,
+	Filesystem::PredecessorHidingPolicy predecessorHidingPolicy
+	) {
+	filesystem_->mount(toAbsolutePath(mountPoint), std::move(mountRoot), predecessorHidingPolicy);
 }
 
 std::vector<std::string> FilesystemContext::list(const Path& path) const {

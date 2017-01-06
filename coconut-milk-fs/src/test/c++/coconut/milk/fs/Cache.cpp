@@ -31,6 +31,10 @@ public:
 
 	MOCK_CONST_METHOD1(openContents, std::string (const Path&));
 	
+	bool exists(const Path&) const override {
+		return true;
+	}
+
 	IStream open(const Path& path) const override {
 		if (badOpen_) {
 			auto iss = std::make_unique<std::istringstream>("");
@@ -53,7 +57,7 @@ BOOST_AUTO_TEST_CASE(LoadReturnsDataFuture) {
 	
 	EXPECT_CALL(*mount, openContents(Path("f"))).WillOnce(testing::Return("data\0"s));
 
-	fs.mount("/", std::move(mount));
+	fs.mount("/", std::move(mount), Filesystem::PredecessorHidingPolicy::HIDE);
 
 	Cache cache;
 	auto future = cache.load(fs, "/f");
@@ -78,7 +82,7 @@ BOOST_AUTO_TEST_CASE(DuplicateLoadWillNotSpawnAnotherThread) {
 	
 	EXPECT_CALL(*mount, openContents(Path("f"))).WillOnce(testing::InvokeWithoutArgs(loader));
 
-	fs.mount("/", std::move(mount));
+	fs.mount("/", std::move(mount), Filesystem::PredecessorHidingPolicy::HIDE);
 
 	Cache cache;
 	auto loadingFuture = cache.load(fs, path);
@@ -108,7 +112,7 @@ BOOST_AUTO_TEST_CASE(ThrowsExceptionOnReadErrors) {
 	Filesystem fs;
 	auto mount = std::make_unique<MockMount>(true);
 
-	fs.mount("/", std::move(mount));
+	fs.mount("/", std::move(mount), Filesystem::PredecessorHidingPolicy::HIDE);
 
 	auto future = cache.load(fs, "/f"s);
 

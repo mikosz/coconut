@@ -29,6 +29,10 @@ public:
 		return std::make_unique<std::istringstream>(openContents(path));
 	}
 
+	bool exists(const Path&) const override {
+		return true;
+	}
+
 };
 
 BOOST_FIXTURE_TEST_SUITE(MilkFsFilesystemContextTestSuite, coconut_tools::test_utils::GMockFixture);
@@ -43,13 +47,13 @@ BOOST_AUTO_TEST_CASE(ListsFilesInDirectory) {
 		.WillRepeatedly(testing::Return(std::vector<std::string>{ "c"s }));
 
 	auto fs = std::make_shared<Filesystem>();
-	fs->mount("/a/b"s, std::move(mountRootAB));
+	fs->mount("/a/b"s, std::move(mountRootAB), Filesystem::PredecessorHidingPolicy::HIDE);
 
 	auto cache = std::make_shared<Cache>();
 
 	auto fsContext = FilesystemContext(fs, cache);
 
-	fsContext.mount("a/b/c"s, std::move(mountRootABC));
+	fsContext.mount("a/b/c"s, std::move(mountRootABC), Filesystem::PredecessorHidingPolicy::HIDE);
 
 	BOOST_CHECK(fsContext.list("/a/b"s) == std::vector<std::string>{ "c"s });
 	BOOST_CHECK(fsContext.list("/a/b/c"s) == (std::vector<std::string>{ "f1"s, "f2"s, "f3"s }));
@@ -81,13 +85,13 @@ BOOST_AUTO_TEST_CASE(OpensFiles) {
 		.WillOnce(testing::Return("/a/b/f data\0"s));
 
 	auto fs = std::make_shared<Filesystem>();
-	fs->mount("/a/b"s, std::move(mountRootAB));
+	fs->mount("/a/b"s, std::move(mountRootAB), Filesystem::PredecessorHidingPolicy::HIDE);
 
 	auto cache = std::make_shared<Cache>();
 
 	auto fsContext = FilesystemContext(fs, cache);
 
-	fsContext.mount("a/b/c"s, std::move(mountRootABC));
+	fsContext.mount("a/b/c"s, std::move(mountRootABC), Filesystem::PredecessorHidingPolicy::HIDE);
 
 	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("/a/b/f"s).get()->data()), "/a/b/f data"s);
 	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("/a/b/c/f"s).get()->data()), "/a/b/c/f data"s);

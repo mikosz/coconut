@@ -3,28 +3,38 @@
 #include <istream>
 #include <algorithm>
 #include <iterator>
+#include <set>
+
+#include <boost/range/adaptor/reversed.hpp>
+#include <boost/range/adaptor/adjacent_filtered.hpp>
 
 using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::fs;
 
-void Filesystem::mount(AbsolutePath mountPoint, std::unique_ptr<Mount> mountRoot) {
-	mounts_.emplace(std::move(mountPoint), std::move(mountRoot));
+void Filesystem::mount(
+	AbsolutePath mountPoint,
+	std::unique_ptr<Mount> mount,
+	PredecessorHidingPolicy predecessorHidingPolicy
+	) {
+	mounts_.emplace_back(std::move(mountPoint), std::move(mount), predecessorHidingPolicy);
 }
 
 std::vector<std::string> Filesystem::list(const AbsolutePath& path) const {
-	auto result = std::vector<std::string>();
+	auto filenameSet = std::set<std::string>();
 
-	walk(path, [&result](const Mount& mountRoot, const Path& path) {
-			auto files = mountRoot.list(path);
-			if (result.empty()) {
-				result.swap(files);
-			} else {
-				result.reserve(result.size() + files.size());
-				std::move(files.begin(), files.end(), std::back_inserter(result));
-			}
-		}
+	walk(
+		path,
+		[&filenameSet](const Mount& mount, const Path& path) {
+			auto files = mount.list(path);
+			std::move(files.begin(), files.end(), std::inserter(filenameSet, filenameSet.begin()));
+		},
+		true
 		);
+
+	auto result = std::vector<std::string>();
+	result.reserve(filenameSet.size());
+	std::move(filenameSet.begin(), filenameSet.end(), std::back_inserter(result));
 
 	return result;
 }
@@ -32,32 +42,49 @@ std::vector<std::string> Filesystem::list(const AbsolutePath& path) const {
 IStream Filesystem::open(const AbsolutePath& path) const {
 	auto is = IStream();
 
-	walk(path, [&is](const Mount& mountRoot, const Path& path) {
-			is = mountRoot.open(path);
-		}
+	walk(
+		path,
+		[&is](const Mount& mount, const Path& path) {
+			is = mount.open(path);
+		},
+		false
 		);
 
 	return is;
 }
 
-void Filesystem::walk(const AbsolutePath& path, const WalkOp& walkOp) const {
-	auto mountPoint = static_cast<Path>(path);
-	auto subPath = Path();
+Filesystem::MountEntry::MountEntry(
+	AbsolutePath mountPoint,
+	std::unique_ptr<Mount> mount,
+	PredecessorHidingPolicy predecessorHidingPolicy
+	) :
+	mountPoint(std::move(mountPoint)),
+	mount(std::move(mount)),
+	predecessorHidingPolicy(predecessorHidingPolicy)
+{
+}
 
-	for (;;) {
-		auto mountIt = mounts_.find(mountPoint);
+void Filesystem::walk(const AbsolutePath& path, const WalkOp& walkOp, bool allowMultiple) const {
+	auto found = false;
 
-		if (mountIt != mounts_.end()) {
-			walkOp(*mountIt->second, subPath);
-			return;
+	for (const auto& mountEntry : (mounts_ | boost::adaptors::reversed)) {
+		const auto subPath = path.relativeTo(mountEntry.mountPoint);
+		if (subPath) {
+			if (mountEntry.mount->exists(*subPath)) {
+				walkOp(*mountEntry.mount, *subPath);
+				found = true;
+				if (!allowMultiple) {
+					return;
+				}
+			}
+			if (mountEntry.predecessorHidingPolicy == PredecessorHidingPolicy::HIDE) {
+				break;
+			}
 		}
+	}
 
-		subPath = mountPoint.base() / subPath;
-		mountPoint = mountPoint.parent();
-
-		if (mountPoint.empty()) {
-			throw InvalidPath("No such file or directory: " + path.string());
-		}
+	if (!found) {
+		throw InvalidPath("No such file or directory: " + path.string());
 	}
 }
 

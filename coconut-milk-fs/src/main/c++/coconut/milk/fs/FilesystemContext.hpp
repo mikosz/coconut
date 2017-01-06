@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Cache.hpp"
+#include "Filesystem.hpp"
 #include "Path.hpp"
 #include "types.hpp"
 
@@ -12,7 +13,6 @@ namespace coconut {
 namespace milk {
 namespace fs {
 
-class Filesystem;
 class Mount;
 
 class FilesystemContext {
@@ -22,7 +22,11 @@ public:
 
 	void changeWorkingDirectory(const Path& path);
 
-	void mount(Path mountPoint, std::unique_ptr<Mount> mountRoot);
+	void mount(
+		Path mountPoint,
+		std::unique_ptr<Mount> mountRoot,
+		Filesystem::PredecessorHidingPolicy predecessorHidingPolicy
+		);
 
 	std::vector<std::string> list(const Path& path) const;
 
