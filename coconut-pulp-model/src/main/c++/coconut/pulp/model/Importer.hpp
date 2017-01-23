@@ -6,6 +6,8 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
+#include "coconut/milk/fs.hpp"
+
 #include "Data.hpp"
 
 namespace coconut {
@@ -21,7 +23,7 @@ public:
 
 	void operator=(const Importer&) = delete;
 
-	virtual Data import(std::istream& is, std::string name) = 0;
+	virtual Data import(std::istream& is, const milk::FilesystemContext& filesystemContext) = 0;
 
 protected:
 

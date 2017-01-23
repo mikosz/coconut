@@ -31,8 +31,20 @@ std::vector<std::string> FilesystemContext::list(const Path& path) const {
 	return filesystem_->list(toAbsolutePath(path));
 }
 
+bool FilesystemContext::exists(const Path& path) const {
+	return filesystem_->exists(toAbsolutePath(path));
+}
+
 std::shared_future<Cache::CachedData> FilesystemContext::load(const Path& path) const {
 	return cache_->load(*filesystem_, toAbsolutePath(path));
+}
+
+OStream FilesystemContext::append(const Path& path) const {
+	return filesystem_->append(toAbsolutePath(path));
+}
+
+OStream FilesystemContext::overwrite(const Path& path) const {
+	return filesystem_->overwrite(toAbsolutePath(path));
 }
 
 AbsolutePath FilesystemContext::toAbsolutePath(const Path& path) const {

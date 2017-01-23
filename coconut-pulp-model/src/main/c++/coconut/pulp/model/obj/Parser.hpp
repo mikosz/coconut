@@ -14,6 +14,8 @@
 
 #include "coconut/milk/math/Vector.hpp"
 
+#include "coconut/milk/fs.hpp"
+
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "MaterialLibParser.hpp"
@@ -30,33 +32,6 @@ class Parser :
 		boost::spirit::ascii::blank_type
 		> {
 public:
-
-	// TODO: this needs to be an external class
-	class MaterialFileOpener {
-	public:
-
-		typedef std::unique_ptr<std::istream> IStreamPtr;
-
-		MaterialFileOpener() {
-		}
-
-		MaterialFileOpener(const boost::filesystem::path& baseDirectory) :
-			baseDirectory_(baseDirectory)
-		{
-		}
-
-		virtual ~MaterialFileOpener() {
-		}
-
-		virtual IStreamPtr open(const std::string& name) const;
-
-		virtual boost::filesystem::path pathTo(const std::string& name) const;
-
-	private:
-
-		boost::filesystem::path baseDirectory_;
-
-	};
 
 	struct Vertex {
 
@@ -108,7 +83,7 @@ public:
 
 	Parser();
 
-	void parse(std::istream& is, const MaterialFileOpener& fileOpener);
+	void parse(std::istream& is, const milk::FilesystemContext& filesystemContext);
 
 	const Objects& objects() const {
 		return objects_;

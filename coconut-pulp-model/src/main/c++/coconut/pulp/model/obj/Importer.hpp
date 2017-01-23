@@ -13,24 +13,11 @@ namespace obj {
 class Importer : public model::Importer {
 public:
 
-	using MaterialFileOpener = Parser::MaterialFileOpener;
-
-	using MaterialFileOpenerPtr = std::unique_ptr<MaterialFileOpener>;
-
-	Importer(MaterialFileOpenerPtr materialFileOpener) :
-		materialFileOpener_(std::move(materialFileOpener))
-	{
-	}
-
-	Data import(std::istream& is, std::string name) override;
+	Data import(std::istream& is, const milk::FilesystemContext& filesystemContext) override;
 
 protected:
 
 	Importer() = default;
-
-private:
-
-	MaterialFileOpenerPtr materialFileOpener_;
 
 };
 

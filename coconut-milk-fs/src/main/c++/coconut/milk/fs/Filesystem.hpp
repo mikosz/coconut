@@ -1,5 +1,5 @@
-#ifndef _COCONUT_MILK_FILESYSTEM_FILESYSTEM_HPP_
-#define _COCONUT_MILK_FILESYSTEM_FILESYSTEM_HPP_
+#ifndef _COCONUT_MILK_FS_FILESYSTEM_HPP_
+#define _COCONUT_MILK_FS_FILESYSTEM_HPP_
 
 #include <vector>
 #include <string>
@@ -21,10 +21,6 @@ namespace fs {
 class Filesystem {
 public:
 
-	static const ReadT READ;
-	static const OverwriteT OVERWRITE;
-	static const AppendT APPEND;
-
 	CCN_MEMBER_ENUM(
 		PredecessorHidingPolicy,
 		(HIDE)
@@ -41,11 +37,13 @@ public:
 
 	Filenames list(const AbsolutePath& path) const;
 
+	bool exists(const AbsolutePath& path) const;
+
 	IStream open(const AbsolutePath& path) const;
 
-	OStream append(const Path& path) const;
+	OStream append(const AbsolutePath& path) const;
 
-	OStream overwrite(const Path& path) const;
+	OStream overwrite(const AbsolutePath& path) const;
 
 private:
 
@@ -91,4 +89,4 @@ RawData readRawData(const AbsolutePath& path, std::istream& is);
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_FILESYSTEM_FILESYSTEM_HPP_ */
+#endif /* _COCONUT_MILK_FS_FILESYSTEM_HPP_ */

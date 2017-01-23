@@ -67,7 +67,7 @@ Parser::Parser() :
 			);
 }
 
-void Parser::parse(std::istream& is, const MaterialFileOpener& fileOpener) {
+void Parser::parse(std::istream& is, const milk::FilesystemContext& filesystemContext) {
 	clear();
 
 	CT_LOG_DEBUG << "Beginning ObjModel parsing...";
@@ -83,12 +83,8 @@ void Parser::parse(std::istream& is, const MaterialFileOpener& fileOpener) {
 
 	MaterialLibParser materialLibParser;
 	for (auto materialLib : materialLibs_) {
-		auto materialIS = fileOpener.open(materialLib);
-		if (!materialIS->good()) {
-			throw std::runtime_error("Failed to open material lib " + materialLib);
-		}
-
-		materialLibParser.parse(*materialIS);
+		auto materialIS = filesystemContext.load(materialLib);
+		materialLibParser.parse(*materialIS.get());
 
 		for (auto material : materialLibParser.materials()) {
 			if (materials_.count(material.name) != 0) {

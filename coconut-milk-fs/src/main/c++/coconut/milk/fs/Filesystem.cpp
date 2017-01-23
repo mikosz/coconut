@@ -39,6 +39,22 @@ std::vector<std::string> Filesystem::list(const AbsolutePath& path) const {
 	return result;
 }
 
+bool Filesystem::exists(const AbsolutePath& path) const {
+	auto result = false;
+
+	walk(
+		path,
+		[&result](const Mount& mount, const Path& path) {
+			if (mount.exists(path)) {
+				result = true;
+			}
+		},
+		true
+		);
+
+	return result;
+}
+
 IStream Filesystem::open(const AbsolutePath& path) const {
 	auto is = IStream();
 
@@ -53,7 +69,7 @@ IStream Filesystem::open(const AbsolutePath& path) const {
 	return is;
 }
 
-OStream Filesystem::append(const Path& path) const {
+OStream Filesystem::append(const AbsolutePath& path) const {
 	auto os = OStream();
 
 	walk(
@@ -67,7 +83,7 @@ OStream Filesystem::append(const Path& path) const {
 	return os;
 }
 
-OStream Filesystem::overwrite(const Path& path) const {
+OStream Filesystem::overwrite(const AbsolutePath& path) const {
 	auto os = OStream();
 
 	walk(

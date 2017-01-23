@@ -30,7 +30,17 @@ public:
 
 	std::vector<std::string> list(const Path& path) const;
 
+	bool exists(const Path& path) const;
+
 	std::shared_future<Cache::CachedData> load(const Path& path) const;
+
+	OStream append(const Path& path) const;
+
+	OStream overwrite(const Path& path) const;
+
+	const AbsolutePath& currentWorkingDirectory() const {
+		return currentWorkingDirectory_;
+	}
 
 private:
 

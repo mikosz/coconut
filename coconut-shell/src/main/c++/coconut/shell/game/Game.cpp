@@ -1,6 +1,5 @@
 #include "Game.hpp"
 
-#include <fstream>
 #include <vector>
 #include <cstdint>
 #include <memory>
@@ -12,6 +11,8 @@
 
 #include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
+
+#include "coconut/milk/fs.hpp"
 
 #include "coconut/pulp/model/obj/Importer.hpp"
 
@@ -30,8 +31,15 @@ using namespace coconut::shell;
 using namespace coconut::shell::game;
 
 Game::Game(std::shared_ptr<milk::system::App> app) :
-	app_(app)
+	app_(app),
+	fileCache_(std::make_unique<milk::Cache>()),
+	filesystem_(std::make_unique<milk::Filesystem>())
 {
+	{
+		auto mount = std::make_unique<milk::DirectoryMount>("", false);
+		filesystem_->mount("/", std::move(mount), milk::Filesystem::PredecessorHidingPolicy::ADD);
+	}
+
 	{
 		milk::system::Window::Configuration configuration;
 		configuration.className = "coconut/milk::graphics::device::Window";
@@ -59,36 +67,29 @@ void Game::loop() {
 
 	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
 
-	auto filesystem = std::make_shared<coconut::milk::Filesystem>();
+	auto fs = milk::FilesystemContext(filesystem_, fileCache_);
 
-	if (!boost::filesystem::exists("craig chemis bleu.model")) {
-		std::ifstream modelIS("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj");
-		// std::ifstream modelIS("data/models/Elexis/Blonde Elexis - nude/Blonde Elexis - nude.obj");
-		// std::ifstream modelIS("data/models/cube.model");
-		if (!modelIS.good()) {
-			throw std::runtime_error("Failed to open model file");
-		}
+	if (!fs.exists("elexis.model")) {
+		auto modelContext = fs;
 
-		auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Daniel/craig chemise bleu");
-		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Elexis/Blonde Elexis - nude");
-		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/");
-		pulp::model::obj::Importer importer(std::move(opener));
+		modelContext.changeWorkingDirectory("/data/models/Elexis/Blonde Elexis - nude");
+		auto modelIS = modelContext.load("Blonde Elexis - nude.obj");
 
-		auto modelData = importer.import(modelIS, "craig chemis bleu");
+		auto importer = pulp::model::obj::Importer();
+		auto modelData = importer.import(*modelIS.get(), modelContext);
 
 		{
-			std::ofstream modelOFS("craig chemis bleu.model", std::ofstream::out | std::ofstream::binary);
-			coconut_tools::serialisation::BinarySerialiser serialiser(modelOFS);
+			auto modelOS = fs.overwrite("elexis.model");
+			coconut_tools::serialisation::BinarySerialiser serialiser(*modelOS);
 			serialiser << modelData;
 		}
 	}
 
 	pulp::renderer::MaterialManager materialManager;
 
-	std::ifstream modelIFS("craig chemis bleu.model", std::ifstream::in | std::ifstream::binary);
-	coconut_tools::serialisation::BinaryDeserialiser deserialiser(modelIFS);
-	// std::ifstream modelIFS("cube.json", std::ifstream::in);
-	// coconut_tools::serialisation::JSONDeserialiser deserialiser(modelIFS);
+	auto modelIS = fs.load("elexis.model");
+	coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS.get());
+
 	pulp::model::Data modelData;
 	deserialiser >> modelData;
 
