@@ -29,6 +29,18 @@ public:
 		return std::make_unique<std::istringstream>(openContents(path));
 	}
 
+	OStream append(const Path&) const override {
+		return OStream();
+	}
+
+	OStream overwrite(const Path&) const override {
+		return OStream();
+	}
+
+	bool readOnly() const noexcept override {
+		return true;
+	}
+
 };
 
 BOOST_FIXTURE_TEST_SUITE(MilkFsFilesystemTestSuite, coconut_tools::test_utils::GMockFixture);

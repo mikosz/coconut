@@ -14,8 +14,24 @@ using namespace coconut::milk::fs;
 
 using namespace std::string_literals;
 
-DirectoryMount::DirectoryMount(boost::filesystem::path root) :
-	root_(std::move(root))
+namespace /* anonymous */ {
+
+template <class T>
+std::unique_ptr<T> openStream(const boost::filesystem::path& root, const Path& path, unsigned int flags) {
+	const auto effectivePath = root / path.physicalPath();
+
+	if (!boost::filesystem::is_regular_file(effectivePath)) {
+		throw InvalidPath("Not a path to a regular file: \"" + effectivePath.string() + '"');
+	}
+
+	return std::make_unique<T>(effectivePath.c_str(), flags | std::ios::binary);
+}
+
+} // anonymous namespace
+
+DirectoryMount::DirectoryMount(boost::filesystem::path root, bool readOnly) :
+	root_(std::move(root)),
+	readOnly_(readOnly)
 {
 	if (!boost::filesystem::is_directory(root_)) {
 		throw InvalidPath("Not a path to an existing directory: \""s + root_.string() + '"');
@@ -39,13 +55,15 @@ std::vector<std::string> DirectoryMount::list(const Path& path) const {
 }
 
 IStream DirectoryMount::open(const Path& path) const {
-	const auto effectivePath = root_ / path.physicalPath();
+	return openStream<std::ifstream>(root_, path, std::ios::in);
+}
 
-	if (!boost::filesystem::is_regular_file(effectivePath)) {
-		throw InvalidPath("Not a path to a regular file: \"" + effectivePath.string() + '"');
-	}
+OStream DirectoryMount::append(const Path& path) const {
+	return openStream<std::ofstream>(root_, path, std::ios::app);
+}
 
-	return std::make_unique<std::ifstream>(effectivePath.c_str());
+OStream DirectoryMount::overwrite(const Path& path) const {
+	return openStream<std::ofstream>(root_, path, std::ios::out);
 }
 
 bool DirectoryMount::exists(const Path& path) const {

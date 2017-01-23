@@ -21,6 +21,10 @@ namespace fs {
 class Filesystem {
 public:
 
+	static const ReadT READ;
+	static const OverwriteT OVERWRITE;
+	static const AppendT APPEND;
+
 	CCN_MEMBER_ENUM(
 		PredecessorHidingPolicy,
 		(HIDE)
@@ -38,6 +42,10 @@ public:
 	Filenames list(const AbsolutePath& path) const;
 
 	IStream open(const AbsolutePath& path) const;
+
+	OStream append(const Path& path) const;
+
+	OStream overwrite(const Path& path) const;
 
 private:
 

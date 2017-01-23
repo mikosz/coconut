@@ -13,6 +13,7 @@ namespace fs {
 using Byte = std::uint8_t;
 using RawData = std::vector<Byte>;
 using IStream = std::unique_ptr<std::istream>;
+using OStream = std::unique_ptr<std::ostream>;
 
 } // namespace fs
 } // namespace milk

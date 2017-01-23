@@ -53,6 +53,34 @@ IStream Filesystem::open(const AbsolutePath& path) const {
 	return is;
 }
 
+OStream Filesystem::append(const Path& path) const {
+	auto os = OStream();
+
+	walk(
+		path,
+		[&os](const Mount& mount, const Path& path) {
+			os = mount.append(path);
+		},
+		false
+		);
+
+	return os;
+}
+
+OStream Filesystem::overwrite(const Path& path) const {
+	auto os = OStream();
+
+	walk(
+		path,
+		[&os](const Mount& mount, const Path& path) {
+			os = mount.overwrite(path);
+		},
+		false
+		);
+
+	return os;
+}
+
 Filesystem::MountEntry::MountEntry(
 	AbsolutePath mountPoint,
 	std::unique_ptr<Mount> mount,

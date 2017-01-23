@@ -21,7 +21,13 @@ public:
 
 	virtual IStream open(const Path& path) const = 0;
 
+	virtual OStream append(const Path& path) const = 0;
+
+	virtual OStream overwrite(const Path& path) const = 0;
+
 	virtual bool exists(const Path& path) const = 0;
+
+	virtual bool readOnly() const noexcept = 0;
 
 };
 

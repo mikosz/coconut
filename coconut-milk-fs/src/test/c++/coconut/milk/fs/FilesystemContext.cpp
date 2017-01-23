@@ -29,6 +29,18 @@ public:
 		return std::make_unique<std::istringstream>(openContents(path));
 	}
 
+	OStream append(const Path&) const override {
+		return OStream();
+	}
+
+	OStream overwrite(const Path&) const override {
+		return OStream();
+	}
+
+	bool readOnly() const noexcept override {
+		return true;
+	}
+
 	bool exists(const Path&) const override {
 		return true;
 	}

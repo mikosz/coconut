@@ -14,17 +14,27 @@ class Path;
 class DirectoryMount : public Mount {
 public:
 
-	DirectoryMount(boost::filesystem::path root);
+	DirectoryMount(boost::filesystem::path root, bool readOnly);
 
 	std::vector<std::string> list(const Path& path) const override;
 
 	IStream open(const Path& path) const override;
 
+	OStream append(const Path& path) const override;
+
+	OStream overwrite(const Path& path) const override;
+
 	bool exists(const Path& path) const override;
+
+	bool readOnly() const noexcept override {
+		return readOnly_;
+	}
 
 private:
 
 	boost::filesystem::path root_;
+
+	bool readOnly_;
 
 };
 

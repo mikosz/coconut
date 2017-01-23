@@ -30,7 +30,7 @@ public:
 	MOCK_CONST_METHOD1(list, std::vector<std::string> (const Path&));
 
 	MOCK_CONST_METHOD1(openContents, std::string (const Path&));
-	
+
 	bool exists(const Path&) const override {
 		return true;
 	}
@@ -43,6 +43,18 @@ public:
 		} else {
 			return std::make_unique<std::istringstream>(openContents(path));
 		}
+	}
+
+	OStream append(const Path&) const override {
+		return OStream();
+	}
+
+	OStream overwrite(const Path&) const override {
+		return OStream();
+	}
+
+	bool readOnly() const noexcept override {
+		return true;
 	}
 
 	bool badOpen_;
