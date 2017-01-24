@@ -27,7 +27,8 @@ namespace obj {
 
 class Parser :
 	public boost::spirit::qi::grammar<
-		boost::spirit::istream_iterator,
+		milk::fs::RawData::const_iterator,
+		// boost::spirit::istream_iterator,
 		void(),
 		boost::spirit::ascii::blank_type
 		> {
@@ -83,7 +84,7 @@ public:
 
 	Parser();
 
-	void parse(std::istream& is, const milk::FilesystemContext& filesystemContext);
+	void parse(const milk::fs::RawData& data, const milk::FilesystemContext& filesystemContext);
 
 	const Objects& objects() const {
 		return objects_;
@@ -108,13 +109,15 @@ public:
 private:
 
 	using Rule = boost::spirit::qi::rule<
-		boost::spirit::istream_iterator,
+		milk::fs::RawData::const_iterator,
+		// boost::spirit::istream_iterator,
 		void(),
 		boost::spirit::ascii::blank_type
 	>;
 
 	using VertexRule = boost::spirit::qi::rule<
-		boost::spirit::istream_iterator,
+		milk::fs::RawData::const_iterator,
+		// boost::spirit::istream_iterator,
 		Vertex(),
 		boost::spirit::ascii::blank_type
 	>;

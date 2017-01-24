@@ -19,9 +19,7 @@ class Filesystem;
 class Cache {
 public:
 
-	using CachedData = std::shared_ptr<const RawData>;
-
-	std::shared_future<CachedData> load(const Filesystem& filesystem, const Path& path);
+	std::shared_future<SharedRawData> load(const Filesystem& filesystem, const Path& path);
 
 private:
 
@@ -29,11 +27,11 @@ private:
 
 	struct Entry {
 	
-		std::shared_future<CachedData> dataFuture;
+		std::shared_future<SharedRawData> dataFuture;
 
 		RemovalQueue::iterator removalIt;
 	
-		Entry(std::shared_future<CachedData> dataFuture, RemovalQueue::iterator removalIt) :
+		Entry(std::shared_future<SharedRawData> dataFuture, RemovalQueue::iterator removalIt) :
 			dataFuture(std::move(dataFuture)),
 			removalIt(std::move(removalIt))
 		{

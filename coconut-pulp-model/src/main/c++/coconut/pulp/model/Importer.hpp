@@ -25,7 +25,7 @@ public:
 
 	virtual Data import(
 		const std::string& name,
-		std::istream& is,
+		const milk::fs::RawData& data,
 		const milk::FilesystemContext& filesystemContext
 		) = 0;
 

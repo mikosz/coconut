@@ -58,13 +58,16 @@ Parser::Parser() :
 			);
 }
 
-void Parser::parse(std::istream& is, const milk::FilesystemContext& filesystemContext) {
+void Parser::parse(const milk::fs::RawData& data, const milk::FilesystemContext& filesystemContext) {
 	clear();
 
 	CT_LOG_DEBUG << "Beginning ObjModel parsing...";
 
-	is.unsetf(std::istream::skipws);
-	spirit::istream_iterator it(is), end;
+	//is.unsetf(std::istream::skipws);
+	//spirit::istream_iterator it(is), end;
+
+	auto it = data.begin();
+	const auto end = data.end();
 
 	bool result = qi::phrase_parse(it, end, *this, ascii::blank);
 
@@ -74,8 +77,7 @@ void Parser::parse(std::istream& is, const milk::FilesystemContext& filesystemCo
 
 	MaterialLibParser materialLibParser;
 	for (auto materialLib : materialLibs_) {
-		auto materialIS = filesystemContext.open(materialLib);
-		materialLibParser.parse(*materialIS);
+		materialLibParser.parse(*filesystemContext.load(materialLib).get());
 
 		for (auto material : materialLibParser.materials()) {
 			if (materials_.count(material.name) != 0) {

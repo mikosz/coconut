@@ -5,6 +5,9 @@
 #include <memory>
 #include <chrono>
 
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+
 #include <coconut-tools/serialisation/BinarySerialiser.hpp>
 #include <coconut-tools/serialisation/BinaryDeserialiser.hpp>
 #include <coconut-tools/serialisation/JSONDeserialiser.hpp>
@@ -73,9 +76,9 @@ void Game::loop() {
 		auto modelContext = fs;
 
 		modelContext.changeWorkingDirectory("/data/models/Daniel/craig chemise bleu/");
-		auto modelIS = modelContext.open("craig chemis bleu.obj");
+		auto data = modelContext.load("craig chemis bleu.obj").get();
 
-		auto modelData = pulp::model::obj::Importer().import("daniel", *modelIS, modelContext);
+		auto modelData = pulp::model::obj::Importer().import("daniel", *data, modelContext);
 
 		{
 			auto modelOS = fs.overwrite("daniel.model");
@@ -86,8 +89,14 @@ void Game::loop() {
 
 	pulp::renderer::MaterialManager materialManager;
 
-	auto modelIS = fs.open("daniel.model");
-	coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS);
+	auto modelRawData = fs.load("daniel.model").get();
+
+	// TODO: unusable
+#pragma message("This is unusable + c-style cast, don't merge me!")
+	boost::iostreams::array_source src((char*)(modelRawData->data()), modelRawData->size());
+	boost::iostreams::stream<boost::iostreams::array_source> is(src);
+
+	coconut_tools::serialisation::BinaryDeserialiser deserialiser(is);
 
 	pulp::model::Data modelData;
 	deserialiser >> modelData;

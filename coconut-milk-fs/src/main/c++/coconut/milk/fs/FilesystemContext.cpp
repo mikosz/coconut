@@ -35,12 +35,12 @@ bool FilesystemContext::exists(const Path& path) const {
 	return filesystem_->exists(toAbsolutePath(path));
 }
 
-std::shared_future<Cache::CachedData> FilesystemContext::hint(const Path& path) const {
+std::shared_future<SharedRawData> FilesystemContext::hint(const Path& path) const {
 	return cache_->load(*filesystem_, toAbsolutePath(path));
 }
 
-IStream FilesystemContext::open(const Path& path) const {
-	return filesystem_->open(toAbsolutePath(path)); // TODO: omits cache!
+SharedRawData FilesystemContext::load(const Path& path) const {
+	return cache_->load(*filesystem_, toAbsolutePath(path)).get();
 }
 
 OStream FilesystemContext::append(const Path& path) const {
