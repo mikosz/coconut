@@ -13,11 +13,13 @@ namespace obj {
 class Importer : public model::Importer {
 public:
 
-	Data import(std::istream& is, const milk::FilesystemContext& filesystemContext) override;
-
-protected:
-
 	Importer() = default;
+
+	Data import(
+		const std::string& name,
+		std::istream& is,
+		const milk::FilesystemContext& filesystemContext
+		) override;
 
 };
 

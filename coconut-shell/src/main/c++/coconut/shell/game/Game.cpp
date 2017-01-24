@@ -36,7 +36,7 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 	filesystem_(std::make_unique<milk::Filesystem>())
 {
 	{
-		auto mount = std::make_unique<milk::DirectoryMount>("", false);
+		auto mount = std::make_unique<milk::DirectoryMount>(".", false);
 		filesystem_->mount("/", std::move(mount), milk::Filesystem::PredecessorHidingPolicy::ADD);
 	}
 
@@ -69,17 +69,16 @@ void Game::loop() {
 
 	auto fs = milk::FilesystemContext(filesystem_, fileCache_);
 
-	if (!fs.exists("elexis.model")) {
+	if (!fs.exists("daniel.model")) {
 		auto modelContext = fs;
 
-		modelContext.changeWorkingDirectory("/data/models/Elexis/Blonde Elexis - nude");
-		auto modelIS = modelContext.load("Blonde Elexis - nude.obj");
+		modelContext.changeWorkingDirectory("/data/models/Daniel/craig chemise bleu/");
+		auto modelIS = modelContext.open("craig chemis bleu.obj");
 
-		auto importer = pulp::model::obj::Importer();
-		auto modelData = importer.import(*modelIS.get(), modelContext);
+		auto modelData = pulp::model::obj::Importer().import("daniel", *modelIS, modelContext);
 
 		{
-			auto modelOS = fs.overwrite("elexis.model");
+			auto modelOS = fs.overwrite("daniel.model");
 			coconut_tools::serialisation::BinarySerialiser serialiser(*modelOS);
 			serialiser << modelData;
 		}
@@ -87,8 +86,8 @@ void Game::loop() {
 
 	pulp::renderer::MaterialManager materialManager;
 
-	auto modelIS = fs.load("elexis.model");
-	coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS.get());
+	auto modelIS = fs.open("daniel.model");
+	coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS);
 
 	pulp::model::Data modelData;
 	deserialiser >> modelData;

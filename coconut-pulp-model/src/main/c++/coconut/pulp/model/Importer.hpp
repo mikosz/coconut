@@ -23,7 +23,11 @@ public:
 
 	void operator=(const Importer&) = delete;
 
-	virtual Data import(std::istream& is, const milk::FilesystemContext& filesystemContext) = 0;
+	virtual Data import(
+		const std::string& name,
+		std::istream& is,
+		const milk::FilesystemContext& filesystemContext
+		) = 0;
 
 protected:
 

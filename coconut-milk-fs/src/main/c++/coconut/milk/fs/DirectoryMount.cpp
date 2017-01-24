@@ -17,11 +17,22 @@ using namespace std::string_literals;
 namespace /* anonymous */ {
 
 template <class T>
-std::unique_ptr<T> openStream(const boost::filesystem::path& root, const Path& path, unsigned int flags) {
+std::unique_ptr<T> openStream(
+	const boost::filesystem::path& root,
+	const Path& path,
+	unsigned int flags,
+	bool requireExists
+	) {
 	const auto effectivePath = root / path.physicalPath();
 
-	if (!boost::filesystem::is_regular_file(effectivePath)) {
-		throw InvalidPath("Not a path to a regular file: \"" + effectivePath.string() + '"');
+	const auto exists = boost::filesystem::exists(effectivePath);
+
+	if (exists) {
+		if (!boost::filesystem::is_regular_file(effectivePath)) {
+			throw InvalidPath("Not a path to a regular file: \"" + effectivePath.string() + '"');
+		}
+	} else if (requireExists) {
+		throw InvalidPath("File does not exist: \"" + effectivePath.string() + '"');
 	}
 
 	return std::make_unique<T>(effectivePath.c_str(), flags | std::ios::binary);
@@ -55,15 +66,15 @@ std::vector<std::string> DirectoryMount::list(const Path& path) const {
 }
 
 IStream DirectoryMount::open(const Path& path) const {
-	return openStream<std::ifstream>(root_, path, std::ios::in);
+	return openStream<std::ifstream>(root_, path, std::ios::in, true);
 }
 
 OStream DirectoryMount::append(const Path& path) const {
-	return openStream<std::ofstream>(root_, path, std::ios::app);
+	return openStream<std::ofstream>(root_, path, std::ios::app, false);
 }
 
 OStream DirectoryMount::overwrite(const Path& path) const {
-	return openStream<std::ofstream>(root_, path, std::ios::out);
+	return openStream<std::ofstream>(root_, path, std::ios::out, false);
 }
 
 bool DirectoryMount::exists(const Path& path) const {

@@ -105,24 +105,24 @@ BOOST_AUTO_TEST_CASE(OpensFiles) {
 
 	fsContext.mount("a/b/c"s, std::move(mountRootABC), Filesystem::PredecessorHidingPolicy::HIDE);
 
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("/a/b/f"s).get()->data()), "/a/b/f data"s);
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("/a/b/c/f"s).get()->data()), "/a/b/c/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("/a/b/f"s).get()->data()), "/a/b/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("/a/b/c/f"s).get()->data()), "/a/b/c/f data"s);
 
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("a/b/f"s).get()->data()), "/a/b/f data"s);
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("a/b/c/f"s).get()->data()), "/a/b/c/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("a/b/f"s).get()->data()), "/a/b/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("a/b/c/f"s).get()->data()), "/a/b/c/f data"s);
 
 	fsContext.changeWorkingDirectory("/a");
 
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("b/f"s).get()->data()), "/a/b/f data"s);
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("b/c/f"s).get()->data()), "/a/b/c/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("b/f"s).get()->data()), "/a/b/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("b/c/f"s).get()->data()), "/a/b/c/f data"s);
 
 	fsContext.changeWorkingDirectory("b");
 
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("f"s).get()->data()), "/a/b/f data"s);
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("c/f"s).get()->data()), "/a/b/c/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("f"s).get()->data()), "/a/b/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("c/f"s).get()->data()), "/a/b/c/f data"s);
 
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("/a/b/f"s).get()->data()), "/a/b/f data"s);
-	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.load("/a/b/c/f"s).get()->data()), "/a/b/c/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("/a/b/f"s).get()->data()), "/a/b/f data"s);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(fsContext.hint("/a/b/c/f"s).get()->data()), "/a/b/c/f data"s);
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* MilkFsFilesystemContextTestSuite */);

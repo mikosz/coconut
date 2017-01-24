@@ -69,7 +69,7 @@ private:
 
 	Mounts mounts_;
 
-	void walk(const AbsolutePath& path, const WalkOp& walkOp, bool allowMultiple) const;
+	void walk(const AbsolutePath& path, const WalkOp& walkOp, bool allowMultiple, bool requireExists) const;
 
 };
 

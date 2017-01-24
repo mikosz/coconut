@@ -46,7 +46,11 @@ struct hash<VertexDescriptor> {
 
 } // namespace std
 
-Data obj::Importer::import(std::istream& is, const milk::FilesystemContext& filesystemContext) {
+Data obj::Importer::import(
+	const std::string& name,
+	std::istream& is,
+	const milk::FilesystemContext& filesystemContext
+	) {
 	Parser parser;
 	parser.parse(is, filesystemContext);
 

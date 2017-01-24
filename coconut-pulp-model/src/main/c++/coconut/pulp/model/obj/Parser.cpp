@@ -27,15 +27,6 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
 
 const size_t Parser::NORMAL_INDEX_UNKNOWN = std::numeric_limits<size_t>::max();
 
-Parser::MaterialFileOpener::IStreamPtr Parser::MaterialFileOpener::open(
-	const std::string& name) const {
-	return IStreamPtr(new std::ifstream(pathTo(name).string().c_str()));
-}
-
-boost::filesystem::path Parser::MaterialFileOpener::pathTo(const std::string& name) const {
-	return baseDirectory_ / name;
-}
-
 Parser::Parser() :
 	Parser::base_type(startRule_)
 {
@@ -83,8 +74,8 @@ void Parser::parse(std::istream& is, const milk::FilesystemContext& filesystemCo
 
 	MaterialLibParser materialLibParser;
 	for (auto materialLib : materialLibs_) {
-		auto materialIS = filesystemContext.load(materialLib);
-		materialLibParser.parse(*materialIS.get());
+		auto materialIS = filesystemContext.open(materialLib);
+		materialLibParser.parse(*materialIS);
 
 		for (auto material : materialLibParser.materials()) {
 			if (materials_.count(material.name) != 0) {

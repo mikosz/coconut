@@ -29,6 +29,7 @@ std::vector<std::string> Filesystem::list(const AbsolutePath& path) const {
 			auto files = mount.list(path);
 			std::move(files.begin(), files.end(), std::inserter(filenameSet, filenameSet.begin()));
 		},
+		true,
 		true
 		);
 
@@ -49,7 +50,8 @@ bool Filesystem::exists(const AbsolutePath& path) const {
 				result = true;
 			}
 		},
-		true
+		true,
+		false
 		);
 
 	return result;
@@ -63,7 +65,8 @@ IStream Filesystem::open(const AbsolutePath& path) const {
 		[&is](const Mount& mount, const Path& path) {
 			is = mount.open(path);
 		},
-		false
+		false,
+		true
 		);
 
 	return is;
@@ -72,11 +75,15 @@ IStream Filesystem::open(const AbsolutePath& path) const {
 OStream Filesystem::append(const AbsolutePath& path) const {
 	auto os = OStream();
 
+	const auto directory = path.parent();
+	const auto fileName = path.base();
+
 	walk(
-		path,
-		[&os](const Mount& mount, const Path& path) {
-			os = mount.append(path);
+		directory,
+		[&os, &fileName](const Mount& mount, const Path& directory) {
+			os = mount.append(directory / fileName);
 		},
+		false,
 		false
 		);
 
@@ -86,11 +93,16 @@ OStream Filesystem::append(const AbsolutePath& path) const {
 OStream Filesystem::overwrite(const AbsolutePath& path) const {
 	auto os = OStream();
 
+	// TODO: duplicated code
+	const auto directory = path.parent();
+	const auto fileName = path.base();
+
 	walk(
-		path,
-		[&os](const Mount& mount, const Path& path) {
-			os = mount.overwrite(path);
+		directory,
+		[&os, &fileName](const Mount& mount, const Path& directory) {
+			os = mount.append(directory / fileName);
 		},
+		false,
 		false
 		);
 
@@ -108,7 +120,12 @@ Filesystem::MountEntry::MountEntry(
 {
 }
 
-void Filesystem::walk(const AbsolutePath& path, const WalkOp& walkOp, bool allowMultiple) const {
+void Filesystem::walk(
+	const AbsolutePath& path,
+	const WalkOp& walkOp,
+	bool allowMultiple,
+	bool requireExists
+	) const {
 	auto found = false;
 
 	for (const auto& mountEntry : (mounts_ | boost::adaptors::reversed)) {
@@ -127,7 +144,7 @@ void Filesystem::walk(const AbsolutePath& path, const WalkOp& walkOp, bool allow
 		}
 	}
 
-	if (!found) {
+	if (!found && requireExists) {
 		throw InvalidPath("No such file or directory: " + path.string());
 	}
 }

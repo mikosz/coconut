@@ -10,6 +10,11 @@
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
+// TODO: make one include file
+#include <coconut-tools/serialisation/Serialiser.hpp>
+#include <coconut-tools/serialisation/Deserialiser.hpp>
+#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+
 namespace coconut {
 namespace milk {
 namespace fs {
@@ -62,7 +67,8 @@ public:
 		return unifiedPath_;
 	}
 
-	const std::string string() const {
+	std::string string() const { // TODO: this returned const std::string but couldn't be serialised
+			// due to no const std::string specialisation in serialiser - fix this
 		return unifiedPath_.string();
 	}
 
@@ -99,6 +105,10 @@ public:
 	boost::optional<Path> relativeTo(const AbsolutePath& parent) const;
 
 };
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, AbsolutePath, absolutePath) {
+	serialiser(SerialiserType::Label("path"), absolutePath.string());
+}
 
 } // namespace fs
 } // namespace milk

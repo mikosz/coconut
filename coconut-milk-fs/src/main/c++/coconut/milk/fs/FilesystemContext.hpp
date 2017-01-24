@@ -32,7 +32,9 @@ public:
 
 	bool exists(const Path& path) const;
 
-	std::shared_future<Cache::CachedData> load(const Path& path) const;
+	std::shared_future<Cache::CachedData> hint(const Path& path) const; // TODO: sort out api
+
+	IStream open(const Path& path) const;
 
 	OStream append(const Path& path) const;
 
