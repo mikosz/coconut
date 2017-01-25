@@ -6,6 +6,8 @@
 
 #include "coconut/milk/math/Vector.hpp"
 
+#include "coconut/milk/fs.hpp"
+
 // TODO: make one include file
 #include <coconut-tools/serialisation/Serialiser.hpp>
 #include <coconut-tools/serialisation/Deserialiser.hpp>
@@ -34,7 +36,7 @@ public:
 
 		float specularExponent;
 
-		std::string diffuseMap; // TODO: string?
+		milk::AbsolutePath diffuseMap;
 
 		milk::graphics::Sampler::Configuration diffuseMapSamplerConfiguration;
 

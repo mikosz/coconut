@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include <tuple>
 
+#include <coconut-tools/utils/hash-combine.hpp>
+
 #include "Parser.hpp"
 
 using namespace coconut;
@@ -13,15 +15,6 @@ using namespace coconut::pulp::model::obj;
 namespace /* anonymous */ {
 
 using VertexDescriptor = std::tuple<size_t, size_t, size_t>;
-
-size_t hashCombine(size_t seed, size_t value) { // TODO: extract to tools
-	// Code from boost
-	// Reciprocal of the golden ratio helps spread entropy and handles duplicates.
-	// See Mike Seymour in magic-numbers-in-boosthash-combine: http://stackoverflow.com/questions/4948780
-	
-	seed ^= std::hash_value(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-	return seed;
-}
 
 milk::math::Vector4d rgbToRgba(const milk::math::Vector3d& rgbColour) { // TODO: sort out a colour type
 	return milk::math::Vector4d(rgbColour, 1.0f);
@@ -36,9 +29,9 @@ struct hash<VertexDescriptor> {
 
 	size_t operator()(const VertexDescriptor& vertexDescriptor) const {
 		size_t seed = 0;
-		seed = hashCombine(seed, std::get<0>(vertexDescriptor));
-		seed = hashCombine(seed, std::get<1>(vertexDescriptor));
-		seed = hashCombine(seed, std::get<2>(vertexDescriptor));
+		seed = coconut_tools::utils::hashCombine(seed, std::get<0>(vertexDescriptor));
+		seed = coconut_tools::utils::hashCombine(seed, std::get<1>(vertexDescriptor));
+		seed = coconut_tools::utils::hashCombine(seed, std::get<2>(vertexDescriptor));
 		return seed;
 	}
 
@@ -46,9 +39,13 @@ struct hash<VertexDescriptor> {
 
 } // namespace std
 
-Data obj::Importer::import(std::istream& is, std::string name) {
+Data obj::Importer::import(
+	const std::string& name,
+	const milk::fs::RawData& data,
+	const milk::FilesystemContext& filesystemContext
+	) {
 	Parser parser;
-	parser.parse(is, *materialFileOpener_);
+	parser.parse(data, filesystemContext);
 
 	Data modelData;
 
@@ -78,7 +75,7 @@ Data obj::Importer::import(std::istream& is, std::string name) {
 		material.name = name + "::" + materialData.name;
 		material.ambientColour = rgbToRgba(materialData.ambientColour);
 		material.diffuseColour = rgbToRgba(materialData.diffuseColour);
-		material.diffuseMap = materialFileOpener_->pathTo(materialData.diffuseMap).string();
+		material.diffuseMap = filesystemContext.currentWorkingDirectory() / materialData.diffuseMap;
 		material.diffuseMapSamplerConfiguration = defaultSamplerConfiguration;
 		material.specularColour = rgbToRgba(materialData.diffuseColour);
 		material.specularExponent = materialData.specularExponent;

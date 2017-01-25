@@ -53,7 +53,7 @@ enable_testing()
 # find boost
 set(Boost_USE_STATIC_LIBS ${COMPILER_BOOST_USE_STATIC_LIBS})
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost COMPONENTS system thread unit_test_framework filesystem regex REQUIRED)
+find_package(Boost COMPONENTS system thread filesystem regex REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
@@ -71,6 +71,7 @@ link_directories(${CoconutTools_LIBRARY_DIR})
 find_package(Threads REQUIRED)
 
 set(MODULES
+    "coconut-milk-fs"
     "coconut-milk-graphics-${MODULE_RENDERER}"
     "coconut-milk-math-${MODULE_MATHS}"
     "coconut-milk-system-${MODULE_SYSTEM}"
