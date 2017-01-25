@@ -39,9 +39,13 @@ struct hash<VertexDescriptor> {
 
 } // namespace std
 
-Data obj::Importer::import(std::istream& is, std::string name) {
+Data obj::Importer::import(
+	const std::string& name,
+	const milk::fs::RawData& data,
+	const milk::FilesystemContext& filesystemContext
+	) {
 	Parser parser;
-	parser.parse(is, *materialFileOpener_);
+	parser.parse(data, filesystemContext);
 
 	Data modelData;
 
@@ -71,7 +75,7 @@ Data obj::Importer::import(std::istream& is, std::string name) {
 		material.name = name + "::" + materialData.name;
 		material.ambientColour = rgbToRgba(materialData.ambientColour);
 		material.diffuseColour = rgbToRgba(materialData.diffuseColour);
-		material.diffuseMap = materialFileOpener_->pathTo(materialData.diffuseMap).string();
+		material.diffuseMap = filesystemContext.currentWorkingDirectory() / materialData.diffuseMap;
 		material.diffuseMapSamplerConfiguration = defaultSamplerConfiguration;
 		material.specularColour = rgbToRgba(materialData.diffuseColour);
 		material.specularExponent = materialData.specularExponent;

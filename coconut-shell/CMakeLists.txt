@@ -1,4 +1,5 @@
 set(DEPENDENCY_LIBRARIES
+	coconut-milk-fs
     coconut-pulp-renderer
     coconut-tools-logger
     coconut-tools-configuration

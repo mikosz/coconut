@@ -27,15 +27,6 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
 
 const size_t Parser::NORMAL_INDEX_UNKNOWN = std::numeric_limits<size_t>::max();
 
-Parser::MaterialFileOpener::IStreamPtr Parser::MaterialFileOpener::open(
-	const std::string& name) const {
-	return IStreamPtr(new std::ifstream(pathTo(name).string().c_str()));
-}
-
-boost::filesystem::path Parser::MaterialFileOpener::pathTo(const std::string& name) const {
-	return baseDirectory_ / name;
-}
-
 Parser::Parser() :
 	Parser::base_type(startRule_)
 {
@@ -67,13 +58,16 @@ Parser::Parser() :
 			);
 }
 
-void Parser::parse(std::istream& is, const MaterialFileOpener& fileOpener) {
+void Parser::parse(const milk::fs::RawData& data, const milk::FilesystemContext& filesystemContext) {
 	clear();
 
 	CT_LOG_DEBUG << "Beginning ObjModel parsing...";
 
-	is.unsetf(std::istream::skipws);
-	spirit::istream_iterator it(is), end;
+	//is.unsetf(std::istream::skipws);
+	//spirit::istream_iterator it(is), end;
+
+	auto it = data.begin();
+	const auto end = data.end();
 
 	bool result = qi::phrase_parse(it, end, *this, ascii::blank);
 
@@ -83,12 +77,7 @@ void Parser::parse(std::istream& is, const MaterialFileOpener& fileOpener) {
 
 	MaterialLibParser materialLibParser;
 	for (auto materialLib : materialLibs_) {
-		auto materialIS = fileOpener.open(materialLib);
-		if (!materialIS->good()) {
-			throw std::runtime_error("Failed to open material lib " + materialLib);
-		}
-
-		materialLibParser.parse(*materialIS);
+		materialLibParser.parse(*filesystemContext.load(materialLib).get());
 
 		for (auto material : materialLibParser.materials()) {
 			if (materials_.count(material.name) != 0) {

@@ -11,6 +11,8 @@
 
 #include "coconut/milk/math/Vector.hpp"
 
+#include "coconut/milk/fs/types.hpp"
+
 namespace coconut {
 namespace pulp {
 namespace model {
@@ -18,10 +20,12 @@ namespace obj {
 
 class MaterialLibParser :
 	public boost::spirit::qi::grammar<
-	boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
-	void(),
-	boost::spirit::ascii::blank_type
-	> {
+		milk::fs::RawData::const_iterator,
+		// boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
+		void(),
+		boost::spirit::ascii::blank_type
+		>
+{
 public:
 
 	using RGBColour = milk::math::Vector3d;
@@ -58,7 +62,7 @@ public:
 
 	MaterialLibParser();
 
-	void parse(std::istream& is);
+	void parse(const milk::fs::RawData& data);
 
 	const Materials& materials() const {
 		return materials_;
@@ -67,7 +71,8 @@ public:
 private:
 
 	using Rule = boost::spirit::qi::rule<
-		boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
+		milk::fs::RawData::const_iterator,
+		// boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
 		void(),
 		boost::spirit::ascii::blank_type
 		>;

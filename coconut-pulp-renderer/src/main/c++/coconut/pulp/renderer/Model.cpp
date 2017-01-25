@@ -31,7 +31,7 @@ Model::Model(
 		if (!phongMaterial.diffuseMap.empty()) {
 			milk::graphics::ImageLoader imageLoader;
 			auto diffuseMap = std::make_unique<milk::graphics::Texture2d>(
-				graphicsRenderer, imageLoader.load(phongMaterial.diffuseMap));
+				graphicsRenderer, imageLoader.load(phongMaterial.diffuseMap.string()));
 			material->setDiffuseMap(std::move(diffuseMap));
 			material->setDiffuseMapSampler(
 				milk::graphics::Sampler(

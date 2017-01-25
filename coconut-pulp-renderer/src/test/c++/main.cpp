@@ -5,7 +5,7 @@
 #include <windows.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
-#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <coconut-tools/system/platform.hpp>
 
