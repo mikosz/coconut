@@ -4,6 +4,8 @@
 
 #include "coconut/milk/graphics/TestSuite.hpp"
 
+#include "coconut/milk/fs.hpp"
+
 #include "coconut/pulp/renderer/shader/InputLayoutFactory.hpp"
 #include "coconut/pulp/renderer/shader/ShaderFactory.hpp"
 #include "coconut/pulp/renderer/OrientedCamera.hpp"
@@ -23,15 +25,22 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 	// init shaders
 	std::shared_ptr<Pass> renderingPass;
 
+	auto fs = std::make_shared<milk::Filesystem>();
+
+	auto mount = std::make_unique<milk::DirectoryMount>("Debug/", true); // TODO!
+	fs->mount("/", std::move(mount), milk::Filesystem::PredecessorHidingPolicy::HIDE);
+
+	auto fsContext = milk::FilesystemContext(fs);
+
 	{
 		InputLayoutFactory inputLayoutFactory;
-		inputLayoutFactory.registerCompiledShader("v", "Debug/ConstantBuffers.v.cso");
+		inputLayoutFactory.registerCompiledShader("v", "ConstantBuffers.v.cso");
 
 		ShaderFactory shaderFactory;
 	
 		{
 			ShaderFactory::CompiledShaderInfo vertexCodeInfo;
-			vertexCodeInfo.compiledShaderPath = "Debug/ConstantBuffers.v.cso"; // TODO
+			vertexCodeInfo.compiledShaderPath = "ConstantBuffers.v.cso";
 			vertexCodeInfo.shaderType = milk::graphics::ShaderType::VERTEX;
 
 			shaderFactory.registerCompiledShader("v", vertexCodeInfo);
@@ -39,15 +48,15 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 
 		{
 			ShaderFactory::CompiledShaderInfo pixelCodeInfo;
-			pixelCodeInfo.compiledShaderPath = "Debug/ConstantBuffers.p.cso"; // TODO
+			pixelCodeInfo.compiledShaderPath = "ConstantBuffers.p.cso";
 			pixelCodeInfo.shaderType = milk::graphics::ShaderType::PIXEL;
 
 			shaderFactory.registerCompiledShader("p", pixelCodeInfo);
 		}
 
-		auto inputLayout = inputLayoutFactory.create("v", renderer());
-		auto vertexShader = shaderFactory.create("v", renderer());
-		auto pixelShader = shaderFactory.create("p", renderer());
+		auto inputLayout = inputLayoutFactory.create("v", renderer(), fsContext);
+		auto vertexShader = shaderFactory.create("v", renderer(), fsContext);
+		auto pixelShader = shaderFactory.create("p", renderer(), fsContext);
 
 		renderingPass = std::make_unique<Pass>(
 			std::move(inputLayout),

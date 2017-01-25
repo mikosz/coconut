@@ -95,10 +95,10 @@ void Game::loop() {
 	}
 
 	pulp::renderer::shader::PassFactory passFactory;
-	passFactory.scanCompiledShaderDirectory("Debug");
+	passFactory.scanCompiledShaderDirectory(fs, "Debug");
 
 	pulp::renderer::Scene scene(*graphicsRenderer_);
-	scene.setRenderingPass(passFactory.create("sprite", *graphicsRenderer_));
+	scene.setRenderingPass(passFactory.create("sprite", *graphicsRenderer_, fs));
 
 	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager));
 

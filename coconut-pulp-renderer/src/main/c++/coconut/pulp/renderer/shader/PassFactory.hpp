@@ -4,11 +4,11 @@
 #include <mutex>
 #include <memory>
 
-#include <boost/filesystem/path.hpp>
-
 #include <coconut-tools/factory.hpp>
 
 #include "coconut/milk/graphics/Renderer.hpp"
+
+#include "coconut/milk/fs.hpp"
 
 #include "InputLayoutFactory.hpp"
 #include "ShaderFactory.hpp"
@@ -24,11 +24,21 @@ namespace detail {
 class PassCreator {
 public:
 
-	std::unique_ptr<Pass> doCreate(const std::string& id, milk::graphics::Renderer& graphicsRenderer);
+	std::unique_ptr<Pass> doCreate(
+		const std::string& id,
+		milk::graphics::Renderer& graphicsRenderer,
+		const milk::fs::FilesystemContext& filesystemContext
+		);
 
-	void scanShaderCodeDirectory(const boost::filesystem::path& directory, const std::string& entrypointName = "main");
+	void scanShaderCodeDirectory(
+		const milk::fs::FilesystemContext& filesystemContext,
+		const milk::fs::Path& directory,
+		const std::string& entrypointName = "main");
 
-	void scanCompiledShaderDirectory(const boost::filesystem::path& directory);
+	void scanCompiledShaderDirectory(
+		const milk::fs::FilesystemContext& filesystemContext,
+		const milk::fs::Path& directory
+		);
 
 private:
 

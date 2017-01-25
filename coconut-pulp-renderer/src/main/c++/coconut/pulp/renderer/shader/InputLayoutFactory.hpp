@@ -7,13 +7,12 @@
 
 #include <unordered_map>
 
-#include <boost/filesystem/path.hpp>
-
 #include <coconut-tools/configuration/hierarchical/HierarchicalConfiguration.hpp>
 #include <coconut-tools/factory.hpp>
 
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/InputLayout.hpp"
+#include "coconut/milk/fs.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -26,28 +25,31 @@ class InputLayoutCreator {
 public:
 
 	struct ShaderCodeInfo {
-		boost::filesystem::path shaderCodePath;
+		milk::AbsolutePath shaderCodePath;
 		std::string entrypoint;
 	};
 
 	void registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo);
 
-	void registerCompiledShader(std::string id, boost::filesystem::path compiledShaderPath);
+	void registerCompiledShader(std::string id, milk::AbsolutePath compiledShaderPath);
 
 	void registerConfig(coconut_tools::configuration::hierarchical::HierarchicalConfigurationSharedPtr config);
 
 	std::unique_ptr<milk::graphics::InputLayout> doCreate(
-		const std::string& id, milk::graphics::Renderer& graphicsRenderer);
+		const std::string& id,
+		milk::graphics::Renderer& graphicsRenderer,
+		const milk::FilesystemContext& filesystemContext
+		);
 
 private:
 
 	using ShaderCodeInfos = std::unordered_map<std::string, ShaderCodeInfo>;
 
-	using CompiledShaderInfos = std::unordered_map<std::string, boost::filesystem::path>;
+	using CompiledShaderInfos = std::unordered_map<std::string, milk::AbsolutePath>;
 
 	ShaderCodeInfos shaderCodeInfos_;
 
-	CompiledShaderInfos compiledShaderPaths_;
+	CompiledShaderInfos compiledShaderInfos_;
 
 };
 

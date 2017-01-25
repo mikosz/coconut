@@ -6,7 +6,6 @@
 
 #include "MaterialLibParser.hpp"
 
-#include <fstream>
 #include <cassert>
 #include <iterator>
 

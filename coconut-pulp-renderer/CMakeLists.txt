@@ -1,4 +1,5 @@
 set(DEPENDENCY_LIBRARIES
+    coconut-milk-fs
     coconut-milk-math-${MODULE_MATHS}
     coconut-milk-graphics-${MODULE_RENDERER}
     coconut-pulp-model

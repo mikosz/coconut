@@ -1,7 +1,6 @@
 #include "InputLayoutFactory.hpp"
 
 #include <algorithm>
-#include <fstream>
 #include <memory>
 
 #include <coconut-tools/logger.hpp>
@@ -81,39 +80,23 @@ std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
 		);
 }
 
-std::vector<std::uint8_t> readContents(const boost::filesystem::path& path) {
-	std::vector<std::uint8_t> contents;
-	std::ifstream ifs(path.string().c_str(), std::ios::binary); // TODO: this needs to move to some utility place
-	std::ostringstream oss;
-	oss << ifs.rdbuf();
-	auto s = oss.str();
-	contents.reserve(s.length());
-	std::copy(s.begin(), s.end(), std::back_inserter(contents));
-
-	return contents;
-}
-
-std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
-	milk::graphics::Renderer& graphicsRenderer, const boost::filesystem::path& path)
-{
-	return createInputLayoutFromVertexShader(graphicsRenderer, readContents(path));
-}
-
 std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShaderCode(
 	milk::graphics::Renderer& graphicsRenderer,
-	const boost::filesystem::path& path,
+	const milk::RawData& shaderCode,
 	const std::string& entrypoint
 	)
 {
-	auto shaderData = milk::graphics::compileShader(readContents(path), entrypoint);
-
+	auto shaderData = milk::graphics::compileShader(shaderCode, entrypoint);
 	return createInputLayoutFromVertexShader(graphicsRenderer, shaderData);
 }
 
 } // anonymous namespace
 
 std::unique_ptr<milk::graphics::InputLayout> detail::InputLayoutCreator::doCreate(
-	const std::string& id, milk::graphics::Renderer& graphicsRenderer)
+	const std::string& id,
+	milk::graphics::Renderer& graphicsRenderer,
+	const milk::FilesystemContext& filesystemContext
+	)
 {
 	CT_LOG_INFO << "Creating input layout: \"" << id << "\"";
 
@@ -121,10 +104,14 @@ std::unique_ptr<milk::graphics::InputLayout> detail::InputLayoutCreator::doCreat
 		CT_LOG_DEBUG << "Found \"" << id << "\" registered as shader code";
 		const auto& shaderCodeInfo = shaderCodeInfos_[id];
 		return createInputLayoutFromVertexShaderCode(
-			graphicsRenderer, shaderCodeInfo.shaderCodePath, shaderCodeInfo.entrypoint);
-	} else if (compiledShaderPaths_.count(id) != 0) {
+			graphicsRenderer,
+			*filesystemContext.load(shaderCodeInfo.shaderCodePath),
+			shaderCodeInfo.entrypoint
+			);
+	} else if (compiledShaderInfos_.count(id) != 0) {
 		CT_LOG_DEBUG << "Found \"" << id << "\" registered as a compiled shader";
-		return createInputLayoutFromVertexShader(graphicsRenderer, compiledShaderPaths_[id]);
+		auto shaderData = *filesystemContext.load(compiledShaderInfos_[id]);
+		return createInputLayoutFromVertexShader(graphicsRenderer, shaderData);
 	} else {
 		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
 	}
@@ -134,20 +121,20 @@ void detail::InputLayoutCreator::registerShaderCode(std::string id, const Shader
 	CT_LOG_INFO << "Registering shader code \"" << id << "\" at " << shaderCodeInfo.shaderCodePath.string()
 		<< "::" << shaderCodeInfo.entrypoint << " for input analysis";
 
-	if (shaderCodeInfos_.count(id) != 0 || compiledShaderPaths_.count(id) != 0) {
+	if (shaderCodeInfos_.count(id) != 0 || compiledShaderInfos_.count(id) != 0) {
 		throw coconut_tools::factory::error_policy::CreatorAlreadyRegistered<std::string>(id);
 	}
 
 	shaderCodeInfos_.emplace(std::move(id), std::move(shaderCodeInfo));
 }
 
-void detail::InputLayoutCreator::registerCompiledShader(std::string id, boost::filesystem::path compiledShaderPath) {
+void detail::InputLayoutCreator::registerCompiledShader(std::string id, milk::AbsolutePath compiledShaderPath) {
 	CT_LOG_INFO << "Registering compiled shader \"" << id << "\" at " << compiledShaderPath.string()
 		<< " for input analysis";
 
-	if (shaderCodeInfos_.count(id) != 0 || compiledShaderPaths_.count(id) != 0) {
+	if (shaderCodeInfos_.count(id) != 0 || compiledShaderInfos_.count(id) != 0) {
 		throw coconut_tools::factory::error_policy::CreatorAlreadyRegistered<std::string>(id);
 	}
 
-	compiledShaderPaths_.emplace(std::move(id), std::move(compiledShaderPath));
+	compiledShaderInfos_.emplace(std::move(id), std::move(compiledShaderPath));
 }

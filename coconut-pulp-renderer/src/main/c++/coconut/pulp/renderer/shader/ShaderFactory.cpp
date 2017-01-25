@@ -1,7 +1,6 @@
 #include "ShaderFactory.hpp"
 
 #include <vector>
-#include <fstream>
 #include <algorithm>
 
 #include <coconut-tools/logger.hpp>
@@ -168,20 +167,9 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	throw coconut_tools::exceptions::RuntimeError("Unexpected shader type: " + toString(shaderType));
 }
 
-std::vector<std::uint8_t> readContents(const boost::filesystem::path& path) {
-	std::vector<std::uint8_t> contents;
-	std::ifstream ifs(path.string().c_str(), std::ios::binary); // TODO: this needs to move to some utility place
-	std::ostringstream oss;
-	oss << ifs.rdbuf();
-	auto s = oss.str();
-	contents.reserve(s.length());
-	std::copy(s.begin(), s.end(), std::back_inserter(contents));
-
-	return contents;
-}
-
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	milk::graphics::Renderer& graphicsRenderer,
+	const milk::FilesystemContext& filesystemContext,
 	ParameterFactory& parameterFactory,
 	ResourceFactory& resourceFactory,
 	const detail::ShaderCreator::CompiledShaderInfo& compiledShaderInfo
@@ -191,13 +179,14 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 		graphicsRenderer,
 		parameterFactory,
 		resourceFactory,
-		readContents(compiledShaderInfo.compiledShaderPath),
+		*filesystemContext.load(compiledShaderInfo.compiledShaderPath),
 		compiledShaderInfo.shaderType
 		);
 }
 
 std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 	milk::graphics::Renderer& graphicsRenderer,
+	const milk::FilesystemContext& filesystemContext,
 	ParameterFactory& parameterFactory,
 	ResourceFactory& resourceFactory,
 	const detail::ShaderCreator::ShaderCodeInfo& shaderCodeInfo
@@ -205,8 +194,8 @@ std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 {
 	CT_LOG_INFO << "Compiling shader at " << shaderCodeInfo.shaderCodePath << "::" << shaderCodeInfo.entrypoint;
 
-	auto shaderData = milk::graphics::compileShader(
-		readContents(shaderCodeInfo.shaderCodePath), shaderCodeInfo.entrypoint);
+	const auto shaderCode = filesystemContext.load(shaderCodeInfo.shaderCodePath);
+	auto shaderData = milk::graphics::compileShader(*shaderCode, shaderCodeInfo.entrypoint);
 
 	return createShaderFromCompiledShader(
 		graphicsRenderer,
@@ -220,16 +209,31 @@ std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 } // anonymous namespace
 
 std::unique_ptr<UnknownShader> detail::ShaderCreator::doCreate(
-	const std::string& id, milk::graphics::Renderer& graphicsRenderer)
+	const std::string& id,
+	milk::graphics::Renderer& graphicsRenderer,
+	const milk::FilesystemContext& filesystemContext
+	)
 {
 	CT_LOG_INFO << "Creating shader: \"" << id << "\"";
 
 	if (shaderCodeInfos_.count(id) != 0) {
 		CT_LOG_DEBUG << "Found \"" << id << "\" registered as shader code";
-		return createShaderFromShaderCode(graphicsRenderer, parameterFactory_, resourceFactory_, shaderCodeInfos_[id]);
+		return createShaderFromShaderCode(
+			graphicsRenderer,
+			filesystemContext,
+			parameterFactory_,
+			resourceFactory_,
+			shaderCodeInfos_[id]
+			);
 	} else if (compiledShaderInfos_.count(id) != 0) {
 		CT_LOG_DEBUG << "Found \"" << id << "\" registered as a compiled shader";
-		return createShaderFromCompiledShader(graphicsRenderer, parameterFactory_, resourceFactory_, compiledShaderInfos_[id]);
+		return createShaderFromCompiledShader(
+			graphicsRenderer,
+			filesystemContext,
+			parameterFactory_,
+			resourceFactory_,
+			compiledShaderInfos_[id]
+			);
 	} else {
 		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
 	}

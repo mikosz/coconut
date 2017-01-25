@@ -5,7 +5,6 @@
 #include <iterator>
 
 #include <iostream>
-#include <fstream>
 
 using namespace coconut;
 using namespace coconut::pulp;

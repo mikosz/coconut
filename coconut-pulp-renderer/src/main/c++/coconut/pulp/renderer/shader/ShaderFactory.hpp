@@ -6,12 +6,12 @@
 #include <string>
 #include <unordered_map>
 
-#include <boost/filesystem/path.hpp>
-
 #include <coconut-tools/factory.hpp>
 
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
+
+#include "coconut/milk/fs.hpp"
 
 #include "ParameterFactory.hpp"
 #include "ResourceFactory.hpp"
@@ -28,13 +28,13 @@ class ShaderCreator {
 public:
 
 	struct ShaderCodeInfo {
-		boost::filesystem::path shaderCodePath;
+		milk::AbsolutePath shaderCodePath;
 		milk::graphics::ShaderType shaderType;
 		std::string entrypoint;
 	};
 
 	struct CompiledShaderInfo {
-		boost::filesystem::path compiledShaderPath;
+		milk::AbsolutePath compiledShaderPath;
 		milk::graphics::ShaderType shaderType;
 	};
 
@@ -42,7 +42,11 @@ public:
 
 	void registerCompiledShader(std::string id, const CompiledShaderInfo& compiledShaderInfo);
 
-	std::unique_ptr<UnknownShader> doCreate(const std::string& id, milk::graphics::Renderer& graphicsRenderer);
+	std::unique_ptr<UnknownShader> doCreate(
+		const std::string& id,
+		milk::graphics::Renderer& graphicsRenderer,
+		const milk::FilesystemContext& filesystemContext
+		);
 
 private:
 

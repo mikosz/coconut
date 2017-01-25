@@ -1,9 +1,5 @@
 #include "PassFactory.hpp"
 
-#include <algorithm>
-
-#include <boost/filesystem.hpp>
-
 #include <coconut-tools/logger.hpp>
 
 using namespace coconut;
@@ -18,66 +14,84 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.PASS_FACTORY");
 } // anonymous namespace
 
 std::unique_ptr<Pass> detail::PassCreator::doCreate(
-	const std::string& id, milk::graphics::Renderer& graphicsRenderer)
+	const std::string& id,
+	milk::graphics::Renderer& graphicsRenderer,
+	const milk::fs::FilesystemContext& filesystemContext
+	)
 {
 	CT_LOG_INFO << "Creating shader pass: \"" << id << "\"";
 
 	return std::make_unique<Pass>(
-		inputLayoutFactory_.create(id + ".v", graphicsRenderer),
-		std::dynamic_pointer_cast<VertexShader>(shaderFactory_.create(id + ".v", graphicsRenderer)),
-		std::dynamic_pointer_cast<PixelShader>(shaderFactory_.create(id + ".p", graphicsRenderer))
+		inputLayoutFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
+		std::dynamic_pointer_cast<VertexShader>(
+			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),
+		std::dynamic_pointer_cast<PixelShader>(
+			shaderFactory_.create(id + ".p", graphicsRenderer, filesystemContext))
 		);
 }
 
-void detail::PassCreator::scanShaderCodeDirectory(const boost::filesystem::path& directory, const std::string& entrypointName) {
+void detail::PassCreator::scanShaderCodeDirectory(
+	const milk::fs::FilesystemContext& filesystemContext,
+	const milk::fs::Path& directory,
+	const std::string& entrypointName
+	)
+{
 	CT_LOG_INFO << "Scanning shader code directory: " << directory;
 
-	boost::filesystem::directory_iterator fileIt(directory), filesEnd;
+	const auto names = filesystemContext.list(directory);
 
-	std::for_each(fileIt, filesEnd, [this, &entrypointName](const boost::filesystem::path& path) {
-			if (path.extension() == ".hlsl") {
-				detail::ShaderCreator::ShaderCodeInfo shaderInfo; // TODO: must expose this type or use different param to constructor (d'uh)
-				shaderInfo.shaderCodePath = path;
+	for (const auto& name : names) {
+		auto path = directory / name;
 
-				const auto shaderName = path.stem();
+		if (path.extension() == ".hlsl") {
+			detail::ShaderCreator::ShaderCodeInfo shaderInfo; // TODO: must expose this type or use different param to constructor (d'uh)
+			shaderInfo.shaderCodePath = filesystemContext.makeAbsolute(path);
 
-				if (shaderName.extension() == ".v") {
-					detail::InputLayoutCreator::ShaderCodeInfo inputLayoutInfo;
-					inputLayoutInfo.shaderCodePath = path;
-					inputLayoutInfo.entrypoint = entrypointName;
-					inputLayoutFactory_.registerShaderCode(shaderName.string(), inputLayoutInfo);
+			const auto shaderName = path.stem();
 
-					shaderInfo.shaderType = milk::graphics::ShaderType::VERTEX;
-					shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
-				} else if (shaderName.extension() == ".p") {
-					shaderInfo.shaderType = milk::graphics::ShaderType::PIXEL;
-					shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
-				}
+			if (shaderName.extension() == ".v") {
+				detail::InputLayoutCreator::ShaderCodeInfo inputLayoutInfo;
+				inputLayoutInfo.shaderCodePath = shaderInfo.shaderCodePath;
+				inputLayoutInfo.entrypoint = entrypointName;
+				inputLayoutFactory_.registerShaderCode(shaderName.string(), inputLayoutInfo);
+
+				shaderInfo.shaderType = milk::graphics::ShaderType::VERTEX;
+				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
+			} else if (shaderName.extension() == ".p") {
+				shaderInfo.shaderType = milk::graphics::ShaderType::PIXEL;
+				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
 			}
-		});
+		}
+	}
 }
 
-void detail::PassCreator::scanCompiledShaderDirectory(const boost::filesystem::path& directory) {
+void detail::PassCreator::scanCompiledShaderDirectory(
+	const milk::fs::FilesystemContext& filesystemContext,
+	const milk::fs::Path& directory
+	)
+{
 	CT_LOG_INFO << "Scanning compiled shader directory: " << directory;
 
-	boost::filesystem::directory_iterator fileIt(directory), filesEnd;
+	const auto names = filesystemContext.list(directory);
 
-	std::for_each(fileIt, filesEnd, [this](const boost::filesystem::path& path) {
-			if (path.extension() == ".cso") {
-				detail::ShaderCreator::CompiledShaderInfo info; // TODO: must expose this type or use different param to constructor (d'uh)
-				info.compiledShaderPath = path;
+	for (const auto& name : names) {
+		auto path = directory / name;
+		
+		if (path.extension() == ".cso") {
+			detail::ShaderCreator::CompiledShaderInfo info; // TODO: must expose this type or use different param to constructor (d'uh)
+			info.compiledShaderPath = filesystemContext.makeAbsolute(path);
 
-				const auto shaderName = path.stem();
+			const auto shaderName = path.stem();
 
-				if (shaderName.extension() == ".v") {
-					inputLayoutFactory_.registerCompiledShader(shaderName.string(), path);
+			if (shaderName.extension() == ".v") {
+				inputLayoutFactory_.registerCompiledShader(shaderName.string(), info.compiledShaderPath);
 
-					info.shaderType = milk::graphics::ShaderType::VERTEX;
-					shaderFactory_.registerCompiledShader(shaderName.string(), info);
-				} else if (shaderName.extension() == ".p") {
-					info.shaderType = milk::graphics::ShaderType::PIXEL;
-					shaderFactory_.registerCompiledShader(shaderName.string(), info);
-				}
+				info.shaderType = milk::graphics::ShaderType::VERTEX;
+				shaderFactory_.registerCompiledShader(shaderName.string(), info);
+			} else if (shaderName.extension() == ".p") {
+				info.shaderType = milk::graphics::ShaderType::PIXEL;
+				shaderFactory_.registerCompiledShader(shaderName.string(), info);
 			}
-		});
+		}
+	}
 }

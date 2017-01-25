@@ -43,13 +43,13 @@ public:
 		return currentWorkingDirectory_;
 	}
 
+	AbsolutePath makeAbsolute(const Path& path) const;
+
 private:
 
 	std::shared_ptr<Filesystem> filesystem_;
 	
 	AbsolutePath currentWorkingDirectory_;
-
-	AbsolutePath toAbsolutePath(const Path& path) const;
 
 };
 
