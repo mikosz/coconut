@@ -12,6 +12,8 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
+using namespace std::string_literals;
+
 namespace /* anonymous */ {
 
 size_t formatSize(FlexibleInputLayoutDescription::Format format) {
@@ -42,9 +44,10 @@ const char* const formatHLSLType(FlexibleInputLayoutDescription::Format format) 
 
 } // anonymous namespace
 
-const std::string FlexibleInputLayoutDescription::PositionElement::HLSL_SEMANTIC_ = "POSITION";
-const std::string FlexibleInputLayoutDescription::TextureCoordinatesElement::HLSL_SEMANTIC_ = "TEXCOORD";
-const std::string FlexibleInputLayoutDescription::NormalElement::HLSL_SEMANTIC_ = "NORMAL";
+const std::string FlexibleInputLayoutDescription::PositionElement::HLSL_SEMANTIC_ = "POSITION"s;
+const std::string FlexibleInputLayoutDescription::TextureCoordinatesElement::HLSL_SEMANTIC_ = "TEXCOORD"s;
+const std::string FlexibleInputLayoutDescription::NormalElement::HLSL_SEMANTIC_ = "NORMAL"s;
+const std::string FlexibleInputLayoutDescription::InstanceIDElement::HLSL_SEMANTIC_ = "SV_InstanceID";
 
 FlexibleInputLayoutDescription::PositionElement::PositionElement(size_t index, Format format) :
 	index_(index),

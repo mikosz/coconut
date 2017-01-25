@@ -62,6 +62,7 @@ public:
 		(POSITION)
 		(TEXTURE_COORDINATES)
 		(NORMAL)
+		(INSTANCE_ID)
 		);
 
 	CCN_MEMBER_ENUM_VALUES(
@@ -69,6 +70,12 @@ public:
 		(R32G32B32A32_FLOAT)(DXGI_FORMAT_R32G32B32A32_FLOAT)
 		(R32G32B32_FLOAT)(DXGI_FORMAT_R32G32B32_FLOAT)
 		(R32G32_FLOAT)(DXGI_FORMAT_R32G32_FLOAT)
+		);
+
+	CCN_MEMBER_ENUM_VALUES(
+		InputSlot,
+		(PER_VERTEX_DATA)(D3D11_INPUT_PER_VERTEX_DATA)
+		(PER_INSTANCE_DATA)(D3D11_INPUT_PER_INSTANCE_DATA)
 		);
 
 	class Element {
@@ -99,6 +106,8 @@ public:
 
 	FLEXIBLE_INPUT_LAYOUT_ELEMENT(Normal);
 
+	FLEXIBLE_INPUT_LAYOUT_ELEMENT(InstanceID);
+
 	system::COMWrapper<ID3D11InputLayout> makeLayout(
 		Renderer& renderer,
 		const void* shaderData,
@@ -120,6 +129,8 @@ private:
 };
 
 CCN_MAKE_POINTER_DEFINITIONS(FlexibleInputLayoutDescription);
+
+#undef FLEXIBLE_INPUT_LAYOUT_ELEMENT
 
 } // namespace graphics
 } // namespace milk
