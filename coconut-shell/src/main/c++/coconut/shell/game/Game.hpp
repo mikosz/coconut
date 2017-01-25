@@ -5,7 +5,6 @@
 
 #include "coconut/milk/system/App.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
-#include "coconut/milk/fs/Cache.hpp"
 #include "coconut/milk/fs/Filesystem.hpp"
 
 namespace coconut {
@@ -24,8 +23,6 @@ private:
 	std::shared_ptr<milk::system::App> app_;
 
 	std::shared_ptr<milk::system::Window> window_;
-
-	std::shared_ptr<milk::fs::Cache> fileCache_;
 
 	std::shared_ptr<milk::fs::Filesystem> filesystem_;
 

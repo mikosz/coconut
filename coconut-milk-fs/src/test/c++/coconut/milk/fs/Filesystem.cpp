@@ -196,6 +196,80 @@ BOOST_AUTO_TEST_CASE(ThrowsIfNoMountInPath) {
 	BOOST_CHECK_THROW(fs.open("/dir/f"s), InvalidPath);
 }
 
+#if 0
+// TODO: re-enable tests
+
+BOOST_AUTO_TEST_CASE(LoadReturnsDataFuture) {
+	Filesystem fs;
+	auto mount = std::make_unique<MockMount>(false);
+	
+	EXPECT_CALL(*mount, openContents(Path("f"))).WillOnce(testing::Return("data\0"s));
+
+	fs.mount("/", std::move(mount), Filesystem::PredecessorHidingPolicy::HIDE);
+
+	Cache cache;
+	auto future = cache.load(fs, "/f");
+
+	BOOST_REQUIRE(future.valid());
+	BOOST_CHECK_EQUAL(future.get()->size(), 5);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(future.get()->data()), "data");
+}
+
+BOOST_AUTO_TEST_CASE(DuplicateLoadWillNotSpawnAnotherThread) {
+	std::atomic<size_t> istreamOpenedTimes = 0u;
+
+	const auto path = "/f"s;
+	const auto loader = [&istreamOpenedTimes]() {
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			++istreamOpenedTimes;
+			return "data\0"s;
+		};
+
+	Filesystem fs;
+	auto mount = std::make_unique<MockMount>(false);
+	
+	EXPECT_CALL(*mount, openContents(Path("f"))).WillOnce(testing::InvokeWithoutArgs(loader));
+
+	fs.mount("/", std::move(mount), Filesystem::PredecessorHidingPolicy::HIDE);
+
+	Cache cache;
+	auto loadingFuture = cache.load(fs, path);
+	auto whileLoadingFuture = cache.load(fs, path);
+
+	BOOST_REQUIRE(loadingFuture.valid());
+	BOOST_CHECK_EQUAL(loadingFuture.get()->size(), 5);
+	BOOST_CHECK_EQUAL(reinterpret_cast<const char*>(loadingFuture.get()->data()), "data");
+
+	BOOST_CHECK(whileLoadingFuture.valid());
+	BOOST_CHECK_EQUAL(whileLoadingFuture.get()->size(), 5);
+	BOOST_CHECK_EQUAL(whileLoadingFuture.get()->data(), loadingFuture.get()->data());
+
+	BOOST_CHECK_EQUAL(istreamOpenedTimes, 1);
+
+	auto postLoadingFuture = cache.load(fs, path);
+	BOOST_REQUIRE(postLoadingFuture.valid());
+	BOOST_CHECK_EQUAL(postLoadingFuture.get()->size(), 5);
+	BOOST_CHECK_EQUAL(postLoadingFuture.get()->data(), loadingFuture.get()->data());
+
+	BOOST_CHECK_EQUAL(istreamOpenedTimes, 1);
+}
+
+BOOST_AUTO_TEST_CASE(ThrowsExceptionOnReadErrors) {
+	Cache cache;
+
+	Filesystem fs;
+	auto mount = std::make_unique<MockMount>(true);
+
+	fs.mount("/", std::move(mount), Filesystem::PredecessorHidingPolicy::HIDE);
+
+	auto future = cache.load(fs, "/f"s);
+
+	BOOST_REQUIRE(future.valid());
+	BOOST_CHECK_THROW(future.get(), FailedToReadData);
+}
+
+#endif
+
 BOOST_AUTO_TEST_SUITE_END(/* MilkFsFilesystemTestSuite */);
 
 } // anonymous namespace

@@ -8,15 +8,39 @@
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/adaptor/adjacent_filtered.hpp>
 
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+
 using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::fs;
+
+namespace /* anonymous */ {
+
+RawData readRawData(const AbsolutePath& path, std::istream& is) {
+	try {
+		is.exceptions(std::ios::badbit);
+
+		is.seekg(0u, std::ios::end);
+		RawData rawData(static_cast<size_t>(is.tellg()));
+		is.seekg(0u, std::ios::beg);
+		is.read(reinterpret_cast<char*>(rawData.data()), rawData.size());
+
+		return rawData;
+	}
+	catch (const std::runtime_error& e) {
+		throw FailedToReadData(path, e);
+	}
+}
+
+} // anonymous namespace
 
 void Filesystem::mount(
 	AbsolutePath mountPoint,
 	std::unique_ptr<Mount> mount,
 	PredecessorHidingPolicy predecessorHidingPolicy
 	) {
+	cache_.invalidateChildren(mountPoint);
 	mounts_.emplace_back(std::move(mountPoint), std::move(mount), predecessorHidingPolicy);
 }
 
@@ -25,8 +49,8 @@ std::vector<std::string> Filesystem::list(const AbsolutePath& path) const {
 
 	walk(
 		path,
-		[&filenameSet](const Mount& mount, const Path& path) {
-			auto files = mount.list(path);
+		[&filenameSet](const Mount& mount, const Path& pathInMount) {
+			auto files = mount.list(pathInMount);
 			std::move(files.begin(), files.end(), std::inserter(filenameSet, filenameSet.begin()));
 		},
 		true,
@@ -45,8 +69,8 @@ bool Filesystem::exists(const AbsolutePath& path) const {
 
 	walk(
 		path,
-		[&result](const Mount& mount, const Path& path) {
-			if (mount.exists(path)) {
+		[&result](const Mount& mount, const Path& pathInMount) {
+			if (mount.exists(pathInMount)) {
 				result = true;
 			}
 		},
@@ -57,26 +81,49 @@ bool Filesystem::exists(const AbsolutePath& path) const {
 	return result;
 }
 
+std::shared_future<SharedRawData> Filesystem::hint(const AbsolutePath& path) const {
+	if (cache_.has(path)) {
+		return cache_.get(path);
+	} else {
+		IStream is;
+
+		walk(
+			path,
+			[&is](const Mount& mount, const Path& pathInMount) {
+				is = mount.open(pathInMount);
+			},
+			false,
+			true
+			);
+
+		return cache_.store(
+			path,
+			std::async([&path, is = std::move(is)]() -> SharedRawData {
+				auto rawData = readRawData(path, *is);
+				return std::make_shared<RawData>(std::move(rawData));
+			})
+			);
+	}
+}
+
+SharedRawData Filesystem::load(const AbsolutePath& path) const {
+	return hint(path).get();
+}
+
 IStream Filesystem::open(const AbsolutePath& path) const {
-	auto is = IStream();
+	const auto data = hint(path).get();
 
-	walk(
-		path,
-		[&is](const Mount& mount, const Path& path) {
-			is = mount.open(path);
-		},
-		false,
-		true
-		);
-
-	return is;
+	auto source = boost::iostreams::array_source((char*)(data->data()), data->size());
+	return std::make_unique<boost::iostreams::stream<decltype(source)>>(source);
 }
 
 OStream Filesystem::append(const AbsolutePath& path) const {
-	auto os = OStream();
+	cache_.invalidate(path);
 
 	const auto directory = path.parent();
 	const auto fileName = path.base();
+
+	auto os = OStream();
 
 	walk(
 		directory,
@@ -91,16 +138,17 @@ OStream Filesystem::append(const AbsolutePath& path) const {
 }
 
 OStream Filesystem::overwrite(const AbsolutePath& path) const {
-	auto os = OStream();
+	cache_.invalidate(path);
 
-	// TODO: duplicated code
 	const auto directory = path.parent();
 	const auto fileName = path.base();
+
+	auto os = OStream();
 
 	walk(
 		directory,
 		[&os, &fileName](const Mount& mount, const Path& directory) {
-			os = mount.append(directory / fileName);
+			os = mount.overwrite(directory / fileName);
 		},
 		false,
 		false
@@ -146,21 +194,5 @@ void Filesystem::walk(
 
 	if (!found && requireExists) {
 		throw InvalidPath("No such file or directory: " + path.string());
-	}
-}
-
-RawData coconut::milk::fs::readRawData(const AbsolutePath& path, std::istream& is) {
-	try {
-		is.exceptions(std::ios::badbit);
-
-		is.seekg(0u, std::ios::end);
-		RawData rawData(static_cast<size_t>(is.tellg()));
-		is.seekg(0u, std::ios::beg);
-		is.read(reinterpret_cast<char*>(rawData.data()), rawData.size());
-
-		return rawData;
-	}
-	catch (const std::runtime_error& e) {
-		throw FailedToReadData(path, e);
 	}
 }

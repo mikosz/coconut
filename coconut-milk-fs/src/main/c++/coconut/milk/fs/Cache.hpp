@@ -2,8 +2,6 @@
 #define _COCONUT_MILK_FILESYSTEM_CACHE_HPP_
 
 #include <future>
-#include <mutex>
-#include <memory>
 #include <list>
 #include <unordered_map>
 
@@ -19,11 +17,19 @@ class Filesystem;
 class Cache {
 public:
 
-	std::shared_future<SharedRawData> load(const Filesystem& filesystem, const Path& path);
+	bool has(const AbsolutePath& path) const;
+
+	std::shared_future<SharedRawData> store(const AbsolutePath& path, std::future<SharedRawData> dataFuture);
+
+	void invalidate(const AbsolutePath& path);
+
+	void invalidateChildren(const AbsolutePath& path);
+
+	std::shared_future<SharedRawData> get(const AbsolutePath& path);
 
 private:
 
-	using RemovalQueue = std::list<Path>;
+	using RemovalQueue = std::list<AbsolutePath>;
 
 	struct Entry {
 	
@@ -39,7 +45,7 @@ private:
 
 	};
 
-	using CachedFiles = std::unordered_map<Path, Entry>;
+	using CachedFiles = std::unordered_map<AbsolutePath, Entry>;
 
 	CachedFiles cachedFiles_;
 

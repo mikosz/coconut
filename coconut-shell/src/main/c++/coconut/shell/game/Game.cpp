@@ -5,9 +5,6 @@
 #include <memory>
 #include <chrono>
 
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
-
 #include <coconut-tools/serialisation/BinarySerialiser.hpp>
 #include <coconut-tools/serialisation/BinaryDeserialiser.hpp>
 #include <coconut-tools/serialisation/JSONDeserialiser.hpp>
@@ -35,7 +32,6 @@ using namespace coconut::shell::game;
 
 Game::Game(std::shared_ptr<milk::system::App> app) :
 	app_(app),
-	fileCache_(std::make_unique<milk::Cache>()),
 	filesystem_(std::make_unique<milk::Filesystem>())
 {
 	{
@@ -70,7 +66,7 @@ void Game::loop() {
 
 	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
 
-	auto fs = milk::FilesystemContext(filesystem_, fileCache_);
+	auto fs = milk::FilesystemContext(filesystem_);
 
 	if (!fs.exists("daniel.model")) {
 		auto modelContext = fs;
@@ -89,17 +85,13 @@ void Game::loop() {
 
 	pulp::renderer::MaterialManager materialManager;
 
-	auto modelRawData = fs.load("daniel.model").get();
-
-	// TODO: unusable
-#pragma message("This is unusable + c-style cast, don't merge me!")
-	boost::iostreams::array_source src((char*)(modelRawData->data()), modelRawData->size());
-	boost::iostreams::stream<boost::iostreams::array_source> is(src);
-
-	coconut_tools::serialisation::BinaryDeserialiser deserialiser(is);
-
 	pulp::model::Data modelData;
-	deserialiser >> modelData;
+
+	{
+		auto modelIS = fs.open("daniel.model");
+		coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS);
+		deserialiser >> modelData;
+	}
 
 	pulp::renderer::Scene scene(*graphicsRenderer_);
 
@@ -136,6 +128,7 @@ void Game::loop() {
 	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
 	pulp::model::Data floorData;
+
 	{
 		floorData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
 		floorData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;

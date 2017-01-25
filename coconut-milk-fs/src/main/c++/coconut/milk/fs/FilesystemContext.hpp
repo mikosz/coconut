@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "Cache.hpp"
 #include "Filesystem.hpp"
 #include "Path.hpp"
 #include "types.hpp"
@@ -13,12 +12,10 @@ namespace coconut {
 namespace milk {
 namespace fs {
 
-class Mount;
-
 class FilesystemContext {
 public:
 
-	FilesystemContext(std::shared_ptr<Filesystem> filesystem, std::shared_ptr<Cache> cache);
+	FilesystemContext(std::shared_ptr<Filesystem> filesystem);
 
 	void changeWorkingDirectory(const Path& path);
 
@@ -32,9 +29,11 @@ public:
 
 	bool exists(const Path& path) const;
 
-	std::shared_future<SharedRawData> hint(const Path& path) const; // TODO: sort out api
+	std::shared_future<SharedRawData> hint(const Path& path) const;
 
 	SharedRawData load(const Path& path) const;
+
+	IStream open(const Path& path) const;
 
 	OStream append(const Path& path) const;
 
@@ -48,9 +47,6 @@ private:
 
 	std::shared_ptr<Filesystem> filesystem_;
 	
-	// TODO: not sure about cache being here
-	std::shared_ptr<Cache> cache_;
-
 	AbsolutePath currentWorkingDirectory_;
 
 	AbsolutePath toAbsolutePath(const Path& path) const;

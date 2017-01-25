@@ -10,6 +10,7 @@
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 #include <coconut-tools/enum.hpp>
 
+#include "Cache.hpp"
 #include "Mount.hpp"
 #include "Path.hpp"
 #include "types.hpp"
@@ -18,6 +19,7 @@ namespace coconut {
 namespace milk {
 namespace fs {
 
+// TODO: make thread-safe? make noncopyable. add shared-from-this?
 class Filesystem {
 public:
 
@@ -38,6 +40,10 @@ public:
 	Filenames list(const AbsolutePath& path) const;
 
 	bool exists(const AbsolutePath& path) const;
+
+	std::shared_future<SharedRawData> hint(const AbsolutePath& path) const;
+
+	SharedRawData load(const AbsolutePath& path) const;
 
 	IStream open(const AbsolutePath& path) const;
 
@@ -67,6 +73,8 @@ private:
 
 	using Mounts = std::vector<MountEntry>;
 
+	mutable Cache cache_;
+
 	Mounts mounts_;
 
 	void walk(const AbsolutePath& path, const WalkOp& walkOp, bool allowMultiple, bool requireExists) const;
@@ -82,8 +90,6 @@ public:
 	}
 
 };
-
-RawData readRawData(const AbsolutePath& path, std::istream& is);
 
 } // namespace fs
 } // namespace milk

@@ -11,7 +11,6 @@
 namespace coconut {
 namespace milk {
 
-using fs::Cache;
 using fs::DirectoryMount;
 using fs::Filesystem;
 using fs::FilesystemContext;
@@ -20,6 +19,7 @@ using fs::Path;
 using fs::Byte;
 using fs::RawData;
 using fs::IStream;
+using fs::OStream;
 
 } // namespace milk
 } // namespace coconut

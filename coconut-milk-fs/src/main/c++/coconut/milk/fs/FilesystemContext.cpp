@@ -6,13 +6,11 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::fs;
 
-FilesystemContext::FilesystemContext(std::shared_ptr<Filesystem> filesystem, std::shared_ptr<Cache> cache) :
+FilesystemContext::FilesystemContext(std::shared_ptr<Filesystem> filesystem) :
 	filesystem_(std::move(filesystem)),
-	cache_(std::move(cache)),
 	currentWorkingDirectory_("/")
 {
 	assert(filesystem_);
-	assert(cache_);
 }
 
 void FilesystemContext::changeWorkingDirectory(const Path& path) {
@@ -23,7 +21,8 @@ void FilesystemContext::mount(
 	Path mountPoint,
 	std::unique_ptr<Mount> mountRoot,
 	Filesystem::PredecessorHidingPolicy predecessorHidingPolicy
-	) {
+	)
+{
 	filesystem_->mount(toAbsolutePath(mountPoint), std::move(mountRoot), predecessorHidingPolicy);
 }
 
@@ -36,19 +35,23 @@ bool FilesystemContext::exists(const Path& path) const {
 }
 
 std::shared_future<SharedRawData> FilesystemContext::hint(const Path& path) const {
-	return cache_->load(*filesystem_, toAbsolutePath(path));
+	return filesystem_->hint(toAbsolutePath(path));
 }
 
 SharedRawData FilesystemContext::load(const Path& path) const {
-	return cache_->load(*filesystem_, toAbsolutePath(path)).get();
+	return filesystem_->load(toAbsolutePath(path));
+}
+
+IStream FilesystemContext::open(const Path& path) const {
+	return filesystem_->open(toAbsolutePath(path));
 }
 
 OStream FilesystemContext::append(const Path& path) const {
-	return filesystem_->append(toAbsolutePath(path)); // TODO: should remove from cache?
+	return filesystem_->append(toAbsolutePath(path));
 }
 
 OStream FilesystemContext::overwrite(const Path& path) const {
-	return filesystem_->overwrite(toAbsolutePath(path)); // TODO: should remove from cache?
+	return filesystem_->overwrite(toAbsolutePath(path));
 }
 
 AbsolutePath FilesystemContext::toAbsolutePath(const Path& path) const {
