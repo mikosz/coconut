@@ -292,13 +292,9 @@ BOOST_FIXTURE_TEST_CASE(ArrayElementAlignmentIsCorrect, TestSuite) {
 	commandList.setPixelShader(pixelShader);
 	commandList.setConstantBuffer(cb, ShaderType::PIXEL, 0);
 
-	for (;;) {
-		renderer().beginScene();
-
-		drawSquare();
-
-		renderer().endScene();
-	}
+	renderer().beginScene();
+	drawSquare();
+	renderer().endScene();
 
 	BOOST_FAIL("");
 }

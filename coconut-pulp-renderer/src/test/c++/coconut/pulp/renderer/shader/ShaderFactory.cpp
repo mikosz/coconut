@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 	scene.setRenderingPass(renderingPass);
 
 	// render
-	for (;;) {
+	{
 		app().update();
 
 		renderer().beginScene();
