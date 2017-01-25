@@ -11,7 +11,7 @@ namespace graphics {
 class InputLayout {
 public:
 
-	InputLayout(ConstInputLayoutDescriptionUniquePtr description, Renderer& renderer, void* shaderData, size_t shaderSize) :
+	InputLayout(ConstInputLayoutDescriptionUniquePtr description, Renderer& renderer, const void* shaderData, size_t shaderSize) :
 		description_(std::move(description)),
 		dxInputLayout_(description_->makeLayout(renderer, shaderData, shaderSize))
 	{

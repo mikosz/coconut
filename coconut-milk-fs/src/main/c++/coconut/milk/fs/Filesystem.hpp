@@ -19,7 +19,7 @@ namespace coconut {
 namespace milk {
 namespace fs {
 
-// TODO: make thread-safe? make noncopyable. add shared-from-this?
+// TODO: make thread-safe? make noncopyable. add shared-from-this + context() function
 class Filesystem {
 public:
 

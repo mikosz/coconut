@@ -5,7 +5,6 @@
 #include <iterator>
 
 #include <iostream>
-#include <fstream>
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -13,6 +12,7 @@ using namespace coconut::pulp::renderer;
 
 void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	assert(rasteriser_ != nullptr);
+	assert(inputLayout_ != nullptr);
 	assert(vertexShader_ != nullptr);
 	assert(pixelShader_ != nullptr);
 

@@ -22,6 +22,7 @@
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
+#include "coconut/pulp/renderer/shader/PassFactory.hpp"
 
 #include "globals.hpp"
 #include "coconut/milk/system/Window.hpp"
@@ -93,7 +94,11 @@ void Game::loop() {
 		deserialiser >> modelData;
 	}
 
+	pulp::renderer::shader::PassFactory passFactory;
+	passFactory.scanCompiledShaderDirectory(fs, "Debug");
+
 	pulp::renderer::Scene scene(*graphicsRenderer_);
+	scene.setRenderingPass(passFactory.create("sprite", *graphicsRenderer_, fs));
 
 	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager));
 
@@ -130,8 +135,8 @@ void Game::loop() {
 	pulp::model::Data floorData;
 
 	{
-		floorData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
-		floorData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;
+		floorData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
+		floorData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
 		floorData.rasteriserConfiguration.frontCounterClockwise = false;
 
 		floorData.positions.emplace_back(2.0f, 0.0f, 2.0f);

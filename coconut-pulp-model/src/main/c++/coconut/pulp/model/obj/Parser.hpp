@@ -10,8 +10,6 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
 
-#include <boost/filesystem/path.hpp>
-
 #include "coconut/milk/math/Vector.hpp"
 
 #include "coconut/milk/fs.hpp"

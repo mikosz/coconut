@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <numeric>
+#include <unordered_map>
+#include <sstream>
 
 #include "DirectXError.hpp"
 #include "Renderer.hpp"
@@ -25,7 +27,24 @@ size_t formatSize(FlexibleInputLayoutDescription::Format format) {
 	}
 }
 
+const char* const formatHLSLType(FlexibleInputLayoutDescription::Format format) {
+	switch (format) {
+	case FlexibleInputLayoutDescription::Format::R32G32_FLOAT:
+		return "float2";
+	case FlexibleInputLayoutDescription::Format::R32G32B32_FLOAT:
+		return "float3";
+	case FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT:
+		return "float4";
+	default:
+		throw std::runtime_error("Unknown format size");
+	}
+}
+
 } // anonymous namespace
+
+const std::string FlexibleInputLayoutDescription::PositionElement::HLSL_SEMANTIC_ = "POSITION";
+const std::string FlexibleInputLayoutDescription::TextureCoordinatesElement::HLSL_SEMANTIC_ = "TEXCOORD";
+const std::string FlexibleInputLayoutDescription::NormalElement::HLSL_SEMANTIC_ = "NORMAL";
 
 FlexibleInputLayoutDescription::PositionElement::PositionElement(size_t index, Format format) :
 	index_(index),
@@ -36,7 +55,7 @@ FlexibleInputLayoutDescription::PositionElement::PositionElement(size_t index, F
 void FlexibleInputLayoutDescription::PositionElement::toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const {
 	std::memset(desc, 0, sizeof(*desc));
 
-	desc->SemanticName = "POSITION";
+	desc->SemanticName = HLSL_SEMANTIC_.c_str();
 	desc->SemanticIndex = static_cast<UINT>(index_);
 	desc->Format = static_cast<DXGI_FORMAT>(format_);
 	desc->InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
@@ -73,7 +92,7 @@ FlexibleInputLayoutDescription::TextureCoordinatesElement::TextureCoordinatesEle
 void FlexibleInputLayoutDescription::TextureCoordinatesElement::toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const {
 	std::memset(desc, 0, sizeof(*desc));
 
-	desc->SemanticName = "TEXCOORD";
+	desc->SemanticName = HLSL_SEMANTIC_.c_str();
 	desc->SemanticIndex = static_cast<UINT>(index_);
 	desc->Format = static_cast<DXGI_FORMAT>(format_);
 	desc->InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
@@ -108,7 +127,7 @@ FlexibleInputLayoutDescription::NormalElement::NormalElement(size_t index, Forma
 void FlexibleInputLayoutDescription::NormalElement::toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const {
 	std::memset(desc, 0, sizeof(*desc));
 
-	desc->SemanticName = "NORMAL";
+	desc->SemanticName = HLSL_SEMANTIC_.c_str();
 	desc->SemanticIndex = static_cast<UINT>(index_);
 	desc->Format = static_cast<DXGI_FORMAT>(format_);
 	desc->InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
@@ -137,9 +156,10 @@ void FlexibleInputLayoutDescription::NormalElement::make(
 
 system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout(
 	Renderer& renderer,
-	void* shaderData,
+	const void* shaderData,
 	size_t shaderSize
-	) const {
+	) const
+{
 	std::vector<D3D11_INPUT_ELEMENT_DESC> descs;
 	descs.resize(elements_.size());
 
@@ -152,7 +172,7 @@ system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout
 		renderer.internalDevice().CreateInputLayout(
 			&descs.front(),
 			static_cast<UINT>(descs.size()),
-			shaderData,
+			const_cast<void*>(shaderData),
 			shaderSize,
 			&layout.get()
 			),
@@ -183,6 +203,35 @@ void FlexibleInputLayoutDescription::makeVertex(const VertexInterface& vertex, v
 		);
 }
 
-void FlexibleInputLayoutDescription::push(std::shared_ptr<Element> element) {
+void FlexibleInputLayoutDescription::push(std::shared_ptr<Element> element) { // TODO: why shared?
 	elements_.push_back(element);
+}
+
+std::vector<std::uint8_t> FlexibleInputLayoutDescription::createDummyVertexShader() const {
+	const auto* const prefix = "struct VIn {\n";
+	const auto* const suffix = 
+		"};\n"
+		"\n"
+		"SV_POSITION main(VIn in) { return float4(0.0f, 0.0f, 0.0f, 0.0f); }\n"
+		;
+
+	std::ostringstream shaderTextStream;
+	shaderTextStream << prefix;
+
+	for (const auto& element : elements_) {
+		shaderTextStream
+			<< "\t"
+			<< formatHLSLType(element->format())
+			<< element->hlslSemantic() << "_" << element->index()
+			<< " : "
+			<< element->hlslSemantic()
+			<< ";\n";
+	}
+
+	std::vector<std::uint8_t> shaderData;
+	const auto shaderText = shaderTextStream.str();
+	shaderData.reserve(shaderText.size());
+	std::copy(shaderText.begin(), shaderText.end(), std::back_inserter(shaderData));
+
+	return compileShader(shaderData, "main");
 }

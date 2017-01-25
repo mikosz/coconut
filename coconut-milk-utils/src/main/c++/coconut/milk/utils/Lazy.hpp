@@ -11,7 +11,8 @@ template <class T>
 class Lazy {
 public:
 
-	typedef std::function<void (T&)> EvaluateCallback;
+	// TODO: change to T()?
+	using EvaluateCallback = std::function<void (T&)> ;
 
 	Lazy(EvaluateCallback evaluateCallback) :
 		valid_(false),

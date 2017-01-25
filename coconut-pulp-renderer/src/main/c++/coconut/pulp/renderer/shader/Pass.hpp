@@ -18,9 +18,9 @@ class Pass {
 public:
 
 	Pass(
-		milk::graphics::InputLayoutUniquePtr inputLayout,
-		VertexShaderUniquePtr vertexShader,
-		PixelShaderUniquePtr pixelShader
+		milk::graphics::InputLayoutSharedPtr inputLayout,
+		VertexShaderSharedPtr vertexShader,
+		PixelShaderSharedPtr pixelShader
 		) :
 		inputLayout_(std::move(inputLayout)),
 		vertexShader_(std::move(vertexShader)),
@@ -46,11 +46,11 @@ public:
 
 private:
 
-	milk::graphics::InputLayoutUniquePtr inputLayout_;
+	milk::graphics::InputLayoutSharedPtr inputLayout_;
 
-	VertexShaderUniquePtr vertexShader_;
+	VertexShaderSharedPtr vertexShader_;
 
-	PixelShaderUniquePtr pixelShader_;
+	PixelShaderSharedPtr pixelShader_;
 
 };
 

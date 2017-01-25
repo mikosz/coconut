@@ -29,7 +29,7 @@ public:
 
 	virtual system::COMWrapper<ID3D11InputLayout> makeLayout(
 		Renderer& renderer,
-		void* shaderData,
+		const void* shaderData,
 		size_t shaderSize
 		) const = 0;
 

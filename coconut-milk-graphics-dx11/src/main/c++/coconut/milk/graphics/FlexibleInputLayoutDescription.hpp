@@ -7,10 +7,13 @@
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
+#include "coconut-tools/enum.hpp"
+
 #include "coconut/milk/system/COMWrapper.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
+#include "compile-shader.hpp"
 #include "InputLayoutDescription.hpp"
 
 namespace coconut {
@@ -29,7 +32,21 @@ namespace graphics {
 		\
 		void make(const VertexInterface& vertex, void* buffer) const override; \
 		\
+		size_t index() const override { \
+			return index_; \
+		} \
+		\
+		const std::string& hlslSemantic() const override { \
+			return HLSL_SEMANTIC_; \
+		} \
+		\
+		FlexibleInputLayoutDescription::Format format() const override { \
+			return format_; \
+		} \
+		\
 	private: \
+		\
+		static const std::string HLSL_SEMANTIC_; \
 		\
 		size_t index_; \
 		\
@@ -40,11 +57,19 @@ namespace graphics {
 class FlexibleInputLayoutDescription : public InputLayoutDescription {
 public:
 
-	enum class Format {
-		R32G32B32A32_FLOAT = DXGI_FORMAT_R32G32B32A32_FLOAT,
-		R32G32B32_FLOAT = DXGI_FORMAT_R32G32B32_FLOAT,
-		R32G32_FLOAT = DXGI_FORMAT_R32G32_FLOAT,
-	};
+	CCN_MEMBER_ENUM(
+		ElementType,
+		(POSITION)
+		(TEXTURE_COORDINATES)
+		(NORMAL)
+		);
+
+	CCN_MEMBER_ENUM_VALUES(
+		Format,
+		(R32G32B32A32_FLOAT)(DXGI_FORMAT_R32G32B32A32_FLOAT)
+		(R32G32B32_FLOAT)(DXGI_FORMAT_R32G32B32_FLOAT)
+		(R32G32_FLOAT)(DXGI_FORMAT_R32G32_FLOAT)
+		);
 
 	class Element {
 	public:
@@ -58,6 +83,12 @@ public:
 
 		virtual void make(const VertexInterface& vertex, void* buffer) const = 0;
 
+		virtual size_t index() const = 0;
+
+		virtual const std::string& hlslSemantic() const = 0;
+
+		virtual Format format() const = 0;
+
 	};
 
 	CCN_MAKE_POINTER_DEFINITIONS(Element);
@@ -70,7 +101,7 @@ public:
 
 	system::COMWrapper<ID3D11InputLayout> makeLayout(
 		Renderer& renderer,
-		void* shaderData,
+		const void* shaderData,
 		size_t shaderSize
 		) const override;
 
@@ -79,6 +110,8 @@ public:
 	void makeVertex(const VertexInterface& vertex, void* buffer) const override;
 
 	void push(std::shared_ptr<Element> element);
+
+	std::vector<std::uint8_t> createDummyVertexShader() const;
 
 private:
 

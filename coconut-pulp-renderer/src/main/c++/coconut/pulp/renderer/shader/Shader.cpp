@@ -42,7 +42,7 @@ void detail::Shader<GraphicsShaderType>::bind(
 	}
 
 	for (auto resource : resources_) {
-		resource.second->bind(drawCommand, PassContext);
+		resource->bind(drawCommand, PassContext);
 	}
 }
 

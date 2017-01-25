@@ -6,8 +6,6 @@
 
 #include "Parser.hpp"
 
-#include <fstream>
-
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/bind.hpp>
 

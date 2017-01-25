@@ -63,6 +63,14 @@ public:
 		return unifiedPath_.filename();
 	}
 
+	std::string extension() const {
+		return unifiedPath_.extension().string();
+	}
+
+	Path stem() const {
+		return unifiedPath_.stem();
+	}
+
 	const boost::filesystem::path& physicalPath() const noexcept {
 		return unifiedPath_;
 	}

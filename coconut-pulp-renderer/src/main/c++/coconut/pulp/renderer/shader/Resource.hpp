@@ -20,49 +20,83 @@ namespace shader {
 class Resource {
 public:
 
-	// TODO: pointer?
-	using TextureCallback = std::function<milk::graphics::Texture* (const PassContext&)>;
+	virtual ~Resource() = default;
 
-	using SamplerCallback = std::function<milk::graphics::Sampler (const PassContext&)>;
-
-	Resource(
-		TextureCallback textureCallback,
-		SamplerCallback samplerCallback,
-		milk::graphics::ShaderType shaderType,
-		size_t textureSlot,
-		size_t samplerSlot
-		) :
-		textureCallback_(textureCallback),
-		samplerCallback_(samplerCallback),
-		stage_(shaderType),
-		textureSlot_(textureSlot),
-		samplerSlot_(samplerSlot)
-	{
-	}
-
-	void bind(DrawCommand& drawCommand, const PassContext& context) {
-		auto* texture = textureCallback_(context);
-		if (texture) {
-			drawCommand.addTexture(texture, stage_, textureSlot_);
-			drawCommand.addSampler(samplerCallback_(context), stage_, samplerSlot_);
-		}
-	}
-
-private:
-
-	TextureCallback textureCallback_;
-
-	SamplerCallback samplerCallback_;
-
-	milk::graphics::ShaderType stage_;
-
-	size_t textureSlot_;
-
-	size_t samplerSlot_;
+	virtual void bind(DrawCommand& drawCommand, const PassContext& context) = 0;
 
 };
 
 CCN_MAKE_POINTER_DEFINITIONS(Resource);
+
+class TextureResource : public Resource {
+public:
+
+	// TODO: pointer?
+	using TextureCallback = std::function<milk::graphics::Texture* (const PassContext&)>;
+
+	TextureResource(
+		TextureCallback callback,
+		milk::graphics::ShaderType shaderType,
+		size_t slot
+		) :
+		callback_(callback),
+		stage_(shaderType),
+		slot_(slot)
+	{
+	}
+
+	void bind(DrawCommand& drawCommand, const PassContext& context) override {
+		auto* texture = callback_(context);
+		if (texture) {
+			drawCommand.addTexture(texture, stage_, slot_);
+		}
+	}
+
+	
+private:
+
+	TextureCallback callback_;
+
+	milk::graphics::ShaderType stage_;
+
+	size_t slot_;
+
+};
+
+class SamplerResource : public Resource {
+public:
+
+	// TODO: pointer?
+	using SamplerCallback = std::function<milk::graphics::Sampler* (const PassContext&)>;
+
+	SamplerResource(
+		SamplerCallback callback,
+		milk::graphics::ShaderType shaderType,
+		size_t slot
+		) :
+		callback_(callback),
+		stage_(shaderType),
+		slot_(slot)
+	{
+	}
+
+	void bind(DrawCommand& drawCommand, const PassContext& context) override {
+		auto* sampler = callback_(context);
+		if (sampler) {
+			drawCommand.addSampler(*sampler, stage_, slot_);
+		}
+	}
+
+	
+private:
+
+	SamplerCallback callback_;
+
+	milk::graphics::ShaderType stage_;
+
+	size_t slot_;
+
+};
 
 } // namespace shader
 } // namespace renderer
