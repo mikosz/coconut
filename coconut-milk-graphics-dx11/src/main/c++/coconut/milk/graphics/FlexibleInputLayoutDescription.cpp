@@ -5,6 +5,10 @@
 #include <unordered_map>
 #include <sstream>
 
+#include <boost/range/adaptor/filtered.hpp>
+
+#include <coconut-tools/exceptions/LogicError.hpp>
+
 #include "DirectXError.hpp"
 #include "Renderer.hpp"
 
@@ -42,120 +46,81 @@ const char* const formatHLSLType(FlexibleInputLayoutDescription::Format format) 
 	}
 }
 
+void makeElement(
+	const FlexibleInputLayoutDescription::Element& element,
+	const VertexInterface& vertex,
+	void* buffer
+	) {
+	switch (element.type) {
+	case FlexibleInputLayoutDescription::ElementType::POSITION:
+		{
+			if (element.format != FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT) {
+				throw std::runtime_error("PositionElement only supports rgba32 float format"); // TODO: exc
+			}
+
+			const auto target = reinterpret_cast<float*>(buffer);
+			const auto position = vertex.position();
+
+			target[0] = position.x();
+			target[1] = position.y();
+			target[2] = position.z();
+			target[3] = 0.0f; // XXX: 1.0f?
+
+			break;
+		}
+	case FlexibleInputLayoutDescription::ElementType::NORMAL:
+		{
+			if (element.format != FlexibleInputLayoutDescription::Format::R32G32B32_FLOAT) {
+				throw std::runtime_error("NormalElement only supports rgb32 float format");
+			}
+
+			const auto target = reinterpret_cast<float*>(buffer);
+			const auto normal = vertex.normal();
+
+			target[0] = normal.x();
+			target[1] = normal.y();
+			target[2] = normal.z();
+
+			break;
+		}
+	case FlexibleInputLayoutDescription::ElementType::TEXTURE_COORDINATES:
+		{
+			if (element.format != FlexibleInputLayoutDescription::Format::R32G32_FLOAT) {
+				throw std::runtime_error("TextureCoordinatesElement only supports rg32 float format");
+			}
+
+			const auto target = reinterpret_cast<float*>(buffer);
+			const auto position = vertex.textureCoordinate(); // TODO: only 2d, so thats an issue
+
+			target[0] = position.x();
+			target[1] = position.y();
+
+			break;
+		}
+	case FlexibleInputLayoutDescription::ElementType::INSTANCE_ID:
+		break;
+	default:
+		assert(false && "input layout element implementation missing");
+	}
+}
+
+size_t inputSlotIndex(InputLayoutDescription::SlotType inputSlot) {
+	switch (inputSlot) {
+	case InputLayoutDescription::SlotType::PER_VERTEX_DATA:
+		return 0u;
+	case InputLayoutDescription::SlotType::PER_INSTANCE_DATA:
+		return 1u;
+	default:
+		throw coconut_tools::exceptions::LogicError("input layout slot implementation missing");
+	}
+}
+
 } // anonymous namespace
 
-const std::string FlexibleInputLayoutDescription::PositionElement::HLSL_SEMANTIC_ = "POSITION"s;
-const std::string FlexibleInputLayoutDescription::TextureCoordinatesElement::HLSL_SEMANTIC_ = "TEXCOORD"s;
-const std::string FlexibleInputLayoutDescription::NormalElement::HLSL_SEMANTIC_ = "NORMAL"s;
-const std::string FlexibleInputLayoutDescription::InstanceIDElement::HLSL_SEMANTIC_ = "SV_InstanceID";
-
-FlexibleInputLayoutDescription::PositionElement::PositionElement(size_t index, Format format) :
-	index_(index),
-	format_(format)
-{
-}
-
-void FlexibleInputLayoutDescription::PositionElement::toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const {
-	std::memset(desc, 0, sizeof(*desc));
-
-	desc->SemanticName = HLSL_SEMANTIC_.c_str();
-	desc->SemanticIndex = static_cast<UINT>(index_);
-	desc->Format = static_cast<DXGI_FORMAT>(format_);
-	desc->InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	desc->AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-}
-
-size_t FlexibleInputLayoutDescription::PositionElement::size() const {
-	return formatSize(format_);
-}
-
-void FlexibleInputLayoutDescription::PositionElement::make(
-	const VertexInterface& vertex,
-	void* buffer
-	) const {
-	if (format_ != Format::R32G32B32A32_FLOAT) {
-		throw std::runtime_error("PositionElement only supports rgba32 format");
-	}
-
-	float* target = reinterpret_cast<float*>(buffer);
-	math::Vector3d position = vertex.position();
-
-	target[0] = position.x();
-	target[1] = position.y();
-	target[2] = position.z();
-	target[3] = 0.0f; // XXX: 1.0f?
-}
-
-FlexibleInputLayoutDescription::TextureCoordinatesElement::TextureCoordinatesElement(size_t index, Format format) :
-	index_(index),
-	format_(format)
-{
-}
-
-void FlexibleInputLayoutDescription::TextureCoordinatesElement::toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const {
-	std::memset(desc, 0, sizeof(*desc));
-
-	desc->SemanticName = HLSL_SEMANTIC_.c_str();
-	desc->SemanticIndex = static_cast<UINT>(index_);
-	desc->Format = static_cast<DXGI_FORMAT>(format_);
-	desc->InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	desc->AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-}
-
-size_t FlexibleInputLayoutDescription::TextureCoordinatesElement::size() const {
-	return formatSize(format_);
-}
-
-void FlexibleInputLayoutDescription::TextureCoordinatesElement::make(
-	const VertexInterface& vertex,
-	void* buffer
-	) const {
-	if (format_ != Format::R32G32_FLOAT) {
-		throw std::runtime_error("PositionElement only supports rg32 format");
-	}
-
-	float* target = reinterpret_cast<float*>(buffer);
-	auto&& position = vertex.textureCoordinate(); // TODO: only 2d, so thats an issue
-
-	target[0] = position.x();
-	target[1] = position.y();
-}
-
-FlexibleInputLayoutDescription::NormalElement::NormalElement(size_t index, Format format) :
-	index_(index),
-	format_(format)
-{
-}
-
-void FlexibleInputLayoutDescription::NormalElement::toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const {
-	std::memset(desc, 0, sizeof(*desc));
-
-	desc->SemanticName = HLSL_SEMANTIC_.c_str();
-	desc->SemanticIndex = static_cast<UINT>(index_);
-	desc->Format = static_cast<DXGI_FORMAT>(format_);
-	desc->InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	desc->AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-}
-
-size_t FlexibleInputLayoutDescription::NormalElement::size() const {
-	return formatSize(format_);
-}
-
-void FlexibleInputLayoutDescription::NormalElement::make(
-	const VertexInterface& vertex,
-	void* buffer
-	) const {
-	if (format_ != Format::R32G32B32_FLOAT) {
-		throw std::runtime_error("PositionElement only supports rgb32 format");
-	}
-
-	float* target = reinterpret_cast<float*>(buffer);
-	auto&& normal = vertex.normal();
-
-	target[0] = normal.x();
-	target[1] = normal.y();
-	target[2] = normal.z();
-}
+const std::string FlexibleInputLayoutDescription::POSITION_SEMANTIC = "POSITION"s;
+const std::string FlexibleInputLayoutDescription::TEXTURE_ELEMENT_SEMANTIC = "TEXCOORD"s;
+const std::string FlexibleInputLayoutDescription::NORMAL_SEMANTIC = "NORMAL"s;
+const std::string FlexibleInputLayoutDescription::INSTANCE_ID_SEMANTIC = "SV_InstanceID"s;
 
 system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout(
 	Renderer& renderer,
@@ -164,10 +129,22 @@ system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout
 	) const
 {
 	std::vector<D3D11_INPUT_ELEMENT_DESC> descs;
-	descs.resize(elements_.size());
+	descs.reserve(elements_.size());
 
-	for (size_t i = 0; i < elements_.size(); ++i) {
-		elements_[i]->toElementDesc(&descs[i]);
+	for (const auto& element : elements_ | boost::adaptors::filtered([](const auto& element) {
+				return element.type != ElementType::INSTANCE_ID;
+			})) {
+		descs.emplace_back();
+		auto& desc = descs.back();
+
+		std::memset(&desc, 0, sizeof(desc));
+
+		desc.SemanticName = toString(element.type).c_str();
+		desc.SemanticIndex = static_cast<UINT>(element.semanticIndex);
+		desc.Format = static_cast<DXGI_FORMAT>(element.format);
+		desc.InputSlot = static_cast<UINT>(inputSlotIndex(element.inputSlotType));
+		desc.InputSlotClass = static_cast<D3D11_INPUT_CLASSIFICATION>(element.inputSlotType);
+		desc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	}
 
 	system::COMWrapper<ID3D11InputLayout> layout;
@@ -185,29 +162,30 @@ system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout
 	return layout;
 }
 
-size_t FlexibleInputLayoutDescription::vertexSize() const {
+size_t FlexibleInputLayoutDescription::vertexSize(SlotType slotType) const {
 	return std::accumulate(
 		elements_.begin(),
 		elements_.end(),
 		static_cast<size_t>(0),
-		[](size_t sum, ConstElementSharedPtr element) { return sum + element->size(); }
+		[](size_t sum, const Element& element) { return sum + formatSize(element.format); }
 	);
 }
 
-void FlexibleInputLayoutDescription::makeVertex(const VertexInterface& vertex, void* buffer) const {
+void FlexibleInputLayoutDescription::makeVertex(
+	const VertexInterface& vertex, void* buffer, SlotType slotType) const
+{
 	std::uint8_t* target = reinterpret_cast<std::uint8_t*>(buffer);
-	std::for_each(
-		elements_.begin(),
-		elements_.end(),
-		[&](const ConstElementSharedPtr element) {
-			element->make(vertex, target);
-			target += element->size();
-		}
-		);
+	for (const auto& element : elements_ | boost::adaptors::filtered([slotType](const auto& element) {
+			return (element.inputSlotType == slotType) && (element.type != ElementType::INSTANCE_ID);
+		}))
+	{
+		makeElement(element, vertex, target);
+		target += formatSize(element.format);
+	}
 }
 
-void FlexibleInputLayoutDescription::push(std::shared_ptr<Element> element) { // TODO: why shared?
-	elements_.push_back(element);
+void FlexibleInputLayoutDescription::push(Element element) {
+	elements_.emplace_back(std::move(element));
 }
 
 std::vector<std::uint8_t> FlexibleInputLayoutDescription::createDummyVertexShader() const {
@@ -215,7 +193,7 @@ std::vector<std::uint8_t> FlexibleInputLayoutDescription::createDummyVertexShade
 	const auto* const suffix = 
 		"};\n"
 		"\n"
-		"SV_POSITION main(VIn in) { return float4(0.0f, 0.0f, 0.0f, 0.0f); }\n"
+		"SV_POSITION main(VIn in) { return (0.0f).xxxx; }\n"
 		;
 
 	std::ostringstream shaderTextStream;
@@ -224,10 +202,10 @@ std::vector<std::uint8_t> FlexibleInputLayoutDescription::createDummyVertexShade
 	for (const auto& element : elements_) {
 		shaderTextStream
 			<< "\t"
-			<< formatHLSLType(element->format())
-			<< element->hlslSemantic() << "_" << element->index()
+			<< formatHLSLType(element.format)
+			<< toString(element.type) << "_" << element.semanticIndex
 			<< " : "
-			<< element->hlslSemantic()
+			<< toString(element.type)
 			<< ";\n";
 	}
 

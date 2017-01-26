@@ -51,6 +51,8 @@ private:
 
 	milk::graphics::VertexBuffer vertexBuffer_;
 
+	milk::graphics::VertexBuffer instanceDataBuffer_;
+
 	milk::graphics::IndexBuffer indexBuffer_;
 
 	size_t indexCount_;

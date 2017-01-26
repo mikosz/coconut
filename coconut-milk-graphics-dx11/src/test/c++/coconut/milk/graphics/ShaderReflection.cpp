@@ -225,7 +225,12 @@ BOOST_FIXTURE_TEST_CASE(ArrayElementAlignmentIsCorrect, TestSuite) {
 
 	auto layoutDesciption = std::make_unique<FlexibleInputLayoutDescription>();
 	layoutDesciption->push(
-		std::make_unique<FlexibleInputLayoutDescription::PositionElement>(0, FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT)
+		FlexibleInputLayoutDescription::Element(
+			FlexibleInputLayoutDescription::ElementType::POSITION,
+			0,
+			FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT,
+			milk::graphics::InputLayoutDescription::SlotType::PER_VERTEX_DATA
+			)
 		);
 
 	InputLayout inputLayout(std::move(layoutDesciption), renderer(), vertexShaderData.data(), vertexShaderData.size());

@@ -7,7 +7,7 @@
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
-#include "coconut-tools/enum.hpp"
+#include <coconut-tools/enum.hpp>
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
@@ -19,40 +19,6 @@
 namespace coconut {
 namespace milk {
 namespace graphics {
-
-#define FLEXIBLE_INPUT_LAYOUT_ELEMENT(name) \
-	class name##Element : public FlexibleInputLayoutDescription::Element { \
-	public: \
-		\
-		name##Element(size_t index, FlexibleInputLayoutDescription::Format format); \
-		\
-		void toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const override; \
-		\
-		size_t size() const override; \
-		\
-		void make(const VertexInterface& vertex, void* buffer) const override; \
-		\
-		size_t index() const override { \
-			return index_; \
-		} \
-		\
-		const std::string& hlslSemantic() const override { \
-			return HLSL_SEMANTIC_; \
-		} \
-		\
-		FlexibleInputLayoutDescription::Format format() const override { \
-			return format_; \
-		} \
-		\
-	private: \
-		\
-		static const std::string HLSL_SEMANTIC_; \
-		\
-		size_t index_; \
-		\
-		FlexibleInputLayoutDescription::Format format_; \
-		\
-	};
 
 class FlexibleInputLayoutDescription : public InputLayoutDescription {
 public:
@@ -70,43 +36,45 @@ public:
 		(R32G32B32A32_FLOAT)(DXGI_FORMAT_R32G32B32A32_FLOAT)
 		(R32G32B32_FLOAT)(DXGI_FORMAT_R32G32B32_FLOAT)
 		(R32G32_FLOAT)(DXGI_FORMAT_R32G32_FLOAT)
+		(R32_UINT)(DXGI_FORMAT_R32_UINT)
 		);
 
-	CCN_MEMBER_ENUM_VALUES(
-		InputSlot,
-		(PER_VERTEX_DATA)(D3D11_INPUT_PER_VERTEX_DATA)
-		(PER_INSTANCE_DATA)(D3D11_INPUT_PER_INSTANCE_DATA)
-		);
-
-	class Element {
+	struct Element {
 	public:
 
-		virtual ~Element() {
+		Element(
+			ElementType type,
+			size_t semanticIndex,
+			FlexibleInputLayoutDescription::Format format,
+			SlotType inputSlotType,
+			size_t instanceDataStepRate = 0
+			) :
+			type(type),
+			semanticIndex(semanticIndex),
+			format(format),
+			inputSlotType(inputSlotType),
+			instanceDataStepRate(instanceDataStepRate)
+		{
 		}
 
-		virtual void toElementDesc(D3D11_INPUT_ELEMENT_DESC* desc) const = 0;
+		ElementType type;
 
-		virtual size_t size() const = 0;
+		size_t semanticIndex;
 
-		virtual void make(const VertexInterface& vertex, void* buffer) const = 0;
+		FlexibleInputLayoutDescription::Format format;
 
-		virtual size_t index() const = 0;
+		SlotType inputSlotType;
 
-		virtual const std::string& hlslSemantic() const = 0;
+		size_t instanceDataStepRate;
 
-		virtual Format format() const = 0;
+		void make(const VertexInterface& vertex, void* buffer) const;
 
 	};
 
-	CCN_MAKE_POINTER_DEFINITIONS(Element);
-
-	FLEXIBLE_INPUT_LAYOUT_ELEMENT(Position);
-
-	FLEXIBLE_INPUT_LAYOUT_ELEMENT(TextureCoordinates);
-
-	FLEXIBLE_INPUT_LAYOUT_ELEMENT(Normal);
-
-	FLEXIBLE_INPUT_LAYOUT_ELEMENT(InstanceID);
+	static const std::string POSITION_SEMANTIC;
+	static const std::string TEXTURE_ELEMENT_SEMANTIC;
+	static const std::string NORMAL_SEMANTIC;
+	static const std::string INSTANCE_ID_SEMANTIC;
 
 	system::COMWrapper<ID3D11InputLayout> makeLayout(
 		Renderer& renderer,
@@ -114,17 +82,17 @@ public:
 		size_t shaderSize
 		) const override;
 
-	size_t vertexSize() const override;
+	size_t vertexSize(SlotType slotType) const override;
 
-	void makeVertex(const VertexInterface& vertex, void* buffer) const override;
+	void makeVertex(const VertexInterface& vertex, void* buffer, SlotType slotType) const override;
 
-	void push(std::shared_ptr<Element> element);
+	void push(Element element);
 
 	std::vector<std::uint8_t> createDummyVertexShader() const;
 
 private:
 
-	std::vector<ElementSharedPtr> elements_;
+	std::vector<Element> elements_;
 
 };
 

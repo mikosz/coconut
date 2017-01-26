@@ -3,6 +3,8 @@
 
 #include <d3d11.h>
 
+#include <coconut-tools/enum.hpp>
+
 #include "coconut/milk/system/COMWrapper.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
@@ -18,6 +20,12 @@ class Renderer;
 class InputLayoutDescription {
 public:
 
+	CCN_MEMBER_ENUM_VALUES(
+		SlotType,
+		(PER_VERTEX_DATA)(D3D11_INPUT_PER_VERTEX_DATA)
+		(PER_INSTANCE_DATA)(D3D11_INPUT_PER_INSTANCE_DATA)
+		);
+
 	virtual ~InputLayoutDescription() {
 	}
 
@@ -25,15 +33,15 @@ public:
 
 	void operator=(const InputLayoutDescription&) = delete;
 
-	virtual void makeVertex(const VertexInterface& vertex, void* buffer) const = 0;
-
 	virtual system::COMWrapper<ID3D11InputLayout> makeLayout(
 		Renderer& renderer,
 		const void* shaderData,
 		size_t shaderSize
 		) const = 0;
 
-	virtual size_t vertexSize() const = 0;
+	virtual size_t vertexSize(SlotType slotType) const = 0;
+
+	virtual void makeVertex(const VertexInterface& vertex, void* buffer, SlotType slotType) const = 0;
 
 protected:
 
