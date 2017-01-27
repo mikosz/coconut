@@ -15,6 +15,8 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	assert(inputLayout_ != nullptr);
 	assert(vertexShader_ != nullptr);
 	assert(pixelShader_ != nullptr);
+	assert(vertexBuffer_ != nullptr);
+	assert(primitiveTopology_ != milk::graphics::PrimitiveTopology::INVALID);
 
 	commandList.setRasteriser(*rasteriser_);
 	
@@ -46,6 +48,11 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	commandList.setRenderTarget(*renderTarget_, *depthStencil_); // TODO: needs to work with null
 
 	commandList.setViewport(*viewport_);
+
+	commandList.setVertexBuffer(*vertexBuffer_, 0);
+	commandList.setIndexBuffer(*indexBuffer_, 0);
+	
+	commandList.drawIndexed(0, indexCount_, primitiveTopology_); 
 }
 
 DrawCommand::ConstantBufferData::ConstantBufferData(

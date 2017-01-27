@@ -13,6 +13,9 @@
 #include "coconut/milk/graphics/Shader.hpp"
 #include "coconut/milk/graphics/Texture.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
+#include "coconut/milk/graphics/VertexBuffer.hpp"
+#include "coconut/milk/graphics/IndexBuffer.hpp"
+#include "coconut/milk/graphics/PrimitiveTopology.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -37,8 +40,7 @@ public:
 
 	virtual Key key() const = 0; // TODO: key should not be here, or should be provided as a setter
 
-	// TODO: submit should be purely virtual: put common stuff in other function, or have a purely virtual doSubmit
-	virtual void submit(milk::graphics::CommandList& commandList);
+	void submit(milk::graphics::CommandList& commandList);
 
 	void setInputLayout(milk::graphics::InputLayout* inputLayout) {
 		inputLayout_ = inputLayout;
@@ -88,6 +90,23 @@ public:
 
 	void setViewport(milk::graphics::Viewport* viewport) {
 		viewport_ = viewport;
+	}
+
+		// TODO: pointers!
+	void setVertexBuffer(milk::graphics::VertexBuffer* vertexBuffer) {
+		vertexBuffer_ = vertexBuffer;
+	}
+
+	void setIndexBuffer(milk::graphics::IndexBuffer* indexBuffer) { // TODO: index count and index buffer in one call?
+		indexBuffer_ = indexBuffer;
+	}
+
+	void setIndexCount(size_t indexCount) {
+		indexCount_ = indexCount;
+	}
+
+	void setPrimitiveTopology(milk::graphics::PrimitiveTopology primitiveTopology) {
+		primitiveTopology_ = primitiveTopology;
 	}
 
 private:
@@ -174,6 +193,14 @@ private:
 	ConstantBuffersData constantBuffersData_;
 
 	Textures textures_;
+
+	milk::graphics::VertexBuffer* vertexBuffer_ = nullptr;
+
+	milk::graphics::IndexBuffer* indexBuffer_ = nullptr;
+
+	size_t indexCount_ = 0;
+
+	milk::graphics::PrimitiveTopology primitiveTopology_ = milk::graphics::PrimitiveTopology::INVALID;
 
 };
 

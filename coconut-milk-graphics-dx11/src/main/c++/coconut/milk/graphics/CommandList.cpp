@@ -31,9 +31,22 @@ void CommandList::initialise(system::COMWrapper<ID3D11DeviceContext> internalDev
 	deviceContext_ = internalDeviceContext;
 }
 
-void CommandList::draw(size_t startingIndex, size_t indexCount, PrimitiveTopology primitiveTopology) {
+void CommandList::drawIndexed(size_t startingIndex, size_t indexCount, PrimitiveTopology primitiveTopology) {
 	deviceContext_->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(primitiveTopology));
 	deviceContext_->DrawIndexed(static_cast<UINT>(indexCount), static_cast<UINT>(startingIndex), 0);
+}
+
+void CommandList::drawIndexedInstanced(size_t vertexCountPerInstance, size_t instanceCount,
+	size_t startingIndex, PrimitiveTopology primitiveTopology)
+{
+	deviceContext_->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(primitiveTopology));
+	deviceContext_->DrawIndexedInstanced(
+		static_cast<UINT>(vertexCountPerInstance),
+		static_cast<UINT>(instanceCount),
+		static_cast<UINT>(startingIndex),
+		0,
+		0u
+		);
 }
 
 CommandList::LockedData CommandList::lock(Data& data, LockPurpose lockPurpose) {

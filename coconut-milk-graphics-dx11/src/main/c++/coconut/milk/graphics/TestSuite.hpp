@@ -46,7 +46,7 @@ public:
 	}
 
 	void drawSquare() {
-		renderer().getImmediateCommandList().draw(0, 4, PrimitiveTopology::TRIANGLE_STRIP);
+		renderer().getImmediateCommandList().drawIndexed(0, 4, PrimitiveTopology::TRIANGLE_STRIP);
 	}
 
 	Renderer& renderer() noexcept {
