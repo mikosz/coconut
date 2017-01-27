@@ -83,7 +83,7 @@ void makeElement(
 
 			break;
 		}
-	case FlexibleInputLayoutDescription::ElementType::TEXTURE_COORDINATES:
+	case FlexibleInputLayoutDescription::ElementType::TEXCOORD:
 		{
 			if (element.format != FlexibleInputLayoutDescription::Format::R32G32_FLOAT) {
 				throw std::runtime_error("TextureCoordinatesElement only supports rg32 float format");
@@ -97,10 +97,18 @@ void makeElement(
 
 			break;
 		}
-	case FlexibleInputLayoutDescription::ElementType::INSTANCE_ID:
-		break;
 	default:
 		assert(false && "input layout element implementation missing");
+	}
+}
+
+std::tuple<InputLayoutDescription::SlotType, size_t> deduceSlotInfo(
+	FlexibleInputLayoutDescription::ElementType elementType)
+{
+/*	if (elementType == FlexibleInputLayoutDescription::ElementType::INSTANCE_ID) {
+		return std::make_tuple(InputLayoutDescription::SlotType::PER_INSTANCE_DATA, 1u);
+	} else */{
+		return std::make_tuple(InputLayoutDescription::SlotType::PER_VERTEX_DATA, 0u);
 	}
 }
 
@@ -120,7 +128,18 @@ size_t inputSlotIndex(InputLayoutDescription::SlotType inputSlot) {
 const std::string FlexibleInputLayoutDescription::POSITION_SEMANTIC = "POSITION"s;
 const std::string FlexibleInputLayoutDescription::TEXTURE_ELEMENT_SEMANTIC = "TEXCOORD"s;
 const std::string FlexibleInputLayoutDescription::NORMAL_SEMANTIC = "NORMAL"s;
-const std::string FlexibleInputLayoutDescription::INSTANCE_ID_SEMANTIC = "SV_InstanceID"s;
+
+FlexibleInputLayoutDescription::Element::Element(
+	ElementType type,
+	size_t semanticIndex,
+	FlexibleInputLayoutDescription::Format format
+	) :
+	type(type),
+	semanticIndex(semanticIndex),
+	format(format)
+{
+	std::tie(inputSlotType, instanceDataStepRate) = deduceSlotInfo(type);
+}
 
 system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout(
 	Renderer& renderer,
@@ -131,9 +150,7 @@ system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout
 	std::vector<D3D11_INPUT_ELEMENT_DESC> descs;
 	descs.reserve(elements_.size());
 
-	for (const auto& element : elements_ | boost::adaptors::filtered([](const auto& element) {
-				return element.type != ElementType::INSTANCE_ID;
-			})) {
+	for (const auto& element : elements_) {
 		descs.emplace_back();
 		auto& desc = descs.back();
 
@@ -176,7 +193,7 @@ void FlexibleInputLayoutDescription::makeVertex(
 {
 	std::uint8_t* target = reinterpret_cast<std::uint8_t*>(buffer);
 	for (const auto& element : elements_ | boost::adaptors::filtered([slotType](const auto& element) {
-			return (element.inputSlotType == slotType) && (element.type != ElementType::INSTANCE_ID);
+			return element.inputSlotType == slotType;
 		}))
 	{
 		makeElement(element, vertex, target);

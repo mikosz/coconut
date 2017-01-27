@@ -21,7 +21,7 @@ public:
 
 	struct InputParameterInfo {
 
-		CCN_MEMBER_ENUM(
+		CCN_MEMBER_ENUM( // TODO: use common enums with InputLayoutDescription?
 			Semantic,
 			(POSITION)
 			(SV_POSITION)

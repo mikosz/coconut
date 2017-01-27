@@ -228,8 +228,7 @@ BOOST_FIXTURE_TEST_CASE(ArrayElementAlignmentIsCorrect, TestSuite) {
 		FlexibleInputLayoutDescription::Element(
 			FlexibleInputLayoutDescription::ElementType::POSITION,
 			0,
-			FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT,
-			milk::graphics::InputLayoutDescription::SlotType::PER_VERTEX_DATA
+			FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT
 			)
 		);
 

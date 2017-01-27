@@ -3,8 +3,11 @@
 #include <algorithm>
 #include <memory>
 
+#include <boost/algorithm/string/predicate.hpp>
+
 #include <coconut-tools/logger.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
+#include <coconut-tools/exceptions/LogicError.hpp>
 
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/compile-shader.hpp"
@@ -14,6 +17,8 @@ using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
+
+using namespace std::string_literals;
 
 namespace /* anonymous */ {
 
@@ -53,26 +58,28 @@ std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
 
 	auto description = std::make_unique<milk::graphics::FlexibleInputLayoutDescription>();
 
-	for (const auto& inputParameter : reflection.inputParameters()) {
-		using milk::graphics::ShaderReflection;
-		using milk::graphics::FlexibleInputLayoutDescription;
+	using milk::graphics::ShaderReflection;
+	using milk::graphics::FlexibleInputLayoutDescription;
 
+	for (const auto& inputParameter : reflection.inputParameters()) {
 		auto format = makeFormat(inputParameter.dataType, inputParameter.elements);
+		auto elementType = FlexibleInputLayoutDescription::ElementType();
 
 		switch (inputParameter.semantic) {
-		case ShaderReflection::InputParameterInfo::Semantic::POSITION:
-			description->push(
-				std::make_shared<FlexibleInputLayoutDescription::PositionElement>(inputParameter.semanticIndex, format));
+		case ShaderReflection::InputParameterInfo::Semantic::POSITION: // TODO: duplicated code
+			elementType = FlexibleInputLayoutDescription::ElementType::POSITION;
 			break;
 		case ShaderReflection::InputParameterInfo::Semantic::NORMAL:
-			description->push(
-				std::make_shared<FlexibleInputLayoutDescription::NormalElement>(inputParameter.semanticIndex, format));
+			elementType = FlexibleInputLayoutDescription::ElementType::NORMAL;
 			break;
 		case ShaderReflection::InputParameterInfo::Semantic::TEXCOORD:
-			description->push(
-				std::make_shared<FlexibleInputLayoutDescription::TextureCoordinatesElement>(inputParameter.semanticIndex, format));
+			elementType = FlexibleInputLayoutDescription::ElementType::TEXCOORD;
 			break;
+		default:
+			throw coconut_tools::exceptions::LogicError("Unsupported input parameter semantic");
 		}
+
+		description->push(FlexibleInputLayoutDescription::Element(elementType, inputParameter.semanticIndex, format));
 	}
 
 	return std::make_unique<milk::graphics::InputLayout>(

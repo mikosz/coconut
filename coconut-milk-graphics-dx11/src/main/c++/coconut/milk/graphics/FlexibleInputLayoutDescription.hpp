@@ -26,9 +26,8 @@ public:
 	CCN_MEMBER_ENUM(
 		ElementType,
 		(POSITION)
-		(TEXTURE_COORDINATES)
+		(TEXCOORD)
 		(NORMAL)
-		(INSTANCE_ID)
 		);
 
 	CCN_MEMBER_ENUM_VALUES(
@@ -45,17 +44,8 @@ public:
 		Element(
 			ElementType type,
 			size_t semanticIndex,
-			FlexibleInputLayoutDescription::Format format,
-			SlotType inputSlotType,
-			size_t instanceDataStepRate = 0
-			) :
-			type(type),
-			semanticIndex(semanticIndex),
-			format(format),
-			inputSlotType(inputSlotType),
-			instanceDataStepRate(instanceDataStepRate)
-		{
-		}
+			FlexibleInputLayoutDescription::Format format
+			);
 
 		ElementType type;
 
