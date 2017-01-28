@@ -9,7 +9,7 @@
 
 #include "shader/Pass.hpp"
 #include "CommandBuffer.hpp"
-#include "IndexedDrawCommand.hpp"
+#include "DrawCommand.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -189,7 +189,7 @@ DrawGroup::DrawGroup(
 void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
 	auto* pass = passContext.getPass(material_->shaderPassType());
 	if (pass) {
-		auto drawCommand = std::make_unique<IndexedDrawCommand>(); // TODO: these need to be created in a separate class and buffered
+		auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
 		drawCommand->setRasteriser(&rasteriser_);
 
@@ -209,6 +209,8 @@ void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
 		drawCommand->setRenderTarget(passContext.backBuffer); // TODO
 		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
 		drawCommand->setViewport(passContext.viewport); // TODO
+
+		drawCommand->setInstanceCount(2);
 
 		commandBuffer.add(std::move(drawCommand));
 	}

@@ -38,7 +38,9 @@ public:
 
 	void operator=(const DrawCommand&) = delete;
 
-	virtual Key key() const = 0; // TODO: key should not be here, or should be provided as a setter
+	Key key() const {
+		return 0ull; // TODO
+	}
 
 	void submit(milk::graphics::CommandList& commandList);
 
@@ -107,6 +109,18 @@ public:
 
 	void setPrimitiveTopology(milk::graphics::PrimitiveTopology primitiveTopology) {
 		primitiveTopology_ = primitiveTopology;
+	}
+
+	void setInstanceDataBuffer(milk::graphics::VertexBuffer* instanceDataBuffer) {
+		instanceDataBuffer_ = instanceDataBuffer;
+	}
+
+	void setInstanceCount(size_t instanceCount) {
+		instanceCount_ = instanceCount;
+	}
+
+	void setInstanceDataStepRate(size_t instanceDataStepRate) {
+		instanceDataStepRate_ = instanceDataStepRate;
 	}
 
 private:
@@ -196,9 +210,15 @@ private:
 
 	milk::graphics::VertexBuffer* vertexBuffer_ = nullptr;
 
+	milk::graphics::VertexBuffer* instanceDataBuffer_ = nullptr;
+
+	size_t instanceCount_ = 0u;
+
+	size_t instanceDataStepRate_ = 0u;
+
 	milk::graphics::IndexBuffer* indexBuffer_ = nullptr;
 
-	size_t indexCount_ = 0;
+	size_t indexCount_ = 0u;
 
 	milk::graphics::PrimitiveTopology primitiveTopology_ = milk::graphics::PrimitiveTopology::INVALID;
 

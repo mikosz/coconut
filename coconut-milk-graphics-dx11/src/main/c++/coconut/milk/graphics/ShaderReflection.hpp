@@ -27,6 +27,7 @@ public:
 			(SV_POSITION)
 			(TEXCOORD)
 			(NORMAL)
+			(SV_InstanceID)
 			);
 
 		CCN_MEMBER_ENUM_VALUES(

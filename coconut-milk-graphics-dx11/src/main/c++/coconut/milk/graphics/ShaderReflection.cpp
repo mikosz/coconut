@@ -39,6 +39,11 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 
 		ShaderReflection::InputParameterInfo info;
 		fromString(info.semantic, desc.SemanticName);
+
+		if (info.semantic == ShaderReflection::InputParameterInfo::Semantic::SV_InstanceID) {
+			continue;
+		}
+
 		info.semanticIndex = desc.SemanticIndex;
 		fromIntegral(info.dataType, milk::utils::integralValue(desc.ComponentType));
 		info.elements = milk::utils::numberOfBitsOn(desc.Mask);
