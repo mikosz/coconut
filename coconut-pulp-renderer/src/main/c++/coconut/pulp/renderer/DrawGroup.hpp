@@ -6,7 +6,6 @@
 #include "coconut/milk/graphics/IndexBuffer.hpp"
 #include "coconut/milk/graphics/VertexBuffer.hpp"
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
-#include "coconut/milk/graphics/VertexInterface.hpp"
 #include "coconut/milk/graphics/InputLayoutDescription.hpp"
 #include "coconut/milk/graphics/Rasteriser.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"

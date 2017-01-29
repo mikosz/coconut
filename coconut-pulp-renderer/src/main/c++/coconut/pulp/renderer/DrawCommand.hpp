@@ -119,10 +119,6 @@ public:
 		instanceCount_ = instanceCount;
 	}
 
-	void setInstanceDataStepRate(size_t instanceDataStepRate) {
-		instanceDataStepRate_ = instanceDataStepRate;
-	}
-
 private:
 
 	struct Sampler {
@@ -213,8 +209,6 @@ private:
 	milk::graphics::VertexBuffer* instanceDataBuffer_ = nullptr;
 
 	size_t instanceCount_ = 0u;
-
-	size_t instanceDataStepRate_ = 0u;
 
 	milk::graphics::IndexBuffer* indexBuffer_ = nullptr;
 

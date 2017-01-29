@@ -102,16 +102,6 @@ void makeElement(
 	}
 }
 
-std::tuple<InputLayoutDescription::SlotType, size_t> deduceSlotInfo(
-	FlexibleInputLayoutDescription::ElementType elementType)
-{
-/*	if (elementType == FlexibleInputLayoutDescription::ElementType::INSTANCE_ID) {
-		return std::make_tuple(InputLayoutDescription::SlotType::PER_INSTANCE_DATA, 1u);
-	} else */{
-		return std::make_tuple(InputLayoutDescription::SlotType::PER_VERTEX_DATA, 0u);
-	}
-}
-
 size_t inputSlotIndex(InputLayoutDescription::SlotType inputSlot) {
 	switch (inputSlot) {
 	case InputLayoutDescription::SlotType::PER_VERTEX_DATA:
@@ -130,15 +120,18 @@ const std::string FlexibleInputLayoutDescription::TEXTURE_ELEMENT_SEMANTIC = "TE
 const std::string FlexibleInputLayoutDescription::NORMAL_SEMANTIC = "NORMAL"s;
 
 FlexibleInputLayoutDescription::Element::Element(
-	ElementType type,
+	std::string semantic,
 	size_t semanticIndex,
-	FlexibleInputLayoutDescription::Format format
+	FlexibleInputLayoutDescription::Format format,
+	SlotType inputSlotType,
+	size_t instanceDataStepRate
 	) :
-	type(type),
+	semantic(std::move(semantic)),
 	semanticIndex(semanticIndex),
-	format(format)
+	format(format),
+	inputSlotType(inputSlotType),
+	instanceDataStepRate(instanceDataStepRate)
 {
-	std::tie(inputSlotType, instanceDataStepRate) = deduceSlotInfo(type);
 }
 
 system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout(
@@ -156,7 +149,7 @@ system::COMWrapper<ID3D11InputLayout> FlexibleInputLayoutDescription::makeLayout
 
 		std::memset(&desc, 0, sizeof(desc));
 
-		desc.SemanticName = toString(element.type).c_str();
+		desc.SemanticName = element.semantic.c_str();
 		desc.SemanticIndex = static_cast<UINT>(element.semanticIndex);
 		desc.Format = static_cast<DXGI_FORMAT>(element.format);
 		desc.InputSlot = static_cast<UINT>(inputSlotIndex(element.inputSlotType));
@@ -220,9 +213,9 @@ std::vector<std::uint8_t> FlexibleInputLayoutDescription::createDummyVertexShade
 		shaderTextStream
 			<< "\t"
 			<< formatHLSLType(element.format)
-			<< toString(element.type) << "_" << element.semanticIndex
+			<< element.semantic << "_" << element.semanticIndex
 			<< " : "
-			<< toString(element.type)
+			<< element.semantic
 			<< ";\n";
 	}
 

@@ -70,6 +70,8 @@ public:
 
 	void setVertexBuffer(VertexBuffer& buffer, size_t slot);
 
+	void setInstanceDataBuffer(VertexBuffer& buffer, size_t slot);
+
 	void setTexture(Texture& texture, ShaderType stage, size_t slot);
 
 	void setSampler(Sampler& sampler, ShaderType stage, size_t slot);

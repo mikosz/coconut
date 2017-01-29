@@ -51,7 +51,6 @@ public:
 			drawCommand.addTexture(texture, stage_, slot_);
 		}
 	}
-
 	
 private:
 

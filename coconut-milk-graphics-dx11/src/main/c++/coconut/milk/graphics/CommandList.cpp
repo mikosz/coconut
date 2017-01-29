@@ -115,6 +115,14 @@ void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot) {
 	deviceContext_->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buf, &strideParam, &offsetParam);
 }
 
+void CommandList::setInstanceDataBuffer(VertexBuffer& buffer, size_t slot) {
+	auto strideParam = static_cast<UINT>(buffer.stride());
+	UINT offsetParam = 0;
+	auto* buf = &buffer.internalBuffer();
+
+	deviceContext_->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buf, &strideParam, &offsetParam);
+}
+
 void CommandList::setTexture(Texture& texture, ShaderType stage, size_t slot) {
 	auto* srv = &texture.internalShaderResourceView();
 

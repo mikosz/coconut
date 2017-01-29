@@ -1,7 +1,11 @@
 #ifndef _COCONUT_MILK_GRAPHICS_INPUTLAYOUTDESCRIPTION_HPP_
 #define _COCONUT_MILK_GRAPHICS_INPUTLAYOUTDESCRIPTION_HPP_
 
+#include <vector>
+#include <functional>
+
 #include <d3d11.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include <coconut-tools/enum.hpp>
 
@@ -9,7 +13,7 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "VertexInterface.hpp"
+#include "PixelFormat.hpp"
 
 namespace coconut {
 namespace milk {
@@ -17,7 +21,7 @@ namespace graphics {
 
 class Renderer;
 
-class InputLayoutDescription {
+class InputLayoutDescription final {
 public:
 
 	CCN_MEMBER_ENUM_VALUES(
@@ -26,31 +30,53 @@ public:
 		(PER_INSTANCE_DATA)(D3D11_INPUT_PER_INSTANCE_DATA)
 		);
 
-	virtual ~InputLayoutDescription() {
-	}
+	struct Element {
+	public:
 
-	InputLayoutDescription(const InputLayoutDescription&) = delete;
+		using VertexDataCallback = std::function<void (void* buffer, const void* parameter)>;
 
-	void operator=(const InputLayoutDescription&) = delete;
+		Element(
+			std::string semantic,
+			size_t semanticIndex,
+			PixelFormat format,
+			SlotType inputSlotType,
+			size_t instanceDataStepRate,
+			VertexDataCallback vertexDataCallback
+			);
 
-	virtual system::COMWrapper<ID3D11InputLayout> makeLayout(
+		std::string semantic;
+
+		size_t semanticIndex;
+
+		PixelFormat format;
+
+		SlotType inputSlotType;
+
+		size_t instanceDataStepRate;
+
+		VertexDataCallback vertexDataCallback;
+
+	};
+
+	using Elements = std::vector<Element>;
+
+	InputLayoutDescription(Elements elements);
+
+	system::COMWrapper<ID3D11InputLayout> makeLayout(
 		Renderer& renderer,
 		const void* shaderData,
 		size_t shaderSize
-		) const = 0;
+		) const;
 
-	virtual size_t vertexSize(SlotType slotType) const = 0;
+	size_t vertexSize(SlotType slotType) const;
 
-	virtual void makeVertex(const VertexInterface& vertex, void* buffer, SlotType slotType) const = 0;
+	void makeVertex(const VertexInterface& vertex, void* buffer, SlotType slotType) const;
 
-protected:
+private:
 
-	InputLayoutDescription() {
-	}
+	Elements elements_;
 
 };
-
-CCN_MAKE_POINTER_DEFINITIONS(InputLayoutDescription);
 
 } // namespace graphics
 } // namespace milk

@@ -75,6 +75,8 @@ std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
 		case ShaderReflection::InputParameterInfo::Semantic::TEXCOORD:
 			elementType = FlexibleInputLayoutDescription::ElementType::TEXCOORD;
 			break;
+		case ShaderReflection::InputParameterInfo::Semantic::CUSTOM:
+
 		default:
 			throw coconut_tools::exceptions::LogicError("Unsupported input parameter semantic");
 		}

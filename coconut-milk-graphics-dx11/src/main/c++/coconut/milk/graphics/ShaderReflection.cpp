@@ -38,7 +38,14 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 			);
 
 		ShaderReflection::InputParameterInfo info;
-		fromString(info.semantic, desc.SemanticName);
+		info.semanticName = desc.SemanticName;
+
+		info.semantic = ShaderReflection::InputParameterInfo::Semantic::CUSTOM;
+		for (const auto& semantic : ShaderReflection::InputParameterInfo::allSemanticValues()) {
+			if (info.semanticName == toString(semantic)) {
+				info.semantic = semantic;
+			}
+		}
 
 		if (info.semantic == ShaderReflection::InputParameterInfo::Semantic::SV_InstanceID) {
 			continue;

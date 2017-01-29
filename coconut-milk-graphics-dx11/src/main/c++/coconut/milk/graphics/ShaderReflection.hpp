@@ -21,15 +21,6 @@ public:
 
 	struct InputParameterInfo {
 
-		CCN_MEMBER_ENUM( // TODO: use common enums with InputLayoutDescription?
-			Semantic,
-			(POSITION)
-			(SV_POSITION)
-			(TEXCOORD)
-			(NORMAL)
-			(SV_InstanceID)
-			);
-
 		CCN_MEMBER_ENUM_VALUES(
 			DataType,
 			(FLOAT)(D3D_REGISTER_COMPONENT_FLOAT32)
@@ -37,7 +28,7 @@ public:
 			(INT)(D3D_REGISTER_COMPONENT_SINT32)
 			);
 
-		Semantic semantic;
+		std::string semantic;
 
 		size_t semanticIndex;
 

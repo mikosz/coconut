@@ -54,7 +54,7 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	
 	if (instanceCount_ > 0 && indexBuffer_ != nullptr) {
 		if (instanceDataBuffer_ != nullptr) {
-			assert(false); // TODO: implement me
+			commandList.setVertexBuffer(*instanceDataBuffer_, 1);
 		}
 
 		commandList.drawIndexedInstanced(indexCount_, instanceCount_, 0u, primitiveTopology_);
