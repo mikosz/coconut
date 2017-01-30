@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_RENDERER_SHADER_INPUTLAYOUTFACTORY_HPP_
-#define _COCONUT_PULP_RENDERER_SHADER_INPUTLAYOUTFACTORY_HPP_
+#ifndef _COCONUT_PULP_RENDERER_SHADER_INPUTFACTORY_HPP_
+#define _COCONUT_PULP_RENDERER_SHADER_INPUTFACTORY_HPP_
 
 #include <string>
 #include <mutex>
@@ -7,12 +7,13 @@
 
 #include <unordered_map>
 
-#include <coconut-tools/configuration/hierarchical/HierarchicalConfiguration.hpp>
 #include <coconut-tools/factory.hpp>
 
 #include "coconut/milk/graphics/Renderer.hpp"
-#include "coconut/milk/graphics/InputLayout.hpp"
 #include "coconut/milk/fs.hpp"
+
+#include "Input.hpp"
+#include "InputElementFactory.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -21,7 +22,7 @@ namespace shader {
 
 namespace detail {
 
-class InputLayoutCreator {
+class InputCreator {
 public:
 
 	struct ShaderCodeInfo {
@@ -29,13 +30,12 @@ public:
 		std::string entrypoint;
 	};
 
+	// TODO: duplicated code with ShaderCreator, could we re-use somehow?
 	void registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo);
 
 	void registerCompiledShader(std::string id, milk::AbsolutePath compiledShaderPath);
 
-	void registerConfig(coconut_tools::configuration::hierarchical::HierarchicalConfigurationSharedPtr config);
-
-	std::unique_ptr<milk::graphics::InputLayout> doCreate(
+	std::unique_ptr<Input> doCreate(
 		const std::string& id,
 		milk::graphics::Renderer& graphicsRenderer,
 		const milk::FilesystemContext& filesystemContext
@@ -51,16 +51,18 @@ private:
 
 	CompiledShaderInfos compiledShaderInfos_;
 
+	InputElementFactory inputElementFactory_;
+
 };
 
 } // namespace detail
 
-using InputLayoutFactory = 
+using InputFactory = 
 	coconut_tools::Factory<
 		std::string,
-		milk::graphics::InputLayout,
+		Input,
 		coconut_tools::factory::storage::Volatile,
-		detail::InputLayoutCreator,
+		detail::InputCreator,
 		std::mutex
 		>;
 
@@ -69,4 +71,4 @@ using InputLayoutFactory =
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_SHADER_INPUTLAYOUTFACTORY_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_SHADER_INPUTFACTORY_HPP_ */

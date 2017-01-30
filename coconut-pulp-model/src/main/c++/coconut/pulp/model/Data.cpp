@@ -39,6 +39,22 @@ struct Vector3dLexicographicalCompare {
 
 } // anonymous namespace
 
+Data::VertexIterator::VertexIterator(const Data& data, const DrawGroup& drawGroup) :
+	data_(data),
+	drawGroup_(drawGroup)
+{
+}
+
+void Data::VertexIterator::next() {
+	assert(!atEnd());
+	++index_;
+}
+
+bool Data::VertexIterator::atEnd() {
+	return index_ == drawGroup_.vertices.size();
+}
+
+
 void Data::generateNormals() {
 	CT_LOG_DEBUG << "Generating normals";
 

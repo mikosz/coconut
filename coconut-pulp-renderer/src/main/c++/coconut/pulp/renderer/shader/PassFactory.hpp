@@ -10,7 +10,7 @@
 
 #include "coconut/milk/fs.hpp"
 
-#include "InputLayoutFactory.hpp"
+#include "InputFactory.hpp"
 #include "ShaderFactory.hpp"
 #include "Pass.hpp"
 
@@ -42,7 +42,7 @@ public:
 
 private:
 
-	InputLayoutFactory inputLayoutFactory_;
+	InputFactory inputLayoutFactory_;
 
 	ShaderFactory shaderFactory_;
 

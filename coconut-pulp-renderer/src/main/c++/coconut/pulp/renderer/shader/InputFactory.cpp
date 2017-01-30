@@ -1,4 +1,4 @@
-#include "InputLayoutFactory.hpp"
+#include "InputFactory.hpp"
 
 #include <algorithm>
 #include <memory>
@@ -7,11 +7,9 @@
 
 #include <coconut-tools/logger.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
-#include <coconut-tools/exceptions/LogicError.hpp>
 
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/compile-shader.hpp"
-#include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -24,23 +22,23 @@ namespace /* anonymous */ {
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.INPUT_LAYOUT_FACTORY");
 
-milk::graphics::FlexibleInputLayoutDescription::Format makeFormat(
+milk::graphics::PixelFormat makeFormat( // TODO: could be done by a smarter pixel format type
 	milk::graphics::ShaderReflection::InputParameterInfo::DataType dataType,
 	size_t elements
 	)
 {
 	using milk::graphics::ShaderReflection;
-	using milk::graphics::FlexibleInputLayoutDescription;
+	using milk::graphics::PixelFormat;
 
 	switch (dataType) {
 	case ShaderReflection::InputParameterInfo::DataType::FLOAT:
 		switch (elements) {
 		case 2:
-			return FlexibleInputLayoutDescription::Format::R32G32_FLOAT;
+			return PixelFormat::R32G32_FLOAT;
 		case 3:
-			return FlexibleInputLayoutDescription::Format::R32G32B32_FLOAT;
+			return PixelFormat::R32G32B32_FLOAT;
 		case 4:
-			return FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT;
+			return PixelFormat::R32G32B32A32_FLOAT;
 		}
 	}
 
@@ -49,84 +47,74 @@ milk::graphics::FlexibleInputLayoutDescription::Format makeFormat(
 		);
 }
 
-std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShader(
-	milk::graphics::Renderer& graphicsRenderer, std::vector<std::uint8_t>& shaderData)
+std::unique_ptr<Input> createInputFromVertexShader(
+	milk::graphics::Renderer& graphicsRenderer,
+	InputElementFactory& inputElementFactory,
+	std::vector<std::uint8_t>& shaderData
+	)
 {
-	milk::graphics::ShaderReflection reflection(shaderData.data(), shaderData.size());
-
+	using milk::graphics::ShaderReflection;
+	auto reflection = ShaderReflection(shaderData.data(), shaderData.size());
 	const auto& inputParameters = reflection.inputParameters();
 
-	auto description = std::make_unique<milk::graphics::FlexibleInputLayoutDescription>();
-
-	using milk::graphics::ShaderReflection;
-	using milk::graphics::FlexibleInputLayoutDescription;
+	auto elements = Input::Elements();
 
 	for (const auto& inputParameter : reflection.inputParameters()) {
 		auto format = makeFormat(inputParameter.dataType, inputParameter.elements);
-		auto elementType = FlexibleInputLayoutDescription::ElementType();
+		auto inputElementDetails = InputElementFactoryInstanceDetails(
+			inputParameter.semantic,
+			inputParameter.semanticIndex,
+			format
+			);
 
-		switch (inputParameter.semantic) {
-		case ShaderReflection::InputParameterInfo::Semantic::POSITION: // TODO: duplicated code
-			elementType = FlexibleInputLayoutDescription::ElementType::POSITION;
-			break;
-		case ShaderReflection::InputParameterInfo::Semantic::NORMAL:
-			elementType = FlexibleInputLayoutDescription::ElementType::NORMAL;
-			break;
-		case ShaderReflection::InputParameterInfo::Semantic::TEXCOORD:
-			elementType = FlexibleInputLayoutDescription::ElementType::TEXCOORD;
-			break;
-		case ShaderReflection::InputParameterInfo::Semantic::CUSTOM:
-
-		default:
-			throw coconut_tools::exceptions::LogicError("Unsupported input parameter semantic");
-		}
-
-		description->push(FlexibleInputLayoutDescription::Element(elementType, inputParameter.semanticIndex, format));
+		elements.emplace_back(
+			*inputElementFactory.create(inputElementDetails)
+			);
 	}
 
-	return std::make_unique<milk::graphics::InputLayout>(
-		std::move(description), graphicsRenderer, shaderData.data(), shaderData.size()
-		);
+	return std::make_unique<Input>(graphicsRenderer, std::move(elements));
 }
 
-std::unique_ptr<milk::graphics::InputLayout> createInputLayoutFromVertexShaderCode(
+std::unique_ptr<Input> createInputFromVertexShaderCode(
 	milk::graphics::Renderer& graphicsRenderer,
+	InputElementFactory& inputElementFactory,
 	const milk::RawData& shaderCode,
 	const std::string& entrypoint
 	)
 {
 	auto shaderData = milk::graphics::compileShader(shaderCode, entrypoint);
-	return createInputLayoutFromVertexShader(graphicsRenderer, shaderData);
+	return createInputFromVertexShader(graphicsRenderer, inputElementFactory, shaderData);
 }
 
 } // anonymous namespace
 
-std::unique_ptr<milk::graphics::InputLayout> detail::InputLayoutCreator::doCreate(
+std::unique_ptr<Input> detail::InputCreator::doCreate(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::FilesystemContext& filesystemContext
 	)
 {
-	CT_LOG_INFO << "Creating input layout: \"" << id << "\"";
+	CT_LOG_INFO << "Creating input for shader: \"" << id << "\"";
 
 	if (shaderCodeInfos_.count(id) != 0) {
 		CT_LOG_DEBUG << "Found \"" << id << "\" registered as shader code";
 		const auto& shaderCodeInfo = shaderCodeInfos_[id];
-		return createInputLayoutFromVertexShaderCode(
+		return createInputFromVertexShaderCode(
 			graphicsRenderer,
+			inputElementFactory_,
 			*filesystemContext.load(shaderCodeInfo.shaderCodePath),
 			shaderCodeInfo.entrypoint
 			);
 	} else if (compiledShaderInfos_.count(id) != 0) {
 		CT_LOG_DEBUG << "Found \"" << id << "\" registered as a compiled shader";
 		auto shaderData = *filesystemContext.load(compiledShaderInfos_[id]);
-		return createInputLayoutFromVertexShader(graphicsRenderer, shaderData);
+		return createInputFromVertexShader(graphicsRenderer, inputElementFactory_, shaderData);
 	} else {
 		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
 	}
 }
 
-void detail::InputLayoutCreator::registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo) {
+void detail::InputCreator::registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo) {
 	CT_LOG_INFO << "Registering shader code \"" << id << "\" at " << shaderCodeInfo.shaderCodePath.string()
 		<< "::" << shaderCodeInfo.entrypoint << " for input analysis";
 
@@ -137,7 +125,7 @@ void detail::InputLayoutCreator::registerShaderCode(std::string id, const Shader
 	shaderCodeInfos_.emplace(std::move(id), std::move(shaderCodeInfo));
 }
 
-void detail::InputLayoutCreator::registerCompiledShader(std::string id, milk::AbsolutePath compiledShaderPath) {
+void detail::InputCreator::registerCompiledShader(std::string id, milk::AbsolutePath compiledShaderPath) {
 	CT_LOG_INFO << "Registering compiled shader \"" << id << "\" at " << compiledShaderPath.string()
 		<< " for input analysis";
 

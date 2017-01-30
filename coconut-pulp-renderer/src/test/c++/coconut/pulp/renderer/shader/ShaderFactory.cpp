@@ -6,7 +6,7 @@
 
 #include "coconut/milk/fs.hpp"
 
-#include "coconut/pulp/renderer/shader/InputLayoutFactory.hpp"
+#include "coconut/pulp/renderer/shader/InputFactory.hpp"
 #include "coconut/pulp/renderer/shader/ShaderFactory.hpp"
 #include "coconut/pulp/renderer/OrientedCamera.hpp"
 #include "coconut/pulp/renderer/CommandBuffer.hpp"

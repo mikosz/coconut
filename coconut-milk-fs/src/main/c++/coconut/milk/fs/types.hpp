@@ -10,7 +10,7 @@ namespace coconut {
 namespace milk {
 namespace fs {
 
-using Byte = std::uint8_t;
+using Byte = std::uint8_t; // TODO: move to other project, these two types are not fs exclusive
 using RawData = std::vector<Byte>;
 using SharedRawData = std::shared_ptr<const RawData>;
 using IStream = std::unique_ptr<std::istream>;

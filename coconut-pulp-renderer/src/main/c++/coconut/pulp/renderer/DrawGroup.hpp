@@ -6,7 +6,6 @@
 #include "coconut/milk/graphics/IndexBuffer.hpp"
 #include "coconut/milk/graphics/VertexBuffer.hpp"
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
-#include "coconut/milk/graphics/InputLayoutDescription.hpp"
 #include "coconut/milk/graphics/Rasteriser.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
 
@@ -14,6 +13,7 @@
 
 #include "coconut/pulp/model/Data.hpp"
 
+#include "shader/Input.hpp"
 #include "shader/Shader.hpp"
 #include "PassContext.hpp"
 #include "Material.hpp"
@@ -32,7 +32,7 @@ public:
 		const model::Data& modelData,
 		size_t groupIndex,
 		milk::graphics::Renderer& graphicsRenderer,
-		const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+		const shader::Input& shaderInput,
 		const MaterialManager& materialManager
 		);
 

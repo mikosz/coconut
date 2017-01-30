@@ -7,13 +7,14 @@
 #include "coconut/milk/graphics/ConstantBuffer.hpp"
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/TestSuite.hpp"
-#include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 #include "coconut/milk/graphics/InputLayout.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
+
+using namespace std::string_literals;
 
 namespace /* anonymous */ {
 
@@ -43,7 +44,7 @@ BOOST_AUTO_TEST_CASE(RetrievesSimpleInputParameters) {
 	BOOST_REQUIRE_EQUAL(reflection.inputParameters().size(), 1);
 
 	const auto& inputParameter = reflection.inputParameters()[0];
-	BOOST_CHECK_EQUAL(inputParameter.semantic, ShaderReflection::InputParameterInfo::Semantic::POSITION);
+	BOOST_CHECK_EQUAL(inputParameter.semantic, "POSITION"s);
 	BOOST_CHECK_EQUAL(inputParameter.semanticIndex, 0);
 	BOOST_CHECK_EQUAL(inputParameter.dataType, ShaderReflection::InputParameterInfo::DataType::UINT);
 	BOOST_CHECK_EQUAL(inputParameter.elements, 4);
@@ -54,22 +55,22 @@ BOOST_AUTO_TEST_CASE(RetrievesComplexInputParameters) {
 
 	BOOST_REQUIRE_EQUAL(reflection.inputParameters().size(), 4);
 
-	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].semantic, ShaderReflection::InputParameterInfo::Semantic::POSITION);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].semantic, "POSITION"s);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].semanticIndex, 0);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].dataType, ShaderReflection::InputParameterInfo::DataType::FLOAT);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[0].elements, 4);
 
-	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].semantic, ShaderReflection::InputParameterInfo::Semantic::TEXCOORD);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].semantic, "TEXCOORD"s);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].semanticIndex, 0);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].dataType, ShaderReflection::InputParameterInfo::DataType::FLOAT);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[1].elements, 2);
 
-	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].semantic, ShaderReflection::InputParameterInfo::Semantic::TEXCOORD);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].semantic, "TEXCOORD"s);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].semanticIndex, 1);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].dataType, ShaderReflection::InputParameterInfo::DataType::FLOAT);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[2].elements, 2);
 
-	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].semantic, ShaderReflection::InputParameterInfo::Semantic::NORMAL);
+	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].semantic, "NORMAL"s);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].semanticIndex, 0);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].dataType, ShaderReflection::InputParameterInfo::DataType::FLOAT);
 	BOOST_CHECK_EQUAL(reflection.inputParameters()[3].elements, 3);
@@ -223,16 +224,16 @@ BOOST_FIXTURE_TEST_CASE(ArrayElementAlignmentIsCorrect, TestSuite) {
 	auto pixelShaderData = readBinaryData(PIXEL_SHADER);
 	const auto reflection = reflect(PIXEL_SHADER);
 
-	auto layoutDesciption = std::make_unique<FlexibleInputLayoutDescription>();
-	layoutDesciption->push(
-		FlexibleInputLayoutDescription::Element(
-			FlexibleInputLayoutDescription::ElementType::POSITION,
-			0,
-			FlexibleInputLayoutDescription::Format::R32G32B32A32_FLOAT
-			)
+	auto elements = InputLayout::Elements();
+	elements.emplace_back(
+		"POSITION",
+		0,
+		PixelFormat::R32G32B32A32_FLOAT,
+		InputLayout::SlotType::PER_VERTEX_DATA,
+		0u
 		);
 
-	InputLayout inputLayout(std::move(layoutDesciption), renderer(), vertexShaderData.data(), vertexShaderData.size());
+	InputLayout inputLayout(renderer(), std::move(elements));
 	VertexShader vertexShader(renderer(), vertexShaderData.data(), vertexShaderData.size());
 	PixelShader pixelShader(renderer(), pixelShaderData.data(), pixelShaderData.size());
 

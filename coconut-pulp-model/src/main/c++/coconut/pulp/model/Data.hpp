@@ -64,6 +64,41 @@ public:
 
 	};
 
+	class VertexIterator {
+	public:
+
+		VertexIterator(const Data& data, const DrawGroup& drawGroup);
+
+		void next();
+
+		bool atEnd();
+
+		const Data& data() const {
+			return data_;
+		}
+
+		const DrawGroup& drawGroup() const {
+			return drawGroup_;
+		}
+
+		size_t index() const {
+			return index_;
+		}
+
+		const VertexDescriptor& vertexDescriptor() const {
+			return drawGroup_.vertices[index_];
+		}
+
+	private:
+
+		const Data& data_;
+
+		const DrawGroup& drawGroup_;
+
+		size_t index_ = 0u;
+
+	};
+
 	std::vector<PhongMaterial> phongMaterials;
 
 	std::vector<milk::math::Vector3d> positions;

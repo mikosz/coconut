@@ -38,24 +38,13 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 			);
 
 		ShaderReflection::InputParameterInfo info;
-		info.semanticName = desc.SemanticName;
-
-		info.semantic = ShaderReflection::InputParameterInfo::Semantic::CUSTOM;
-		for (const auto& semantic : ShaderReflection::InputParameterInfo::allSemanticValues()) {
-			if (info.semanticName == toString(semantic)) {
-				info.semantic = semantic;
-			}
-		}
-
-		if (info.semantic == ShaderReflection::InputParameterInfo::Semantic::SV_InstanceID) {
-			continue;
-		}
+		info.semantic = desc.SemanticName;
 
 		info.semanticIndex = desc.SemanticIndex;
 		fromIntegral(info.dataType, milk::utils::integralValue(desc.ComponentType));
 		info.elements = milk::utils::numberOfBitsOn(desc.Mask);
 
-		CT_LOG_DEBUG << "Shader input parameter " << i << ": " << toString(info.semantic) << "#" << info.semanticIndex;
+		CT_LOG_DEBUG << "Shader input parameter " << i << ": " << info.semantic << "#" << info.semanticIndex;
 
 		inputParameters.emplace_back(std::move(info));
 	}

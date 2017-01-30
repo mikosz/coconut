@@ -17,62 +17,17 @@ using namespace coconut::pulp::renderer;
 
 namespace /* anonymous */ {
 
-class VertexDataAccessor : public milk::graphics::VertexInterface {
-public:
-
-	VertexDataAccessor(const model::Data& modelData, size_t groupIndex) :
-		modelData_(modelData),
-		groupIndex_(groupIndex),
-		vertexIndex_(0)
-	{
-	}
-
-	virtual milk::math::Vector3d position() const {
-		const auto positionIndex = modelData_.drawGroups[groupIndex_].vertices[vertexIndex_].positionIndex;
-		return modelData_.positions[positionIndex];
-	}
-
-	virtual milk::math::Vector2d textureCoordinate() const {
-		const auto textureCoordinateIndex =
-			modelData_.drawGroups[groupIndex_].vertices[vertexIndex_].textureCoordinateIndex;
-		return modelData_.textureCoordinates[textureCoordinateIndex];
-	}
-
-	virtual milk::math::Vector3d normal() const {
-		const auto normalIndex = modelData_.drawGroups[groupIndex_].vertices[vertexIndex_].normalIndex;
-		return modelData_.normals[normalIndex];
-	}
-
-	bool valid() const {
-		return vertexIndex_ < modelData_.drawGroups[groupIndex_].vertices.size();
-	}
-
-	void progress() {
-		++vertexIndex_;
-	}
-
-private:
-
-	const model::Data& modelData_;
-
-	const size_t groupIndex_;
-
-	size_t vertexIndex_;
-
-};
-
 milk::graphics::Buffer::Configuration vertexBufferConfiguration(
 	const model::Data& modelData,
 	size_t groupIndex,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription,
-	milk::graphics::InputLayoutDescription::SlotType inputSlotType
+	size_t vertexSize
 	) {
 	milk::graphics::Buffer::Configuration configuration;
 
 	configuration.allowCPURead = false;
 	configuration.allowGPUWrite = false;
 	configuration.allowModifications = false;
-	configuration.stride = inputLayoutDescription.vertexSize(inputSlotType);
+	configuration.stride = vertexSize;
 	configuration.size = configuration.stride * modelData.drawGroups[groupIndex].vertices.size();
 
 	return configuration;
@@ -99,22 +54,23 @@ milk::graphics::Buffer::Configuration indexBufferConfiguration(const model::Data
 std::vector<std::uint8_t> vertexBufferData(
 	const model::Data& modelData,
 	size_t groupIndex,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription,
-	milk::graphics::InputLayoutDescription::SlotType inputSlotType
+	const shader::Input& shaderInput,
+	shader::Input::SlotType inputSlotType
 	) {
 	const auto& drawGroup = modelData.drawGroups[groupIndex];
-	const auto vertexSize = inputLayoutDescription.vertexSize(inputSlotType);
+	const auto vertexSize = shaderInput.vertexSize(inputSlotType);
 
 	std::vector<std::uint8_t> data;
 	data.resize(vertexSize * drawGroup.vertices.size());
 
 	auto* target = data.data();
 	for (
-		VertexDataAccessor vertexDataAccessor(modelData, groupIndex);
-		vertexDataAccessor.valid();
-		vertexDataAccessor.progress()
-		) {
-		inputLayoutDescription.makeVertex(vertexDataAccessor, target, inputSlotType);
+		auto vertexIterator = model::Data::VertexIterator(modelData, drawGroup);
+		!vertexIterator.atEnd();
+		vertexIterator.next()
+		)
+	{
+		shaderInput.writeVertex(target, vertexIterator, inputSlotType);
 		target += vertexSize;
 	}
 
@@ -157,24 +113,24 @@ DrawGroup::DrawGroup(
 	const model::Data& modelData,
 	size_t groupIndex,
 	milk::graphics::Renderer& graphicsRenderer,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+	const shader::Input& shaderInput,
 	const MaterialManager& materialManager
 	) :
 	material_(materialManager.get(modelData.drawGroups[groupIndex].materialId)),
 	rasteriser_(graphicsRenderer, modelData.rasteriserConfiguration),
 	vertexBuffer_(
 		graphicsRenderer,
-		vertexBufferConfiguration(modelData, groupIndex, inputLayoutDescription,
-			milk::graphics::InputLayoutDescription::SlotType::PER_VERTEX_DATA),
-		&vertexBufferData(modelData, groupIndex, inputLayoutDescription,
-			milk::graphics::InputLayoutDescription::SlotType::PER_VERTEX_DATA).front()
+		vertexBufferConfiguration(modelData, groupIndex,
+			shaderInput.vertexSize(shader::Input::SlotType::PER_VERTEX_DATA)),
+		&vertexBufferData(modelData, groupIndex, shaderInput,
+			shader::Input::SlotType::PER_VERTEX_DATA).front()
 		),
 	instanceDataBuffer_(
 		graphicsRenderer,
-		vertexBufferConfiguration(modelData, groupIndex, inputLayoutDescription,
-			milk::graphics::InputLayoutDescription::SlotType::PER_INSTANCE_DATA),
-		&vertexBufferData(modelData, groupIndex, inputLayoutDescription,
-			milk::graphics::InputLayoutDescription::SlotType::PER_INSTANCE_DATA).front()
+		vertexBufferConfiguration(modelData, groupIndex, 
+			shaderInput.vertexSize(shader::Input::SlotType::PER_INSTANCE_DATA)),
+		&vertexBufferData(modelData, groupIndex, shaderInput,
+			shader::Input::SlotType::PER_INSTANCE_DATA).front()
 		),
 	indexBuffer_(
 		graphicsRenderer,
@@ -195,7 +151,7 @@ void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
 
 		passContext.material = material_.get();
 
-		drawCommand->setInputLayout(&pass->inputLayout());
+		drawCommand->setInputLayout(&pass->input().layout());
 		drawCommand->setVertexShader(&pass->vertexShader().shaderData());
 		pass->vertexShader().bind(*drawCommand, passContext);
 		drawCommand->setPixelShader(&pass->pixelShader().shaderData());
