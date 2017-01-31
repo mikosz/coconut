@@ -18,8 +18,7 @@ using namespace coconut::pulp::renderer;
 namespace /* anonymous */ {
 
 milk::graphics::Buffer::Configuration vertexBufferConfiguration(
-	const model::Data& modelData,
-	size_t groupIndex,
+	size_t vertexCount,
 	size_t vertexSize
 	) {
 	milk::graphics::Buffer::Configuration configuration;
@@ -28,7 +27,7 @@ milk::graphics::Buffer::Configuration vertexBufferConfiguration(
 	configuration.allowGPUWrite = false;
 	configuration.allowModifications = false;
 	configuration.stride = vertexSize;
-	configuration.size = configuration.stride * modelData.drawGroups[groupIndex].vertices.size();
+	configuration.size = configuration.stride * vertexCount;
 
 	return configuration;
 }
@@ -54,11 +53,11 @@ milk::graphics::Buffer::Configuration indexBufferConfiguration(const model::Data
 std::vector<std::uint8_t> vertexBufferData(
 	const model::Data& modelData,
 	size_t groupIndex,
-	const shader::Input& shaderInput,
-	shader::Input::SlotType inputSlotType
-	) {
+	const shader::Input& shaderInput
+	)
+{
 	const auto& drawGroup = modelData.drawGroups[groupIndex];
-	const auto vertexSize = shaderInput.vertexSize(inputSlotType);
+	const auto vertexSize = shaderInput.vertexSize(shader::Input::SlotType::PER_VERTEX_DATA);
 
 	std::vector<std::uint8_t> data;
 	data.resize(vertexSize * drawGroup.vertices.size());
@@ -70,7 +69,33 @@ std::vector<std::uint8_t> vertexBufferData(
 		vertexIterator.next()
 		)
 	{
-		shaderInput.writeVertex(target, vertexIterator, inputSlotType);
+		shaderInput.writeVertex(target, vertexIterator, shader::Input::SlotType::PER_VERTEX_DATA);
+		target += vertexSize;
+	}
+
+	return data;
+}
+
+std::vector<std::uint8_t> instanceBufferData(
+	const model::Data& modelData,
+	size_t groupIndex,
+	const shader::Input& shaderInput
+	)
+{
+	const auto& drawGroup = modelData.drawGroups[groupIndex];
+	const auto vertexSize = shaderInput.vertexSize(shader::Input::SlotType::PER_INSTANCE_DATA);
+
+	std::vector<std::uint8_t> data;
+	data.resize(vertexSize * drawGroup.instances.size());
+
+	auto* target = data.data();
+	for (
+		auto instanceIterator = model::Data::InstanceIterator(modelData, drawGroup);
+		!instanceIterator.atEnd();
+		instanceIterator.next()
+		)
+	{
+		shaderInput.writeVertex(target, instanceIterator, shader::Input::SlotType::PER_INSTANCE_DATA);
 		target += vertexSize;
 	}
 
@@ -120,14 +145,14 @@ DrawGroup::DrawGroup(
 	rasteriser_(graphicsRenderer, modelData.rasteriserConfiguration),
 	vertexBuffer_(
 		graphicsRenderer,
-		vertexBufferConfiguration(modelData, groupIndex,
+		vertexBufferConfiguration(modelData.drawGroups[groupIndex].vertices.size(),
 			shaderInput.vertexSize(shader::Input::SlotType::PER_VERTEX_DATA)),
 		&vertexBufferData(modelData, groupIndex, shaderInput,
 			shader::Input::SlotType::PER_VERTEX_DATA).front()
 		),
 	instanceDataBuffer_(
 		graphicsRenderer,
-		vertexBufferConfiguration(modelData, groupIndex, 
+		vertexBufferConfiguration(modelData.drawGroups[groupIndex].instances.size(), 
 			shaderInput.vertexSize(shader::Input::SlotType::PER_INSTANCE_DATA)),
 		&vertexBufferData(modelData, groupIndex, shaderInput,
 			shader::Input::SlotType::PER_INSTANCE_DATA).front()
