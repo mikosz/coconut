@@ -68,7 +68,7 @@ std::unique_ptr<Input> createInputFromVertexShader(
 			);
 
 		elements.emplace_back(
-			*inputElementFactory.create(inputElementDetails)
+			*inputElementFactory.create(inputElementDetails, inputElementDetails) // TODO: uhh... could we avoid specyfing this argument twice?
 			);
 	}
 

@@ -27,6 +27,10 @@ public:
 	{
 	}
 
+	const Input& input() const {
+		return *input_;
+	}
+
 	Input& input() {
 		return *input_;
 	}

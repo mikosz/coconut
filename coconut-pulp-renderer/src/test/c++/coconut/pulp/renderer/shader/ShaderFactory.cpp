@@ -33,13 +33,13 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 	auto fsContext = milk::FilesystemContext(fs);
 
 	{
-		InputLayoutFactory inputLayoutFactory;
-		inputLayoutFactory.registerCompiledShader("v", "ConstantBuffers.v.cso");
+		auto inputFactory = InputFactory();
+		inputFactory.registerCompiledShader("v", "ConstantBuffers.v.cso");
 
-		ShaderFactory shaderFactory;
+		auto shaderFactory = ShaderFactory();
 	
 		{
-			ShaderFactory::CompiledShaderInfo vertexCodeInfo;
+			auto vertexCodeInfo = ShaderFactory::CompiledShaderInfo();
 			vertexCodeInfo.compiledShaderPath = "ConstantBuffers.v.cso";
 			vertexCodeInfo.shaderType = milk::graphics::ShaderType::VERTEX;
 
@@ -47,14 +47,14 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 		}
 
 		{
-			ShaderFactory::CompiledShaderInfo pixelCodeInfo;
+			auto pixelCodeInfo = ShaderFactory::CompiledShaderInfo();
 			pixelCodeInfo.compiledShaderPath = "ConstantBuffers.p.cso";
 			pixelCodeInfo.shaderType = milk::graphics::ShaderType::PIXEL;
 
 			shaderFactory.registerCompiledShader("p", pixelCodeInfo);
 		}
 
-		auto inputLayout = inputLayoutFactory.create("v", renderer(), fsContext);
+		auto inputLayout = inputFactory.create("v", renderer(), fsContext);
 		auto vertexShader = shaderFactory.create("v", renderer(), fsContext);
 		auto pixelShader = shaderFactory.create("p", renderer(), fsContext);
 
@@ -66,12 +66,12 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 	}
 
 	// init data
-	Scene scene(renderer());
-	MaterialManager materialManager; // TODO: wtf is this for?
+	auto scene = Scene(renderer());
+	auto materialManager = MaterialManager(); // TODO: wtf is this for?
 
 	{
 		// TODO: put this in a file
-		pulp::model::Data rectangleData;
+		auto rectangleData = pulp::model::Data();
 
 		{
 			rectangleData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 
 			rectangleData.phongMaterials.back().name = "rectangle::white";
 
-			pulp::model::Data::DrawGroup drawGroup;
+			auto drawGroup = pulp::model::Data::DrawGroup();
 
 			for (size_t i = 0; i < 4; ++i) {
 				drawGroup.vertices.emplace_back();
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 			rectangleData.drawGroups.emplace_back(drawGroup);
 		}
 		
-		auto model = std::make_shared<Model>(rectangleData, renderer(), renderingPass->inputLayoutDescription(), materialManager);
+		auto model = std::make_shared<Model>(rectangleData, renderer(), renderingPass->input(), materialManager);
 		auto rectangle = std::make_shared<Actor>(model);
 
 		scene.add(rectangle);

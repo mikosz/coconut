@@ -9,7 +9,6 @@
 #include <coconut-tools/serialisation/BinaryDeserialiser.hpp>
 #include <coconut-tools/serialisation/JSONDeserialiser.hpp>
 
-#include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
 
 #include "coconut/milk/fs.hpp"
@@ -100,7 +99,7 @@ void Game::loop() {
 	pulp::renderer::Scene scene(*graphicsRenderer_);
 	scene.setRenderingPass(passFactory.create("sprite", *graphicsRenderer_, fs));
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager));
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().input(), materialManager));
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
@@ -171,7 +170,7 @@ void Game::loop() {
 
 		floorData.drawGroups.emplace_back(drawGroup);
 	}
-	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager);
+	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().input(), materialManager);
 	auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
 	scene.add(floorActor);
 

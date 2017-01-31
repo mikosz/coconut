@@ -50,10 +50,10 @@ void detail::PassCreator::scanShaderCodeDirectory(
 			const auto shaderName = path.stem();
 
 			if (shaderName.extension() == ".v") {
-				detail::InputLayoutCreator::ShaderCodeInfo inputLayoutInfo;
-				inputLayoutInfo.shaderCodePath = shaderInfo.shaderCodePath;
-				inputLayoutInfo.entrypoint = entrypointName;
-				inputLayoutFactory_.registerShaderCode(shaderName.string(), inputLayoutInfo);
+				detail::InputCreator::ShaderCodeInfo inputInfo;
+				inputInfo.shaderCodePath = shaderInfo.shaderCodePath;
+				inputInfo.entrypoint = entrypointName;
+				inputLayoutFactory_.registerShaderCode(shaderName.string(), inputInfo);
 
 				shaderInfo.shaderType = milk::graphics::ShaderType::VERTEX;
 				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);

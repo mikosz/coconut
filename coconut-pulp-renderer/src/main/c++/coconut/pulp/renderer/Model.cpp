@@ -13,7 +13,7 @@ using namespace coconut::pulp::renderer;
 Model::Model(
 	const model::Data& data,
 	milk::graphics::Renderer& graphicsRenderer,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+	const shader::Input& input,
 	MaterialManager& materialManager
 	) {
 	for (const auto& phongMaterial : data.phongMaterials) {
@@ -47,7 +47,7 @@ Model::Model(
 	}
 
 	for (size_t groupIndex = 0; groupIndex < data.drawGroups.size(); ++groupIndex) {
-		drawGroups_.emplace_back(std::make_shared<DrawGroup>(data, groupIndex, graphicsRenderer, inputLayoutDescription, materialManager));
+		drawGroups_.emplace_back(std::make_shared<DrawGroup>(data, groupIndex, graphicsRenderer, input, materialManager));
 	}
 }
 
