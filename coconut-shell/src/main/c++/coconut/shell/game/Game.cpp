@@ -93,6 +93,21 @@ void Game::loop() {
 		deserialiser >> modelData;
 	}
 
+	// ---
+	for (auto& drawGroup : modelData.drawGroups) {
+		auto instance = pulp::model::Data::Instance();
+
+		instance.patchPosition = milk::math::Vector4d(0.0f, 0.0f, 0.0f);
+		drawGroup.instances.emplace_back(instance);
+
+		instance.patchPosition = milk::math::Vector4d(1.0f, 0.0f, 0.0f);
+		drawGroup.instances.emplace_back(instance);
+
+		instance.patchPosition = milk::math::Vector4d(2.0f, 0.0f, 0.0f);
+		drawGroup.instances.emplace_back(instance);
+	}
+	// ---
+
 	pulp::renderer::shader::PassFactory passFactory;
 	passFactory.scanCompiledShaderDirectory(fs, "Debug");
 
@@ -172,7 +187,7 @@ void Game::loop() {
 	}
 	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().input(), materialManager);
 	auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
-	scene.add(floorActor);
+	// scene.add(floorActor);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;

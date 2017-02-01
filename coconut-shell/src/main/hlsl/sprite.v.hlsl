@@ -31,7 +31,10 @@ VOut main(VIn vin)
 
 	VOut vout;
 
-	vout.posH = mul(mul(mul(vin.posL, worldMatrix), viewMatrix), projectionMatrix);
+	float3 posW = mul(vin.posL, worldMatrix);
+	posW += vin.patchPosW;
+
+	vout.posH = mul(mul(posW, viewMatrix), projectionMatrix);
 	vout.tex = vin.tex;
 	vout.posW = mul(vin.posL, worldMatrix).xyz;
 	vout.normalW = mul(vin.normalL, (float3x3)(worldInvTranspose));

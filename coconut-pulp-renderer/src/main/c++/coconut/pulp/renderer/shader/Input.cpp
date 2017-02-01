@@ -53,7 +53,12 @@ size_t Input::vertexSize(SlotType slotType) const {
 		elements_.begin(),
 		elements_.end(),
 		static_cast<size_t>(0),
-		[](size_t sum, const Element& element) { return sum + formatSize(element.format); }
+		[slotType](size_t sum, const Element& element) {
+			if (slotType == element.inputSlotType) {
+				sum += formatSize(element.format);
+			}
+			return sum;
+		}
 	);
 }
 
