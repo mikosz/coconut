@@ -68,7 +68,7 @@ void Input::writeVertex(
 			return element.inputSlotType == slotType;
 		}))
 	{
-		element.writeFunc(buffer, input);
+		element.writeFunc(target, input);
 		target += milk::graphics::formatSize(element.format);
 	}
 }

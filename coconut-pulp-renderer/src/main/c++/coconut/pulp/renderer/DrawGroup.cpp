@@ -150,6 +150,7 @@ DrawGroup::DrawGroup(
 			shaderInput.vertexSize(shader::Input::SlotType::PER_VERTEX_DATA)),
 		vertexBufferData(modelData, groupIndex, shaderInput).data()
 		),
+	instanceCount_(modelData.drawGroups[groupIndex].instances.size()),
 	indexCount_(modelData.drawGroups[groupIndex].indices.size()),
 	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology)
 {
@@ -200,7 +201,7 @@ void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
 		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
 		drawCommand->setViewport(passContext.viewport); // TODO
 
-		drawCommand->setInstanceCount(0);
+		drawCommand->setInstanceCount(instanceCount_);
 
 		commandBuffer.add(std::move(drawCommand));
 	}

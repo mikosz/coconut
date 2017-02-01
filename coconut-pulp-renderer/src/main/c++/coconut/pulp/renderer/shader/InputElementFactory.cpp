@@ -24,7 +24,7 @@ std::unique_ptr<Input::Element> createPositionRGBAElement(
 			auto* target = reinterpret_cast<float*>(buffer);
 			const auto& vertexIterator = *reinterpret_cast<const model::Data::VertexIterator*>(input);
 			const auto& position =
-				vertexIterator.data().positions[vertexIterator.vertexDescriptor().textureCoordinateIndex];
+				vertexIterator.data().positions[vertexIterator.vertexDescriptor().positionIndex];
 
 			target[0] = position.x();
 			target[1] = position.y();

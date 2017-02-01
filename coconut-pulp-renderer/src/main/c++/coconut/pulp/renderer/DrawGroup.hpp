@@ -54,6 +54,8 @@ private:
 
 	boost::optional<milk::graphics::VertexBuffer> instanceDataBuffer_;
 
+	size_t instanceCount_;
+
 	boost::optional<milk::graphics::IndexBuffer> indexBuffer_;
 
 	size_t indexCount_;
