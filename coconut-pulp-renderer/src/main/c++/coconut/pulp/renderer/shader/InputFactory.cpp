@@ -82,7 +82,8 @@ std::unique_ptr<Input> createInputFromVertexShaderCode(
 	const std::string& entrypoint
 	)
 {
-	auto shaderData = milk::graphics::compileShader(shaderCode, entrypoint);
+	auto shaderData =
+		milk::graphics::compileShader(shaderCode, entrypoint, milk::graphics::ShaderType::VERTEX);
 	return createInputFromVertexShader(graphicsRenderer, inputElementFactory, shaderData);
 }
 

@@ -1,6 +1,7 @@
 #include "compile-shader.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 
 #include <d3dcompiler.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
@@ -16,15 +17,30 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
+using namespace std::string_literals;
+
 namespace /* anonymous */ {
 
 CT_LOGGER_CATEGORY("COCONUT.MILK.GRAPHICS.COMPILE_SHADER");
+
+std::string featureLevel(ShaderType shaderType) {
+	switch (shaderType) {
+	case ShaderType::VERTEX:
+		return "vs_5_0"s;
+	case ShaderType::PIXEL:
+		return "ps_5_0"s;
+	default:
+		assert(!"Unsupported shader type");
+		return ""s;
+	}
+}
 
 } // anonymous namespace
 
 std::vector<std::uint8_t> coconut::milk::graphics::compileShader(
 	const std::vector<std::uint8_t>& shaderData,
-	const std::string& entrypoint
+	const std::string& entrypoint,
+	ShaderType shaderType
 	)
 {
 	system::COMWrapper<ID3DBlob> code;
@@ -36,7 +52,7 @@ std::vector<std::uint8_t> coconut::milk::graphics::compileShader(
 		nullptr,
 		nullptr,
 		entrypoint.c_str(),
-		nullptr,
+		featureLevel(shaderType).c_str(),
 		0,
 		0,
 		&code.get(),
@@ -55,7 +71,10 @@ std::vector<std::uint8_t> coconut::milk::graphics::compileShader(
 			logLevel = coconut_tools::logger::Level::WARNING;
 		}
 
-		CT_LOG(logLevel) << prefix << ": " << reinterpret_cast<const wchar_t*>(errors->GetBufferPointer());
+		const auto* wideErrors = reinterpret_cast<const wchar_t*>(errors->GetBufferPointer());
+		auto errors = std::vector<char>((std::wcslen(wideErrors) * MB_CUR_MAX) + 1, '\0');
+		auto res = std::wcstombs(errors.data(), wideErrors, errors.size());
+		CT_LOG(logLevel) << prefix << ": " << errors;
 	}
 
 	if (FAILED(result)) {
@@ -66,7 +85,7 @@ std::vector<std::uint8_t> coconut::milk::graphics::compileShader(
 	data.reserve(code->GetBufferSize());
 	std::copy(
 		reinterpret_cast<const std::uint8_t*>(code->GetBufferPointer()),
-		reinterpret_cast<const std::uint8_t*>(code->GetBufferPointer()) + data.size(),
+		reinterpret_cast<const std::uint8_t*>(code->GetBufferPointer()) + code->GetBufferSize(),
 		std::back_inserter(data)
 		);
 

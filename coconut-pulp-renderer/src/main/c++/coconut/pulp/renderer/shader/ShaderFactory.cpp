@@ -195,7 +195,8 @@ std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 	CT_LOG_INFO << "Compiling shader at " << shaderCodeInfo.shaderCodePath << "::" << shaderCodeInfo.entrypoint;
 
 	const auto shaderCode = filesystemContext.load(shaderCodeInfo.shaderCodePath);
-	auto shaderData = milk::graphics::compileShader(*shaderCode, shaderCodeInfo.entrypoint);
+	auto shaderData =
+		milk::graphics::compileShader(*shaderCode, shaderCodeInfo.entrypoint, shaderCodeInfo.shaderType);
 
 	return createShaderFromCompiledShader(
 		graphicsRenderer,

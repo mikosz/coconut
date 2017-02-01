@@ -69,14 +69,14 @@ std::vector<std::uint8_t> vertexBufferData(
 		vertexIterator.next()
 		)
 	{
-		shaderInput.writeVertex(target, vertexIterator, shader::Input::SlotType::PER_VERTEX_DATA);
+		shaderInput.writeVertex(target, &vertexIterator, shader::Input::SlotType::PER_VERTEX_DATA);
 		target += vertexSize;
 	}
 
 	return data;
 }
 
-std::vector<std::uint8_t> instanceBufferData(
+std::vector<std::uint8_t> instanceBufferData( // TODO: duplicated code
 	const model::Data& modelData,
 	size_t groupIndex,
 	const shader::Input& shaderInput
@@ -95,7 +95,8 @@ std::vector<std::uint8_t> instanceBufferData(
 		instanceIterator.next()
 		)
 	{
-		shaderInput.writeVertex(target, instanceIterator, shader::Input::SlotType::PER_INSTANCE_DATA);
+		shaderInput.writeVertex(target, &instanceIterator.instance(),
+			shader::Input::SlotType::PER_INSTANCE_DATA);
 		target += vertexSize;
 	}
 
@@ -147,24 +148,27 @@ DrawGroup::DrawGroup(
 		graphicsRenderer,
 		vertexBufferConfiguration(modelData.drawGroups[groupIndex].vertices.size(),
 			shaderInput.vertexSize(shader::Input::SlotType::PER_VERTEX_DATA)),
-		&vertexBufferData(modelData, groupIndex, shaderInput,
-			shader::Input::SlotType::PER_VERTEX_DATA).front()
-		),
-	instanceDataBuffer_(
-		graphicsRenderer,
-		vertexBufferConfiguration(modelData.drawGroups[groupIndex].instances.size(), 
-			shaderInput.vertexSize(shader::Input::SlotType::PER_INSTANCE_DATA)),
-		&vertexBufferData(modelData, groupIndex, shaderInput,
-			shader::Input::SlotType::PER_INSTANCE_DATA).front()
-		),
-	indexBuffer_(
-		graphicsRenderer,
-		indexBufferConfiguration(modelData, groupIndex),
-		&indexBufferData(modelData, groupIndex).front()
+		vertexBufferData(modelData, groupIndex, shaderInput).data()
 		),
 	indexCount_(modelData.drawGroups[groupIndex].indices.size()),
 	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology)
 {
+	if (!modelData.drawGroups[groupIndex].instances.empty()) {
+		instanceDataBuffer_ = milk::graphics::VertexBuffer(
+			graphicsRenderer,
+			vertexBufferConfiguration(modelData.drawGroups[groupIndex].instances.size(), 
+				shaderInput.vertexSize(shader::Input::SlotType::PER_INSTANCE_DATA)),
+			instanceBufferData(modelData, groupIndex, shaderInput).data()
+			);
+	}
+
+	if (!modelData.drawGroups[groupIndex].indices.empty()) {
+		indexBuffer_ = milk::graphics::IndexBuffer(
+			graphicsRenderer,
+			indexBufferConfiguration(modelData, groupIndex),
+			&indexBufferData(modelData, groupIndex).front()
+			);
+	}
 }
 
 void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
@@ -183,7 +187,12 @@ void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
 		pass->pixelShader().bind(*drawCommand, passContext);
 
 		drawCommand->setVertexBuffer(&vertexBuffer_);
-		drawCommand->setIndexBuffer(&indexBuffer_);
+		if (instanceDataBuffer_) {
+			drawCommand->setInstanceDataBuffer(instanceDataBuffer_.get_ptr());
+		}
+		if (indexBuffer_) {
+			drawCommand->setIndexBuffer(indexBuffer_.get_ptr());
+		}
 		drawCommand->setIndexCount(indexCount_);
 		drawCommand->setPrimitiveTopology(primitiveTopology_);
 
@@ -191,7 +200,7 @@ void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
 		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
 		drawCommand->setViewport(passContext.viewport); // TODO
 
-		drawCommand->setInstanceCount(2);
+		drawCommand->setInstanceCount(0);
 
 		commandBuffer.add(std::move(drawCommand));
 	}

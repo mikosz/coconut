@@ -67,7 +67,7 @@ std::vector<std::uint8_t> createDummyVertexShader(const InputLayout::Elements& e
 	const auto* const suffix = 
 		"};\n"
 		"\n"
-		"SV_POSITION main(VIn in) { return (0.0f).xxxx; }\n"
+		"float4 main(VIn vin) : SV_POSITION { return (0.0f).xxxx; }\n"
 		;
 
 	std::ostringstream shaderTextStream;
@@ -76,19 +76,22 @@ std::vector<std::uint8_t> createDummyVertexShader(const InputLayout::Elements& e
 	for (const auto& element : elements) {
 		shaderTextStream
 			<< "\t"
-			<< formatHLSLType(element.format)
+			<< formatHLSLType(element.format) << " "
 			<< element.semantic << "_" << element.semanticIndex
 			<< " : "
 			<< element.semantic
 			<< ";\n";
 	}
 
+	shaderTextStream << suffix;
+
 	std::vector<std::uint8_t> shaderData;
 	const auto shaderText = shaderTextStream.str();
-	shaderData.reserve(shaderText.size());
+	shaderData.reserve(shaderText.size() + 1);
 	std::copy(shaderText.begin(), shaderText.end(), std::back_inserter(shaderData));
+	shaderData.emplace_back('\0');
 
-	return compileShader(shaderData, "main");
+	return compileShader(shaderData, "main", ShaderType::VERTEX);
 }
 
 } // anonymous namespace

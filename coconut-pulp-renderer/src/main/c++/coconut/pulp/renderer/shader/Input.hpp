@@ -25,7 +25,7 @@ public:
 	struct Element : public milk::graphics::InputLayout::Element { // TODO: unsure about this api
 
 		using WriteFunc =
-			std::function<void (void* buffer, const model::Data::VertexIterator& vertexIterator)>;
+			std::function<void (void* buffer, const void* vertexIterator)>;
 
 		Element(
 			std::string semantic,
@@ -52,7 +52,7 @@ public:
 
 	void writeVertex(
 		void* buffer,
-		const model::Data::VertexIterator& vertexIterator,
+		const void* vertexIterator, // TODO: api!
 		SlotType slotType
 		) const;
 

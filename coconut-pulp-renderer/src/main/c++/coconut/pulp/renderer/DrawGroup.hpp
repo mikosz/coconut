@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <boost/optional.hpp>
+
 #include "coconut/milk/graphics/IndexBuffer.hpp"
 #include "coconut/milk/graphics/VertexBuffer.hpp"
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
@@ -50,9 +52,9 @@ private:
 
 	milk::graphics::VertexBuffer vertexBuffer_;
 
-	milk::graphics::VertexBuffer instanceDataBuffer_;
+	boost::optional<milk::graphics::VertexBuffer> instanceDataBuffer_;
 
-	milk::graphics::IndexBuffer indexBuffer_;
+	boost::optional<milk::graphics::IndexBuffer> indexBuffer_;
 
 	size_t indexCount_;
 

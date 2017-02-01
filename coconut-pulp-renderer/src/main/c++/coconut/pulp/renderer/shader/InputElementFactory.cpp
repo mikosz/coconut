@@ -20,9 +20,11 @@ std::unique_ptr<Input::Element> createPositionRGBAElement(
 		instanceDetails.format,
 		Input::SlotType::PER_VERTEX_DATA,
 		0u,
-		[](void* buffer, const model::Data::VertexIterator& vertexIterator) {
+		[](void* buffer, const void* input) {
 			auto* target = reinterpret_cast<float*>(buffer);
-			const auto& position = vertexIterator.data().positions[vertexIterator.index()];
+			const auto& vertexIterator = *reinterpret_cast<const model::Data::VertexIterator*>(input);
+			const auto& position =
+				vertexIterator.data().positions[vertexIterator.vertexDescriptor().textureCoordinateIndex];
 
 			target[0] = position.x();
 			target[1] = position.y();
@@ -41,9 +43,11 @@ std::unique_ptr<Input::Element> createNormalRGBElement(
 		instanceDetails.format,
 		Input::SlotType::PER_VERTEX_DATA,
 		0u,
-		[](void* buffer, const model::Data::VertexIterator& vertexIterator) {
+		[](void* buffer, const void* input) {
 			auto* target = reinterpret_cast<float*>(buffer);
-			const auto& normal = vertexIterator.data().normals[vertexIterator.index()];
+			const auto& vertexIterator = *reinterpret_cast<const model::Data::VertexIterator*>(input);
+			const auto& normal =
+				vertexIterator.data().normals[vertexIterator.vertexDescriptor().normalIndex];
 
 			target[0] = normal.x();
 			target[1] = normal.y();
@@ -61,12 +65,37 @@ std::unique_ptr<Input::Element> createTexcoordRGElement(
 		instanceDetails.format,
 		Input::SlotType::PER_VERTEX_DATA,
 		0u,
-		[](void* buffer, const model::Data::VertexIterator& vertexIterator) {
+		[](void* buffer, const void* input) {
 			auto* target = reinterpret_cast<float*>(buffer);
-			const auto& texcoord = vertexIterator.data().textureCoordinates[vertexIterator.index()];
+			const auto& vertexIterator = *reinterpret_cast<const model::Data::VertexIterator*>(input);
+			const auto& texcoord =
+				vertexIterator.data().textureCoordinates[vertexIterator.vertexDescriptor().textureCoordinateIndex];
 
 			target[0] = texcoord.x();
 			target[1] = texcoord.y();
+		}
+		);
+}
+
+// TODO: simplify all of this
+std::unique_ptr<Input::Element> createPatchPositionRGBAElement(
+	const InputElementFactoryInstanceDetails& instanceDetails)
+{
+	return std::make_unique<Input::Element>(
+		instanceDetails.semantic,
+		instanceDetails.semanticIndex,
+		instanceDetails.format,
+		Input::SlotType::PER_INSTANCE_DATA,
+		0u,
+		[](void* buffer, const void* input) {
+			auto* target = reinterpret_cast<float*>(buffer);
+			const auto& instance = *reinterpret_cast<const model::Data::Instance*>(input);
+			const auto& patchPosition = instance.patchPosition;
+
+			target[0] = patchPosition.x();
+			target[1] = patchPosition.y();
+			target[2] = patchPosition.z();
+			target[3] = 1.0f; // TODO
 		}
 		);
 }
@@ -103,4 +132,7 @@ void detail::InputElementCreator::registerBuiltins() {
 	registerCreator(InstanceDetails("POSITION", 0, PixelFormat::R32G32B32A32_FLOAT), &createPositionRGBAElement);
 	registerCreator(InstanceDetails("NORMAL", 0, PixelFormat::R32G32B32_FLOAT), &createNormalRGBElement);
 	registerCreator(InstanceDetails("TEXCOORD", 0, PixelFormat::R32G32_FLOAT), &createTexcoordRGElement);
+
+	registerCreator(InstanceDetails("PATCH_POSITION", 0, PixelFormat::R32G32B32A32_FLOAT),
+		&createPatchPositionRGBAElement);
 }

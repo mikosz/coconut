@@ -15,7 +15,7 @@ struct VIn {
 	float4 posL : POSITION;
 	float2 tex : TEXCOORD;
 	float3 normalL : NORMAL;
-	matrix world: WORLD;
+	float4 patchPosW: PATCH_POSITION;
 };
 
 struct VOut {

@@ -21,6 +21,7 @@ namespace coconut {
 namespace pulp {
 namespace model {
 
+// TODO: this api is shit
 struct Data {
 public:
 
@@ -52,6 +53,12 @@ public:
 
 	};
 
+	struct Instance { // TODO: temp, refactor along with material handling - just for the grass demo p.o.c.
+
+		milk::math::Vector4d patchPosition;
+
+	};
+
 	struct DrawGroup {
 
 		milk::graphics::PrimitiveTopology primitiveTopology;
@@ -61,6 +68,8 @@ public:
 		std::vector<size_t> indices;
 
 		std::string materialId;
+
+		std::vector<Instance> instances;
 
 	};
 
@@ -87,6 +96,41 @@ public:
 
 		const VertexDescriptor& vertexDescriptor() const {
 			return drawGroup_.vertices[index_];
+		}
+
+	private:
+
+		const Data& data_;
+
+		const DrawGroup& drawGroup_;
+
+		size_t index_ = 0u;
+
+	};
+
+	class InstanceIterator { // TODO: temp, merge with VertexIterator
+	public:
+
+		InstanceIterator(const Data& data, const DrawGroup& drawGroup);
+
+		void next();
+
+		bool atEnd();
+
+		const Data& data() const {
+			return data_;
+		}
+
+		const DrawGroup& drawGroup() const {
+			return drawGroup_;
+		}
+
+		size_t index() const {
+			return index_;
+		}
+
+		const Instance& instance() const {
+			return drawGroup_.instances[index_];
 		}
 
 	private:

@@ -59,7 +59,7 @@ size_t Input::vertexSize(SlotType slotType) const {
 
 void Input::writeVertex(
 	void* buffer,
-	const model::Data::VertexIterator& vertexIterator,
+	const void* input,
 	SlotType slotType
 	) const
 {
@@ -68,7 +68,7 @@ void Input::writeVertex(
 			return element.inputSlotType == slotType;
 		}))
 	{
-		element.writeFunc(buffer, vertexIterator);
+		element.writeFunc(buffer, input);
 		target += milk::graphics::formatSize(element.format);
 	}
 }
