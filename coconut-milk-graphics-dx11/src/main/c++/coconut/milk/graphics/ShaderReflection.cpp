@@ -20,6 +20,8 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
+using namespace std::string_literals;
+
 namespace /* anonymous */ {
 
 CT_LOGGER_CATEGORY("COCONUT.MILK.GRAPHICS.SHADER_REFLECTION");
@@ -36,6 +38,10 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 			reflectionData->GetInputParameterDesc(static_cast<UINT>(i), &desc),
 			"Failed to get input parameter description"
 			);
+
+		if (desc.SemanticName == "SV_InstanceID"s) { // TODO: extract literal
+			continue;
+		}
 
 		ShaderReflection::InputParameterInfo info;
 		info.semantic = desc.SemanticName;

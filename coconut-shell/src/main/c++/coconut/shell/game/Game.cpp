@@ -100,10 +100,10 @@ void Game::loop() {
 		instance.patchPosition = milk::math::Vector4d(0.0f, 0.0f, 0.0f);
 		drawGroup.instances.emplace_back(instance);
 
-		instance.patchPosition = milk::math::Vector4d(1.0f, 0.0f, 0.0f);
+		instance.patchPosition = milk::math::Vector4d(3.0f, 0.0f, 0.0f);
 		drawGroup.instances.emplace_back(instance);
 
-		instance.patchPosition = milk::math::Vector4d(2.0f, 0.0f, 0.0f);
+		instance.patchPosition = milk::math::Vector4d(-3.0f, 0.0f, 0.0f);
 		drawGroup.instances.emplace_back(instance);
 	}
 	// ---

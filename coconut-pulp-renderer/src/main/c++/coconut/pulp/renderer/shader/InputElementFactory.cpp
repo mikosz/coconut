@@ -86,7 +86,7 @@ std::unique_ptr<Input::Element> createPatchPositionRGBAElement(
 		instanceDetails.semanticIndex,
 		instanceDetails.format,
 		Input::SlotType::PER_INSTANCE_DATA,
-		0u,
+		1u,
 		[](void* buffer, const void* input) {
 			auto* target = reinterpret_cast<float*>(buffer);
 			const auto& instance = *reinterpret_cast<const model::Data::Instance*>(input);
