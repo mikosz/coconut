@@ -1,11 +1,12 @@
 set(DEPENDENCY_LIBRARIES
-	coconut-milk-fs
-    coconut-pulp-renderer
     coconut-tools-logger
     coconut-tools-configuration
     coconut-tools-serialisation
     coconut-tools-system
     coconut-tools-exceptions
+	coconut-milk-fs
+    coconut-pulp-renderer
+	coconut-pulp-world
     )
 
 set(TEST_LIBRARIES

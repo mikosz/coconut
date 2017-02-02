@@ -23,6 +23,8 @@
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
 #include "coconut/pulp/renderer/shader/PassFactory.hpp"
 
+#include "coconut/pulp/world/foliage/Grass.hpp"
+
 #include "globals.hpp"
 #include "coconut/milk/system/Window.hpp"
 
@@ -135,7 +137,7 @@ void Game::loop() {
 
 	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
 
-	scene.add(actor);
+	// scene.add(actor);
 	scene.setCamera(camera);
 	scene.setLens(lens);
 
@@ -188,6 +190,10 @@ void Game::loop() {
 	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().input(), materialManager);
 	auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
 	// scene.add(floorActor);
+
+	auto grassActor = std::make_shared<pulp::world::foliage::Grass>(
+		*graphicsRenderer_, scene.renderingPass().input(), materialManager);
+	scene.add(grassActor);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;

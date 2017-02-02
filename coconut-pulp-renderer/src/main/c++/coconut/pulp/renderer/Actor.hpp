@@ -1,6 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_ACTOR_HPP_
 #define _COCONUT_PULP_RENDERER_ACTOR_HPP_
 
+#include <chrono>
 #include <vector>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
@@ -15,7 +16,7 @@ namespace renderer {
 
 class CommandBuffer;
 
-class Actor {
+class Actor { // TODO: api
 public:
 
 	Actor(ModelSharedPtr model) :
@@ -23,7 +24,10 @@ public:
 	{
 	}
 
-	void render(CommandBuffer& commandBuffer, PassContext PassContext);
+	virtual void update(std::chrono::milliseconds dt) {
+	}
+
+	virtual void render(CommandBuffer& commandBuffer, PassContext PassContext);
 
 	// TODO: move below functions to interface?
 	const milk::math::Matrix& worldTransformation() const {

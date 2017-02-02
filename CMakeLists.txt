@@ -79,6 +79,7 @@ set(MODULES
     "coconut-milk-utils"
     "coconut-pulp-model"
     "coconut-pulp-renderer"
+    "coconut-pulp-world"
     "coconut-shell"
     )
 
