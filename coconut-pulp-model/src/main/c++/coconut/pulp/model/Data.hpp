@@ -6,6 +6,8 @@
 
 #include "coconut/milk/math/Vector.hpp"
 
+#include "coconut/milk/fs.hpp"
+
 // TODO: make one include file
 #include <coconut-tools/serialisation/Serialiser.hpp>
 #include <coconut-tools/serialisation/Deserialiser.hpp>
@@ -19,6 +21,7 @@ namespace coconut {
 namespace pulp {
 namespace model {
 
+// TODO: this api is shit
 struct Data {
 public:
 
@@ -34,7 +37,7 @@ public:
 
 		float specularExponent;
 
-		std::string diffuseMap; // TODO: string?
+		milk::AbsolutePath diffuseMap;
 
 		milk::graphics::Sampler::Configuration diffuseMapSamplerConfiguration;
 
@@ -50,6 +53,12 @@ public:
 
 	};
 
+	struct Instance { // TODO: temp, refactor along with material handling - just for the grass demo p.o.c.
+
+		milk::math::Vector4d patchPosition;
+
+	};
+
 	struct DrawGroup {
 
 		milk::graphics::PrimitiveTopology primitiveTopology;
@@ -59,6 +68,78 @@ public:
 		std::vector<size_t> indices;
 
 		std::string materialId;
+
+		std::vector<Instance> instances;
+
+	};
+
+	class VertexIterator {
+	public:
+
+		VertexIterator(const Data& data, const DrawGroup& drawGroup);
+
+		void next();
+
+		bool atEnd();
+
+		const Data& data() const {
+			return data_;
+		}
+
+		const DrawGroup& drawGroup() const {
+			return drawGroup_;
+		}
+
+		size_t index() const {
+			return index_;
+		}
+
+		const VertexDescriptor& vertexDescriptor() const {
+			return drawGroup_.vertices[index_];
+		}
+
+	private:
+
+		const Data& data_;
+
+		const DrawGroup& drawGroup_;
+
+		size_t index_ = 0u;
+
+	};
+
+	class InstanceIterator { // TODO: temp, merge with VertexIterator
+	public:
+
+		InstanceIterator(const Data& data, const DrawGroup& drawGroup);
+
+		void next();
+
+		bool atEnd();
+
+		const Data& data() const {
+			return data_;
+		}
+
+		const DrawGroup& drawGroup() const {
+			return drawGroup_;
+		}
+
+		size_t index() const {
+			return index_;
+		}
+
+		const Instance& instance() const {
+			return drawGroup_.instances[index_];
+		}
+
+	private:
+
+		const Data& data_;
+
+		const DrawGroup& drawGroup_;
+
+		size_t index_ = 0u;
 
 	};
 

@@ -1,19 +1,17 @@
 #include "Game.hpp"
 
-#include <fstream>
 #include <vector>
 #include <cstdint>
 #include <memory>
 #include <chrono>
 
-#include <boost/filesystem.hpp>
-
 #include <coconut-tools/serialisation/BinarySerialiser.hpp>
 #include <coconut-tools/serialisation/BinaryDeserialiser.hpp>
 #include <coconut-tools/serialisation/JSONDeserialiser.hpp>
 
-#include "coconut/milk/graphics/FlexibleInputLayoutDescription.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
+
+#include "coconut/milk/fs.hpp"
 
 #include "coconut/pulp/model/obj/Importer.hpp"
 
@@ -23,6 +21,7 @@
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
+#include "coconut/pulp/renderer/shader/PassFactory.hpp"
 
 #include "globals.hpp"
 #include "coconut/milk/system/Window.hpp"
@@ -32,8 +31,14 @@ using namespace coconut::shell;
 using namespace coconut::shell::game;
 
 Game::Game(std::shared_ptr<milk::system::App> app) :
-	app_(app)
+	app_(app),
+	filesystem_(std::make_unique<milk::Filesystem>())
 {
+	{
+		auto mount = std::make_unique<milk::DirectoryMount>(".", false);
+		filesystem_->mount("/", std::move(mount), milk::Filesystem::PredecessorHidingPolicy::ADD);
+	}
+
 	{
 		milk::system::Window::Configuration configuration;
 		configuration.className = "coconut/milk::graphics::device::Window";
@@ -61,40 +66,55 @@ void Game::loop() {
 
 	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
 
-	if (!boost::filesystem::exists("elexis.model")) {
-		// std::ifstream modelIS("data/models/Daniel/craig chemise bleu/craig chemis bleu.obj");
-		std::ifstream modelIS("data/models/Elexis/Blonde Elexis - nude/Blonde Elexis - nude.obj");
-		// std::ifstream modelIS("data/models/cube.model");
-		if (!modelIS.good()) {
-			throw std::runtime_error("Failed to open model file");
-		}
+	auto fs = milk::FilesystemContext(filesystem_);
 
-		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Daniel/craig chemise bleu");
-		auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/Elexis/Blonde Elexis - nude");
-		// auto opener = std::make_unique<pulp::model::obj::Importer::MaterialFileOpener>("data/models/");
-		pulp::model::obj::Importer importer(std::move(opener));
+	if (!fs.exists("daniel.model")) {
+		auto modelContext = fs;
 
-		auto modelData = importer.import(modelIS, "elexis");
+		modelContext.changeWorkingDirectory("/data/models/Daniel/craig chemise bleu/");
+		auto data = modelContext.load("craig chemis bleu.obj").get();
+
+		auto modelData = pulp::model::obj::Importer().import("daniel", *data, modelContext);
 
 		{
-			std::ofstream modelOFS("elexis.model", std::ofstream::out | std::ofstream::binary);
-			coconut_tools::serialisation::BinarySerialiser serialiser(modelOFS);
+			auto modelOS = fs.overwrite("daniel.model");
+			coconut_tools::serialisation::BinarySerialiser serialiser(*modelOS);
 			serialiser << modelData;
 		}
 	}
 
 	pulp::renderer::MaterialManager materialManager;
 
-	std::ifstream modelIFS("elexis.model", std::ifstream::in | std::ifstream::binary);
-	coconut_tools::serialisation::BinaryDeserialiser deserialiser(modelIFS);
-	// std::ifstream modelIFS("cube.json", std::ifstream::in);
-	// coconut_tools::serialisation::JSONDeserialiser deserialiser(modelIFS);
 	pulp::model::Data modelData;
-	deserialiser >> modelData;
+
+	{
+		auto modelIS = fs.open("daniel.model");
+		coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS);
+		deserialiser >> modelData;
+	}
+
+	// ---
+	for (auto& drawGroup : modelData.drawGroups) {
+		auto instance = pulp::model::Data::Instance();
+
+		instance.patchPosition = milk::math::Vector4d(0.0f, 0.0f, 0.0f);
+		drawGroup.instances.emplace_back(instance);
+
+		instance.patchPosition = milk::math::Vector4d(3.0f, 0.0f, 0.0f);
+		drawGroup.instances.emplace_back(instance);
+
+		instance.patchPosition = milk::math::Vector4d(-3.0f, 0.0f, 0.0f);
+		drawGroup.instances.emplace_back(instance);
+	}
+	// ---
+
+	pulp::renderer::shader::PassFactory passFactory;
+	passFactory.scanCompiledShaderDirectory(fs, "Debug");
 
 	pulp::renderer::Scene scene(*graphicsRenderer_);
+	scene.setRenderingPass(passFactory.create("sprite", *graphicsRenderer_, fs));
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager));
+	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().input(), materialManager));
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
@@ -127,9 +147,10 @@ void Game::loop() {
 	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
 	pulp::model::Data floorData;
+
 	{
-		floorData.rasteriserConfiguration.cullMode = milk::graphics::CullMode::BACK;
-		floorData.rasteriserConfiguration.fillMode = milk::graphics::FillMode::SOLID;
+		floorData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
+		floorData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
 		floorData.rasteriserConfiguration.frontCounterClockwise = false;
 
 		floorData.positions.emplace_back(2.0f, 0.0f, 2.0f);
@@ -164,9 +185,9 @@ void Game::loop() {
 
 		floorData.drawGroups.emplace_back(drawGroup);
 	}
-	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().inputLayoutDescription(), materialManager);
+	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().input(), materialManager);
 	auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
-	scene.add(floorActor);
+	// scene.add(floorActor);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;

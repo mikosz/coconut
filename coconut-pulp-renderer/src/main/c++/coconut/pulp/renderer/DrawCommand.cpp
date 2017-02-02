@@ -5,7 +5,6 @@
 #include <iterator>
 
 #include <iostream>
-#include <fstream>
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -13,8 +12,11 @@ using namespace coconut::pulp::renderer;
 
 void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	assert(rasteriser_ != nullptr);
+	assert(inputLayout_ != nullptr);
 	assert(vertexShader_ != nullptr);
 	assert(pixelShader_ != nullptr);
+	assert(vertexBuffer_ != nullptr);
+	assert(primitiveTopology_ != milk::graphics::PrimitiveTopology::INVALID);
 
 	commandList.setRasteriser(*rasteriser_);
 	
@@ -46,6 +48,19 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	commandList.setRenderTarget(*renderTarget_, *depthStencil_); // TODO: needs to work with null
 
 	commandList.setViewport(*viewport_);
+
+	commandList.setVertexBuffer(*vertexBuffer_, 0);
+	commandList.setIndexBuffer(*indexBuffer_, 0);
+	
+	if (instanceCount_ > 0 && indexBuffer_ != nullptr) {
+		if (instanceDataBuffer_ != nullptr) {
+			commandList.setVertexBuffer(*instanceDataBuffer_, 1);
+		}
+
+		commandList.drawIndexedInstanced(indexCount_, instanceCount_, 0u, primitiveTopology_);
+	} else if (indexBuffer_ != nullptr) {
+		commandList.drawIndexed(0, indexCount_, primitiveTopology_); 
+	}
 }
 
 DrawCommand::ConstantBufferData::ConstantBufferData(

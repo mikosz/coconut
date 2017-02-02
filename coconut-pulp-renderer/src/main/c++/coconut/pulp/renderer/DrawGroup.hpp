@@ -3,11 +3,11 @@
 
 #include <vector>
 
+#include <boost/optional.hpp>
+
 #include "coconut/milk/graphics/IndexBuffer.hpp"
 #include "coconut/milk/graphics/VertexBuffer.hpp"
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
-#include "coconut/milk/graphics/VertexInterface.hpp"
-#include "coconut/milk/graphics/InputLayoutDescription.hpp"
 #include "coconut/milk/graphics/Rasteriser.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
 
@@ -15,6 +15,7 @@
 
 #include "coconut/pulp/model/Data.hpp"
 
+#include "shader/Input.hpp"
 #include "shader/Shader.hpp"
 #include "PassContext.hpp"
 #include "Material.hpp"
@@ -33,7 +34,7 @@ public:
 		const model::Data& modelData,
 		size_t groupIndex,
 		milk::graphics::Renderer& graphicsRenderer,
-		const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+		const shader::Input& shaderInput,
 		const MaterialManager& materialManager
 		);
 
@@ -51,7 +52,11 @@ private:
 
 	milk::graphics::VertexBuffer vertexBuffer_;
 
-	milk::graphics::IndexBuffer indexBuffer_;
+	boost::optional<milk::graphics::VertexBuffer> instanceDataBuffer_;
+
+	size_t instanceCount_;
+
+	boost::optional<milk::graphics::IndexBuffer> indexBuffer_;
 
 	size_t indexCount_;
 

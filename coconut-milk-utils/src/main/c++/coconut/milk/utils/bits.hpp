@@ -20,6 +20,19 @@ T roundUpToMultipleOf(T value, U multiple) {
 	}
 }
 
+template <class T>
+size_t numberOfBitsOn(T value) {
+	size_t bitsOn = 0;
+
+	while (value != 0) {
+		auto minusOne = value - 1;
+		value = value & minusOne;
+		++bitsOn;
+	}
+
+	return bitsOn;
+}
+
 } // namespace utils
 } // namespace milk
 } // namespace coconut

@@ -5,6 +5,8 @@
 
 #include <d3d11.h>
 
+#include "coconut/milk/graphics/ShaderType.hpp"
+
 #include "coconut/milk/system/COMWrapper.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
@@ -21,7 +23,9 @@ template <class InternalShaderType>
 class Shader {
 public:
 
-	Shader(Renderer& renderer, void* data, size_t size);
+	static const auto SHADER_TYPE = shaderTypeFromShader<InternalShaderType>();
+
+	Shader(Renderer& renderer, const void* data, size_t size);
 
 	InternalShaderType& internalShader() {
 		return *shader_;

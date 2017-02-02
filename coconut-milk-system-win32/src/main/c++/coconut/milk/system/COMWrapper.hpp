@@ -12,7 +12,7 @@ class COMWrapper {
 public:
 
 	COMWrapper() :
-		comObject_(0)
+		comObject_(nullptr)
 	{
 	}
 
@@ -27,6 +27,12 @@ public:
 		if (comObject_) {
 			comObject_->AddRef();
 		}
+	}
+
+	COMWrapper(COMWrapper&& other) :
+		comObject_(other.comObject_)
+	{
+		other.comObject_ = nullptr;
 	}
 
 	~COMWrapper() {
@@ -45,13 +51,23 @@ public:
 		return *this;
 	}
 
+	COMWrapper& operator =(COMWrapper&& other) {
+		if (&other != this) {
+			reset();
+			comObject_ = other.comObject_;
+			other.comObject_ = nullptr;
+		}
+
+		return *this;
+	}
+
 	T* operator ->() const {
-		assert(comObject_);
+		assert(comObject_ != nullptr);
 		return comObject_;
 	}
 
 	T& operator *() const {
-		// TODO: validate not null
+		assert(comObject_ != nullptr);
 		return *comObject_;
 	}
 

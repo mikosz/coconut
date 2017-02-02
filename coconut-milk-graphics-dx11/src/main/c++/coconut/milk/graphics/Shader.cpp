@@ -37,8 +37,8 @@ system::COMWrapper<ID3D11PixelShader> create<ID3D11PixelShader>(
 } // anonymous namespace
 
 template <class InternalShaderType>
-detail::Shader<InternalShaderType>::Shader(Renderer& renderer, void* data, size_t size) {
-	shader_ = create<InternalShaderType>(renderer, data, size);
+detail::Shader<InternalShaderType>::Shader(Renderer& renderer, const void* data, size_t size) {
+	shader_ = create<InternalShaderType>(renderer, const_cast<void*>(data), size);
 }
 
 template class detail::Shader<ID3D11VertexShader>;

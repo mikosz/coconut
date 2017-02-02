@@ -47,6 +47,10 @@ public:
 		return *lens_;
 	}
 
+	void setRenderingPass(shader::PassSharedPtr renderingPass) {
+		renderingPass_ = std::move(renderingPass);
+	}
+
 	const shader::Pass& renderingPass() const {
 		return *renderingPass_;
 	}
@@ -71,7 +75,7 @@ private:
 
 	LensSharedPtr lens_;
 
-	shader::PassUniquePtr renderingPass_; // TODO
+	shader::PassSharedPtr renderingPass_; // TODO
 
 	milk::graphics::Texture2d* renderTarget_; // TODO
 

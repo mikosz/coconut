@@ -6,8 +6,8 @@
 
 #include "MaterialLibParser.hpp"
 
-#include <fstream>
 #include <cassert>
+#include <iterator>
 
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/bind.hpp>
@@ -56,21 +56,29 @@ MaterialLibParser::MaterialLibParser() :
 			);
 }
 
-void MaterialLibParser::parse(std::istream& is) {
+void MaterialLibParser::parse(const milk::fs::RawData& data) {
 	clear();
 
-	is.unsetf(std::istream::skipws);
-	spirit::istream_iterator it(is), end;
+	// TODO: figure out how to fix these position iterators
 
-	spirit::classic::position_iterator2<spirit::istream_iterator> posIt(it, end), posEnd;
+	/* auto multiPassIt = spirit::make_default_multi_pass(data.begin());
+	auto multiPassEnd = spirit::make_default_multi_pass(data.end()); */
 
-	bool result = qi::phrase_parse(posIt, posEnd, *this, ascii::blank);
+	/* using PositionIterator = spirit::classic::position_iterator2<decltype(multiPassIt)>;
+	auto posIt = PositionIterator(multiPassIt, multiPassEnd);
+	auto posEnd = PositionIterator(); */
 
-	if (!result || posIt != posEnd) {
+	auto dataBegin = data.begin();
+	const auto dataEnd = data.end();
+
+	bool result = qi::phrase_parse(dataBegin, dataEnd, *this, ascii::blank);
+
+	// if (!result || posIt != posEnd) {
+	if (!result || dataBegin != dataEnd) {
 		std::ostringstream err;
-		const auto& position = posIt.get_position();
-		err << "Failed to parse material lib file at line: " << position.line << ", column: " << position.column;
-		throw std::runtime_error(err.str()); // TODO: exc
+		// const auto& position = posIt.get_position();
+		// err << "Failed to parse material lib file at line: " << position.line << ", column: " << position.column;
+		throw std::runtime_error("Failed to parse material lib file");//err.str()); // TODO: exc
 	}
 }
 

@@ -40,10 +40,11 @@ if(${CMAKE_COMPILER_IS_GNUCXX})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -O0")
 elseif(${MSVC})
+	# set(CMAKE_CXX_FLAGS "/std:c++latest")
     if(${COMPILER_WARNINGS_AS_ERRORS})
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SCL_SECURE_NO_WARNINGS /DUNICODE")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DUNICODE")
 else()
     message(SEND_ERROR "Unrecognised compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
@@ -53,7 +54,7 @@ enable_testing()
 # find boost
 set(Boost_USE_STATIC_LIBS ${COMPILER_BOOST_USE_STATIC_LIBS})
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost COMPONENTS system thread unit_test_framework filesystem regex REQUIRED)
+find_package(Boost COMPONENTS system thread filesystem regex REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
@@ -71,6 +72,7 @@ link_directories(${CoconutTools_LIBRARY_DIR})
 find_package(Threads REQUIRED)
 
 set(MODULES
+    "coconut-milk-fs"
     "coconut-milk-graphics-${MODULE_RENDERER}"
     "coconut-milk-math-${MODULE_MATHS}"
     "coconut-milk-system-${MODULE_SYSTEM}"

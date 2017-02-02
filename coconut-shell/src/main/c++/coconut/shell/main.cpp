@@ -18,10 +18,9 @@ using namespace coconut::shell;
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow) {
+CCN_BEGIN_MAIN();
 	// try {
-		std::shared_ptr<milk::system::App> app(new milk::system::App(hInstance, pScmdline, iCmdshow));
-
+		auto app = std::make_shared<milk::system::App>(*milk::system::GlobalMainArguments::instance());
 		game::Game theGame(app);
 		theGame.loop();
 	/* } catch (const std::exception& e) {
@@ -29,4 +28,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	}*/
 
 	return 0;
-}
+CCN_END_MAIN();

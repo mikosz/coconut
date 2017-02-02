@@ -47,7 +47,10 @@ public:
 
 	void initialise(system::COMWrapper<ID3D11DeviceContext> internalDeviceContext);
 
-	void draw(size_t startingIndex, size_t indexCount, PrimitiveTopology primitiveTopology);
+	void drawIndexed(size_t startingIndex, size_t indexCount, PrimitiveTopology primitiveTopology);
+
+	void drawIndexedInstanced(size_t vertexCountPerInstance, size_t instanceCount, size_t startingIndex,
+		PrimitiveTopology primitiveTopology);
 
 	LockedData lock(Data& data, LockPurpose lockPurpose);
 
@@ -66,6 +69,8 @@ public:
 	void setIndexBuffer(IndexBuffer& buffer, size_t offset);
 
 	void setVertexBuffer(VertexBuffer& buffer, size_t slot);
+
+	void setInstanceDataBuffer(VertexBuffer& buffer, size_t slot);
 
 	void setTexture(Texture& texture, ShaderType stage, size_t slot);
 

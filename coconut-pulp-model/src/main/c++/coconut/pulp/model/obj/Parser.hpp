@@ -10,9 +10,9 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
 
-#include <boost/filesystem/path.hpp>
-
 #include "coconut/milk/math/Vector.hpp"
+
+#include "coconut/milk/fs.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -25,38 +25,12 @@ namespace obj {
 
 class Parser :
 	public boost::spirit::qi::grammar<
-		boost::spirit::istream_iterator,
+		milk::fs::RawData::const_iterator,
+		// boost::spirit::istream_iterator,
 		void(),
 		boost::spirit::ascii::blank_type
 		> {
 public:
-
-	// TODO: this needs to be an external class
-	class MaterialFileOpener {
-	public:
-
-		typedef std::unique_ptr<std::istream> IStreamPtr;
-
-		MaterialFileOpener() {
-		}
-
-		MaterialFileOpener(const boost::filesystem::path& baseDirectory) :
-			baseDirectory_(baseDirectory)
-		{
-		}
-
-		virtual ~MaterialFileOpener() {
-		}
-
-		virtual IStreamPtr open(const std::string& name) const;
-
-		virtual boost::filesystem::path pathTo(const std::string& name) const;
-
-	private:
-
-		boost::filesystem::path baseDirectory_;
-
-	};
 
 	struct Vertex {
 
@@ -108,7 +82,7 @@ public:
 
 	Parser();
 
-	void parse(std::istream& is, const MaterialFileOpener& fileOpener);
+	void parse(const milk::fs::RawData& data, const milk::FilesystemContext& filesystemContext);
 
 	const Objects& objects() const {
 		return objects_;
@@ -133,13 +107,15 @@ public:
 private:
 
 	using Rule = boost::spirit::qi::rule<
-		boost::spirit::istream_iterator,
+		milk::fs::RawData::const_iterator,
+		// boost::spirit::istream_iterator,
 		void(),
 		boost::spirit::ascii::blank_type
 	>;
 
 	using VertexRule = boost::spirit::qi::rule<
-		boost::spirit::istream_iterator,
+		milk::fs::RawData::const_iterator,
+		// boost::spirit::istream_iterator,
 		Vertex(),
 		boost::spirit::ascii::blank_type
 	>;

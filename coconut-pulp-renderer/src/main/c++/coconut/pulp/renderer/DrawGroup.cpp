@@ -9,7 +9,7 @@
 
 #include "shader/Pass.hpp"
 #include "CommandBuffer.hpp"
-#include "GeometryDrawCommand.hpp"
+#include "DrawCommand.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -17,62 +17,17 @@ using namespace coconut::pulp::renderer;
 
 namespace /* anonymous */ {
 
-class VertexDataAccessor : public milk::graphics::VertexInterface {
-public:
-
-	VertexDataAccessor(const model::Data& modelData, size_t groupIndex) :
-		modelData_(modelData),
-		groupIndex_(groupIndex),
-		vertexIndex_(0)
-	{
-	}
-
-	virtual milk::math::Vector3d position() const {
-		const auto positionIndex = modelData_.drawGroups[groupIndex_].vertices[vertexIndex_].positionIndex;
-		return modelData_.positions[positionIndex];
-	}
-
-	virtual milk::math::Vector2d textureCoordinate() const {
-		const auto textureCoordinateIndex =
-			modelData_.drawGroups[groupIndex_].vertices[vertexIndex_].textureCoordinateIndex;
-		return modelData_.textureCoordinates[textureCoordinateIndex];
-	}
-
-	virtual milk::math::Vector3d normal() const {
-		const auto normalIndex = modelData_.drawGroups[groupIndex_].vertices[vertexIndex_].normalIndex;
-		return modelData_.normals[normalIndex];
-	}
-
-	bool valid() const {
-		return vertexIndex_ < modelData_.drawGroups[groupIndex_].vertices.size();
-	}
-
-	void progress() {
-		++vertexIndex_;
-	}
-
-private:
-
-	const model::Data& modelData_;
-
-	const size_t groupIndex_;
-
-	size_t vertexIndex_;
-
-};
-
 milk::graphics::Buffer::Configuration vertexBufferConfiguration(
-	const model::Data& modelData,
-	size_t groupIndex,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription
+	size_t vertexCount,
+	size_t vertexSize
 	) {
 	milk::graphics::Buffer::Configuration configuration;
 
 	configuration.allowCPURead = false;
 	configuration.allowGPUWrite = false;
 	configuration.allowModifications = false;
-	configuration.stride = inputLayoutDescription.vertexSize();
-	configuration.size = configuration.stride * modelData.drawGroups[groupIndex].vertices.size();
+	configuration.stride = vertexSize;
+	configuration.size = configuration.stride * vertexCount;
 
 	return configuration;
 }
@@ -98,21 +53,50 @@ milk::graphics::Buffer::Configuration indexBufferConfiguration(const model::Data
 std::vector<std::uint8_t> vertexBufferData(
 	const model::Data& modelData,
 	size_t groupIndex,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription
-	) {
+	const shader::Input& shaderInput
+	)
+{
 	const auto& drawGroup = modelData.drawGroups[groupIndex];
-	const auto vertexSize = inputLayoutDescription.vertexSize();
+	const auto vertexSize = shaderInput.vertexSize(shader::Input::SlotType::PER_VERTEX_DATA);
 
 	std::vector<std::uint8_t> data;
 	data.resize(vertexSize * drawGroup.vertices.size());
 
 	auto* target = data.data();
 	for (
-		VertexDataAccessor vertexDataAccessor(modelData, groupIndex);
-		vertexDataAccessor.valid();
-		vertexDataAccessor.progress()
-		) {
-		inputLayoutDescription.makeVertex(vertexDataAccessor, target);
+		auto vertexIterator = model::Data::VertexIterator(modelData, drawGroup);
+		!vertexIterator.atEnd();
+		vertexIterator.next()
+		)
+	{
+		shaderInput.writeVertex(target, &vertexIterator, shader::Input::SlotType::PER_VERTEX_DATA);
+		target += vertexSize;
+	}
+
+	return data;
+}
+
+std::vector<std::uint8_t> instanceBufferData( // TODO: duplicated code
+	const model::Data& modelData,
+	size_t groupIndex,
+	const shader::Input& shaderInput
+	)
+{
+	const auto& drawGroup = modelData.drawGroups[groupIndex];
+	const auto vertexSize = shaderInput.vertexSize(shader::Input::SlotType::PER_INSTANCE_DATA);
+
+	std::vector<std::uint8_t> data;
+	data.resize(vertexSize * drawGroup.instances.size());
+
+	auto* target = data.data();
+	for (
+		auto instanceIterator = model::Data::InstanceIterator(modelData, drawGroup);
+		!instanceIterator.atEnd();
+		instanceIterator.next()
+		)
+	{
+		shaderInput.writeVertex(target, &instanceIterator.instance(),
+			shader::Input::SlotType::PER_INSTANCE_DATA);
 		target += vertexSize;
 	}
 
@@ -155,49 +139,69 @@ DrawGroup::DrawGroup(
 	const model::Data& modelData,
 	size_t groupIndex,
 	milk::graphics::Renderer& graphicsRenderer,
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+	const shader::Input& shaderInput,
 	const MaterialManager& materialManager
 	) :
 	material_(materialManager.get(modelData.drawGroups[groupIndex].materialId)),
 	rasteriser_(graphicsRenderer, modelData.rasteriserConfiguration),
 	vertexBuffer_(
 		graphicsRenderer,
-		vertexBufferConfiguration(modelData, groupIndex, inputLayoutDescription),
-		&vertexBufferData(modelData, groupIndex, inputLayoutDescription).front()
+		vertexBufferConfiguration(modelData.drawGroups[groupIndex].vertices.size(),
+			shaderInput.vertexSize(shader::Input::SlotType::PER_VERTEX_DATA)),
+		vertexBufferData(modelData, groupIndex, shaderInput).data()
 		),
-	indexBuffer_(
-		graphicsRenderer,
-		indexBufferConfiguration(modelData, groupIndex),
-		&indexBufferData(modelData, groupIndex).front()
-		),
+	instanceCount_(modelData.drawGroups[groupIndex].instances.size()),
 	indexCount_(modelData.drawGroups[groupIndex].indices.size()),
 	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology)
 {
+	if (!modelData.drawGroups[groupIndex].instances.empty()) {
+		instanceDataBuffer_ = milk::graphics::VertexBuffer(
+			graphicsRenderer,
+			vertexBufferConfiguration(modelData.drawGroups[groupIndex].instances.size(), 
+				shaderInput.vertexSize(shader::Input::SlotType::PER_INSTANCE_DATA)),
+			instanceBufferData(modelData, groupIndex, shaderInput).data()
+			);
+	}
+
+	if (!modelData.drawGroups[groupIndex].indices.empty()) {
+		indexBuffer_ = milk::graphics::IndexBuffer(
+			graphicsRenderer,
+			indexBufferConfiguration(modelData, groupIndex),
+			&indexBufferData(modelData, groupIndex).front()
+			);
+	}
 }
 
 void DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
 	auto* pass = passContext.getPass(material_->shaderPassType());
 	if (pass) {
-		auto drawCommand = std::make_unique<GeometryDrawCommand>(); // TODO: these need to be created in a separate class and buffered
+		auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
 		drawCommand->setRasteriser(&rasteriser_);
 
 		passContext.material = material_.get();
 
-		drawCommand->setInputLayout(&pass->inputLayout());
+		drawCommand->setInputLayout(&pass->input().layout());
 		drawCommand->setVertexShader(&pass->vertexShader().shaderData());
 		pass->vertexShader().bind(*drawCommand, passContext);
 		drawCommand->setPixelShader(&pass->pixelShader().shaderData());
 		pass->pixelShader().bind(*drawCommand, passContext);
 
 		drawCommand->setVertexBuffer(&vertexBuffer_);
-		drawCommand->setIndexBuffer(&indexBuffer_);
+		if (instanceDataBuffer_) {
+			drawCommand->setInstanceDataBuffer(instanceDataBuffer_.get_ptr());
+		}
+		if (indexBuffer_) {
+			drawCommand->setIndexBuffer(indexBuffer_.get_ptr());
+		}
 		drawCommand->setIndexCount(indexCount_);
 		drawCommand->setPrimitiveTopology(primitiveTopology_);
 
 		drawCommand->setRenderTarget(passContext.backBuffer); // TODO
 		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
 		drawCommand->setViewport(passContext.viewport); // TODO
+
+		drawCommand->setInstanceCount(instanceCount_);
 
 		commandBuffer.add(std::move(drawCommand));
 	}

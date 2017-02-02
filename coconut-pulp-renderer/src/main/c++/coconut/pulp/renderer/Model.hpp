@@ -9,6 +9,7 @@
 
 #include "coconut/pulp/model/Data.hpp"
 
+#include "shader/Input.hpp"
 #include "MaterialManager.hpp"
 #include "PassContext.hpp"
 #include "DrawGroup.hpp"
@@ -25,7 +26,7 @@ public:
 	Model(
 		const model::Data& data,
 		milk::graphics::Renderer& graphicsRenderer,
-		const milk::graphics::InputLayoutDescription& inputLayoutDescription,
+		const shader::Input& input,
 		MaterialManager& materialManager
 		);
 

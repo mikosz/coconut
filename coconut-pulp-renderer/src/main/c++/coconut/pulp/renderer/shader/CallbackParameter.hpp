@@ -10,22 +10,22 @@ namespace pulp {
 namespace renderer {
 namespace shader {
 
-template <class StoredType, class... UpdateArguments>
-class CallbackParameter : public Parameter<UpdateArguments...> {
+template <class InputType, class OutputType>
+class CallbackParameter final : public ConcreteParameter<InputType, OutputType> {
 public:
 	
-	using Callback = std::function<void (StoredType&, const UpdateArguments&...)>;
+	using Callback = std::function<void (OutputType&, const InputType&, size_t)>;
 
-	CallbackParameter(Callback callback) :
-		Parameter(sizeof(StoredType)),
+	CallbackParameter(Callback callback, size_t padding, size_t arrayElements = 0) :
+		ConcreteParameter(padding, arrayElements),
 		callback_(callback)
 	{
 	}
 
 protected:
 
-	void update(void* buffer, const UpdateArguments&... data) override {
-		callback_(*reinterpret_cast<StoredType*>(buffer), data...);
+	void updateThis(OutputType& output, const InputType& input, size_t arrayIndex) const override {
+		callback_(output, input, arrayIndex);
 	}
 
 private:

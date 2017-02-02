@@ -1,4 +1,5 @@
 set(DEPENDENCY_LIBRARIES
+    coconut-milk-fs
     coconut-milk-math-${MODULE_MATHS}
     coconut-milk-graphics-${MODULE_RENDERER}
     coconut-pulp-model
@@ -6,10 +7,10 @@ set(DEPENDENCY_LIBRARIES
     coconut-tools-configuration
     coconut-tools-system
     coconut-tools-exceptions
+    coconut-tools-utils
     )
 
 set(TEST_LIBRARIES
-  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
   )
 
 library_module(coconut-pulp-renderer "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" USE_GMOCK ${LIBRARY_TYPE})

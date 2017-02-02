@@ -24,10 +24,7 @@ class DrawCommand;
 
 namespace shader {
 
-namespace detail {
-
-template <class GraphicsShaderType>
-class Shader {
+class UnknownShader {
 public:
 
 	using SceneData = std::vector<ConstantBufferSharedPtr<Scene>>;
@@ -36,7 +33,17 @@ public:
 
 	using MaterialData = std::vector<ConstantBufferSharedPtr<Material>>;
 
-	using Resources = std::unordered_map<size_t, ResourceSharedPtr>;
+	using Resources = std::vector<ResourceSharedPtr>;
+
+	virtual ~UnknownShader() = default;
+
+};
+
+namespace detail {
+
+template <class GraphicsShaderType>
+class Shader : public UnknownShader {
+public:
 
 	Shader(
 		GraphicsShaderType shaderData,

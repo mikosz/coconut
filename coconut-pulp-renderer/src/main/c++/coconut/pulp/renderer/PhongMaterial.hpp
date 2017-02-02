@@ -12,6 +12,29 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
+#pragma message("material fix")
+/* replace with something like this:
+class PhongMaterial : public Material {
+public:
+
+	bool getBooleanAttribute(AttributeId attributeId) const override {
+		switch (attributeId) {
+		case AttributeId::HAS_DIFFUSE_MAP:
+			return hasDiffuseMap_;
+		default:
+			throw UnhandledMaterialAttribute(attributeId);
+		}
+	}
+
+	...
+
+	Pass::Id getShaderPassId() const override {
+		return shaderPassId_;
+	}
+
+};
+*/
+
 class PhongMaterial : public Material {
 public:
 
@@ -67,6 +90,8 @@ public:
 	}
 
 	milk::graphics::Texture2d& diffuseMap() const {
+		// TODO: const returns reference to non-const
+#pragma message("fixme")
 		assert(diffuseMap_);
 		return *diffuseMap_;
 	}
@@ -75,8 +100,10 @@ public:
 		diffuseMapSampler_ = std::move(sampler);
 	}
 
-	milk::graphics::Sampler diffuseMapSampler() const {
-		return diffuseMapSampler_;
+	milk::graphics::Sampler& diffuseMapSampler() const {
+		// TODO: const returns reference to non-const
+#pragma message("fixme!!!!!!!!!")
+		return const_cast<milk::graphics::Sampler&>(diffuseMapSampler_);
 	}
 
 private:

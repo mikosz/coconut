@@ -1,8 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_PASS_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_PASS_HPP_
 
-#include "coconut/milk/graphics/InputLayout.hpp"
-
+#include "Input.hpp"
 #include "Shader.hpp"
 
 namespace coconut {
@@ -18,22 +17,22 @@ class Pass {
 public:
 
 	Pass(
-		milk::graphics::InputLayoutUniquePtr inputLayout,
-		VertexShaderUniquePtr vertexShader,
-		PixelShaderUniquePtr pixelShader
+		InputSharedPtr input,
+		VertexShaderSharedPtr vertexShader,
+		PixelShaderSharedPtr pixelShader
 		) :
-		inputLayout_(std::move(inputLayout)),
+		input_(std::move(input)),
 		vertexShader_(std::move(vertexShader)),
 		pixelShader_(std::move(pixelShader))
 	{
 	}
 
-	const milk::graphics::InputLayoutDescription& inputLayoutDescription() const {
-		return inputLayout_->description();
+	const Input& input() const {
+		return *input_;
 	}
 
-	milk::graphics::InputLayout& inputLayout() {
-		return *inputLayout_;
+	Input& input() {
+		return *input_;
 	}
 
 	VertexShader& vertexShader() {
@@ -46,11 +45,11 @@ public:
 
 private:
 
-	milk::graphics::InputLayoutUniquePtr inputLayout_;
+	InputSharedPtr input_;
 
-	VertexShaderUniquePtr vertexShader_;
+	VertexShaderSharedPtr vertexShader_;
 
-	PixelShaderUniquePtr pixelShader_;
+	PixelShaderSharedPtr pixelShader_;
 
 };
 

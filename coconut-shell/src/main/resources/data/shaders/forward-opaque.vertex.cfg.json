@@ -1,0 +1,29 @@
+{
+  "name": "forward-opaque.vertex",
+  "type": "vertex",
+  "input-layout": "forward-opaque.input",
+  "actor-parameters": [
+    {
+	  "index": 0,
+	  "type": "structure",
+	  "fields": [
+	    {
+		  "type": "world_matrix"
+		},
+		{
+		  "type": "world_matrix_inverse_transpose"
+		}
+	  ]
+	}
+  ],
+  "scene-parameters": [
+    {
+	  "index": 1,
+	  "type": "view_matrix"
+	},
+	{
+	  "index": 2,
+	  "type": "projection_matrix"
+	}
+  ]
+}

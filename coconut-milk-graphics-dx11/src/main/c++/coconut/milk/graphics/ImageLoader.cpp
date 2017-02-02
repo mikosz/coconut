@@ -6,6 +6,8 @@
 
 #include "coconut/milk/system/WindowsError.hpp"
 
+#include "PixelFormat.hpp"
+
 CT_LOGGER_CATEGORY("COCONUT.MILK.GRAPHICS");
 
 using namespace coconut;
