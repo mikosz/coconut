@@ -45,6 +45,7 @@ system::COMWrapper<ID3D11InputLayout> createLayout(
 		desc.InputSlot = static_cast<UINT>(inputSlotIndex(element.inputSlotType));
 		desc.InputSlotClass = static_cast<D3D11_INPUT_CLASSIFICATION>(element.inputSlotType);
 		desc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		desc.InstanceDataStepRate = static_cast<UINT>(element.instanceDataStepRate);
 	}
 
 	system::COMWrapper<ID3D11InputLayout> layout;
