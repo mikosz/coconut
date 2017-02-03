@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 			rectangleData.drawGroups.emplace_back(drawGroup);
 		}
 		
-		auto model = std::make_shared<Model>(rectangleData, renderer(), renderingPass->input(), materialManager);
+		auto model = std::make_shared<Model>(rectangleData, renderer(), renderingPass->input(), materialManager, fs);
 		auto rectangle = std::make_shared<Actor>(model);
 
 		scene.add(rectangle);

@@ -37,8 +37,11 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 	filesystem_(std::make_unique<milk::Filesystem>())
 {
 	{
-		auto mount = std::make_unique<milk::DirectoryMount>(".", false);
-		filesystem_->mount("/", std::move(mount), milk::Filesystem::PredecessorHidingPolicy::ADD);
+		auto currentMount = std::make_unique<milk::DirectoryMount>(".", false);
+		filesystem_->mount("/", std::move(currentMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
+
+		auto worldMount = std::make_unique<milk::DirectoryMount>("../coconut-pulp-world", false);
+		filesystem_->mount("/", std::move(worldMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
 	}
 
 	{
@@ -114,9 +117,10 @@ void Game::loop() {
 	passFactory.scanCompiledShaderDirectory(fs, "Debug");
 
 	pulp::renderer::Scene scene(*graphicsRenderer_);
-	scene.setRenderingPass(passFactory.create("sprite", *graphicsRenderer_, fs));
+	scene.setRenderingPass(passFactory.create("grass", *graphicsRenderer_, fs));
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().input(), materialManager));
+	auto m = std::make_shared<pulp::renderer::Model>(
+		modelData, *graphicsRenderer_, scene.renderingPass().input(), materialManager, fs);
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
@@ -126,14 +130,14 @@ void Game::loop() {
 		);
 	scene.add(white);
 
-	pulp::renderer::lighting::PointLight yellow(
+	/* pulp::renderer::lighting::PointLight yellow(
 		milk::math::Vector3d(0.0f, 1.5f, -3.5f),
 		milk::math::Vector3d(0.0f, 1.0f, 0.0f),
 		milk::math::Vector4d(0.1f, 0.0f, 0.0f, 0.0f),
 		milk::math::Vector4d(0.7f, 0.0f, 0.0f, 1.0f),
 		milk::math::Vector4d(0.4f, 0.0f, 0.0f, 0.0f)
 		);
-	scene.add(yellow);
+	scene.add(yellow); */
 
 	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
 
@@ -187,12 +191,12 @@ void Game::loop() {
 
 		floorData.drawGroups.emplace_back(drawGroup);
 	}
-	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().input(), materialManager);
-	auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
+	//auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().input(), materialManager);
+	//auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
 	// scene.add(floorActor);
 
 	auto grassActor = std::make_shared<pulp::world::foliage::Grass>(
-		*graphicsRenderer_, scene.renderingPass().input(), materialManager);
+		*graphicsRenderer_, scene.renderingPass().input(), materialManager, fs);
 	scene.add(grassActor);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list

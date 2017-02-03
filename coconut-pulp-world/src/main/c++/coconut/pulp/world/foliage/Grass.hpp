@@ -1,6 +1,8 @@
 #ifndef _COCONUT_PULP_WORLD_FOLIAGE_GRASS_HPP_
 #define _COCONUT_PULP_WORLD_FOLIAGE_GRASS_HPP_
 
+#include "coconut/milk/fs.hpp"
+
 #include "coconut/pulp/renderer/Actor.hpp"
 
 namespace coconut {
@@ -14,7 +16,8 @@ public:
 	Grass(
 		milk::graphics::Renderer& graphicsRenderer,
 		const renderer::shader::Input& input,
-		renderer::MaterialManager& materialManager
+		renderer::MaterialManager& materialManager,
+		milk::FilesystemContext& filesystemContext
 		);
 
 	void update(std::chrono::milliseconds dt) override;

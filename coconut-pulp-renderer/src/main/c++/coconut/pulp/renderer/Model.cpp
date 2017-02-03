@@ -14,7 +14,8 @@ Model::Model(
 	const model::Data& data,
 	milk::graphics::Renderer& graphicsRenderer,
 	const shader::Input& input,
-	MaterialManager& materialManager
+	MaterialManager& materialManager,
+	const milk::FilesystemContext& filesystemContext
 	) {
 	for (const auto& phongMaterial : data.phongMaterials) {
 		ShaderPassType shaderPassType;
@@ -24,6 +25,8 @@ Model::Model(
 			shaderPassType = ShaderPassType::OPAQUE;
 		}
 
+		shaderPassType = ShaderPassType::GRASS; // TODO: TEMP TEMP TEMP
+
 		auto material = std::make_unique<PhongMaterial>(shaderPassType);
 		material->setAmbientColour(phongMaterial.ambientColour);
 		material->setDiffuseColour(phongMaterial.diffuseColour);
@@ -31,7 +34,7 @@ Model::Model(
 		if (!phongMaterial.diffuseMap.empty()) {
 			milk::graphics::ImageLoader imageLoader;
 			auto diffuseMap = std::make_unique<milk::graphics::Texture2d>(
-				graphicsRenderer, imageLoader.load(phongMaterial.diffuseMap.string()));
+				graphicsRenderer, imageLoader.load(filesystemContext, phongMaterial.diffuseMap.string()));
 			material->setDiffuseMap(std::move(diffuseMap));
 			material->setDiffuseMapSampler(
 				milk::graphics::Sampler(

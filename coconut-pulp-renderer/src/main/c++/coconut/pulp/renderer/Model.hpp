@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "coconut/milk/fs.hpp"
+
 #include "coconut/milk/graphics/Renderer.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
@@ -27,7 +29,8 @@ public:
 		const model::Data& data,
 		milk::graphics::Renderer& graphicsRenderer,
 		const shader::Input& input,
-		MaterialManager& materialManager
+		MaterialManager& materialManager,
+		const milk::FilesystemContext& filesystemContext
 		);
 
 	void render(CommandBuffer& commandBuffer, PassContext PassContext);

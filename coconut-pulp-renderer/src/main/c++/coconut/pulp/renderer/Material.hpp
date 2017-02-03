@@ -16,6 +16,7 @@ namespace renderer {
 CCN_ENUM(ShaderPassType,
 	(OPAQUE)
 	(TRANSPARENT)
+	(GRASS)
 	);
 
 class Material {

@@ -65,9 +65,16 @@ void Scene::render(CommandBuffer& commandBuffer) {
 		actor->render(commandBuffer, context);
 	}
 
+	context.setPass(ShaderPassType::GRASS, renderingPass_.get());
+
+	for (auto actor : actors_) {
+		actor->render(commandBuffer, context);
+	}
+
 	context.setPass(ShaderPassType::TRANSPARENT, renderingPass_.get()); // TODO!
 
 	for (auto actor : actors_) {
 		actor->render(commandBuffer, context);
 	}
+
 }

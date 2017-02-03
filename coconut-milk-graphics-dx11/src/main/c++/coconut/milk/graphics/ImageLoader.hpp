@@ -3,15 +3,16 @@
 
 #include <vector>
 
-#include <boost/filesystem/path.hpp>
-
 #include <wincodec.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 #pragma comment(lib, "windowscodecs.lib")
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
+#include "coconut/milk/fs.hpp"
+
 #include "coconut/milk/system/COMWrapper.hpp"
+
 #include "coconut/milk/math/Vector.hpp"
 
 #include "PixelFormat.hpp"
@@ -66,24 +67,24 @@ private:
 class ImageLoadingError : public coconut_tools::exceptions::RuntimeError {
 public:
 
-	ImageLoadingError(const boost::filesystem::path& path, const std::string& message);
+	ImageLoadingError(const AbsolutePath& path, const std::string& message);
 
-	ImageLoadingError(const boost::filesystem::path& path, const std::exception& cause);
+	ImageLoadingError(const AbsolutePath& path, const std::exception& cause);
 
 	const std::string& name() const noexcept override {
 		static const std::string NAME = "ImageLoadingError";
 		return NAME;
 	}
 
-	const boost::filesystem::path& path() const {
+	const AbsolutePath& path() const {
 		return path_;
 	}
 
 private:
 
-	boost::filesystem::path path_;
+	AbsolutePath path_;
 
-	static std::string buildMessage(const boost::filesystem::path& path, const std::string& message);
+	static std::string buildMessage(const AbsolutePath& path, const std::string& message);
 
 };
 
@@ -92,7 +93,7 @@ public:
 
 	ImageLoader();
 
-	Image load(const boost::filesystem::path& path) const;
+	Image load(const FilesystemContext& filesystemContext, const Path& path) const;
 
 private:
 

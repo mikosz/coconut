@@ -27,7 +27,7 @@ public:
 	virtual void update(std::chrono::milliseconds dt) {
 	}
 
-	virtual void render(CommandBuffer& commandBuffer, PassContext PassContext);
+	virtual void render(CommandBuffer& commandBuffer, PassContext passContext);
 
 	// TODO: move below functions to interface?
 	const milk::math::Matrix& worldTransformation() const {

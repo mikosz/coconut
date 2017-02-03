@@ -154,7 +154,7 @@ DrawGroup::DrawGroup(
 	indexCount_(modelData.drawGroups[groupIndex].indices.size()),
 	primitiveTopology_(modelData.drawGroups[groupIndex].primitiveTopology)
 {
-	if (!modelData.drawGroups[groupIndex].instances.empty()) {
+	if (shaderInput.vertexSize(shader::Input::SlotType::PER_INSTANCE_DATA) != 0) {
 		instanceDataBuffer_ = milk::graphics::VertexBuffer(
 			graphicsRenderer,
 			vertexBufferConfiguration(modelData.drawGroups[groupIndex].instances.size(), 

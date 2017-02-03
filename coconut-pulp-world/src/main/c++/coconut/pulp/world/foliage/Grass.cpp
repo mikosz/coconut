@@ -21,11 +21,19 @@ model::Data generateInstancedPatchData() {
 	data.normals.emplace_back(0.0f, 0.0f, -1.0f);
 
 	data.textureCoordinates.emplace_back(0.0f, 0.0f);
+	data.textureCoordinates.emplace_back(1.0f, 0.0f);
+	data.textureCoordinates.emplace_back(0.0f, 1.0f);
+	data.textureCoordinates.emplace_back(1.0f, 1.0f);
 
 	data.phongMaterials.emplace_back();
-	data.phongMaterials.back().ambientColour = milk::math::Vector4d(0.0f, 0.0f, 1.0f, 1.0f);
-	data.phongMaterials.back().diffuseColour = milk::math::Vector4d(0.0f, 0.0f, 1.0f, 1.0f);
-	data.phongMaterials.back().specularColour = milk::math::Vector4d(0.0f, 0.0f, 0.1f, 1.0f);
+	data.phongMaterials.back().ambientColour = milk::math::Vector4d(0.0f, 1.0f, 0.0f, 1.0f);
+	data.phongMaterials.back().diffuseColour = milk::math::Vector4d(0.0f, 1.0f, 0.0f, 1.0f);
+	data.phongMaterials.back().specularColour = milk::math::Vector4d(0.0f, 0.1f, 0.0f, 1.0f);
+	data.phongMaterials.back().diffuseMap = "/data/textures/grass.png";
+	data.phongMaterials.back().diffuseMapSamplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
+	data.phongMaterials.back().diffuseMapSamplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
+	data.phongMaterials.back().diffuseMapSamplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
+	data.phongMaterials.back().diffuseMapSamplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR;
 	data.phongMaterials.back().name = "grass::blade";
 
 	data.drawGroups.emplace_back();
@@ -35,19 +43,19 @@ model::Data generateInstancedPatchData() {
 	drawGroup.materialId = "grass::blade";
 
 	// blades
-	for (auto x: coconut_tools::range(-0.4f, 0.5f, 0.1f)) {
-		for (auto z : coconut_tools::range(-0.4f, 0.5f, 0.1f)) {
+	for (auto x: coconut_tools::range(-0.5f, 0.5f, 0.5f)) {
+		for (auto z : coconut_tools::range(-0.5f, 0.5f, 0.5f)) {
 			auto offset = milk::math::Vector3d(x, 0.0f, z);
 
-			auto bottomLeft = milk::math::Vector3d(-0.02f, 0.0f, 0.0f);
-			auto bottomRight = milk::math::Vector3d(0.02f, 0.0f, 0.0f);
-			auto topLeft = milk::math::Vector3d(-0.02f, 0.5f, 0.0f);
-			auto topRight = milk::math::Vector3d(0.02f, 0.5f, 0.0f);
+			auto bottomLeft = milk::math::Vector3d(-0.03f, 0.0f, 0.0f);
+			auto bottomRight = milk::math::Vector3d(0.03f, 0.0f, 0.0f);
+			auto topLeft = milk::math::Vector3d(-0.03f, 0.5f, 0.0f);
+			auto topRight = milk::math::Vector3d(0.03f, 0.5f, 0.0f);
 
 			drawGroup.vertices.emplace_back();
 			drawGroup.vertices.back().positionIndex = data.positions.size();
 			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 0;
+			drawGroup.vertices.back().textureCoordinateIndex = 1;
 			drawGroup.indices.emplace_back(data.positions.size());
 			data.positions.emplace_back(bottomRight + offset);
 
@@ -61,7 +69,7 @@ model::Data generateInstancedPatchData() {
 			drawGroup.vertices.emplace_back();
 			drawGroup.vertices.back().positionIndex = data.positions.size();
 			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 0;
+			drawGroup.vertices.back().textureCoordinateIndex = 2;
 			drawGroup.indices.emplace_back(data.positions.size());
 			data.positions.emplace_back(topLeft + offset);
 
@@ -70,21 +78,21 @@ model::Data generateInstancedPatchData() {
 			drawGroup.vertices.emplace_back();
 			drawGroup.vertices.back().positionIndex = data.positions.size();
 			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 0;
+			drawGroup.vertices.back().textureCoordinateIndex = 1;
 			drawGroup.indices.emplace_back(data.positions.size());
 			data.positions.emplace_back(bottomRight + offset);
 
 			drawGroup.vertices.emplace_back();
 			drawGroup.vertices.back().positionIndex = data.positions.size();
 			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 0;
+			drawGroup.vertices.back().textureCoordinateIndex = 2;
 			drawGroup.indices.emplace_back(data.positions.size());
 			data.positions.emplace_back(topLeft + offset);
 
 			drawGroup.vertices.emplace_back();
 			drawGroup.vertices.back().positionIndex = data.positions.size();
 			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 0;
+			drawGroup.vertices.back().textureCoordinateIndex = 3;
 			drawGroup.indices.emplace_back(data.positions.size());
 			data.positions.emplace_back(topRight + offset);
 		}
@@ -106,13 +114,15 @@ model::Data generateInstancedPatchData() {
 Grass::Grass(
 	milk::graphics::Renderer& graphicsRenderer,
 	const renderer::shader::Input& input,
-	renderer::MaterialManager& materialManager
+	renderer::MaterialManager& materialManager,
+	milk::FilesystemContext& filesystemContext
 	) :
 	Actor(std::make_shared<renderer::Model>(
 		generateInstancedPatchData(),
 		graphicsRenderer,
 		input,
-		materialManager
+		materialManager,
+		filesystemContext
 		))
 {
 }

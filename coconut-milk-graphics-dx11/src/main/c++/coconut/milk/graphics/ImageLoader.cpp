@@ -2,6 +2,10 @@
 
 #include <algorithm>
 
+#include <Shlwapi.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
+#pragma comment(lib, "Shlwapi.lib")
+
 #include <coconut-tools/logger.hpp>
 
 #include "coconut/milk/system/WindowsError.hpp"
@@ -109,19 +113,19 @@ void convert(
 
 } // anonymous namespace
 
-ImageLoadingError::ImageLoadingError(const boost::filesystem::path& path, const std::string& message) :
+ImageLoadingError::ImageLoadingError(const AbsolutePath& path, const std::string& message) :
 	coconut_tools::exceptions::RuntimeError(buildMessage(path, message)),
 	path_(path)
 {
 }
 
-ImageLoadingError::ImageLoadingError(const boost::filesystem::path& path, const std::exception& cause) :
+ImageLoadingError::ImageLoadingError(const AbsolutePath& path, const std::exception& cause) :
 	coconut_tools::exceptions::RuntimeError(buildMessage(path, std::string()), cause),
 	path_(path)
 {
 }
 
-std::string ImageLoadingError::buildMessage(const boost::filesystem::path& path, const std::string& message) {
+std::string ImageLoadingError::buildMessage(const AbsolutePath& path, const std::string& message) {
 	std::string result = "Failed to load image \"" + path.string() + "\"";
 	if (!message.empty()) {
 		result += ": " + message;
@@ -143,22 +147,26 @@ ImageLoader::ImageLoader() {
 		);
 }
 
-Image ImageLoader::load(const boost::filesystem::path& path) const {
+Image ImageLoader::load(const FilesystemContext& filesystemContext, const Path& path) const {
 	try {
-		auto extension = path.extension().string();
-
 		CT_LOG_DEBUG << "Loading image " << path.string();
+
+		auto imageData = filesystemContext.load(path);
+
+		auto* is = SHCreateMemStream(imageData->data(), static_cast<UINT>(imageData->size()));
+		if (is == nullptr) {
+			throw ImageLoadingError(path, "Failed to create a memory stream for image decoder");
+		}
 
 		system::COMWrapper<IWICBitmapDecoder> decoder;
 		system::checkWindowsCall(
-			imagingFactory_->CreateDecoderFromFilename(
-				path.wstring().c_str(),
+			imagingFactory_->CreateDecoderFromStream(
+				is,
 				nullptr,
-				GENERIC_READ,
 				WICDecodeMetadataCacheOnDemand,
 				&decoder.get()
 				),
-			"Failed to create a decoder for " + extension
+			"Failed to create a decoder for " + path.string()
 			);
 
 		UINT frameCount;
