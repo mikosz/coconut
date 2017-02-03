@@ -9,7 +9,7 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "coconut/pulp/model/Data.hpp"
+#include "coconut/pulp/model/Mesh.hpp"
 
 #include "shader/Input.hpp"
 #include "MaterialManager.hpp"

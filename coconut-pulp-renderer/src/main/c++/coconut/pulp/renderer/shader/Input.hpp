@@ -9,7 +9,7 @@
 #include "coconut/milk/graphics/InputLayout.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
 
-#include "coconut/pulp/model/Data.hpp"
+#include "coconut/pulp/model/Mesh.hpp"
 
 namespace coconut {
 namespace pulp {

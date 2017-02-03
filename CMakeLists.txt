@@ -78,6 +78,7 @@ set(MODULES
     "coconut-milk-system-${MODULE_SYSTEM}"
     "coconut-milk-utils"
     "coconut-pulp-model"
+    "coconut-pulp-primitive"
     "coconut-pulp-renderer"
     "coconut-pulp-world"
     "coconut-shell"

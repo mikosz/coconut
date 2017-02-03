@@ -1,4 +1,4 @@
-#include "Data.hpp"
+#include "Mesh.hpp"
 
 #include <unordered_map>
 
@@ -39,37 +39,37 @@ struct Vector3dLexicographicalCompare {
 
 } // anonymous namespace
 
-Data::VertexIterator::VertexIterator(const Data& data, const DrawGroup& drawGroup) :
+Mesh::VertexIterator::VertexIterator(const Mesh& data, const DrawGroup& drawGroup) :
 	data_(data),
 	drawGroup_(drawGroup)
 {
 }
 
-void Data::VertexIterator::next() {
+void Mesh::VertexIterator::next() {
 	assert(!atEnd());
 	++index_;
 }
 
-bool Data::VertexIterator::atEnd() {
+bool Mesh::VertexIterator::atEnd() {
 	return index_ == drawGroup_.vertices.size();
 }
 
-Data::InstanceIterator::InstanceIterator(const Data& data, const DrawGroup& drawGroup) :
+Mesh::InstanceIterator::InstanceIterator(const Mesh& data, const DrawGroup& drawGroup) :
 	data_(data),
 	drawGroup_(drawGroup)
 {
 }
 
-void Data::InstanceIterator::next() {
+void Mesh::InstanceIterator::next() {
 	assert(!atEnd());
 	++index_;
 }
 
-bool Data::InstanceIterator::atEnd() {
+bool Mesh::InstanceIterator::atEnd() {
 	return index_ == drawGroup_.instances.size();
 }
 
-void Data::generateNormals() {
+void Mesh::generateNormals() {
 	CT_LOG_DEBUG << "Generating normals";
 
 	for (size_t groupIndex = 0; groupIndex < drawGroups.size(); ++groupIndex) {

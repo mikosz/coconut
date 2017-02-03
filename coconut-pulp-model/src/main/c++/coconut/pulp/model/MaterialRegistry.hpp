@@ -6,11 +6,11 @@
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
-#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "Material.hpp"
 
 namespace coconut {
 namespace pulp {
-namespace renderer {
+namespace model {
 
 class MaterialAlreadyRegistered : public coconut_tools::exceptions::RuntimeError {
 public:
@@ -32,30 +32,16 @@ public:
 
 };
 
-class Material;
-CCN_MAKE_POINTER_DEFINITIONS(Material);
-
-class MaterialManager {
+class MaterialRegistry {
 public:
 
-	void registerMaterial(std::string name, MaterialSharedPtr material) {
-		if (materials_.count(name) != 0) {
-			throw MaterialAlreadyRegistered(name);
-		}
-		materials_.emplace(name, material);
-	}
+	void add(std::string name, Material material);
 
-	MaterialSharedPtr get(const std::string& name) const {
-		auto material = materials_.find(name);
-		if (material == materials_.end()) {
-			throw MaterialNotRegistered(name);
-		}
-		return material->second;
-	}
+	const Material& get(const std::string& name) const;
 
 private:
 
-	using Materials = std::unordered_map<std::string, MaterialSharedPtr>;
+	using Materials = std::unordered_map<std::string, Material>;
 
 	Materials materials_;
 

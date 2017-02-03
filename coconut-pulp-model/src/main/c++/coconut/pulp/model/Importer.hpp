@@ -1,14 +1,15 @@
 #ifndef _COCONUT_PULP_RENDERER_MODEL_IMPORTER_HPP_
 #define _COCONUT_PULP_RENDERER_MODEL_IMPORTER_HPP_
 
-#include <iosfwd>
 #include <string>
+#include <tuple>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "coconut/milk/fs.hpp"
 
-#include "Data.hpp"
+#include "Material.hpp"
+#include "Mesh.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -23,7 +24,7 @@ public:
 
 	void operator=(const Importer&) = delete;
 
-	virtual Data import(
+	virtual Mesh import(
 		const std::string& name,
 		const milk::fs::RawData& data,
 		const milk::FilesystemContext& filesystemContext

@@ -39,7 +39,7 @@ struct hash<VertexDescriptor> {
 
 } // namespace std
 
-Data obj::Importer::import(
+Mesh obj::Importer::import(
 	const std::string& name,
 	const milk::fs::RawData& data,
 	const milk::FilesystemContext& filesystemContext
@@ -47,17 +47,7 @@ Data obj::Importer::import(
 	Parser parser;
 	parser.parse(data, filesystemContext);
 
-	Data modelData;
-
-	modelData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
-	modelData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
-	modelData.rasteriserConfiguration.frontCounterClockwise = false;
-
-	milk::graphics::Sampler::Configuration defaultSamplerConfiguration;
-	defaultSamplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
-	defaultSamplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
-	defaultSamplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
-	defaultSamplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR; // TODO!
+	Mesh modelData;
 
 	bool hasFaces = false;
 
@@ -71,7 +61,7 @@ Data obj::Importer::import(
 	for (const auto& materialDataEntry : parser.materials()) {
 		const auto& materialData = materialDataEntry.second;
 
-		Data::PhongMaterial material;
+		Mesh::PhongMaterial material;
 		material.name = name + "::" + materialData.name;
 		material.ambientColour = rgbToRgba(materialData.ambientColour);
 		material.diffuseColour = rgbToRgba(materialData.diffuseColour);

@@ -15,7 +15,7 @@ public:
 
 	Importer() = default;
 
-	Data import(
+	Mesh import(
 		const std::string& name,
 		const milk::fs::RawData& data,
 		const milk::FilesystemContext& filesystemContext

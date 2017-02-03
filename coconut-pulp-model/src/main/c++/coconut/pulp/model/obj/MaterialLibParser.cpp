@@ -59,6 +59,17 @@ MaterialLibParser::MaterialLibParser() :
 void MaterialLibParser::parse(const milk::fs::RawData& data) {
 	clear();
 
+		modelData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
+	modelData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
+	modelData.rasteriserConfiguration.frontCounterClockwise = false;
+
+	milk::graphics::Sampler::Configuration defaultSamplerConfiguration;
+	defaultSamplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
+	defaultSamplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
+	defaultSamplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
+	defaultSamplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR; // TODO!
+
+
 	// TODO: figure out how to fix these position iterators
 
 	/* auto multiPassIt = spirit::make_default_multi_pass(data.begin());
