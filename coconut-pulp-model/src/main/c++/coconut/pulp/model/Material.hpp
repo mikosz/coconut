@@ -11,11 +11,13 @@
 #include <coconut-tools/serialisation/Deserialiser.hpp>
 #include <coconut-tools/serialisation/make-serialisable-macro.hpp>
 
-#include <coconut-tools/utils/range.hpp>
+#include <coconut-tools/utils/Range.hpp>
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "coconut/milk/graphics/Rasteriser.hpp"
+
+#include "coconut/pulp/primitive/PrimitiveId.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -36,11 +38,9 @@ public:
 
 	struct Property {
 
-
-
 	};
 
-	using Properties = std::unordered_map<std::string, boost::any>;
+	using Properties = std::unordered_map<std::string, Property>;
 
 	void set(const std::string& property, boost::any value);
 

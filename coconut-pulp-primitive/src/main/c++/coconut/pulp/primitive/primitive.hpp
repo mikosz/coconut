@@ -2,7 +2,6 @@
 #define _COCONUT_PULP_PRIMITIVE_PRIMITIVEID_HPP_
 
 #include <cstdint>
-#include <type_traits>
 
 #include <coconut-tools/enum.hpp>
 
@@ -37,8 +36,6 @@ private:
 	} primitiveHolder_;
 
 };
-
-// static_assert(std::is_trivial<Position>::value, "Position type must be trivial");
 
 } // namespace primitive
 } // namespace pulp

@@ -10,8 +10,6 @@ namespace primitive {
 class Position : milk::math::Vector4d {
 public:
 
-	using milk::math::Vector4d::Vector4d;
-
 	milk::math::Vector4d::x;
 
 	milk::math::Vector4d::y;

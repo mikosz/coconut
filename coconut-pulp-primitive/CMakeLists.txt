@@ -1,7 +1,7 @@
 set(DEPENDENCY_LIBRARIES
 	coconut-milk-math-${MODULE_MATHS}
 	coconut-tools-utils
-    )
+  )
 
 set(TEST_LIBRARIES
   )
