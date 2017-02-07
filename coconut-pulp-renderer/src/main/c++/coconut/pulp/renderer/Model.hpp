@@ -10,9 +10,9 @@
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "coconut/pulp/model/Mesh.hpp"
+#include "coconut/pulp/model/MaterialRegistry.hpp"
 
 #include "shader/Input.hpp"
-#include "MaterialManager.hpp"
 #include "PassContext.hpp"
 #include "DrawGroup.hpp"
 
@@ -26,10 +26,10 @@ class Model {
 public:
 
 	Model(
-		const model::Data& data,
+		const model::Mesh& mesh,
+		const model::Materials& materialRegistry,
 		milk::graphics::Renderer& graphicsRenderer,
 		const shader::Input& input,
-		MaterialManager& materialManager,
 		const milk::FilesystemContext& filesystemContext
 		);
 

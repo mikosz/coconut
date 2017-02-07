@@ -17,7 +17,7 @@
 
 #include "coconut/milk/graphics/Rasteriser.hpp"
 
-#include "coconut/pulp/primitive/PrimitiveId.hpp"
+#include "coconut/pulp/primitive.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -36,11 +36,7 @@ public:
 
 	};
 
-	struct Property {
-
-	};
-
-	using Properties = std::unordered_map<std::string, Property>;
+	using Properties = std::unordered_map<std::string, Primitive>;
 
 	void set(const std::string& property, boost::any value);
 

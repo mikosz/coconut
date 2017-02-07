@@ -38,6 +38,10 @@ private:
 };
 
 } // namespace primitive
+
+using primitive::PrimitiveType;
+using primitive::Primitive;
+
 } // namespace pulp
 } // namespace coconut
 
