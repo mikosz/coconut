@@ -35,8 +35,7 @@ public:
 
 	static const float EPSILON;
 
-	Vector() {
-	}
+	Vector() = default;
 
 	explicit Vector(DirectX::XMVECTOR xmvector) {
 		store(xmvector);
@@ -213,8 +212,7 @@ class Vector1d :
 {
 public:
 
-	Vector1d() {
-	}
+	Vector1d() = default;
 
 	explicit Vector1d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
 	}
@@ -275,8 +273,7 @@ public:
 
 	using ShaderParameter = DirectX::XMFLOAT2;
 
-	Vector2d() {
-	}
+	Vector2d() = default;
 
 	explicit Vector2d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
 	}
@@ -354,8 +351,7 @@ public:
 
 	using ShaderParameter = DirectX::XMFLOAT3;
 
-	Vector3d() {
-	}
+	Vector3d() = default;
 
 	explicit Vector3d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
 	}
@@ -469,8 +465,7 @@ public:
 
 	using ShaderParameter = DirectX::XMFLOAT4;
 
-	Vector4d() {
-	}
+	Vector4d() = default;
 
 	explicit Vector4d(float x) : Vector(x, 0.0f, 0.0f, 0.0f) {
 	}

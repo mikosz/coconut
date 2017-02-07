@@ -34,6 +34,12 @@ public:
 
 	};
 
+	struct Property {
+
+
+
+	};
+
 	using Properties = std::unordered_map<std::string, boost::any>;
 
 	void set(const std::string& property, boost::any value);
