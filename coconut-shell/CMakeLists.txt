@@ -4,13 +4,12 @@ set(DEPENDENCY_LIBRARIES
     coconut-tools-serialisation
     coconut-tools-system
     coconut-tools-exceptions
-	coconut-milk-fs
+    coconut-milk-fs
     coconut-pulp-renderer
-	coconut-pulp-world
+    coconut-pulp-world
     )
 
 set(TEST_LIBRARIES
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
     )
     
 executable_module(

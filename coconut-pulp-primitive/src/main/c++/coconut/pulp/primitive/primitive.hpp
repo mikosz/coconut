@@ -1,48 +1,78 @@
-#ifndef _COCONUT_PULP_PRIMITIVE_PRIMITIVEID_HPP_
-#define _COCONUT_PULP_PRIMITIVE_PRIMITIVEID_HPP_
+#ifndef _COCONUT_PULP_PRIMITIVE_PRIMITIVE_HPP_
+#define _COCONUT_PULP_PRIMITIVE_PRIMITIVE_HPP_
 
 #include <cstdint>
 
 #include <coconut-tools/enum.hpp>
+#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
 
 #include "coconut/milk/graphics/PixelFormat.hpp"
 
 #include "Position.hpp"
+#include "Vector.hpp"
+#include "Colour.hpp"
+#include "TextureCoordinate.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace primitive {
 
-CCN_ENUM(
-	PrimitiveType,
-	(POSITION)
-	);
-
 class Primitive {
 public:
 
-	PrimitiveType type() const {
-		return type_;
+	Primitive(float f) :
+		type_(Type::SCALAR),
+		data_(f)
+	{
+	}
+
+	Primitive(Colour colour) :
+		type_(Type::COLOUR),
+		data_(colour)
+	{
 	}
 
 	void storeAs(void* buffer, milk::graphics::PixelFormat pixelFormat) const; // pixel format? co z macierzami?
 
 private:
 
-	PrimitiveType type_;
+	CCN_MEMBER_ENUM(
+		Type,
+		(SCALAR)
+		(POSITION)
+		(VECTOR)
+		(COLOUR)
+		(TEXTURE_COORDINATE)
+		);
 
-	union {
+	Type type_;
+
+	union Data {
+		float scalar;
 		Position position;
-	} primitiveHolder_;
+		Vector vector;
+		Colour colour;
+		TextureCoordinate textureCoordinate;
+
+		Data(float f) :
+			scalar(f)
+		{
+		}
+
+		Data(Colour colour) :
+			colour(std::move(colour))
+		{
+		}
+
+	} data_;
 
 };
 
 } // namespace primitive
 
-using primitive::PrimitiveType;
 using primitive::Primitive;
 
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_PRIMITIVE_PRIMITIVEID_HPP_ */
+#endif /* _COCONUT_PULP_PRIMITIVE_PRIMITIVE_HPP_ */

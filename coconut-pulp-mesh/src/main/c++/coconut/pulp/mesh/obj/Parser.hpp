@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_RENDERER_MODEL_OBJ_PARSER_HPP_
-#define _COCONUT_PULP_RENDERER_MODEL_OBJ_PARSER_HPP_
+#ifndef _COCONUT_PULP_RENDERER_MESH_OBJ_PARSER_HPP_
+#define _COCONUT_PULP_RENDERER_MESH_OBJ_PARSER_HPP_
 
 #include <vector>
 #include <string>
@@ -8,7 +8,6 @@
 #include <unordered_map>
 
 #include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/support_istream_iterator.hpp>
 
 #include "coconut/milk/math/Vector.hpp"
 
@@ -20,16 +19,16 @@
 
 namespace coconut {
 namespace pulp {
-namespace model {
+namespace mesh {
 namespace obj {
 
 class Parser :
 	public boost::spirit::qi::grammar<
 		milk::fs::RawData::const_iterator,
-		// boost::spirit::istream_iterator,
 		void(),
 		boost::spirit::ascii::blank_type
-		> {
+		>
+{
 public:
 
 	struct Vertex {
@@ -108,14 +107,12 @@ private:
 
 	using Rule = boost::spirit::qi::rule<
 		milk::fs::RawData::const_iterator,
-		// boost::spirit::istream_iterator,
 		void(),
 		boost::spirit::ascii::blank_type
 	>;
 
 	using VertexRule = boost::spirit::qi::rule<
 		milk::fs::RawData::const_iterator,
-		// boost::spirit::istream_iterator,
 		Vertex(),
 		boost::spirit::ascii::blank_type
 	>;
@@ -185,8 +182,8 @@ private:
 CCN_MAKE_POINTER_DEFINITIONS(Parser);
 
 } // namespace obj
-} // namespace model
+} // namespace mesh
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_MODEL_OBJ_PARSER_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_MESH_OBJ_PARSER_HPP_ */

@@ -1,44 +1,39 @@
-#ifndef _COCONUT_PULP_RENDERER_MODEL_OBJ_MATERIALLIBPARSER_HPP_
-#define _COCONUT_PULP_RENDERER_MODEL_OBJ_MATERIALLIBPARSER_HPP_
+#ifndef _COCONUT_PULP_RENDERER_MESH_OBJ_MATERIALLIBPARSER_HPP_
+#define _COCONUT_PULP_RENDERER_MESH_OBJ_MATERIALLIBPARSER_HPP_
 
 #include <iosfwd>
 #include <vector>
 #include <string>
 
 #include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/support_istream_iterator.hpp>
-#include <boost/spirit/include/classic_position_iterator.hpp>
 
-#include "coconut/milk/math/Vector.hpp"
+#include "coconut/pulp/primitive.hpp"
 
 #include "coconut/milk/fs/types.hpp"
 
 namespace coconut {
 namespace pulp {
-namespace model {
+namespace mesh {
 namespace obj {
 
 class MaterialLibParser :
 	public boost::spirit::qi::grammar<
 		milk::fs::RawData::const_iterator,
-		// boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
 		void(),
 		boost::spirit::ascii::blank_type
 		>
 {
 public:
 
-	using RGBColour = milk::math::Vector3d;
-
 	struct Material {
 
 		std::string name;
 
-		RGBColour ambientColour;
+		Colour ambientColour;
 
-		RGBColour diffuseColour;
+		Colour diffuseColour;
 
-		RGBColour specularColour;
+		Colour specularColour;
 
 		float specularExponent;
 
@@ -72,7 +67,6 @@ private:
 
 	using Rule = boost::spirit::qi::rule<
 		milk::fs::RawData::const_iterator,
-		// boost::spirit::classic::position_iterator2<boost::spirit::istream_iterator>,
 		void(),
 		boost::spirit::ascii::blank_type
 		>;
@@ -128,8 +122,8 @@ private:
 };
 
 } // namespace obj
-} // namespace model
+} // namespace mesh
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_MODEL_OBJ_MATERIALLIBPARSER_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_MESH_OBJ_MATERIALLIBPARSER_HPP_ */

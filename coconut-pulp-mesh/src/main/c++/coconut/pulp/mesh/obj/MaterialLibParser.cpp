@@ -14,8 +14,8 @@
 
 using namespace coconut;
 using namespace coconut::pulp;
-using namespace coconut::pulp::model;
-using namespace coconut::pulp::model::obj;
+using namespace coconut::pulp::mesh;
+using namespace coconut::pulp::mesh::obj;
 
 namespace spirit = boost::spirit;
 namespace qi = spirit::qi;
@@ -59,37 +59,14 @@ MaterialLibParser::MaterialLibParser() :
 void MaterialLibParser::parse(const milk::fs::RawData& data) {
 	clear();
 
-		modelData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
-	modelData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
-	modelData.rasteriserConfiguration.frontCounterClockwise = false;
-
-	milk::graphics::Sampler::Configuration defaultSamplerConfiguration;
-	defaultSamplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
-	defaultSamplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
-	defaultSamplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
-	defaultSamplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR; // TODO!
-
-
-	// TODO: figure out how to fix these position iterators
-
-	/* auto multiPassIt = spirit::make_default_multi_pass(data.begin());
-	auto multiPassEnd = spirit::make_default_multi_pass(data.end()); */
-
-	/* using PositionIterator = spirit::classic::position_iterator2<decltype(multiPassIt)>;
-	auto posIt = PositionIterator(multiPassIt, multiPassEnd);
-	auto posEnd = PositionIterator(); */
-
 	auto dataBegin = data.begin();
 	const auto dataEnd = data.end();
 
 	bool result = qi::phrase_parse(dataBegin, dataEnd, *this, ascii::blank);
 
-	// if (!result || posIt != posEnd) {
 	if (!result || dataBegin != dataEnd) {
 		std::ostringstream err;
-		// const auto& position = posIt.get_position();
-		// err << "Failed to parse material lib file at line: " << position.line << ", column: " << position.column;
-		throw std::runtime_error("Failed to parse material lib file");//err.str()); // TODO: exc
+		throw std::runtime_error("Failed to parse material lib file"); // TODO: exc
 	}
 }
 

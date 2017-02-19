@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_PRIMITIVE_POSITION_HPP_
-#define _COCONUT_PULP_PRIMITIVE_POSITION_HPP_
+#ifndef _COCONUT_PULP_PRIMITIVE_VECTOR_HPP_
+#define _COCONUT_PULP_PRIMITIVE_VECTOR_HPP_
 
 #include "coconut/milk/math/Vector.hpp"
 
@@ -7,11 +7,11 @@ namespace coconut {
 namespace pulp {
 namespace primitive {
 
-class Position : milk::math::Vector4d {
+class Vector : milk::math::Vector4d {
 public:
 
-	Position(float x, float y, float z) :
-		milk::math::Vector4d(x, y, z, 1.0f)
+	Vector(float x, float y, float z) :
+		milk::math::Vector4d(x, y, z, 0.0f)
 	{
 	}
 
@@ -25,9 +25,9 @@ public:
 
 } // namespace primitive
 
-using primitive::Position;
+using primitive::Vector;
 
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_PRIMITIVE_POSITION_HPP_ */
+#endif /* _COCONUT_PULP_PRIMITIVE_VECTOR_HPP_ */

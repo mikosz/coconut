@@ -1,7 +1,8 @@
-#ifndef _COCONUT_PULP_RENDERER_MODEL_MATERIAL_HPP_
-#define _COCONUT_PULP_RENDERER_MODEL_MATERIAL_HPP_
+#ifndef _COCONUT_PULP_RENDERER_MESH_MATERIAL_HPP_
+#define _COCONUT_PULP_RENDERER_MESH_MATERIAL_HPP_
 
 #include <string>
+#include <tuple>
 #include <unordered_map>
 
 #include <boost/any.hpp>
@@ -15,16 +16,28 @@
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
-#include "coconut/milk/graphics/Rasteriser.hpp"
+#include "coconut/milk/fs/Path.hpp"
+
+#include "coconut/milk/graphics/Sampler.hpp"
 
 #include "coconut/pulp/primitive.hpp"
 
 namespace coconut {
 namespace pulp {
-namespace model {
+namespace mesh {
 
 class Material {
 public:
+
+	static const std::string OPAQUE_SHADER;
+	static const std::string TRANSPARENT_SHADER;
+
+	static const std::string AMBIENT_COLOUR_PROPERTY;
+	static const std::string DIFFUSE_COLOUR_PROPERTY;
+	static const std::string SPECULAR_COLOUR_PROPERTY;
+	static const std::string SPECULAR_EXPONENT_PROPERTY;
+
+	static const std::string DIFFUSE_MAP_TEXTURE;
 
 	class NoSuchProperty : public coconut_tools::exceptions::RuntimeError {
 	public:
@@ -38,17 +51,19 @@ public:
 
 	using Properties = std::unordered_map<std::string, Primitive>;
 
-	void set(const std::string& property, boost::any value);
+	using Texture = std::tuple<milk::fs::AbsolutePath, milk::graphics::Sampler::Configuration>;
 
-	const boost::any& get(const std::string& property) const;
+	using Textures = std::unordered_map<std::string, Texture>;
 
-	Properties& properties() {
-		return properties_;
-	}
+	Material& set(const std::string& property, Primitive value);
 
-	const Properties& properties() const {
-		return properties_;
-	}
+	const Primitive& get(const std::string& property) const;
+
+	Material& addTexture(
+		std::string textureName,
+		milk::fs::AbsolutePath path,
+		milk::graphics::Sampler::Configuration samplerConfiguration
+		);
 
 	std::string& shader() {
 		return shader_;
@@ -58,12 +73,12 @@ public:
 		return shader_;
 	}
 
-	milk::graphics::Rasteriser::Configuration& rasteriserConfiguration() {
-		return rasteriserConfiguration_;
+	Properties& properties() {
+		return properties_;
 	}
 
-	const milk::graphics::Rasteriser::Configuration& rasteriserConfiguration() const {
-		return rasteriserConfiguration_;
+	const Properties& properties() const {
+		return properties_;
 	}
 
 private:
@@ -72,7 +87,7 @@ private:
 
 	Properties properties_;
 
-	milk::graphics::Rasteriser::Configuration rasteriserConfiguration_;
+	Textures textures_;
 
 };
 
@@ -81,8 +96,8 @@ CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Material, material) {
 	serialiser(SerialiserType::Label("properties"), material.properties());
 }
 
-} // namespace model
+} // namespace mesh
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_MODEL_MATERIAL_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_MESH_MATERIAL_HPP_ */

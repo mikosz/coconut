@@ -11,12 +11,12 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
 Model::Model(
-	const model::Data& data,
+	const model::Mesh& mesh,
 	milk::graphics::Renderer& graphicsRenderer,
 	const shader::Input& input,
-	MaterialManager& materialManager,
 	const milk::FilesystemContext& filesystemContext
-	) {
+	)
+{
 	for (const auto& phongMaterial : data.phongMaterials) {
 		ShaderPassType shaderPassType;
 		if (phongMaterial.diffuseColour.w() < 1.0f) { // TODO: - epsilon

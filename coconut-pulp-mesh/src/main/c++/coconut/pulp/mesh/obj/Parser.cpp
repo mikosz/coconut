@@ -13,15 +13,15 @@
 
 using namespace coconut;
 using namespace coconut::pulp;
-using namespace coconut::pulp::model;
-using namespace coconut::pulp::model::obj;
+using namespace coconut::pulp::mesh;
+using namespace coconut::pulp::mesh::obj;
 
 namespace spirit = boost::spirit;
 namespace qi = spirit::qi;
 namespace ascii = spirit::ascii;
 namespace phoenix = boost::phoenix;
 
-CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
+CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MESH_PARSER");
 
 const size_t Parser::NORMAL_INDEX_UNKNOWN = std::numeric_limits<size_t>::max();
 
@@ -61,16 +61,13 @@ void Parser::parse(const milk::fs::RawData& data, const milk::FilesystemContext&
 
 	CT_LOG_DEBUG << "Beginning ObjModel parsing...";
 
-	//is.unsetf(std::istream::skipws);
-	//spirit::istream_iterator it(is), end;
-
 	auto it = data.begin();
 	const auto end = data.end();
 
 	bool result = qi::phrase_parse(it, end, *this, ascii::blank);
 
 	if (!result || it != end) {
-		std::runtime_error("Failed to parse model file");
+		std::runtime_error("Failed to parse mesh file");
 	}
 
 	MaterialLibParser materialLibParser;

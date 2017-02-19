@@ -7,67 +7,7 @@
 
 using namespace coconut;
 using namespace coconut::pulp;
-using namespace coconut::pulp::model;
-
-namespace /* anonymous */ {
-
-CT_LOGGER_CATEGORY("COCONUT.PULP.MODEL.DATA");
-
-struct Vector3dLexicographicalCompare {
-
-	bool operator()(const milk::math::Vector3d& lhs, const milk::math::Vector3d& rhs) const {
-		if (lhs == rhs) {
-			return false;
-		}
-
-		const auto EPSILON = milk::math::Vector3d::EPSILON;
-
-		if (lhs.x() < rhs.x() - EPSILON) {
-			return true;
-		} else if (lhs.x() - rhs.x() < EPSILON) {
-			if (lhs.y() < rhs.y() - EPSILON) {
-				return true;
-			} else if (lhs.y() - rhs.y() < EPSILON) {
-				return lhs.z() < rhs.z();
-			}
-		}
-
-		return false;
-	}
-
-};
-
-} // anonymous namespace
-
-Mesh::VertexIterator::VertexIterator(const Mesh& data, const DrawGroup& drawGroup) :
-	data_(data),
-	drawGroup_(drawGroup)
-{
-}
-
-void Mesh::VertexIterator::next() {
-	assert(!atEnd());
-	++index_;
-}
-
-bool Mesh::VertexIterator::atEnd() {
-	return index_ == drawGroup_.vertices.size();
-}
-
-Mesh::InstanceIterator::InstanceIterator(const Mesh& data, const DrawGroup& drawGroup) :
-	data_(data),
-	drawGroup_(drawGroup)
-{
-}
-
-void Mesh::InstanceIterator::next() {
-	assert(!atEnd());
-	++index_;
-}
-
-bool Mesh::InstanceIterator::atEnd() {
-	return index_ == drawGroup_.instances.size();
-}
+using namespace coconut::pulp::mesh;
 
 void Mesh::generateNormals() {
 	CT_LOG_DEBUG << "Generating normals";

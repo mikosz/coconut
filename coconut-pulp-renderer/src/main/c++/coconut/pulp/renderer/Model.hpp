@@ -10,7 +10,6 @@
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "coconut/pulp/model/Mesh.hpp"
-#include "coconut/pulp/model/MaterialRegistry.hpp"
 
 #include "shader/Input.hpp"
 #include "PassContext.hpp"
@@ -27,7 +26,6 @@ public:
 
 	Model(
 		const model::Mesh& mesh,
-		const model::Materials& materialRegistry,
 		milk::graphics::Renderer& graphicsRenderer,
 		const shader::Input& input,
 		const milk::FilesystemContext& filesystemContext
