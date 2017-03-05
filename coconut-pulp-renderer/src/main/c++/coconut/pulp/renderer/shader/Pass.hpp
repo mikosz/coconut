@@ -7,10 +7,6 @@
 namespace coconut {
 namespace pulp {
 namespace renderer {
-
-class DrawCommand;
-class PassContext;
-
 namespace shader {
 
 class Pass {

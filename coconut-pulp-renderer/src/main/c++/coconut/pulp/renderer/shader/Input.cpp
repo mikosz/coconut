@@ -21,6 +21,20 @@ milk::graphics::InputLayout::Elements createInputLayoutElements(const Input::Ele
 	return inputLayoutElements;
 }
 
+size_t elementSize(const Input::Elements& elements, Input::SlotType slotType) {
+	return std::accumulate(
+		elements.begin(),
+		elements.end(),
+		static_cast<size_t>(0),
+		[slotType](size_t sum, const auto& element) {
+			if (slotType == element.inputSlotType) {
+				sum += formatSize(element.format);
+			}
+			return sum;
+		}
+	);
+}
+
 } // anonymous namespace
 
 Input::Element::Element(
@@ -48,32 +62,19 @@ Input::Input(milk::graphics::Renderer& graphicsRenderer, Elements elements) :
 {
 }
 
-size_t Input::vertexSize(SlotType slotType) const {
-	return std::accumulate(
-		elements_.begin(),
-		elements_.end(),
-		static_cast<size_t>(0),
-		[slotType](size_t sum, const Element& element) {
-			if (slotType == element.inputSlotType) {
-				sum += formatSize(element.format);
-			}
-			return sum;
-		}
-	);
+size_t Input::vertexSize() const {
+	return elementSize(elements_, Input::SlotType::PER_INSTANCE_DATA);
 }
 
-void Input::writeVertex(
-	void* buffer,
-	const void* input,
-	SlotType slotType
-	) const
+void Input::writeVertex(void* buffer, const Submesh::Vertex& vertex) const
 {
-	std::uint8_t* target = reinterpret_cast<std::uint8_t*>(buffer);
-	for (const auto& element : elements_ | boost::adaptors::filtered([slotType](const auto& element) {
-			return element.inputSlotType == slotType;
+	auto* target = reinterpret_cast<std::uint8_t*>(buffer);
+	for (const auto& element : elements_ | boost::adaptors::filtered(
+		[](const auto& element) {
+			return element.inputSlotType == Input::SlotType::PER_VERTEX_DATA;
 		}))
 	{
-		element.writeFunc(target, input);
+		element.writeFunc(target, vertex);
 		target += milk::graphics::formatSize(element.format);
 	}
 }

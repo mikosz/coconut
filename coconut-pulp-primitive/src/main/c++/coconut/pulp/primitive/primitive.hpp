@@ -1,16 +1,16 @@
 #ifndef _COCONUT_PULP_PRIMITIVE_PRIMITIVE_HPP_
 #define _COCONUT_PULP_PRIMITIVE_PRIMITIVE_HPP_
 
-#include <cstdint>
+#include <boost/variant.hpp>
 
-#include <coconut-tools/enum.hpp>
-#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+#include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "coconut/milk/graphics/PixelFormat.hpp"
 
 #include "Position.hpp"
 #include "Vector.hpp"
 #include "Colour.hpp"
+#include "Scalar.hpp"
 #include "TextureCoordinate.hpp"
 
 namespace coconut {
@@ -20,14 +20,19 @@ namespace primitive {
 class Primitive {
 public:
 
-	Primitive(float f) :
-		type_(Type::SCALAR),
-		data_(f)
+	class IncompatiblePixelFormat : public coconut_tools::exceptions::RuntimeError {
+	public:
+	
+		IncompatiblePixelFormat(milk::graphics::PixelFormat pixelFormat);
+
+	};
+
+	Primitive(Scalar scalar) :
+		data_(scalar)
 	{
 	}
 
 	Primitive(Colour colour) :
-		type_(Type::COLOUR),
 		data_(colour)
 	{
 	}
@@ -36,35 +41,15 @@ public:
 
 private:
 
-	CCN_MEMBER_ENUM(
-		Type,
-		(SCALAR)
-		(POSITION)
-		(VECTOR)
-		(COLOUR)
-		(TEXTURE_COORDINATE)
-		);
-
-	Type type_;
-
-	union Data {
-		float scalar;
-		Position position;
-		Vector vector;
-		Colour colour;
-		TextureCoordinate textureCoordinate;
-
-		Data(float f) :
-			scalar(f)
-		{
-		}
-
-		Data(Colour colour) :
-			colour(std::move(colour))
-		{
-		}
-
-	} data_;
+	using Data = boost::variant< // TODO: replace with std::variant when available
+		Scalar,
+		Position,
+		Vector,
+		Colour,
+		TextureCoordinate
+		>;
+	
+	Data data_;
 
 };
 

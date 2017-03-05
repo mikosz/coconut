@@ -9,11 +9,11 @@
 
 #include <boost/spirit/include/qi.hpp>
 
-#include "coconut/milk/math/Vector.hpp"
-
 #include "coconut/milk/fs.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+
+#include "coconut/pulp/primitive.hpp"
 
 #include "MaterialLibParser.hpp"
 
@@ -67,11 +67,11 @@ public:
 
 	using Objects = std::vector<Object>;
 
-	using Positions = std::vector<milk::math::Vector3d>;
+	using Positions = std::vector<primitive::Position>;
 
-	using TextureCoordinates = std::vector<milk::math::Vector2d>;
+	using TextureCoordinates = std::vector<primitive::TextureCoordinate>;
 
-	using Normals = std::vector<milk::math::Vector3d>;
+	using Normals = std::vector<primitive::Vector>;
 
 	using Material = MaterialLibParser::Material;
 

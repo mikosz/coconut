@@ -1,27 +1,31 @@
 #ifndef _COCONUT_PULP_PRIMITIVE_TEXTURECOORDINATE_HPP_
 #define _COCONUT_PULP_PRIMITIVE_TEXTURECOORDINATE_HPP_
 
-#include "coconut/milk/math/Vector.hpp"
+#include "detail/VectorType.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace primitive {
 
-class TextureCoordinate : milk::math::Vector2d {
+class TextureCoordinate : detail::VectorType<2> {
 public:
 
+	TextureCoordinate() = default;
+
 	TextureCoordinate(float u, float v) :
-		milk::math::Vector2d(u, v)
+		detail::VectorType<2>(u, v, 0.0f, 0.0f)
 	{
 	}
 
 	float u() const {
-		return x();
+		return get<0>();
 	}
 
 	float v() const {
-		return y();
+		return get<1>();
 	}
+
+	using detail::VectorType<2>::storeAs;
 
 };
 

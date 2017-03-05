@@ -5,21 +5,14 @@
 
 #include <boost/optional.hpp>
 
+#include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/IndexBuffer.hpp"
 #include "coconut/milk/graphics/VertexBuffer.hpp"
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
-#include "coconut/milk/graphics/Rasteriser.hpp"
-#include "coconut/milk/graphics/Renderer.hpp"
 
-#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-
-#include "coconut/pulp/model/Mesh.hpp"
-
-#include "shader/Input.hpp"
-#include "shader/Shader.hpp"
-#include "PassContext.hpp"
-#include "Material.hpp"
-#include "MaterialManager.hpp"
+#include "coconut/pulp/renderer/CommandBuffer.hpp"
+#include "coconut/pulp/renderer/shader/Input.hpp"
+#include "coconut/pulp/mesh/Submesh.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -31,24 +24,14 @@ class DrawGroup {
 public:
 
 	DrawGroup(
-		const model::Data& modelData,
-		size_t groupIndex,
 		milk::graphics::Renderer& graphicsRenderer,
 		const shader::Input& shaderInput,
-		const MaterialManager& materialManager
-		);
+		const mesh::Submesh& submesh
+	);
 
 	void render(CommandBuffer& commandBuffer, PassContext passContext);
 
 private:
-
-	using Samplers = std::vector<std::string>;
-
-	MaterialSharedPtr material_;
-
-	milk::graphics::Rasteriser rasteriser_;
-
-	Samplers samplerIds_;
 
 	milk::graphics::VertexBuffer vertexBuffer_;
 
@@ -63,8 +46,6 @@ private:
 	milk::graphics::PrimitiveTopology primitiveTopology_;
 
 };
-
-CCN_MAKE_POINTER_DEFINITIONS(DrawGroup);
 
 } // namespace renderer
 } // namespace pulp

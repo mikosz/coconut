@@ -86,12 +86,7 @@ void MaterialLibParser::setAmbientColour(const std::vector<double>& rgbColour) {
 		throw std::runtime_error("Can't set ambient colour with no material added");
 	}
 
-	if (materials_.back().ambientColour != milk::math::Vector3d::ZERO) {
-		throw std::runtime_error(
-			"Ambient colour for material " + materials_.back().name + " has already been set");
-	}
-
-	materials_.back().ambientColour = RGBColour(
+	materials_.back().ambientColour = Colour(
 		static_cast<float>(rgbColour[0]),
 		static_cast<float>(rgbColour[1]),
 		static_cast<float>(rgbColour[2])
@@ -105,12 +100,7 @@ void MaterialLibParser::setDiffuseColour(const std::vector<double>& rgbColour) {
 		throw std::runtime_error("Can't set diffuse colour with no material added");
 	}
 
-	if (materials_.back().diffuseColour != milk::math::Vector3d::ZERO) {
-		throw std::runtime_error(
-			"Diffuse colour for material " + materials_.back().name + " has already been set");
-	}
-
-	materials_.back().diffuseColour = RGBColour(
+	materials_.back().diffuseColour = Colour(
 		static_cast<float>(rgbColour[0]),
 		static_cast<float>(rgbColour[1]),
 		static_cast<float>(rgbColour[2])
@@ -124,12 +114,7 @@ void MaterialLibParser::setSpecularColour(const std::vector<double>& rgbColour) 
 		throw std::runtime_error("Can't set specular colour with no material added");
 	}
 
-	if (materials_.back().specularColour != milk::math::Vector3d::ZERO) {
-		throw std::runtime_error(
-			"Specular colour for material " + materials_.back().name + " has already been set");
-	}
-
-	materials_.back().specularColour = RGBColour(
+	materials_.back().specularColour = Colour(
 		static_cast<float>(rgbColour[0]),
 		static_cast<float>(rgbColour[1]),
 		static_cast<float>(rgbColour[2])
@@ -143,11 +128,6 @@ void MaterialLibParser::setDiffuseColourMap(const std::vector<char>& newMaterial
 void MaterialLibParser::setSpecularExponent(double specularExponent) {
 	if (materials_.empty()) {
 		throw std::runtime_error("Can't set specular exponent with no material added");
-	}
-
-	if (materials_.back().specularExponent != 0.0f) {
-		throw std::runtime_error(
-			"Specular colour for material " + materials_.back().name + " has already been set");
 	}
 
 	materials_.back().specularExponent = static_cast<float>(specularExponent);

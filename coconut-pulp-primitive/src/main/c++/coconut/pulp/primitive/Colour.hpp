@@ -1,51 +1,39 @@
 #ifndef _COCONUT_PULP_PRIMITIVE_COLOUR_HPP_
 #define _COCONUT_PULP_PRIMITIVE_COLOUR_HPP_
 
-#include "coconut/milk/math/Vector.hpp"
+#include "detail/VectorType.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace primitive {
 
-class Colour : milk::math::Vector4d {
+class Colour : detail::VectorType<4> {
 public:
 
+	Colour() = default;
+
 	Colour(float r, float g, float b, float a = 1.0f) :
-		milk::math::Vector4d(r, g, b, a)
+		detail::VectorType<4>(r, g, b, a)
 	{
 	}
 
 	float r() const {
-		return x();
-	}
-
-	float& r() {
-		return x();
+		return get<0>();
 	}
 
 	float g() const {
-		return y();
-	}
-
-	float& g() {
-		return y();
+		return get<1>();
 	}
 
 	float b() const {
-		return z();
-	}
-
-	float& b() {
-		return z();
+		return get<2>();
 	}
 
 	float a() const {
-		return w();
+		return get<3>();
 	}
 
-	float& a() {
-		return w();
-	}
+	using detail::VectorType<4>::storeAs;
 
 };
 

@@ -1,25 +1,39 @@
 #ifndef _COCONUT_PULP_PRIMITIVE_VECTOR_HPP_
 #define _COCONUT_PULP_PRIMITIVE_VECTOR_HPP_
 
-#include "coconut/milk/math/Vector.hpp"
+#include "detail/VectorType.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace primitive {
 
-class Vector : milk::math::Vector4d {
+class Vector : detail::VectorType<4> {
 public:
 
+	Vector() = default;
+
 	Vector(float x, float y, float z) :
-		milk::math::Vector4d(x, y, z, 0.0f)
+		detail::VectorType<4>(x, y, z, 0.0f)
 	{
 	}
 
-	using milk::math::Vector4d::x;
+	float x() const {
+		return get<0>();
+	}
 
-	using milk::math::Vector4d::y;
+	float y() const {
+		return get<1>();
+	}
 
-	using milk::math::Vector4d::z;
+	float z() const {
+		return get<2>();
+	}
+
+	using detail::VectorType<4>::storeAs;
+
+private:
+
+	friend class Position;
 
 };
 

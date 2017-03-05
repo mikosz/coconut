@@ -12,6 +12,8 @@
 #include <coconut-tools/serialisation/Deserialiser.hpp>
 #include <coconut-tools/serialisation/make-serialisable-macro.hpp>
 
+#include <coconut-tools/enum.hpp>
+
 #include <coconut-tools/utils/Range.hpp>
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
@@ -22,6 +24,8 @@
 
 #include "coconut/pulp/primitive.hpp"
 
+#include "RenderStateConfiguration.hpp"
+
 namespace coconut {
 namespace pulp {
 namespace mesh {
@@ -29,8 +33,10 @@ namespace mesh {
 class Material {
 public:
 
-	static const std::string OPAQUE_SHADER;
-	static const std::string TRANSPARENT_SHADER;
+	CCN_MEMBER_ENUM(PassType,
+		(OPAQUE)
+		(TRANSPARENT)
+	);
 
 	static const std::string AMBIENT_COLOUR_PROPERTY;
 	static const std::string DIFFUSE_COLOUR_PROPERTY;
@@ -65,12 +71,28 @@ public:
 		milk::graphics::Sampler::Configuration samplerConfiguration
 		);
 
-	std::string& shader() {
-		return shader_;
+	PassType& passType() {
+		return passType_;
 	}
 
-	const std::string& shader() const {
-		return shader_;
+	const PassType passType() const {
+		return passType_;
+	}
+
+	std::string& shaderName() {
+		return shaderName_;
+	}
+
+	const std::string& shaderName() const {
+		return shaderName_;
+	}
+
+	RenderStateConfiguration& renderStateConfiguration() {
+		return renderStateConfiguration_;
+	}
+
+	const RenderStateConfiguration& renderStateConfiguration() const {
+		return renderStateConfiguration_;
 	}
 
 	Properties& properties() {
@@ -81,9 +103,17 @@ public:
 		return properties_;
 	}
 
+	const Textures& textures() const {
+		return textures_;
+	}
+
 private:
 
-	std::string shader_;
+	PassType passType_;
+
+	std::string shaderName_;
+
+	RenderStateConfiguration renderStateConfiguration_;
 
 	Properties properties_;
 
@@ -92,11 +122,17 @@ private:
 };
 
 CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Material, material) {
-	serialiser(SerialiserType::Label("shader"), material.shader());
+	serialiser(SerialiserType::Label("passType"), material.passType());
+	serialiser(SerialiserType::Label("shaderName"), material.shaderName());
+	serialiser(SerialiserType::Label("renderStateConfiguration"), material.renderStateConfiguration());
 	serialiser(SerialiserType::Label("properties"), material.properties());
+	serialiser(SerialiserType::Label("textures"), material.textures());
 }
 
 } // namespace mesh
+
+using mesh::Material;
+
 } // namespace pulp
 } // namespace coconut
 

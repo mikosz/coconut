@@ -9,7 +9,7 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "coconut/pulp/model/Mesh.hpp"
+#include "coconut/pulp/mesh/Mesh.hpp"
 
 #include "shader/Input.hpp"
 #include "PassContext.hpp"
@@ -25,7 +25,7 @@ class Model {
 public:
 
 	Model(
-		const model::Mesh& mesh,
+		Mesh mesh,
 		milk::graphics::Renderer& graphicsRenderer,
 		const shader::Input& input,
 		const milk::FilesystemContext& filesystemContext
@@ -37,6 +37,8 @@ private:
 
 	// TODO: make draw groups using the same materials be drawn one after another to avoid resetting constant buffers
 	using DrawGroups = std::vector<DrawGroupSharedPtr>;
+
+	Mesh::Materials materials_;
 
 	DrawGroups drawGroups_;
 

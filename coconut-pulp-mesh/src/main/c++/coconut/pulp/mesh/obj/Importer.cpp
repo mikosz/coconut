@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <tuple>
 
+#include <coconut-tools/logger.hpp>
+#include <coconut-tools/utils/Range.hpp>
 #include <coconut-tools/utils/hash-combine.hpp>
 
 #include "Parser.hpp"
@@ -16,11 +18,14 @@ using namespace coconut::pulp::mesh::obj;
 
 namespace /* anonymous */ {
 
+CT_LOGGER_CATEGORY("COCONUT.PULP.MESH.OBJ.IMPORTER");
+
 using VertexDescriptor = std::tuple<size_t, size_t, size_t>;
 
 Material createMaterial(
 	const Parser::Materials::value_type& materialDataEntry,
 	const milk::graphics::Sampler::Configuration& samplerConfiguration,
+	const RenderStateConfiguration& renderStateConfiguration,
 	const milk::FilesystemContext& filesystemContext
 	)
 {
@@ -28,28 +33,34 @@ Material createMaterial(
 
 	auto material = Material();
 
-	if (materialData.diffuseColour.a() < 0.999f) {
-		material.shader() = Material::TRANSPARENT_SHADER;
-	} else {
-		material.shader() = Material::OPAQUE_SHADER;
-	}
+	material.shaderName() = "mesh"; // TODO: literal in code, export
+
+	material.passType() =  (materialData.diffuseColour.a() < 0.999f) ?
+		Material::PassType::TRANSPARENT :
+		Material::PassType::OPAQUE;
+
+	material.renderStateConfiguration() = renderStateConfiguration;
 
 	material.set(Material::AMBIENT_COLOUR_PROPERTY, materialData.ambientColour);
 	material.set(Material::DIFFUSE_COLOUR_PROPERTY, materialData.diffuseColour);
 	material.set(Material::SPECULAR_COLOUR_PROPERTY, materialData.specularColour);
 	material.set(Material::SPECULAR_EXPONENT_PROPERTY, materialData.specularExponent);
 
-	material.addTexture(
-		Material::DIFFUSE_MAP_TEXTURE,
-		filesystemContext.currentWorkingDirectory() / materialData.diffuseMap,
-		samplerConfiguration
-		);
+	if (!materialData.diffuseMap.empty()) {
+		material.addTexture(
+			Material::DIFFUSE_MAP_TEXTURE,
+			filesystemContext.currentWorkingDirectory() / materialData.diffuseMap,
+			samplerConfiguration
+			);
+	}
+
+	return material;
 }
 
 struct VertexDescriptorHasher { // TODO: add tuple hash template to hash_combine?
 
 	size_t operator()(const VertexDescriptor& vertexDescriptor) const {
-		size_t seed = 0;
+		auto seed = static_cast<size_t>(0);
 		seed = coconut_tools::utils::hashCombine(seed, std::get<0>(vertexDescriptor));
 		seed = coconut_tools::utils::hashCombine(seed, std::get<1>(vertexDescriptor));
 		seed = coconut_tools::utils::hashCombine(seed, std::get<2>(vertexDescriptor));
@@ -58,6 +69,60 @@ struct VertexDescriptorHasher { // TODO: add tuple hash template to hash_combine
 
 };
 
+void generateNormals(
+	Submesh::Vertices& vertices,
+	const Submesh::Indices& indices,
+	milk::graphics::PrimitiveTopology primitiveTopology)
+{
+	CT_LOG_DEBUG << "Generating normals";
+
+	// TODO is it possible to have other topologies in .obj? if not, drop parameter
+	assert(primitiveTopology == milk::graphics::PrimitiveTopology::TRIANGLE_LIST);
+
+	auto affectingFaces = std::unordered_multimap<size_t, size_t>();
+
+	for (const auto faceIdx : coconut_tools::range<size_t>(0, indices.size(), 3)) {
+		for (const auto vertexIdx : coconut_tools::range(faceIdx, faceIdx + 3)) {
+			affectingFaces.emplace(vertexIdx, faceIdx);
+		}
+	}
+
+	auto faceNormals = std::unordered_map<size_t, milk::math::Vector3d>();
+
+	for (const auto vertexIdx : coconut_tools::range<size_t>(0, vertices.size())) {
+		auto& vertex = vertices[vertexIdx];
+		auto range = affectingFaces.equal_range(vertexIdx);
+
+		vertex.normal = Vector(0.0f, 0.0f, 0.0f);
+
+		CT_LOG_TRACE << "Calculating normal for vertex " << vertexIdx << ": " << vertex.position;
+
+		while (range.first != range.second) {
+			const auto faceIdx = range.first->second;
+			auto faceNormalIt = faceNormals.find(faceIdx);
+			if (faceNormalIt == faceNormals.end()) {
+				const auto a = vertices[faceIdx + 1].position - vertices[faceIdx].position;
+				const auto b = vertices[faceIdx + 2].position - vertices[faceIdx].position;
+				const auto cross = a.cross(b);
+
+				CT_LOG_TRACE << "Face vectors: " << a << " x " << b << " = " << cross;
+
+				faceNormals.emplace_hint(faceNormalIt, faceIdx, cross);
+			}
+
+			vertex.normal += faceNormalIt->second;
+
+			CT_LOG_TRACE << "Temporary normal with face " << (faceIdx / 3) << " is " << normal;
+
+			++range.first;
+		}
+
+		vertex.normal.normalise();
+
+		CT_LOG_TRACE << "Final normal is " << vertex.normal;
+	}
+}
+
 } // anonymous namespace
 
 Mesh obj::Importer::import(
@@ -65,10 +130,15 @@ Mesh obj::Importer::import(
 	const milk::FilesystemContext& filesystemContext
 	)
 {
-	auto parser = Parser();
+	Parser parser;
 	parser.parse(data, filesystemContext);
 	
 	auto materials = Mesh::Materials();
+
+	auto renderStateConfiguration = RenderStateConfiguration();
+	renderStateConfiguration.rasteriserConfiguration().cullMode = milk::graphics::Rasteriser::CullMode::BACK;
+	renderStateConfiguration.rasteriserConfiguration().fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
+	renderStateConfiguration.rasteriserConfiguration().frontCounterClockwise = false;
 
 	auto samplerConfiguration = milk::graphics::Sampler::Configuration();
 	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::CLAMP;
@@ -76,13 +146,14 @@ Mesh obj::Importer::import(
 	samplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::CLAMP;
 	samplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR; // TODO
 
-	std::transform(parser.materials().begin(), parser.materials().end(), std::back_inserter(materials),
-		[&samplerConfiguration, &filesystemContext](const auto& materialData) {
-			return createMaterial(materialData, samplerConfiguration, filesystemContext);
-		});
+	for (const auto& parsedMaterial : parser.materials()) {
+		materials.emplace(
+			parsedMaterial.first,
+			createMaterial(parsedMaterial, samplerConfiguration, renderStateConfiguration, filesystemContext)
+			);
+	}
 
 	auto hasFaces = false;
-	auto normalsNeedGeneration = false;
 
 	const auto& positionData = parser.positions();
 	const auto& textureCoordinateData = parser.textureCoordinateIndex();
@@ -93,7 +164,8 @@ Mesh obj::Importer::import(
 		for (auto group : object.groups) {
 			if (!group.faces.empty()) {
 				hasFaces = true;
-
+				
+				auto normalsNeedGeneration = false;
 				auto vertices = Submesh::Vertices();
 				auto indices = Submesh::Indices();
 
@@ -109,7 +181,6 @@ Mesh obj::Importer::import(
 							auto& vertex = vertices.back();
 							vertex.position = positionData[vertexData.positionIndex];
 							vertex.textureCoordinate = textureCoordinateData[vertexData.textureCoordinateIndex];
-							
 							if (vertexData.normalIndex == Parser::NORMAL_INDEX_UNKNOWN) {
 								normalsNeedGeneration = true;
 							} else {
@@ -121,6 +192,10 @@ Mesh obj::Importer::import(
 
 						indices.emplace_back(vertexIndices[vertexDesc]);
 					}
+				}
+
+				if (normalsNeedGeneration) {
+					generateNormals(vertices, indices, milk::graphics::PrimitiveTopology::TRIANGLE_LIST);
 				}
 
 				submeshes.emplace_back(
@@ -135,10 +210,6 @@ Mesh obj::Importer::import(
 
 	if (!hasFaces) {
 		throw std::runtime_error("Model has no faces");
-	}
-
-	if (normalsNeedGeneration) {
-		mesh.generateNormals();
 	}
 
 	return Mesh(std::move(submeshes), std::move(materials));

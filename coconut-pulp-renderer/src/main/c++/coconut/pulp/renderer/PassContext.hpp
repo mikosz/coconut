@@ -1,15 +1,14 @@
 #ifndef _COCONUT_PULP_RENDERER_PASSCONTEXT_HPP_
 #define _COCONUT_PULP_RENDERER_PASSCONTEXT_HPP_
 
-#include <unordered_map>
-
-#include <coconut-tools/exceptions/LogicError.hpp>
+#include <string>
 
 #include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
 
+#include "coconut/pulp/mesh/Material.hpp"
+
 #include "shader/Pass.hpp"
-#include "Material.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -35,7 +34,9 @@ public:
 
 	const Model* model = nullptr;
 
-	const Material* material = nullptr;
+	const mesh::Material* material = nullptr;
+
+	std::string shader;
 
 	void reset() {
 		viewport = nullptr;
@@ -45,31 +46,8 @@ public:
 		actor = nullptr;
 		model = nullptr;
 		material = nullptr;
-		passByType_.clear();
+		shader.clear();
 	}
-
-	void setPass(ShaderPassType passType, shader::Pass* pass) {
-		if (passByType_.count(passType) != 0) {
-			throw coconut_tools::exceptions::LogicError("Shader pass already registered for pass type " + toString(passType));
-		} else {
-			passByType_.insert(std::make_pair(passType, pass));
-		}
-	}
-
-	shader::Pass* getPass(ShaderPassType passType) {
-		auto passIt = passByType_.find(passType);
-		if (passIt == passByType_.end()) {
-			return nullptr;
-		} else {
-			return passIt->second;
-		}
-	}
-
-private:
-
-	using PassByType = std::unordered_map<ShaderPassType, shader::Pass*>; // TODO: figure a better key type to avoid unnecessary duplication
-
-	PassByType passByType_;
 
 };
 

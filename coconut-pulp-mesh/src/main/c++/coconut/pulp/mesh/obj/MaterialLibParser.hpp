@@ -35,7 +35,7 @@ public:
 
 		Colour specularColour;
 
-		float specularExponent;
+		Scalar specularExponent;
 
 		std::string diffuseMap;
 

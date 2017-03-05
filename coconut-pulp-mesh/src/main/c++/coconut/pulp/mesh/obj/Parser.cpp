@@ -154,35 +154,29 @@ void Parser::addFace(const std::vector<Vertex>& face) {
 void Parser::addPosition(const std::vector<double>& vector) {
 	assert(vector.size() == 3);
 	// right-hand to left-hand system conversion (z inverted)
-	positions_.push_back(
-		milk::math::Vector3d(
-			static_cast<float>(vector[0]),
-			static_cast<float>(vector[1]),
-			-static_cast<float>(vector[2])
-			)
+	positions_.emplace_back(
+		static_cast<float>(vector[0]),
+		static_cast<float>(vector[1]),
+		-static_cast<float>(vector[2])
 		);
 }
 
 void Parser::addTextureCoordinate(const std::vector<double>& vector) {
 	assert(vector.size() == 2);
 	// right-hand to left-hand system conversion (v mirrored)
-	textureCoordinates_.push_back(
-		milk::math::Vector2d(
-			static_cast<float>(vector[0]),
-			1.0f - static_cast<float>(vector[1])
-			)
+	textureCoordinates_.emplace_back(
+		static_cast<float>(vector[0]),
+		1.0f - static_cast<float>(vector[1])
 		);
 }
 
 void Parser::addNormal(const std::vector<double>& vector) {
 	assert(vector.size() == 3);
 	// right-hand to left-hand system conversion (z inverted)
-	normals_.push_back(
-		milk::math::Vector3d(
-			static_cast<float>(vector[0]),
-			static_cast<float>(vector[1]),
-			-static_cast<float>(vector[2])
-			)
+	normals_.emplace_back(
+		static_cast<float>(vector[0]),
+		static_cast<float>(vector[1]),
+		-static_cast<float>(vector[2])
 		);
 }
 

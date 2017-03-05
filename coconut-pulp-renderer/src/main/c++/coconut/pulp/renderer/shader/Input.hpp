@@ -9,7 +9,7 @@
 #include "coconut/milk/graphics/InputLayout.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
 
-#include "coconut/pulp/model/Mesh.hpp"
+#include "coconut/pulp/mesh/Submesh.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -25,7 +25,7 @@ public:
 	struct Element : public milk::graphics::InputLayout::Element { // TODO: unsure about this api
 
 		using WriteFunc =
-			std::function<void (void* buffer, const void* vertexIterator)>;
+			std::function<void (void* buffer, const Submesh::Vertex& vertex)>;
 
 		Element(
 			std::string semantic,
@@ -44,17 +44,9 @@ public:
 
 	Input(milk::graphics::Renderer& graphicsRenderer, Elements elements);
 
-	size_t vertexSize(SlotType slotType) const;
+	size_t vertexSize() const;
 
-	bool hasPerInstanceData() const {
-		return vertexSize(SlotType::PER_INSTANCE_DATA) > 0;
-	}
-
-	void writeVertex(
-		void* buffer,
-		const void* vertexIterator, // TODO: api!
-		SlotType slotType
-		) const;
+	void writeVertex(void* buffer, const Submesh::Vertex& vertex) const;
 
 	milk::graphics::InputLayout& layout() {
 		return layout_;

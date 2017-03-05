@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_RENDERER_MESH_MESH_HPP_
 
 #include <vector>
+#include <unordered_map>
 
 #include "coconut/milk/math/Vector.hpp"
 
@@ -22,7 +23,7 @@ public:
 
 	using Submeshes = std::vector<Submesh>;
 
-	using Materials = std::vector<Material>;
+	using Materials = std::unordered_map<std::string, Material>;
 
 	Mesh(Submeshes s, Materials m) :
 		submeshes_(std::move(s)),
@@ -30,8 +31,16 @@ public:
 	{
 	}
 
+	Submeshes& submeshes() {
+		return submeshes_;
+	}
+
 	const Submeshes& submeshes() const {
 		return submeshes_;
+	}
+
+	Materials& materials() {
+		return materials_;
 	}
 
 	const Materials& materials() const {
@@ -52,6 +61,9 @@ CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Mesh, mesh) {
 }
 
 } // namespace mesh
+
+using mesh::Mesh;
+
 } // namespace pulp
 } // namespace coconut
 

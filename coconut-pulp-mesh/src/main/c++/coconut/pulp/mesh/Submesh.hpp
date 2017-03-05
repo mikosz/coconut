@@ -90,6 +90,9 @@ CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Submesh::Vertex, vertex) {
 }
 
 } // namespace mesh
+
+using mesh::Submesh;
+
 } // namespace pulp
 } // namespace coconut
 

@@ -4,8 +4,8 @@
 
 #include <d3d11shader.h>
 #include <d3dcompiler.h>
-
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
+
 #include <coconut-tools/logger.hpp>
 
 #include "coconut/milk/utils/bits.hpp"
