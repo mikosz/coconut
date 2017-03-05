@@ -87,7 +87,7 @@ void generateNormals(
 		}
 	}
 
-	auto faceNormals = std::unordered_map<size_t, milk::math::Vector3d>();
+	auto faceNormals = std::unordered_map<size_t, Vector>();
 
 	for (const auto vertexIdx : coconut_tools::range<size_t>(0, vertices.size())) {
 		auto& vertex = vertices[vertexIdx];
@@ -112,7 +112,7 @@ void generateNormals(
 
 			vertex.normal += faceNormalIt->second;
 
-			CT_LOG_TRACE << "Temporary normal with face " << (faceIdx / 3) << " is " << normal;
+			CT_LOG_TRACE << "Temporary normal with face " << (faceIdx / 3) << " is " << vertex.normal;
 
 			++range.first;
 		}

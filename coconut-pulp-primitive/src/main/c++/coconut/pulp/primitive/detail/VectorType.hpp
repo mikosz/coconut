@@ -11,28 +11,10 @@ namespace primitive {
 namespace detail {
 
 template <size_t DIMENSIONS>
-class VectorSuperclass;
-
-template <>
-class VectorSuperclass<2> {
-	using Type = milk::math::Vector2d;
-};
-
-template <>
-class VectorSuperclass<3> {
-	using Type = milk::math::Vector3d;
-};
-
-template <>
-class VectorSuperclass<4> {
-	using Type = milk::math::Vector4d;
-};
-
-template <size_t DIMENSIONS>
-class VectorType : public VectorSuperclass<DIMENSIONS>::Type {
+class VectorType : public milk::math::Vector<DIMENSIONS> {
 public:
 
-	using typename VectorSuperclass<DIMENSIONS>::Type::Type;
+	using milk::math::Vector<DIMENSIONS>::Vector;
 
 	void storeAs(void* buffer, milk::graphics::PixelFormat pixelFormat) const;
 

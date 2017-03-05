@@ -18,6 +18,18 @@ public:
 
 	Position() = default;
 
+	Position(const milk::math::Vector3d& vector) :
+		detail::VectorType<4>(vector.x(), vector.y(), vector.z(), 1.0f)
+	{
+	}
+
+	Position(const milk::math::Vector4d& vector) :
+		detail::VectorType<4>(vector.x(), vector.y(), vector.z(), 1.0f)
+	{
+		assert(vector.w() < 1.0f + EPSILON); // TODO: replace with some "between" function
+		assert(vector.w() > 1.0f - EPSILON);
+	}
+
 	Position(float x, float y, float z) :
 		detail::VectorType<4>(x, y, z, 1.0f)
 	{
@@ -29,13 +41,9 @@ public:
 	}
 
 	Position& operator-=(const primitive::Vector& rhs) {
-		static_cast<detail::VectorType<4>&>(*this) += rhs;
+		static_cast<detail::VectorType<4>&>(*this) -= rhs;
 		return *this;
 	}
-
-	using detail::VectorType<4>::crossEq;
-
-	using detail::VectorType<4>::cross;
 
 	float x() const {
 		return get<0>();
@@ -54,7 +62,11 @@ public:
 private:
 
 	friend primitive::Vector operator-(const Position& lhs, const Position& rhs) {
-		return primitive::Vector(lhs - rhs);
+		return primitive::Vector(lhs.x() - rhs.x(), lhs.y() - rhs.y(), lhs.z() - rhs.z());
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const Position& position) {
+		return os << static_cast<const detail::VectorType<4>&>(position);
 	}
 
 	friend class primitive::Vector;
