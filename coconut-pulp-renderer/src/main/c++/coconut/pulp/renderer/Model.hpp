@@ -3,9 +3,14 @@
 
 #include <vector>
 
+#include <boost/optional.hpp>
+
 #include "coconut/milk/fs.hpp"
 
 #include "coconut/milk/graphics/Renderer.hpp"
+#include "coconut/milk/graphics/IndexBuffer.hpp"
+#include "coconut/milk/graphics/VertexBuffer.hpp"
+#include "coconut/milk/graphics/PrimitiveTopology.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
@@ -13,7 +18,7 @@
 
 #include "shader/Input.hpp"
 #include "PassContext.hpp"
-#include "DrawGroup.hpp"
+#include "CommandBuffer.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -35,14 +40,36 @@ public:
 
 private:
 
-	// TODO: make draw groups using the same materials be drawn one after another to avoid resetting constant buffers
-	using DrawGroups = std::vector<DrawGroupSharedPtr>;
+	struct DrawGroup {
+	public:
+	
+		milk::graphics::VertexBuffer vertexBuffer;
 
-	Mesh::Materials materials_;
+		boost::optional<milk::graphics::VertexBuffer> instanceDataBuffer;
+
+		size_t instanceCount;
+
+		boost::optional<milk::graphics::IndexBuffer> indexBuffer;
+
+		size_t indexCount;
+
+		milk::graphics::PrimitiveTopology primitiveTopology;
+
+		mesh::Material material;
+
+		DrawGroup(
+			milk::graphics::Renderer& graphicsRenderer,
+			mesh::Mesh::Submeshes::iterator submeshIt,
+			mesh::Mesh::Submeshes::iterator submeshEnd
+			);
+
+		void render(CommandBuffer& commandBuffer, PassContext passContext);
+
+	};
+
+	using DrawGroups = std::vector<DrawGroup>;
 
 	DrawGroups drawGroups_;
-
-	friend class ModelDataListener;
 
 };
 
