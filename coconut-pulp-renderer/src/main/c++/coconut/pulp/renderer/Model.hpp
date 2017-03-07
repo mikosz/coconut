@@ -43,7 +43,7 @@ private:
 	struct DrawGroup {
 	public:
 	
-		milk::graphics::VertexBuffer vertexBuffer;
+		boost::optional<milk::graphics::VertexBuffer> vertexBuffer;
 
 		boost::optional<milk::graphics::VertexBuffer> instanceDataBuffer;
 
@@ -60,7 +60,8 @@ private:
 		DrawGroup(
 			milk::graphics::Renderer& graphicsRenderer,
 			mesh::Mesh::Submeshes::iterator submeshIt,
-			mesh::Mesh::Submeshes::iterator submeshEnd
+			mesh::Mesh::Submeshes::iterator submeshEnd,
+			const mesh::Material& material
 			);
 
 		void render(CommandBuffer& commandBuffer, PassContext passContext);

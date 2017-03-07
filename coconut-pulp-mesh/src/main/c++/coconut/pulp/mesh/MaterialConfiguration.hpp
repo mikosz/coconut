@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_RENDERER_MESH_MATERIAL_HPP_
-#define _COCONUT_PULP_RENDERER_MESH_MATERIAL_HPP_
+#ifndef _COCONUT_PULP_RENDERER_MESH_MATERIALCONFIGURATION_HPP_
+#define _COCONUT_PULP_RENDERER_MESH_MATERIALCONFIGURATION_HPP_
 
 #include <string>
 #include <tuple>
@@ -16,21 +16,18 @@
 
 #include <coconut-tools/utils/Range.hpp>
 
-#include <coconut-tools/exceptions/RuntimeError.hpp>
-
 #include "coconut/milk/fs/Path.hpp"
 
 #include "coconut/milk/graphics/Sampler.hpp"
+#include "coconut/milk/graphics/RenderState.hpp"
 
 #include "coconut/pulp/primitive.hpp"
-
-#include "RenderStateConfiguration.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace mesh {
 
-class Material {
+class MaterialConfiguration {
 public:
 
 	CCN_MEMBER_ENUM(PassType,
@@ -45,31 +42,21 @@ public:
 
 	static const std::string DIFFUSE_MAP_TEXTURE;
 
-	class NoSuchProperty : public coconut_tools::exceptions::RuntimeError {
-	public:
-
-		NoSuchProperty(const std::string& name) :
-			coconut_tools::exceptions::RuntimeError("No such property: \"" + name + '"')
-		{
-		}
-
-	};
-
 	using Properties = std::unordered_map<std::string, Primitive>;
 
 	using Texture = std::tuple<milk::fs::AbsolutePath, milk::graphics::Sampler::Configuration>;
 
 	using Textures = std::unordered_map<std::string, Texture>;
 
-	Material& set(const std::string& property, Primitive value);
-
-	const Primitive& get(const std::string& property) const;
-
-	Material& addTexture(
+	MaterialConfiguration& addTexture(
 		std::string textureName,
 		milk::fs::AbsolutePath path,
 		milk::graphics::Sampler::Configuration samplerConfiguration
-		);
+		)
+	{
+		textures_.emplace(textureName, std::make_tuple(std::move(path), std::move(samplerConfiguration)));
+		return *this;
+	}
 
 	PassType& passType() {
 		return passType_;
@@ -87,11 +74,11 @@ public:
 		return shaderName_;
 	}
 
-	RenderStateConfiguration& renderStateConfiguration() {
+	milk::graphics::RenderState::Configuration& renderStateConfiguration() {
 		return renderStateConfiguration_;
 	}
 
-	const RenderStateConfiguration& renderStateConfiguration() const {
+	const milk::graphics::RenderState::Configuration& renderStateConfiguration() const {
 		return renderStateConfiguration_;
 	}
 
@@ -113,7 +100,7 @@ private:
 
 	std::string shaderName_;
 
-	RenderStateConfiguration renderStateConfiguration_;
+	milk::graphics::RenderState::Configuration renderStateConfiguration_;
 
 	Properties properties_;
 
@@ -121,19 +108,19 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Material, material) {
-	serialiser(SerialiserType::Label("passType"), material.passType());
-	serialiser(SerialiserType::Label("shaderName"), material.shaderName());
-	serialiser(SerialiserType::Label("renderStateConfiguration"), material.renderStateConfiguration());
-	serialiser(SerialiserType::Label("properties"), material.properties());
-	serialiser(SerialiserType::Label("textures"), material.textures());
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, MaterialConfiguration, materialConfiguration) {
+	serialiser(SerialiserType::Label("passType"), materialConfiguration.passType());
+	serialiser(SerialiserType::Label("shaderName"), materialConfiguration.shaderName());
+	serialiser(SerialiserType::Label("renderStateConfiguration"), materialConfiguration.renderStateConfiguration());
+	serialiser(SerialiserType::Label("properties"), materialConfiguration.properties());
+	serialiser(SerialiserType::Label("textures"), materialConfiguration.textures());
 }
 
 } // namespace mesh
 
-using mesh::Material;
+using mesh::MaterialConfiguration;
 
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_RENDERER_MESH_MATERIAL_HPP_ */
+#endif /* _COCONUT_PULP_RENDERER_MESH_MATERIALCONFIGURATION_HPP_ */

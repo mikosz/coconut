@@ -6,7 +6,7 @@
 
 #include "coconut/milk/graphics/CommandList.hpp"
 #include "coconut/milk/graphics/ConstantBuffer.hpp"
-#include "coconut/milk/graphics/Rasteriser.hpp"
+#include "coconut/milk/graphics/RenderState.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
 #include "coconut/milk/graphics/InputLayout.hpp"
@@ -56,8 +56,8 @@ public:
 		pixelShader_ = pixelShader;
 	}
 
-	void setRasteriser(milk::graphics::Rasteriser* rasteriser) {
-		rasteriser_ = rasteriser;
+	void setRenderState(milk::graphics::RenderState* renderState) {
+		renderState_ = renderState;
 	}
 
 	void addSampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) {
@@ -196,7 +196,7 @@ private:
 
 	milk::graphics::PixelShader* pixelShader_ = nullptr;
 
-	milk::graphics::Rasteriser* rasteriser_ = nullptr;
+	milk::graphics::RenderState* renderState_ = nullptr;
 
 	Samplers samplers_;
 

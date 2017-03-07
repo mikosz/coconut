@@ -1,5 +1,5 @@
-#ifndef _COCONUT_MILK_GRAPHICS_DX11_RASTERISER_HPP_
-#define _COCONUT_MILK_GRAPHICS_DX11_RASTERISER_HPP_
+#ifndef _COCONUT_MILK_GRAPHICS_DX11_RENDERSTATE_HPP_
+#define _COCONUT_MILK_GRAPHICS_DX11_RENDERSTATE_HPP_
 
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
@@ -17,7 +17,7 @@ namespace graphics {
 
 class Renderer;
 
-class Rasteriser {
+class RenderState {
 public:
 
 	CCN_MEMBER_ENUM_VALUES(
@@ -43,7 +43,7 @@ public:
 
 	};
 
-	Rasteriser(Renderer& renderer, const Configuration& configuration);
+	RenderState(Renderer& renderer, const Configuration& configuration);
 
 	ID3D11RasterizerState& internalRasteriserState() {
 		return *rasteriserState_;
@@ -55,14 +55,14 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Rasteriser::Configuration, rasteriserConfiguration) {
-	serialiser(SerialiserType::Label("cullMode"), rasteriserConfiguration.cullMode);
-	serialiser(SerialiserType::Label("fillMode"), rasteriserConfiguration.fillMode);
-	serialiser(SerialiserType::Label("frontCounterClockwise"), rasteriserConfiguration.frontCounterClockwise);
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, RenderState::Configuration, renderStateConfiguration) {
+	serialiser(SerialiserType::Label("cullMode"), renderStateConfiguration.cullMode);
+	serialiser(SerialiserType::Label("fillMode"), renderStateConfiguration.fillMode);
+	serialiser(SerialiserType::Label("frontCounterClockwise"), renderStateConfiguration.frontCounterClockwise);
 }
 
 } // namespace graphics
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_GRAPHICS_DX11_RASTERISER_HPP_ */
+#endif /* _COCONUT_MILK_GRAPHICS_DX11_RENDERSTATE_HPP_ */

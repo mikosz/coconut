@@ -30,7 +30,7 @@ Model::Model(
 		auto end = mesh::Mesh::Submeshes::iterator();
 		std::tie(it, end) = std::equal_range(it, submeshes.end(), *it, submeshMaterialComparator);
 		if (it != submeshes.end()) {
-			drawGroups_.emplace_back(graphicsRenderer, it, end);
+			drawGroups_.emplace_back(graphicsRenderer, it, end, mesh.materials()[it->materialId()]);
 		}
 	}
 }
@@ -46,8 +46,13 @@ void Model::render(CommandBuffer& commandBuffer, PassContext PassContext) {
 Model::DrawGroup::DrawGroup(
 	milk::graphics::Renderer& graphicsRenderer,
 	mesh::Mesh::Submeshes::iterator submeshIt,
-	mesh::Mesh::Submeshes::iterator submeshEnd
-	);
+	mesh::Mesh::Submeshes::iterator submeshEnd,
+	const mesh::Material& material
+	) :
+	primitiveTopology(submeshIt->primitiveTopology())
+{
+	
+}
 
 void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
 }

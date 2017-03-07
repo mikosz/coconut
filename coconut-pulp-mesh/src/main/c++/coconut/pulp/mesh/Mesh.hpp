@@ -11,7 +11,7 @@
 #include <coconut-tools/serialisation/Deserialiser.hpp>
 #include <coconut-tools/serialisation/make-serialisable-macro.hpp>
 
-#include "Material.hpp"
+#include "MaterialConfiguration.hpp"
 #include "Submesh.hpp"
 
 namespace coconut {
@@ -23,11 +23,11 @@ public:
 
 	using Submeshes = std::vector<Submesh>;
 
-	using Materials = std::unordered_map<std::string, Material>;
+	using MaterialConfigurations = std::unordered_map<std::string, MaterialConfiguration>;
 
-	Mesh(Submeshes s, Materials m) :
+	Mesh(Submeshes s, MaterialConfigurations m) :
 		submeshes_(std::move(s)),
-		materials_(std::move(m))
+		materialsConfigurations_(std::move(m))
 	{
 	}
 
@@ -39,19 +39,19 @@ public:
 		return submeshes_;
 	}
 
-	Materials& materials() {
-		return materials_;
+	MaterialConfigurations& materials() {
+		return materialsConfigurations_;
 	}
 
-	const Materials& materials() const {
-		return materials_;
+	const MaterialConfigurations& materials() const {
+		return materialsConfigurations_;
 	}
 
 private:
 
 	Submeshes submeshes_;
 
-	Materials materials_;
+	MaterialConfigurations materialsConfigurations_;
 
 };
 

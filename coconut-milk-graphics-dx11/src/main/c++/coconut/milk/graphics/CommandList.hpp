@@ -26,7 +26,7 @@ class VertexBuffer;
 class Texture;
 class Texture2d;
 class Sampler;
-class Rasteriser;
+class RenderState;
 class InputLayout;
 class Viewport;
 enum class PixelFormat;
@@ -76,7 +76,7 @@ public:
 
 	void setSampler(Sampler& sampler, ShaderType stage, size_t slot);
 
-	void setRasteriser(Rasteriser& rasteriser);
+	void setRenderState(RenderState& renderState);
 
 	ID3D11DeviceContext& internalDeviceContext() {
 		return *deviceContext_;

@@ -6,7 +6,7 @@
 #include "IndexBuffer.hpp"
 #include "VertexBuffer.hpp"
 #include "Renderer.hpp"
-#include "Rasteriser.hpp"
+#include "RenderState.hpp"
 #include "Texture2d.hpp"
 #include "Sampler.hpp"
 #include "DirectXError.hpp"
@@ -153,6 +153,6 @@ void CommandList::setSampler(Sampler& sampler, ShaderType stage, size_t slot) {
 	}
 }
 
-void CommandList::setRasteriser(Rasteriser& rasteriser) {
-	deviceContext_->RSSetState(&rasteriser.internalRasteriserState());
+void CommandList::setRenderState(RenderState& renderState) {
+	deviceContext_->RSSetState(&renderState.internalRasteriserState());
 }

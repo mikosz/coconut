@@ -11,14 +11,14 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
 void DrawCommand::submit(milk::graphics::CommandList& commandList) {
-	assert(rasteriser_ != nullptr);
+	assert(renderState_ != nullptr);
 	assert(inputLayout_ != nullptr);
 	assert(vertexShader_ != nullptr);
 	assert(pixelShader_ != nullptr);
 	assert(vertexBuffer_ != nullptr);
 	assert(primitiveTopology_ != milk::graphics::PrimitiveTopology::INVALID);
 
-	commandList.setRasteriser(*rasteriser_);
+	commandList.setRenderState(*renderState_);
 	
 	for (auto& sampler: samplers_) {
 		commandList.setSampler(sampler.sampler, sampler.stage, sampler.slot);

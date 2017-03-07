@@ -133,7 +133,7 @@ Mesh obj::Importer::import(
 	Parser parser;
 	parser.parse(data, filesystemContext);
 	
-	auto materials = Mesh::Materials();
+	auto materials = Mesh::MaterialConfigurations();
 
 	auto renderStateConfiguration = RenderStateConfiguration();
 	renderStateConfiguration.rasteriserConfiguration().cullMode = milk::graphics::Rasteriser::CullMode::BACK;
