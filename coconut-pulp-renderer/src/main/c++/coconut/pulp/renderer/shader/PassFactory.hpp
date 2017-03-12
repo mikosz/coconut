@@ -42,7 +42,7 @@ public:
 
 private:
 
-	InputFactory inputLayoutFactory_;
+	InputFactory inputFactory_;
 
 	ShaderFactory shaderFactory_;
 

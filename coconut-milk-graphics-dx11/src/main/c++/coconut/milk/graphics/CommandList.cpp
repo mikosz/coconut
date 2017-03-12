@@ -123,7 +123,7 @@ void CommandList::setInstanceDataBuffer(VertexBuffer& buffer, size_t slot) {
 	deviceContext_->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buf, &strideParam, &offsetParam);
 }
 
-void CommandList::setTexture(Texture& texture, ShaderType stage, size_t slot) {
+void CommandList::setTexture(const Texture& texture, ShaderType stage, size_t slot) {
 	auto* srv = &texture.internalShaderResourceView();
 
 	switch (stage) {
@@ -153,6 +153,6 @@ void CommandList::setSampler(Sampler& sampler, ShaderType stage, size_t slot) {
 	}
 }
 
-void CommandList::setRenderState(RenderState& renderState) {
+void CommandList::setRenderState(const RenderState& renderState) {
 	deviceContext_->RSSetState(&renderState.internalRasteriserState());
 }

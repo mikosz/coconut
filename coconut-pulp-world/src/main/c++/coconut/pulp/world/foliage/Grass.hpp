@@ -3,6 +3,7 @@
 
 #include "coconut/milk/fs.hpp"
 
+#include "coconut/pulp/renderer/shader/PassFactory.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
 
 namespace coconut {
@@ -15,8 +16,7 @@ public:
 
 	Grass(
 		milk::graphics::Renderer& graphicsRenderer,
-		const renderer::shader::Input& input,
-		renderer::MaterialManager& materialManager,
+		renderer::shader::PassFactory& passFactory,
 		milk::FilesystemContext& filesystemContext
 		);
 

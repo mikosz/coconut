@@ -44,7 +44,7 @@ public:
 
 	void submit(milk::graphics::CommandList& commandList);
 
-	void setInputLayout(milk::graphics::InputLayout* inputLayout) {
+	void setInputLayout(milk::graphics::InputLayout* inputLayout) { // TODO: POINTERS!!! CONST!
 		inputLayout_ = inputLayout;
 	}
 
@@ -56,7 +56,7 @@ public:
 		pixelShader_ = pixelShader;
 	}
 
-	void setRenderState(milk::graphics::RenderState* renderState) {
+	void setRenderState(const milk::graphics::RenderState* renderState) {
 		renderState_ = renderState;
 	}
 
@@ -75,7 +75,7 @@ public:
 	}
 
 	void addTexture(
-		milk::graphics::Texture* texture,
+		const milk::graphics::Texture* texture,
 		milk::graphics::ShaderType stage,
 		size_t slot
 		) {
@@ -162,13 +162,13 @@ private:
 
 	struct Texture {
 
-		milk::graphics::Texture* texture; // TODO: pointer
+		const milk::graphics::Texture* texture; // TODO: pointer
 
 		milk::graphics::ShaderType stage;
 
 		size_t slot;
 
-		Texture(milk::graphics::Texture* texture, milk::graphics::ShaderType stage, size_t slot) :
+		Texture(const milk::graphics::Texture* texture, milk::graphics::ShaderType stage, size_t slot) :
 			texture(texture),
 			stage(stage),
 			slot(slot)
@@ -196,7 +196,7 @@ private:
 
 	milk::graphics::PixelShader* pixelShader_ = nullptr;
 
-	milk::graphics::RenderState* renderState_ = nullptr;
+	const milk::graphics::RenderState* renderState_ = nullptr;
 
 	Samplers samplers_;
 

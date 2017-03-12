@@ -1,6 +1,8 @@
 #ifndef _COCONUT_PULP_PRIMITIVE_COLOUR_HPP_
 #define _COCONUT_PULP_PRIMITIVE_COLOUR_HPP_
 
+#include <coconut-tools/serialisation.hpp>
+
 #include "detail/VectorType.hpp"
 
 namespace coconut {
@@ -36,6 +38,13 @@ public:
 	using detail::VectorType<4>::storeAs;
 
 };
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Colour, colour) {
+	serialiser(SerialiserType::Label("r"), vec.r());
+	serialiser(SerialiserType::Label("g"), vec.g());
+	serialiser(SerialiserType::Label("b"), vec.b());
+	serialiser(SerialiserType::Label("a"), vec.a());
+}
 
 } // namespace primitive
 

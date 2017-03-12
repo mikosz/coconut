@@ -9,6 +9,7 @@
 #include <coconut-tools/utils/Range.hpp>
 #include <coconut-tools/utils/hash-combine.hpp>
 
+#include "coconut/pulp/mesh/MaterialConfiguration.hpp"
 #include "Parser.hpp"
 
 using namespace coconut;
@@ -22,33 +23,34 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.MESH.OBJ.IMPORTER");
 
 using VertexDescriptor = std::tuple<size_t, size_t, size_t>;
 
-Material createMaterial(
+MaterialConfiguration createMaterialConfiguration(
 	const Parser::Materials::value_type& materialDataEntry,
 	const milk::graphics::Sampler::Configuration& samplerConfiguration,
-	const RenderStateConfiguration& renderStateConfiguration,
+	const milk::graphics::RenderState::Configuration& renderStateConfiguration,
 	const milk::FilesystemContext& filesystemContext
 	)
 {
 	const auto& materialData = materialDataEntry.second;
 
-	auto material = Material();
+	auto material = MaterialConfiguration();
 
 	material.shaderName() = "mesh"; // TODO: literal in code, export
 
 	material.passType() =  (materialData.diffuseColour.a() < 0.999f) ?
-		Material::PassType::TRANSPARENT :
-		Material::PassType::OPAQUE;
+		MaterialConfiguration::PassType::TRANSPARENT :
+		MaterialConfiguration::PassType::OPAQUE;
 
 	material.renderStateConfiguration() = renderStateConfiguration;
 
-	material.set(Material::AMBIENT_COLOUR_PROPERTY, materialData.ambientColour);
-	material.set(Material::DIFFUSE_COLOUR_PROPERTY, materialData.diffuseColour);
-	material.set(Material::SPECULAR_COLOUR_PROPERTY, materialData.specularColour);
-	material.set(Material::SPECULAR_EXPONENT_PROPERTY, materialData.specularExponent);
+	auto& properties = material.properties();
+	properties.emplace(MaterialConfiguration::AMBIENT_COLOUR_PROPERTY, materialData.ambientColour);
+	properties.emplace(MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY, materialData.diffuseColour);
+	properties.emplace(MaterialConfiguration::SPECULAR_COLOUR_PROPERTY, materialData.specularColour);
+	properties.emplace(MaterialConfiguration::SPECULAR_EXPONENT_PROPERTY, materialData.specularExponent);
 
 	if (!materialData.diffuseMap.empty()) {
 		material.addTexture(
-			Material::DIFFUSE_MAP_TEXTURE,
+			MaterialConfiguration::DIFFUSE_MAP_TEXTURE,
 			filesystemContext.currentWorkingDirectory() / materialData.diffuseMap,
 			samplerConfiguration
 			);
@@ -135,10 +137,10 @@ Mesh obj::Importer::import(
 	
 	auto materials = Mesh::MaterialConfigurations();
 
-	auto renderStateConfiguration = RenderStateConfiguration();
-	renderStateConfiguration.rasteriserConfiguration().cullMode = milk::graphics::Rasteriser::CullMode::BACK;
-	renderStateConfiguration.rasteriserConfiguration().fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
-	renderStateConfiguration.rasteriserConfiguration().frontCounterClockwise = false;
+	auto renderStateConfiguration = milk::graphics::RenderState::Configuration();
+	renderStateConfiguration.cullMode = milk::graphics::RenderState::CullMode::BACK;
+	renderStateConfiguration.fillMode = milk::graphics::RenderState::FillMode::SOLID;
+	renderStateConfiguration.frontCounterClockwise = false;
 
 	auto samplerConfiguration = milk::graphics::Sampler::Configuration();
 	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::CLAMP;
@@ -146,10 +148,10 @@ Mesh obj::Importer::import(
 	samplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::CLAMP;
 	samplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR; // TODO
 
-	for (const auto& parsedMaterial : parser.materials()) {
+	for (const auto& parsedMaterialConfiguration : parser.materials()) {
 		materials.emplace(
-			parsedMaterial.first,
-			createMaterial(parsedMaterial, samplerConfiguration, renderStateConfiguration, filesystemContext)
+			parsedMaterialConfiguration.first,
+			createMaterialConfiguration(parsedMaterialConfiguration, samplerConfiguration, renderStateConfiguration, filesystemContext)
 			);
 	}
 

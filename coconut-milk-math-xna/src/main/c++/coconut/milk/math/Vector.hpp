@@ -9,9 +9,7 @@
 
 #include <DirectXMath.h>
 
-#include <coconut-tools/serialisation/Serialiser.hpp>
-#include <coconut-tools/serialisation/Deserialiser.hpp>
-#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+#include <coconut-tools/serialisation.hpp>
 
 namespace coconut {
 namespace milk {
@@ -568,7 +566,7 @@ CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector4d, vec) {
 	serialiser(SerialiserType::Label("w"), vec.w());
 }
 
-}
+} // namespace math
 } // namespace milk
 } // namespace coconut
 

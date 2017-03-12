@@ -22,7 +22,7 @@ std::unique_ptr<Pass> detail::PassCreator::doCreate(
 	CT_LOG_INFO << "Creating shader pass: \"" << id << "\"";
 
 	return std::make_unique<Pass>(
-		inputLayoutFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
+		inputFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
 		std::dynamic_pointer_cast<VertexShader>(
 			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),
 		std::dynamic_pointer_cast<PixelShader>(
@@ -53,7 +53,7 @@ void detail::PassCreator::scanShaderCodeDirectory(
 				detail::InputCreator::ShaderCodeInfo inputInfo;
 				inputInfo.shaderCodePath = shaderInfo.shaderCodePath;
 				inputInfo.entrypoint = entrypointName;
-				inputLayoutFactory_.registerShaderCode(shaderName.string(), inputInfo);
+				inputFactory_.registerShaderCode(shaderName.string(), inputInfo);
 
 				shaderInfo.shaderType = milk::graphics::ShaderType::VERTEX;
 				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
@@ -84,7 +84,7 @@ void detail::PassCreator::scanCompiledShaderDirectory(
 			const auto shaderName = path.stem();
 
 			if (shaderName.extension() == ".v") {
-				inputLayoutFactory_.registerCompiledShader(shaderName.string(), info.compiledShaderPath);
+				inputFactory_.registerCompiledShader(shaderName.string(), info.compiledShaderPath);
 
 				info.shaderType = milk::graphics::ShaderType::VERTEX;
 				shaderFactory_.registerCompiledShader(shaderName.string(), info);

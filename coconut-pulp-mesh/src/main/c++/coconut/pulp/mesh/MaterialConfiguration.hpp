@@ -7,11 +7,7 @@
 
 #include <boost/any.hpp>
 
-// TODO: make one include file
-#include <coconut-tools/serialisation/Serialiser.hpp>
-#include <coconut-tools/serialisation/Deserialiser.hpp>
-#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
-
+#include <coconut-tools/serialisation.hpp>
 #include <coconut-tools/enum.hpp>
 
 #include <coconut-tools/utils/Range.hpp>

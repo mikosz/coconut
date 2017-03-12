@@ -59,19 +59,13 @@ void Scene::render(CommandBuffer& commandBuffer) {
 	context.screenDepthStencil = depthStencil_;
 	context.scene = this;
 
-	context.setPass(ShaderPassType::OPAQUE, renderingPass_.get()); // TODO!
+	context.passType = mesh::MaterialConfiguration::PassType::OPAQUE;
 
 	for (auto actor : actors_) {
 		actor->render(commandBuffer, context);
 	}
 
-	context.setPass(ShaderPassType::GRASS, renderingPass_.get());
-
-	for (auto actor : actors_) {
-		actor->render(commandBuffer, context);
-	}
-
-	context.setPass(ShaderPassType::TRANSPARENT, renderingPass_.get()); // TODO!
+	context.passType = mesh::MaterialConfiguration::PassType::TRANSPARENT;
 
 	for (auto actor : actors_) {
 		actor->render(commandBuffer, context);

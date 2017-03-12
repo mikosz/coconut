@@ -12,7 +12,7 @@
 #include "../lighting/PointLight.hpp"
 #include "../Scene.hpp"
 #include "../Actor.hpp"
-#include "../PhongMaterial.hpp"
+#include "../Material.hpp"
 
 #include "CallbackParameter.hpp"
 #include "StructuredParameter.hpp"
@@ -159,16 +159,13 @@ std::unique_ptr<Parameter> createWorldMatrixParameter(const ParameterFactoryInst
 		);
 }
 
-std::unique_ptr<Parameter> createPhongMaterialParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+std::unique_ptr<Parameter> createMaterialParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<StructuredParameter>(
 		[](const void* materialPtr, size_t index) {
 			assert(index == 0);
-
-			const auto& material = *reinterpret_cast<const Material*>(materialPtr);
-
-			return &dynamic_cast<const PhongMaterial&>(material);
+			return reinterpret_cast<const Material*>(materialPtr);
 		},
 		Parameter::OperandType::MATERIAL,
 		instanceDetails.padding
@@ -307,37 +304,41 @@ std::unique_ptr<Parameter> createPointLightAttenuationParameter(const ParameterF
 		);
 }
 
-std::unique_ptr<Parameter> createPhongMaterialAmbientColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+std::unique_ptr<Parameter> createMaterialAmbientColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<PhongMaterial*, Vector4d>>(
-		[](Vector4d& result, const PhongMaterial* material, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Material*, Vector4d>>(
+		// TODO: should accept different result types, utilise PixelFormat
+		[](Vector4d& result, const Material* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = material->ambientColour();
+			material->property(mesh::MaterialConfiguration::AMBIENT_COLOUR_PROPERTY)
+				.storeAs(&result, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
 		},
 		instanceDetails.padding
 		);
 }
 
-std::unique_ptr<Parameter> createPhongMaterialDiffuseColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+std::unique_ptr<Parameter> createMaterialDiffuseColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<PhongMaterial*, Vector4d>>(
-		[](Vector4d& result, const PhongMaterial* material, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Material*, Vector4d>>(
+		[](Vector4d& result, const Material* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = material->diffuseColour();
+			material->property(mesh::MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY)
+				.storeAs(&result, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
 		},
 		instanceDetails.padding
 		);
 }
 
-std::unique_ptr<Parameter> createPhongMaterialSpecularColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
+std::unique_ptr<Parameter> createMaterialSpecularColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<PhongMaterial*, Vector4d>>(
-		[](Vector4d& result, const PhongMaterial* material, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Material*, Vector4d>>(
+		[](Vector4d& result, const Material* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = material->specularColour();
+			material->property(mesh::MaterialConfiguration::SPECULAR_COLOUR_PROPERTY)
+				.storeAs(&result, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
 		},
 		instanceDetails.padding
 		);
@@ -451,7 +452,7 @@ void detail::ParameterCreator::registerBuiltins() {
 	registerCreator(ParameterFactoryInstanceDetails("world"), &createWorldMatrixParameter);
 
 	// MATERIAL
-	registerCreator(ParameterFactoryInstanceDetails("phong_material"), &createPhongMaterialParameter);
+	registerCreator(ParameterFactoryInstanceDetails("material"), &createMaterialParameter);
 
 	// MATRIX
 	registerCreator(ParameterFactoryInstanceDetails("inv"), &createInverterParameter);
@@ -489,12 +490,12 @@ void detail::ParameterCreator::registerBuiltins() {
 	registerCreator(ParameterFactoryInstanceDetails("attenuation", "PointLight"), &createPointLightAttenuationParameter);
 
 	// PHONG MATERIAL
-	registerCreator(ParameterFactoryInstanceDetails("ambient_colour", "PhongMaterial"), &createPhongMaterialAmbientColourParameter);
-	registerCreator(ParameterFactoryInstanceDetails("ambient", "PhongMaterial"), &createPhongMaterialAmbientColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("ambient_colour", "Material"), &createMaterialAmbientColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("ambient", "Material"), &createMaterialAmbientColourParameter);
 
-	registerCreator(ParameterFactoryInstanceDetails("diffuse_colour", "PhongMaterial"), &createPhongMaterialDiffuseColourParameter);
-	registerCreator(ParameterFactoryInstanceDetails("diffuse", "PhongMaterial"), &createPhongMaterialDiffuseColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("diffuse_colour", "Material"), &createMaterialDiffuseColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("diffuse", "Material"), &createMaterialDiffuseColourParameter);
 
-	registerCreator(ParameterFactoryInstanceDetails("specular_colour", "PhongMaterial"), &createPhongMaterialSpecularColourParameter);
-	registerCreator(ParameterFactoryInstanceDetails("specular", "PhongMaterial"), &createPhongMaterialSpecularColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("specular_colour", "Material"), &createMaterialSpecularColourParameter);
+	registerCreator(ParameterFactoryInstanceDetails("specular", "Material"), &createMaterialSpecularColourParameter);
 }

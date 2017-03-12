@@ -5,9 +5,7 @@
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include <coconut-tools/enum.hpp>
-#include <coconut-tools/serialisation/Serialiser.hpp>
-#include <coconut-tools/serialisation/Deserialiser.hpp>
-#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+#include <coconut-tools/serialisation.hpp>
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
@@ -45,7 +43,7 @@ public:
 
 	RenderState(Renderer& renderer, const Configuration& configuration);
 
-	ID3D11RasterizerState& internalRasteriserState() {
+	ID3D11RasterizerState& internalRasteriserState() const {
 		return *rasteriserState_;
 	}
 

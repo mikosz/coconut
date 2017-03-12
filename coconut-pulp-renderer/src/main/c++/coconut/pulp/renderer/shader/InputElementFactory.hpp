@@ -39,8 +39,18 @@ struct InputElementFactoryInstanceDetails {
 	{
 	}
 
+	InputElementFactoryInstanceDetails(
+		std::string semantic,
+		size_t semanticIndex
+		) :
+		semantic(std::move(semantic)),
+		semanticIndex(semanticIndex)
+	{
+	}
+
 };
 
+// TODO: operator== ignores PixelFormat, which is not intuitive
 bool operator==(const InputElementFactoryInstanceDetails& lhs, const InputElementFactoryInstanceDetails& rhs);
 std::ostream& operator<<(std::ostream& os, const InputElementFactoryInstanceDetails& instanceDetails);
 

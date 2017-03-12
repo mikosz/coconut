@@ -72,11 +72,11 @@ public:
 
 	void setInstanceDataBuffer(VertexBuffer& buffer, size_t slot);
 
-	void setTexture(Texture& texture, ShaderType stage, size_t slot);
+	void setTexture(const Texture& texture, ShaderType stage, size_t slot);
 
 	void setSampler(Sampler& sampler, ShaderType stage, size_t slot);
 
-	void setRenderState(RenderState& renderState);
+	void setRenderState(const RenderState& renderState);
 
 	ID3D11DeviceContext& internalDeviceContext() {
 		return *deviceContext_;

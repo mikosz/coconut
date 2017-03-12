@@ -25,7 +25,7 @@ public:
 	struct Element : public milk::graphics::InputLayout::Element { // TODO: unsure about this api
 
 		using WriteFunc =
-			std::function<void (void* buffer, const Submesh::Vertex& vertex)>;
+			std::function<void (void* buffer, const void* input)>; // TODO: input type? vertex or instance...
 
 		Element(
 			std::string semantic,
@@ -46,7 +46,7 @@ public:
 
 	size_t vertexSize() const;
 
-	void writeVertex(void* buffer, const Submesh::Vertex& vertex) const;
+	void writeVertex(void* buffer, const void* input) const;
 
 	milk::graphics::InputLayout& layout() {
 		return layout_;

@@ -9,119 +9,107 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::world;
 using namespace coconut::pulp::world::foliage;
 
+using namespace std::string_literals;
+
 namespace /* anonymous */ {
 
-model::Data generateInstancedPatchData() {
-	auto data = model::Data();
+Mesh grassMesh() {
+	auto submeshes = Mesh::Submeshes();
+	auto materials = Mesh::MaterialConfigurations();
 
-	data.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
-	data.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
-	data.rasteriserConfiguration.frontCounterClockwise = false;
+	const auto bladeMaterialId = "blade"s;
 
-	data.normals.emplace_back(0.0f, 0.0f, -1.0f);
+	const auto bottomLeft = primitive::Position(-0.03f, 0.0f, 0.0f);
+	const auto bottomRight = primitive::Position(0.03f, 0.0f, 0.0f);
+	const auto topLeft = primitive::Position(-0.03f, 0.5f, 0.0f);
+	const auto topRight = primitive::Position(0.03f, 0.5f, 0.0f);
 
-	data.textureCoordinates.emplace_back(0.0f, 0.0f);
-	data.textureCoordinates.emplace_back(1.0f, 0.0f);
-	data.textureCoordinates.emplace_back(0.0f, 1.0f);
-	data.textureCoordinates.emplace_back(1.0f, 1.0f);
-
-	data.phongMaterials.emplace_back();
-	data.phongMaterials.back().ambientColour = milk::math::Vector4d(0.0f, 1.0f, 0.0f, 1.0f);
-	data.phongMaterials.back().diffuseColour = milk::math::Vector4d(0.0f, 1.0f, 0.0f, 1.0f);
-	data.phongMaterials.back().specularColour = milk::math::Vector4d(0.0f, 0.1f, 0.0f, 1.0f);
-	data.phongMaterials.back().diffuseMap = "/data/textures/grass.png";
-	data.phongMaterials.back().diffuseMapSamplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
-	data.phongMaterials.back().diffuseMapSamplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
-	data.phongMaterials.back().diffuseMapSamplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
-	data.phongMaterials.back().diffuseMapSamplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR;
-	data.phongMaterials.back().name = "grass::blade";
-
-	data.drawGroups.emplace_back();
-	auto& drawGroup = data.drawGroups.back();
-
-	drawGroup.primitiveTopology = milk::graphics::PrimitiveTopology::TRIANGLE_LIST;
-	drawGroup.materialId = "grass::blade";
+	const auto texBottomLeft = primitive::TextureCoordinate(0.0f, 0.0f);
+	const auto texBottomRight = primitive::TextureCoordinate(1.0f, 0.0f);
+	const auto texTopLeft = primitive::TextureCoordinate(0.0f, 1.0f);
+	const auto texTopRight = primitive::TextureCoordinate(1.0f, 1.0f);
 
 	// blades
 	for (auto x: coconut_tools::range(-0.5f, 0.5f, 0.5f)) {
 		for (auto z : coconut_tools::range(-0.5f, 0.5f, 0.5f)) {
-			auto offset = milk::math::Vector3d(x, 0.0f, z);
+			auto vertices = Submesh::Vertices();
+			auto indices = Submesh::Indices();
 
-			auto bottomLeft = milk::math::Vector3d(-0.03f, 0.0f, 0.0f);
-			auto bottomRight = milk::math::Vector3d(0.03f, 0.0f, 0.0f);
-			auto topLeft = milk::math::Vector3d(-0.03f, 0.5f, 0.0f);
-			auto topRight = milk::math::Vector3d(0.03f, 0.5f, 0.0f);
+			auto vertex = Submesh::Vertex();
+			vertex.normal = primitive::Vector(0.0f, 0.0f, -1.0f);
 
-			drawGroup.vertices.emplace_back();
-			drawGroup.vertices.back().positionIndex = data.positions.size();
-			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 1;
-			drawGroup.indices.emplace_back(data.positions.size());
-			data.positions.emplace_back(bottomRight + offset);
+			const auto offset = primitive::Vector(x, 0.0f, z);
 
-			drawGroup.vertices.emplace_back();
-			drawGroup.vertices.back().positionIndex = data.positions.size();
-			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 0;
-			drawGroup.indices.emplace_back(data.positions.size());
-			data.positions.emplace_back(bottomLeft + offset);
+			vertex.position = bottomRight + offset;
+			vertex.textureCoordinate = texBottomRight;
+			indices.emplace_back(vertices.size());
+			vertices.emplace_back(vertex);
 
-			drawGroup.vertices.emplace_back();
-			drawGroup.vertices.back().positionIndex = data.positions.size();
-			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 2;
-			drawGroup.indices.emplace_back(data.positions.size());
-			data.positions.emplace_back(topLeft + offset);
+			vertex.position = bottomLeft + offset;
+			vertex.textureCoordinate = texBottomLeft;
+			indices.emplace_back(vertices.size());
+			vertices.emplace_back(vertex);
 
-			// ---
+			vertex.position = topRight + offset;
+			vertex.textureCoordinate = texTopRight;
+			indices.emplace_back(vertices.size());
+			vertices.emplace_back(vertex);
 
-			drawGroup.vertices.emplace_back();
-			drawGroup.vertices.back().positionIndex = data.positions.size();
-			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 1;
-			drawGroup.indices.emplace_back(data.positions.size());
-			data.positions.emplace_back(bottomRight + offset);
+			vertex.position = topLeft + offset;
+			vertex.textureCoordinate = texTopLeft;
+			indices.emplace_back(vertices.size());
+			vertices.emplace_back(vertex);
 
-			drawGroup.vertices.emplace_back();
-			drawGroup.vertices.back().positionIndex = data.positions.size();
-			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 2;
-			drawGroup.indices.emplace_back(data.positions.size());
-			data.positions.emplace_back(topLeft + offset);
-
-			drawGroup.vertices.emplace_back();
-			drawGroup.vertices.back().positionIndex = data.positions.size();
-			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 3;
-			drawGroup.indices.emplace_back(data.positions.size());
-			data.positions.emplace_back(topRight + offset);
+			submeshes.emplace_back(
+				std::move(vertices),
+				std::move(indices),
+				std::move(bladeMaterialId),
+				milk::graphics::PrimitiveTopology::TRIANGLE_STRIP
+				);
 		}
 	}
+	
+	auto material = mesh::MaterialConfiguration();
+
+	material.renderStateConfiguration().cullMode = milk::graphics::RenderState::CullMode::NONE;
+	material.renderStateConfiguration().fillMode = milk::graphics::RenderState::FillMode::SOLID;
+	material.renderStateConfiguration().frontCounterClockwise = false;
+
+	material.passType() = mesh::MaterialConfiguration::PassType::OPAQUE;
+
+	material.shaderName() = "grass"s;
+
+	auto samplerConfiguration = milk::graphics::Sampler::Configuration();
+	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR; // TODO
+	material.addTexture(mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE, "/data/textures/grass.png"s, std::move(samplerConfiguration));
+
+	materials.emplace("blade"s, std::move(material));
 
 	// patches
-	for (auto x : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
-		for (auto z : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
-			drawGroup.instances.emplace_back();
-			drawGroup.instances.back().patchPosition = milk::math::Vector4d(x, 0.0f, z, 1.0f);
-		}
-	}
+	//for (auto x : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
+	//	for (auto z : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
+	//		drawGroup.instances.emplace_back();
+	//		drawGroup.instances.back().patchPosition = milk::math::Vector4d(x, 0.0f, z, 1.0f);
+	//	}
+	//}
 
-	return data;
+	return Mesh(std::move(submeshes), std::move(materials));
 }
 
 } // anonymous namespace
 
 Grass::Grass(
 	milk::graphics::Renderer& graphicsRenderer,
-	const renderer::shader::Input& input,
-	renderer::MaterialManager& materialManager,
+	renderer::shader::PassFactory& passFactory,
 	milk::FilesystemContext& filesystemContext
 	) :
 	Actor(std::make_shared<renderer::Model>(
-		generateInstancedPatchData(),
+		grassMesh(),
 		graphicsRenderer,
-		input,
-		materialManager,
+		passFactory,
 		filesystemContext
 		))
 {

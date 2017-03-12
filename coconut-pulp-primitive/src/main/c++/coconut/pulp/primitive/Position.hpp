@@ -3,6 +3,8 @@
 
 #include <boost/operators.hpp>
 
+#include <coconut-tools/serialisation.hpp>
+
 #include "detail/VectorType.hpp"
 #include "Vector.hpp"
 
@@ -72,6 +74,12 @@ private:
 	friend class primitive::Vector;
 
 };
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Position, position) {
+	serialiser(SerialiserType::Label("x"), position.x());
+	serialiser(SerialiserType::Label("y"), position.y());
+	serialiser(SerialiserType::Label("z"), position.z());
+}
 
 } // namespace primitive
 

@@ -10,10 +10,7 @@
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
-// TODO: make one include file
-#include <coconut-tools/serialisation/Serialiser.hpp>
-#include <coconut-tools/serialisation/Deserialiser.hpp>
-#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+#include <coconut-tools/serialisation.hpp>
 
 namespace coconut {
 namespace milk {

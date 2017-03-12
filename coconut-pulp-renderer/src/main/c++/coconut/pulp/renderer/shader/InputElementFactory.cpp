@@ -2,6 +2,8 @@
 
 #include <coconut-tools/logger.hpp>
 
+#include "coconut/pulp/mesh/Submesh.hpp"
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
@@ -11,7 +13,9 @@ namespace /* anonymous */ {
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.INPUT_ELEMENT_FACTORY");
 
-std::unique_ptr<Input::Element> createPositionRGBAElement(
+// TODO: these creators could be limited to the lambda, other parameters
+// are the same everywhere
+std::unique_ptr<Input::Element> createPositionElement(
 	const InputElementFactoryInstanceDetails& instanceDetails)
 {
 	return std::make_unique<Input::Element>(
@@ -19,22 +23,15 @@ std::unique_ptr<Input::Element> createPositionRGBAElement(
 		instanceDetails.semanticIndex,
 		instanceDetails.format,
 		Input::SlotType::PER_VERTEX_DATA,
-		0u,
-		[](void* buffer, const void* input) {
-			auto* target = reinterpret_cast<float*>(buffer);
-			const auto& vertexIterator = *reinterpret_cast<const model::Data::VertexIterator*>(input);
-			const auto& position =
-				vertexIterator.data().positions[vertexIterator.vertexDescriptor().positionIndex];
-
-			target[0] = position.x();
-			target[1] = position.y();
-			target[2] = position.z();
-			target[3] = 1.0f; // TODO
+		0,
+		[pixelFormat=instanceDetails.format](void* buffer, const void* input) {
+			const auto& vertex = *reinterpret_cast<const mesh::Submesh::Vertex*>(input);
+			vertex.position.storeAs(buffer, pixelFormat);
 		}
 		);
 }
 
-std::unique_ptr<Input::Element> createNormalRGBElement(
+std::unique_ptr<Input::Element> createNormalElement(
 	const InputElementFactoryInstanceDetails& instanceDetails)
 {
 	return std::make_unique<Input::Element>(
@@ -42,21 +39,15 @@ std::unique_ptr<Input::Element> createNormalRGBElement(
 		instanceDetails.semanticIndex,
 		instanceDetails.format,
 		Input::SlotType::PER_VERTEX_DATA,
-		0u,
-		[](void* buffer, const void* input) {
-			auto* target = reinterpret_cast<float*>(buffer);
-			const auto& vertexIterator = *reinterpret_cast<const model::Data::VertexIterator*>(input);
-			const auto& normal =
-				vertexIterator.data().normals[vertexIterator.vertexDescriptor().normalIndex];
-
-			target[0] = normal.x();
-			target[1] = normal.y();
-			target[2] = normal.z();
+		0,
+		[pixelFormat=instanceDetails.format](void* buffer, const void* input) {
+			const auto& vertex = *reinterpret_cast<const mesh::Submesh::Vertex*>(input);
+			vertex.normal.storeAs(buffer, pixelFormat);
 		}
 		);
 }
 
-std::unique_ptr<Input::Element> createTexcoordRGElement(
+std::unique_ptr<Input::Element> createTexcoordElement(
 	const InputElementFactoryInstanceDetails& instanceDetails)
 {
 	return std::make_unique<Input::Element>(
@@ -64,21 +55,16 @@ std::unique_ptr<Input::Element> createTexcoordRGElement(
 		instanceDetails.semanticIndex,
 		instanceDetails.format,
 		Input::SlotType::PER_VERTEX_DATA,
-		0u,
-		[](void* buffer, const void* input) {
-			auto* target = reinterpret_cast<float*>(buffer);
-			const auto& vertexIterator = *reinterpret_cast<const model::Data::VertexIterator*>(input);
-			const auto& texcoord =
-				vertexIterator.data().textureCoordinates[vertexIterator.vertexDescriptor().textureCoordinateIndex];
-
-			target[0] = texcoord.x();
-			target[1] = texcoord.y();
+		0,
+		[pixelFormat=instanceDetails.format](void* buffer, const void* input) {
+			const auto& vertex = *reinterpret_cast<const mesh::Submesh::Vertex*>(input);
+			vertex.textureCoordinate.storeAs(buffer, pixelFormat);
 		}
 		);
 }
 
-// TODO: simplify all of this
-std::unique_ptr<Input::Element> createPatchPositionRGBAElement(
+
+std::unique_ptr<Input::Element> createPatchPositionElement(
 	const InputElementFactoryInstanceDetails& instanceDetails)
 {
 	return std::make_unique<Input::Element>(
@@ -86,16 +72,17 @@ std::unique_ptr<Input::Element> createPatchPositionRGBAElement(
 		instanceDetails.semanticIndex,
 		instanceDetails.format,
 		Input::SlotType::PER_INSTANCE_DATA,
-		1u,
+		1, // TODO: instance step rate should be deduced somehow
 		[](void* buffer, const void* input) {
-			auto* target = reinterpret_cast<float*>(buffer);
-			const auto& instance = *reinterpret_cast<const model::Data::Instance*>(input);
-			const auto& patchPosition = instance.patchPosition;
+			assert(false);
+			//auto* target = reinterpret_cast<float*>(buffer);
+			//const auto& instance = *reinterpret_cast<const model::Data::Instance*>(input);
+			//const auto& patchPosition = instance.patchPosition;
 
-			target[0] = patchPosition.x();
-			target[1] = patchPosition.y();
-			target[2] = patchPosition.z();
-			target[3] = 1.0f; // TODO
+			//target[0] = patchPosition.x();
+			//target[1] = patchPosition.y();
+			//target[2] = patchPosition.z();
+			//target[3] = 1.0f; // TODO
 		}
 		);
 }
@@ -107,9 +94,7 @@ bool coconut::pulp::renderer::shader::operator==(
 {
 	return
 		lhs.semantic == rhs.semantic &&
-		lhs.semanticIndex == rhs.semanticIndex &&
-		lhs.format == rhs.format
-		;
+		lhs.semanticIndex == rhs.semanticIndex;
 }
 
 std::ostream& coconut::pulp::renderer::shader::operator<<(
@@ -117,8 +102,7 @@ std::ostream& coconut::pulp::renderer::shader::operator<<(
 {
 	return os
 		<< instanceDetails.semantic
-		<< ':' << instanceDetails.semanticIndex
-		<< " <" << instanceDetails.format << ">";
+		<< ':' << instanceDetails.semanticIndex;
 }
 
 detail::InputElementCreator::InputElementCreator() {
@@ -129,10 +113,9 @@ void detail::InputElementCreator::registerBuiltins() {
 	using milk::graphics::PixelFormat;
 	using InstanceDetails = InputElementFactoryInstanceDetails;
 
-	registerCreator(InstanceDetails("POSITION", 0, PixelFormat::R32G32B32A32_FLOAT), &createPositionRGBAElement);
-	registerCreator(InstanceDetails("NORMAL", 0, PixelFormat::R32G32B32_FLOAT), &createNormalRGBElement);
-	registerCreator(InstanceDetails("TEXCOORD", 0, PixelFormat::R32G32_FLOAT), &createTexcoordRGElement);
+	registerCreator(InstanceDetails("POSITION", 0), &createPositionElement);
+	registerCreator(InstanceDetails("NORMAL", 0), &createNormalElement);
+	registerCreator(InstanceDetails("TEXCOORD", 0), &createTexcoordElement);
 
-	registerCreator(InstanceDetails("PATCH_POSITION", 0, PixelFormat::R32G32B32A32_FLOAT),
-		&createPatchPositionRGBAElement);
+	registerCreator(InstanceDetails("PATCH_POSITION", 0), &createPatchPositionElement);
 }

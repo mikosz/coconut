@@ -3,6 +3,8 @@
 
 #include <iosfwd>
 
+#include <coconut-tools/serialisation.hpp>
+
 #include <boost/operators.hpp>
 #include "detail/VectorType.hpp"
 
@@ -77,6 +79,12 @@ private:
 	}
 
 };
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector, vector) {
+	serialiser(SerialiserType::Label("x"), vector.x());
+	serialiser(SerialiserType::Label("y"), vector.y());
+	serialiser(SerialiserType::Label("z"), vector.z());
+}
 
 } // namespace primitive
 

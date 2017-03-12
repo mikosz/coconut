@@ -66,7 +66,7 @@ size_t Input::vertexSize() const {
 	return elementSize(elements_, Input::SlotType::PER_INSTANCE_DATA);
 }
 
-void Input::writeVertex(void* buffer, const Submesh::Vertex& vertex) const
+void Input::writeVertex(void* buffer, const void* input) const
 {
 	auto* target = reinterpret_cast<std::uint8_t*>(buffer);
 	for (const auto& element : elements_ | boost::adaptors::filtered(
@@ -74,7 +74,7 @@ void Input::writeVertex(void* buffer, const Submesh::Vertex& vertex) const
 			return element.inputSlotType == Input::SlotType::PER_VERTEX_DATA;
 		}))
 	{
-		element.writeFunc(target, vertex);
+		element.writeFunc(target, input);
 		target += milk::graphics::formatSize(element.format);
 	}
 }

@@ -3,6 +3,9 @@
 
 #include <memory>
 
+#include <windows.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
+
 #include "coconut/milk/system/App.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/fs/Filesystem.hpp"

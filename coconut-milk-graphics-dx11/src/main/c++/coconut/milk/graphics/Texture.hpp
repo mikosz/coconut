@@ -42,7 +42,7 @@ public:
 		return *depthStencilView_;
 	}
 
-	ID3D11ShaderResourceView& internalShaderResourceView() {
+	ID3D11ShaderResourceView& internalShaderResourceView() const {
 		return *shaderResourceView_;
 	}
 

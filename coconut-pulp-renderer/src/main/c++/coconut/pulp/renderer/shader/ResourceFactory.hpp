@@ -13,7 +13,6 @@
 
 #include "coconut/milk/graphics/ShaderType.hpp"
 
-#include "../Material.hpp"
 #include "Resource.hpp"
 
 namespace coconut {

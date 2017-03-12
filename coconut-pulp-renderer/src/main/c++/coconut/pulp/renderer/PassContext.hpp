@@ -6,7 +6,7 @@
 #include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
 
-#include "coconut/pulp/mesh/Material.hpp"
+#include "coconut/pulp/mesh/MaterialConfiguration.hpp"
 
 #include "shader/Pass.hpp"
 
@@ -17,6 +17,7 @@ namespace renderer {
 class Scene;
 class Actor;
 class Model;
+class Material;
 
 // TODO: I don't like these pointers, move fields to private, stop passing this as value
 class PassContext {
@@ -34,9 +35,11 @@ public:
 
 	const Model* model = nullptr;
 
-	const mesh::Material* material = nullptr;
+	const Material* material = nullptr;
 
 	std::string shader;
+
+	mesh::MaterialConfiguration::PassType passType; // TODO: I don't like this
 
 	void reset() {
 		viewport = nullptr;

@@ -9,7 +9,7 @@
 #include "coconut/milk/utils/sliceIdentifier.hpp"
 
 #include "../PassContext.hpp"
-#include "../PhongMaterial.hpp"
+#include "../Material.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -22,10 +22,10 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.RESOURCE_FACTORY");
 
 std::unique_ptr<Resource> createDiffuseMap(milk::graphics::ShaderType shaderType, size_t slot) {
 	return std::make_unique<TextureResource>(
-		[](const PassContext& passContext) -> milk::graphics::Texture* {
-			const auto& phongMaterial = dynamic_cast<const PhongMaterial&>(*passContext.material);
-			if (phongMaterial.hasDiffuseMap()) {
-				return &phongMaterial.diffuseMap();
+		[](const PassContext& passContext) -> const milk::graphics::Texture* {
+			static const auto DIFFUSE_MAP_PROPERTY = mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(DIFFUSE_MAP_PROPERTY)) {
+				return &std::get<milk::graphics::Texture2d>(passContext.material->texture(DIFFUSE_MAP_PROPERTY));
 			} else {
 				return nullptr;
 			}
@@ -37,10 +37,10 @@ std::unique_ptr<Resource> createDiffuseMap(milk::graphics::ShaderType shaderType
 
 std::unique_ptr<Resource> createDiffuseMapSampler(milk::graphics::ShaderType shaderType, size_t slot) {
 	return std::make_unique<SamplerResource>(
-		[](const PassContext& passContext) -> milk::graphics::Sampler* {
-			const auto& phongMaterial = dynamic_cast<const PhongMaterial&>(*passContext.material);
-			if (phongMaterial.hasDiffuseMap()) {
-				return &phongMaterial.diffuseMapSampler();
+		[](const PassContext& passContext) -> const milk::graphics::Sampler* {
+			static const auto DIFFUSE_MAP_PROPERTY = mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(DIFFUSE_MAP_PROPERTY)) {
+				return &std::get<milk::graphics::Sampler>(passContext.material->texture(DIFFUSE_MAP_PROPERTY));
 			} else {
 				return nullptr;
 			}

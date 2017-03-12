@@ -4,10 +4,7 @@
 #include <vector>
 #include <string>
 
-// TODO: make one include file
-#include <coconut-tools/serialisation/Serialiser.hpp>
-#include <coconut-tools/serialisation/Deserialiser.hpp>
-#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+#include <coconut-tools/serialisation.hpp>
 
 #include "coconut/milk/graphics/PrimitiveTopology.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
@@ -35,6 +32,8 @@ public:
 
 	using Indices = std::vector<size_t>;
 
+	Submesh() = default;
+
 	Submesh(
 		Vertices v,
 		Indices i,
@@ -48,19 +47,35 @@ public:
 	{
 	}
 
+	Vertices& vertices() {
+		return vertices_;
+	}
+
 	const Vertices& vertices() const {
 		return vertices_;
+	}
+
+	Indices& indices() {
+		return indices_;
 	}
 
 	const Indices& indices() const {
 		return indices_;
 	}
 
+	std::string& materialId() {
+		return materialId_;
+	}
+
 	const std::string& materialId() const {
 		return materialId_;
 	}
 
-	milk::graphics::PrimitiveTopology primitiveTopology() const {
+	milk::graphics::PrimitiveTopology& primitiveTopology() {
+		return primitiveTopology_;
+	}
+
+	const milk::graphics::PrimitiveTopology primitiveTopology() const {
 		return primitiveTopology_;
 	}
 

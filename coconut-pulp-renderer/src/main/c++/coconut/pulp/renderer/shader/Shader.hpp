@@ -8,7 +8,7 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "coconut/pulp/mesh/Material.hpp"
+#include "coconut/pulp/mesh/MaterialConfiguration.hpp"
 
 #include "Resource.hpp"
 #include "ConstantBuffer.hpp"
@@ -31,7 +31,7 @@ public:
 
 	using ActorData = std::vector<ConstantBufferSharedPtr<Actor>>;
 
-	using MaterialData = std::vector<ConstantBufferSharedPtr<mesh::Material>>;
+	using MaterialData = std::vector<ConstantBufferSharedPtr<Material>>;
 
 	using Resources = std::vector<ResourceSharedPtr>;
 

@@ -47,14 +47,6 @@ public:
 		return *lens_;
 	}
 
-	void setRenderingPass(shader::PassSharedPtr renderingPass) {
-		renderingPass_ = std::move(renderingPass);
-	}
-
-	const shader::Pass& renderingPass() const {
-		return *renderingPass_;
-	}
-
 	const std::vector<lighting::DirectionalLight>& directionalLights() const {
 		return directionalLights_;
 	}
@@ -74,8 +66,6 @@ private:
 	CameraSharedPtr camera_;
 
 	LensSharedPtr lens_;
-
-	shader::PassSharedPtr renderingPass_; // TODO
 
 	milk::graphics::Texture2d* renderTarget_; // TODO
 

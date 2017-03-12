@@ -1,6 +1,8 @@
 #ifndef _COCONUT_PULP_PRIMITIVE_TEXTURECOORDINATE_HPP_
 #define _COCONUT_PULP_PRIMITIVE_TEXTURECOORDINATE_HPP_
 
+#include <coconut-tools/serialisation.hpp>
+
 #include "detail/VectorType.hpp"
 
 namespace coconut {
@@ -28,6 +30,11 @@ public:
 	using detail::VectorType<2>::storeAs;
 
 };
+
+CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, TextureCoordinate, textureCoordinate) {
+	serialiser(SerialiserType::Label("u"), textureCoordinate.u());
+	serialiser(SerialiserType::Label("v"), textureCoordinate.v());
+}
 
 } // namespace primitive
 

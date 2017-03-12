@@ -5,15 +5,15 @@
 #include <memory>
 #include <chrono>
 
-#include <coconut-tools/serialisation/BinarySerialiser.hpp>
-#include <coconut-tools/serialisation/BinaryDeserialiser.hpp>
-#include <coconut-tools/serialisation/JSONDeserialiser.hpp>
+#include <coconut-tools/serialisation.hpp>
 
 #include "coconut/milk/graphics/Shader.hpp"
 
 #include "coconut/milk/fs.hpp"
 
-#include "coconut/pulp/model/obj/Importer.hpp"
+#include "coconut/milk/system/Window.hpp"
+
+#include "coconut/pulp/mesh/obj/Importer.hpp"
 
 #include "coconut/pulp/renderer/Model.hpp"
 #include "coconut/pulp/renderer/PerspectiveLens.hpp"
@@ -26,7 +26,6 @@
 #include "coconut/pulp/world/foliage/Grass.hpp"
 
 #include "globals.hpp"
-#include "coconut/milk/system/Window.hpp"
 
 using namespace coconut;
 using namespace coconut::shell;
@@ -79,7 +78,7 @@ void Game::loop() {
 		modelContext.changeWorkingDirectory("/data/models/Daniel/craig chemise bleu/");
 		auto data = modelContext.load("craig chemis bleu.obj").get();
 
-		auto modelData = pulp::model::obj::Importer().import("daniel", *data, modelContext);
+		auto modelData = pulp::mesh::obj::Importer().import(*data, modelContext);
 
 		{
 			auto modelOS = fs.overwrite("daniel.model");
@@ -88,9 +87,7 @@ void Game::loop() {
 		}
 	}
 
-	pulp::renderer::MaterialManager materialManager;
-
-	pulp::model::Data modelData;
+	auto modelData = pulp::Mesh();
 
 	{
 		auto modelIS = fs.open("daniel.model");
@@ -98,29 +95,12 @@ void Game::loop() {
 		deserialiser >> modelData;
 	}
 
-	// ---
-	for (auto& drawGroup : modelData.drawGroups) {
-		auto instance = pulp::model::Data::Instance();
-
-		instance.patchPosition = milk::math::Vector4d(0.0f, 0.0f, 0.0f);
-		drawGroup.instances.emplace_back(instance);
-
-		instance.patchPosition = milk::math::Vector4d(3.0f, 0.0f, 0.0f);
-		drawGroup.instances.emplace_back(instance);
-
-		instance.patchPosition = milk::math::Vector4d(-3.0f, 0.0f, 0.0f);
-		drawGroup.instances.emplace_back(instance);
-	}
-	// ---
-
 	pulp::renderer::shader::PassFactory passFactory;
 	passFactory.scanCompiledShaderDirectory(fs, "Debug");
 
-	pulp::renderer::Scene scene(*graphicsRenderer_);
-	scene.setRenderingPass(passFactory.create("grass", *graphicsRenderer_, fs));
+	auto scene = pulp::renderer::Scene(*graphicsRenderer_);
 
-	auto m = std::make_shared<pulp::renderer::Model>(
-		modelData, *graphicsRenderer_, scene.renderingPass().input(), materialManager, fs);
+	auto m = std::make_shared<pulp::renderer::Model>(std::move(modelData), *graphicsRenderer_, passFactory, fs);
 
 	pulp::renderer::lighting::DirectionalLight white(
 		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
@@ -152,51 +132,7 @@ void Game::loop() {
 	actor2->setTranslation(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
 	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
 
-	pulp::model::Data floorData;
-
-	{
-		floorData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
-		floorData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
-		floorData.rasteriserConfiguration.frontCounterClockwise = false;
-
-		floorData.positions.emplace_back(2.0f, 0.0f, 2.0f);
-		floorData.positions.emplace_back(2.0f, 0.0f, -2.0f);
-		floorData.positions.emplace_back(-2.0f, 0.0f, 2.0f);
-		floorData.positions.emplace_back(-2.0f, 0.0f, -2.0f);
-
-		floorData.normals.emplace_back(0.0f, 1.0f, 0.0f);
-
-		floorData.textureCoordinates.emplace_back(0.0f, 0.0f);
-
-		floorData.phongMaterials.emplace_back();
-		floorData.phongMaterials.back().ambientColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
-		floorData.phongMaterials.back().diffuseColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
-		floorData.phongMaterials.back().specularColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
-		floorData.phongMaterials.back().name = "floor::white";
-
-		pulp::model::Data::DrawGroup drawGroup;
-
-		for (size_t i = 0; i < 4; ++i) {
-			drawGroup.vertices.emplace_back();
-			drawGroup.vertices.back().positionIndex = i;
-			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 0;
-
-			drawGroup.primitiveTopology = milk::graphics::PrimitiveTopology::TRIANGLE_STRIP;
-
-			drawGroup.indices.emplace_back(i);
-
-			drawGroup.materialId = "floor::white";
-		}
-
-		floorData.drawGroups.emplace_back(drawGroup);
-	}
-	//auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().input(), materialManager);
-	//auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
-	// scene.add(floorActor);
-
-	auto grassActor = std::make_shared<pulp::world::foliage::Grass>(
-		*graphicsRenderer_, scene.renderingPass().input(), materialManager, fs);
+	auto grassActor = std::make_shared<pulp::world::foliage::Grass>(*graphicsRenderer_, passFactory, fs);
 	scene.add(grassActor);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list

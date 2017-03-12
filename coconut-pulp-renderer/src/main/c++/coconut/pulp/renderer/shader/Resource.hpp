@@ -32,7 +32,7 @@ class TextureResource : public Resource {
 public:
 
 	// TODO: pointer?
-	using TextureCallback = std::function<milk::graphics::Texture* (const PassContext&)>;
+	using TextureCallback = std::function<const milk::graphics::Texture* (const PassContext&)>;
 
 	TextureResource(
 		TextureCallback callback,
@@ -66,7 +66,7 @@ class SamplerResource : public Resource {
 public:
 
 	// TODO: pointer?
-	using SamplerCallback = std::function<milk::graphics::Sampler* (const PassContext&)>;
+	using SamplerCallback = std::function<const milk::graphics::Sampler* (const PassContext&)>;
 
 	SamplerResource(
 		SamplerCallback callback,

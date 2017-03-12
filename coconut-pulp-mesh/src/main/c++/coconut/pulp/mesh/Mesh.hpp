@@ -6,10 +6,7 @@
 
 #include "coconut/milk/math/Vector.hpp"
 
-// TODO: make one include file
-#include <coconut-tools/serialisation/Serialiser.hpp>
-#include <coconut-tools/serialisation/Deserialiser.hpp>
-#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+#include <coconut-tools/serialisation.hpp>
 
 #include "MaterialConfiguration.hpp"
 #include "Submesh.hpp"
@@ -24,6 +21,8 @@ public:
 	using Submeshes = std::vector<Submesh>;
 
 	using MaterialConfigurations = std::unordered_map<std::string, MaterialConfiguration>;
+
+	Mesh() = default;
 
 	Mesh(Submeshes s, MaterialConfigurations m) :
 		submeshes_(std::move(s)),
