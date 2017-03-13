@@ -4,6 +4,7 @@
 #include <boost/variant.hpp>
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
+#include <coconut-tools/serialisation.hpp>
 
 #include "coconut/milk/graphics/PixelFormat.hpp"
 
@@ -17,6 +18,8 @@ namespace coconut {
 namespace pulp {
 namespace primitive {
 
+// TODO: filename should start with uppercase - git breaks it?
+
 class Primitive {
 public:
 
@@ -26,6 +29,9 @@ public:
 		IncompatiblePixelFormat(milk::graphics::PixelFormat pixelFormat);
 
 	};
+
+	Primitive() {
+	}
 
 	Primitive(Scalar scalar) :
 		data_(scalar)

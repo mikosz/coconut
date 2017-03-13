@@ -19,8 +19,16 @@ public:
 	{
 	}
 
+	float& u() {
+		return get<0>();
+	}
+
 	float u() const {
 		return get<0>();
+	}
+
+	float& v() {
+		return get<1>();
 	}
 
 	float v() const {

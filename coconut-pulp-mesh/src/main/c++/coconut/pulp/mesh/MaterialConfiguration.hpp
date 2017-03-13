@@ -23,6 +23,7 @@ namespace coconut {
 namespace pulp {
 namespace mesh {
 
+// TODO: might as well be a struct
 class MaterialConfiguration {
 public:
 
@@ -84,6 +85,10 @@ public:
 
 	const Properties& properties() const {
 		return properties_;
+	}
+
+	Textures& textures() {
+		return textures_;
 	}
 
 	const Textures& textures() const {

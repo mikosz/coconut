@@ -19,16 +19,32 @@ public:
 	{
 	}
 
+	float& r() {
+		return get<0>();
+	}
+
 	float r() const {
 		return get<0>();
+	}
+
+	float& g() {
+		return get<1>();
 	}
 
 	float g() const {
 		return get<1>();
 	}
 
+	float& b() {
+		return get<2>();
+	}
+
 	float b() const {
 		return get<2>();
+	}
+
+	float& a() {
+		return get<3>();
 	}
 
 	float a() const {

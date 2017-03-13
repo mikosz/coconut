@@ -22,6 +22,10 @@ public:
 		return value_;
 	}
 
+	float& value() {
+		return value_;
+	}
+
 	void storeAs(void* buffer, milk::graphics::PixelFormat pixelFormat) const;
 
 private:

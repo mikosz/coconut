@@ -56,12 +56,24 @@ public:
 
 	using detail::VectorType<4>::normalise;
 
+	float& x() {
+		return get<0>();
+	}
+
 	float x() const {
 		return get<0>();
 	}
 
+	float& y() {
+		return get<1>();
+	}
+
 	float y() const {
 		return get<1>();
+	}
+
+	float& z() {
+		return get<2>();
 	}
 
 	float z() const {

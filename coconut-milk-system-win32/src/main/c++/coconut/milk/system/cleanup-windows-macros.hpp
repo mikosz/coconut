@@ -17,7 +17,3 @@
 #if defined(TRANSPARENT)
 #	undef TRANSPARENT
 #endif /* TRANSPARENT */
-
-#if defined(VOID)
-#	undef VOID
-#endif /* VOID */

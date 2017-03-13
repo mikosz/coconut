@@ -62,7 +62,7 @@ public:
 
 		CCN_MEMBER_ENUM_VALUES(
 			ScalarType,
-			(VOID)(D3D_SVT_VOID)
+			(EMPTY)(D3D_SVT_VOID)
 			(BOOL)(D3D_SVT_BOOL)
 			(INT)(D3D_SVT_INT)
 			(UINT)(D3D_SVT_UINT)
