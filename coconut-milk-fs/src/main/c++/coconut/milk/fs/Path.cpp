@@ -101,3 +101,13 @@ boost::optional<Path> AbsolutePath::relativeTo(const AbsolutePath& parent) const
 	
 	return boost::optional<Path>();
 }
+
+void fs::serialise(coconut_tools::Serialiser& serialiser, const AbsolutePath& path) {
+	serialiser(coconut_tools::Serialiser::Label("path"), path.string());
+}
+
+void fs::serialise(coconut_tools::Deserialiser& deserialiser, AbsolutePath& path) {
+	auto string = std::string();
+	deserialiser(coconut_tools::Deserialiser::Label("path"), string);
+	path = string;
+}

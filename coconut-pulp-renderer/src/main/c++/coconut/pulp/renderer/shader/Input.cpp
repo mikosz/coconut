@@ -63,7 +63,7 @@ Input::Input(milk::graphics::Renderer& graphicsRenderer, Elements elements) :
 }
 
 size_t Input::vertexSize() const {
-	return elementSize(elements_, Input::SlotType::PER_INSTANCE_DATA);
+	return elementSize(elements_, Input::SlotType::PER_VERTEX_DATA);
 }
 
 void Input::writeVertex(void* buffer, const void* input) const

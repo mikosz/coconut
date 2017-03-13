@@ -56,10 +56,10 @@ public:
 };
 
 CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Colour, colour) {
-	serialiser(SerialiserType::Label("r"), vec.r());
-	serialiser(SerialiserType::Label("g"), vec.g());
-	serialiser(SerialiserType::Label("b"), vec.b());
-	serialiser(SerialiserType::Label("a"), vec.a());
+	serialiser(SerialiserType::Label("r"), colour.r());
+	serialiser(SerialiserType::Label("g"), colour.g());
+	serialiser(SerialiserType::Label("b"), colour.b());
+	serialiser(SerialiserType::Label("a"), colour.a());
 }
 
 } // namespace primitive

@@ -141,6 +141,7 @@ Model::Model(
 				end,
 				mesh.materials()[it->materialId()]
 				);
+			it = end;
 		}
 	}
 }

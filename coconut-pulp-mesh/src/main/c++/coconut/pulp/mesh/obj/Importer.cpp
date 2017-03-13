@@ -103,13 +103,13 @@ void generateNormals(
 			const auto faceIdx = range.first->second;
 			auto faceNormalIt = faceNormals.find(faceIdx);
 			if (faceNormalIt == faceNormals.end()) {
-				const auto a = vertices[faceIdx + 1].position - vertices[faceIdx].position;
-				const auto b = vertices[faceIdx + 2].position - vertices[faceIdx].position;
+				const auto a = vertices[indices[faceIdx + 1]].position - vertices[indices[faceIdx]].position;
+				const auto b = vertices[indices[faceIdx + 2]].position - vertices[indices[faceIdx]].position;
 				const auto cross = a.cross(b);
 
 				CT_LOG_TRACE << "Face vectors: " << a << " x " << b << " = " << cross;
 
-				faceNormals.emplace_hint(faceNormalIt, faceIdx, cross);
+				faceNormalIt = faceNormals.emplace_hint(faceNormalIt, faceIdx, cross);
 			}
 
 			vertex.normal += faceNormalIt->second;

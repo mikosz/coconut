@@ -30,16 +30,30 @@ public:
 
 	};
 
-	Primitive() {
-	}
+	Primitive() = default;
 
-	Primitive(Scalar scalar) :
+	/* implicit */ Primitive(Scalar scalar) :
 		data_(scalar)
 	{
 	}
 
-	Primitive(Colour colour) :
+	/* implicit */ Primitive(Position position) :
+		data_(position)
+	{
+	}
+
+	/* implicit */ Primitive(Vector vector) :
+		data_(vector)
+	{
+	}
+
+	/* implicit */ Primitive(Colour colour) :
 		data_(colour)
+	{
+	}
+
+	/* implicit */ Primitive(TextureCoordinate textureCoordinate) :
+		data_(textureCoordinate)
 	{
 	}
 
@@ -56,6 +70,9 @@ private:
 		>;
 	
 	Data data_;
+
+	friend void serialise(coconut_tools::Serialiser& serialiser, const Primitive& aPrimitive);
+	friend void serialise(coconut_tools::Deserialiser& serialiser, Primitive& aPrimitive);
 
 };
 

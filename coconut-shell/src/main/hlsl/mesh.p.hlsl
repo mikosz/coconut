@@ -1,4 +1,4 @@
-struct PhongMaterial {
+struct Material {
 	float4 ambientColour;
 	float4 diffuseColour;
 	float4 specularColour;
@@ -31,7 +31,7 @@ cbuffer ObjectData {
 }
 
 cbuffer GroupData {
-	PhongMaterial phongMaterial;
+	Material material;
 }
 
 Texture2D diffuseMap : register(t0);
@@ -44,7 +44,7 @@ struct PIn {
 	float3 normalW : NORMAL;
 };
 
-void computeDirectional(PhongMaterial mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
+void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
 	ambient = mat.ambientColour * l.ambientColour;
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -60,7 +60,7 @@ void computeDirectional(PhongMaterial mat, DirectionalLight l, float3 normal, fl
 	}
 }
 
-void computePoint(PhongMaterial mat, PointLight l, float3 position, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
+void computePoint(Material mat, PointLight l, float3 position, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
 	ambient = mat.ambientColour * l.ambientColour;
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -92,7 +92,7 @@ float4 main(PIn pin) : SV_TARGET
 	[unroll]
 	for (uint di = 0; di < directionalLightsCount; ++di) {
 		float4 ambientComp, diffuseComp, specularComp;
-		computeDirectional(phongMaterial, directionalLights[di], pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
+		computeDirectional(material, directionalLights[di], pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
 
 		ambient += ambientComp;
 		diffuse += diffuseComp;
@@ -102,7 +102,7 @@ float4 main(PIn pin) : SV_TARGET
 	[unroll]
 	for (uint pi = 0; pi < pointLightsCount; ++pi) {
 		float4 ambientComp, diffuseComp, specularComp;
-		computePoint(phongMaterial, pointLights[pi], pin.posW, pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
+		computePoint(material, pointLights[pi], pin.posW, pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
 
 		ambient += ambientComp;
 		diffuse += diffuseComp;
