@@ -143,9 +143,8 @@ private:
 using ParameterFactory = 
 	coconut_tools::Factory<
 		ParameterFactoryInstanceDetails,
-		Parameter,
-		coconut_tools::factory::storage::Volatile,
 		detail::ParameterCreator,
+		coconut_tools::factory::storage::Volatile,
 		std::mutex
 		>;
 

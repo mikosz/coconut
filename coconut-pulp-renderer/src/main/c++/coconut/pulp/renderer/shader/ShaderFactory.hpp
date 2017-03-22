@@ -27,6 +27,8 @@ namespace detail {
 class ShaderCreator {
 public:
 
+	using Instance = std::unique_ptr<UnknownShader>;
+
 	struct ShaderCodeInfo {
 		milk::AbsolutePath shaderCodePath;
 		milk::graphics::ShaderType shaderType;
@@ -42,7 +44,9 @@ public:
 
 	void registerCompiledShader(std::string id, const CompiledShaderInfo& compiledShaderInfo);
 
-	std::unique_ptr<UnknownShader> doCreate(
+protected:
+
+	Instance doCreate(
 		const std::string& id,
 		milk::graphics::Renderer& graphicsRenderer,
 		const milk::FilesystemContext& filesystemContext
@@ -69,9 +73,8 @@ private:
 using ShaderFactory = 
 	coconut_tools::Factory<
 		std::string,
-		UnknownShader,
-		coconut_tools::factory::storage::Volatile,
 		detail::ShaderCreator,
+		coconut_tools::factory::storage::Volatile,
 		std::mutex
 		>;
 

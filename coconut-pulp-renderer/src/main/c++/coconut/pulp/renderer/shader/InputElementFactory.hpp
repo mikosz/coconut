@@ -119,9 +119,8 @@ private:
 using InputElementFactory = 
 	coconut_tools::Factory<
 		InputElementFactoryInstanceDetails,
-		Input::Element,
-		coconut_tools::factory::storage::Volatile,
 		detail::InputElementCreator,
+		coconut_tools::factory::storage::Volatile,
 		std::mutex
 		>;
 

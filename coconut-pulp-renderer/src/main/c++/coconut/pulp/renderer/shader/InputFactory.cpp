@@ -89,11 +89,11 @@ std::unique_ptr<Input> createInputFromVertexShaderCode(
 
 } // anonymous namespace
 
-std::unique_ptr<Input> detail::InputCreator::doCreate(
+auto detail::InputCreator::doCreate(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::FilesystemContext& filesystemContext
-	)
+	) -> Instance
 {
 	CT_LOG_INFO << "Creating input for shader: \"" << id << "\"";
 

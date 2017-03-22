@@ -13,11 +13,11 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.PASS_FACTORY");
 
 } // anonymous namespace
 
-std::unique_ptr<Pass> detail::PassCreator::doCreate(
+auto detail::PassCreator::doCreate(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::fs::FilesystemContext& filesystemContext
-	)
+	) -> Instance
 {
 	CT_LOG_INFO << "Creating shader pass: \"" << id << "\"";
 

@@ -209,11 +209,11 @@ std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 
 } // anonymous namespace
 
-std::unique_ptr<UnknownShader> detail::ShaderCreator::doCreate(
+auto detail::ShaderCreator::doCreate(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::FilesystemContext& filesystemContext
-	)
+	) -> Instance
 {
 	CT_LOG_INFO << "Creating shader: \"" << id << "\"";
 

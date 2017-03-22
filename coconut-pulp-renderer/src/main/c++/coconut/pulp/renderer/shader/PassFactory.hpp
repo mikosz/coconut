@@ -24,11 +24,7 @@ namespace detail {
 class PassCreator {
 public:
 
-	std::unique_ptr<Pass> doCreate(
-		const std::string& id,
-		milk::graphics::Renderer& graphicsRenderer,
-		const milk::fs::FilesystemContext& filesystemContext
-		);
+	using Instance = std::unique_ptr<Pass>;
 
 	void scanShaderCodeDirectory(
 		const milk::fs::FilesystemContext& filesystemContext,
@@ -39,6 +35,14 @@ public:
 		const milk::fs::FilesystemContext& filesystemContext,
 		const milk::fs::Path& directory
 		);
+
+protected:
+
+	Instance doCreate(
+		const std::string& id,
+		milk::graphics::Renderer& graphicsRenderer,
+		const milk::fs::FilesystemContext& filesystemContext
+	);
 
 private:
 
@@ -53,9 +57,8 @@ private:
 using PassFactory = 
 	coconut_tools::Factory<
 		std::string,
-		Pass,
-		coconut_tools::factory::storage::Volatile,
 		detail::PassCreator,
+		coconut_tools::factory::storage::Volatile,
 		std::mutex
 		>;
 

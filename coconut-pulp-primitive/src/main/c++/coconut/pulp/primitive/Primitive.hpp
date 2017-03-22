@@ -18,8 +18,6 @@ namespace coconut {
 namespace pulp {
 namespace primitive {
 
-// TODO: filename should start with uppercase - git breaks it?
-
 class Primitive {
 public:
 
@@ -72,6 +70,7 @@ private:
 	Data data_;
 
 	friend void serialise(coconut_tools::Serialiser& serialiser, const Primitive& aPrimitive);
+
 	friend void serialise(coconut_tools::Deserialiser& serialiser, Primitive& aPrimitive);
 
 };

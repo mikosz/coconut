@@ -25,6 +25,8 @@ namespace detail {
 class InputCreator {
 public:
 
+	using Instance = std::unique_ptr<Input>;
+
 	struct ShaderCodeInfo {
 		milk::AbsolutePath shaderCodePath;
 		std::string entrypoint;
@@ -35,7 +37,9 @@ public:
 
 	void registerCompiledShader(std::string id, milk::AbsolutePath compiledShaderPath);
 
-	std::unique_ptr<Input> doCreate(
+protected:
+
+	Instance doCreate(
 		const std::string& id,
 		milk::graphics::Renderer& graphicsRenderer,
 		const milk::FilesystemContext& filesystemContext
@@ -60,9 +64,8 @@ private:
 using InputFactory = 
 	coconut_tools::Factory<
 		std::string,
-		Input,
-		coconut_tools::factory::storage::Volatile,
 		detail::InputCreator,
+		coconut_tools::factory::storage::Volatile,
 		std::mutex
 		>;
 

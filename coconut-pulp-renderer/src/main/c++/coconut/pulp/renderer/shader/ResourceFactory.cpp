@@ -56,11 +56,11 @@ detail::ResourceCreator::ResourceCreator() {
 	registerBuiltins();
 }
 
-std::unique_ptr<Resource> detail::ResourceCreator::doCreate(
+auto detail::ResourceCreator::doCreate(
 	const std::string& id,
 	milk::graphics::ShaderType shaderType,
 	size_t slot
-	)
+	) -> Instance
 {
 	CT_LOG_INFO << "Creating resource " << id << " at slot " << slot << " of " << shaderType;
 
