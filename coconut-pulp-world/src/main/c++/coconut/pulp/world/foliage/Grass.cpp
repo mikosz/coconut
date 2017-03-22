@@ -71,6 +71,11 @@ Mesh grassMesh() {
 	
 	auto material = mesh::MaterialConfiguration();
 
+	material.properties()[mesh::MaterialConfiguration::AMBIENT_COLOUR_PROPERTY] = primitive::Colour(0.0f, 0.01f, 0.0f);
+	material.properties()[mesh::MaterialConfiguration::SPECULAR_COLOUR_PROPERTY] = primitive::Colour(0.0f, 0.03f, 0.0f);
+	material.properties()[mesh::MaterialConfiguration::SPECULAR_EXPONENT_PROPERTY] = primitive::Scalar(0.1f);
+	material.properties()[mesh::MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY] = primitive::Colour(0.0f, 0.7f, 0.0f);
+
 	material.renderStateConfiguration().cullMode = milk::graphics::RenderState::CullMode::NONE;
 	material.renderStateConfiguration().fillMode = milk::graphics::RenderState::FillMode::SOLID;
 	material.renderStateConfiguration().frontCounterClockwise = false;

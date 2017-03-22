@@ -82,7 +82,7 @@ std::vector<std::uint8_t> indexBufferData(
 	const auto totalDegenerateIndices = std::distance(submeshIt, submeshEnd) - 1;
 
 	auto data = std::vector<std::uint8_t>();
-	data.reserve(sizeof(IndexType) * (totalIndices + totalDegenerateIndices));
+	data.resize(sizeof(IndexType) * (totalIndices + totalDegenerateIndices));
 
 	auto* dataPtr = reinterpret_cast<IndexType*>(data.data());
 
@@ -94,7 +94,7 @@ std::vector<std::uint8_t> indexBufferData(
 			if (baseIndex != 0 && needsDegenerateIndices) {
 				*dataPtr++ = milk::graphics::IndexBuffer::degenerateIndex<IndexType>();
 			}
-			std::transform(
+			dataPtr = std::transform(
 				submesh.indices().begin(),
 				submesh.indices().end(),
 				dataPtr,
@@ -105,7 +105,7 @@ std::vector<std::uint8_t> indexBufferData(
 			baseIndex += static_cast<IndexType>(submesh.vertices().size());
 		});
 
-	assert(dataPtr - reinterpret_cast<IndexType*>(data.data()) == data.size());
+	assert(dataPtr - reinterpret_cast<IndexType*>(data.data()) == data.size() / sizeof(IndexType));
 
 	return data;
 }
@@ -178,7 +178,7 @@ Model::DrawGroup::DrawGroup(
 		vertexBufferData(shaderInput, submeshIt, submeshEnd, totalVertices).data()
 		);
 
-	const auto totalIndices = std::accumulate(submeshIt, submeshEnd, zero, [](size_t v, const auto& submesh) {
+	indexCount = std::accumulate(submeshIt, submeshEnd, zero, [](size_t v, const auto& submesh) {
 			return v + submesh.indices().size();
 		});
 
@@ -186,14 +186,14 @@ Model::DrawGroup::DrawGroup(
 	if (indexSize == 2) {
 		indexBuffer = milk::graphics::IndexBuffer(
 			graphicsRenderer,
-			indexBufferConfiguration(totalIndices, totalVertices),
-			indexBufferData<std::uint16_t>(submeshIt, submeshEnd, totalIndices).data()
+			indexBufferConfiguration(indexCount, totalVertices),
+			indexBufferData<std::uint16_t>(submeshIt, submeshEnd, indexCount).data()
 			);
 	} else if (indexSize == 4) {
 		indexBuffer = milk::graphics::IndexBuffer(
 			graphicsRenderer,
-			indexBufferConfiguration(totalIndices, totalVertices),
-			indexBufferData<std::uint32_t>(submeshIt, submeshEnd, totalIndices).data()
+			indexBufferConfiguration(indexCount, totalVertices),
+			indexBufferData<std::uint32_t>(submeshIt, submeshEnd, indexCount).data()
 			);
 	} else {
 		assert(!("Unexpected index size: " + std::to_string(indexSize)).c_str());
@@ -207,6 +207,8 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 
 	auto& pass = material.shaderPass();
 
+	passContext.material = &material;
+
 	drawCommand->setInputLayout(&pass.input().layout());
 	drawCommand->setVertexShader(&pass.vertexShader().shaderData());
 	pass.vertexShader().bind(*drawCommand, passContext);
@@ -214,9 +216,9 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 	pass.pixelShader().bind(*drawCommand, passContext);
 
 	drawCommand->setVertexBuffer(vertexBuffer.get_ptr());
-	if (instanceDataBuffer) {
-		drawCommand->setInstanceDataBuffer(instanceDataBuffer.get_ptr());
-	}
+	//if (instanceDataBuffer) {
+	//	drawCommand->setInstanceDataBuffer(instanceDataBuffer.get_ptr());
+	//}
 	if (indexBuffer) {
 		drawCommand->setIndexBuffer(indexBuffer.get_ptr());
 	}
@@ -227,7 +229,8 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 	drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
 	drawCommand->setViewport(passContext.viewport); // TODO
 
-	drawCommand->setInstanceCount(instanceCount);
+	// drawCommand->setInstanceCount(instanceCount);
+	drawCommand->setInstanceCount(0);
 
 	commandBuffer.add(std::move(drawCommand));
 }

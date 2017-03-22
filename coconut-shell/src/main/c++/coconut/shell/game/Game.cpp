@@ -121,7 +121,7 @@ void Game::loop() {
 
 	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
 
-	// scene.add(actor);
+	scene.add(actor);
 	scene.setCamera(camera);
 	scene.setLens(lens);
 

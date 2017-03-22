@@ -26,23 +26,23 @@ detail::Shader<GraphicsShaderType>::Shader(
 template <class GraphicsShaderType>
 void detail::Shader<GraphicsShaderType>::bind(
 	DrawCommand& drawCommand,
-	const PassContext& PassContext
+	const PassContext& passContext
 	) const
 {
 	for (auto buffer : sceneData_) {
-		buffer->bind(drawCommand, *PassContext.scene); // TODO: update conditionally (if changed since last update)
+		buffer->bind(drawCommand, *passContext.scene); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto buffer : actorData_) {
-		buffer->bind(drawCommand, *PassContext.actor); // TODO: update conditionally (if changed since last update)
+		buffer->bind(drawCommand, *passContext.actor); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto buffer : materialData_) {
-		buffer->bind(drawCommand, *PassContext.material); // TODO: update conditionally (if changed since last update)
+		buffer->bind(drawCommand, *passContext.material); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto resource : resources_) {
-		resource->bind(drawCommand, PassContext);
+		resource->bind(drawCommand, passContext);
 	}
 }
 
