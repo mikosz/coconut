@@ -1,3 +1,4 @@
+#if 0
 #include "Rotation.hpp"
 
 using namespace coconut;
@@ -22,3 +23,4 @@ Rotation Rotation::interpolate(const Rotation& other, float factor) const {
 Vector3d Rotation::rotate(const Vector3d& vector) const {
 	return Vector3d(DirectX::XMVector3Rotate(vector.toXMVECTOR(), rotationQuaternion_.toXMVECTOR()));
 }
+#endif 

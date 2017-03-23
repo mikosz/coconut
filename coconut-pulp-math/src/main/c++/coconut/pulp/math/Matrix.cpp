@@ -1,3 +1,4 @@
+#if 0
 #include "Matrix.hpp"
 
 #include "Vector.hpp"
@@ -19,3 +20,4 @@ Matrix Matrix::scale(const Vector3d& scaleVector) {
 Matrix Matrix::rotation(const Vector3d& rotationVector) {
 	return Matrix::rotation(rotationVector.x(), rotationVector.y(), rotationVector.z());
 }
+#endif

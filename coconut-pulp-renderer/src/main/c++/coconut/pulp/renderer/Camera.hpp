@@ -1,7 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_CAMERA_HPP_
 #define _COCONUT_PULP_RENDERER_CAMERA_HPP_
 
-#include "coconut/milk/math/Matrix.hpp"
+#include "coconut/pulp/math/Matrix.hpp"
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 namespace coconut {

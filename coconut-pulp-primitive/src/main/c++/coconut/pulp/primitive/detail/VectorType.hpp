@@ -3,7 +3,7 @@
 
 #include "coconut/milk/graphics/PixelFormat.hpp"
 
-#include "coconut/milk/math/Vector.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 
 namespace coconut {
 namespace pulp {

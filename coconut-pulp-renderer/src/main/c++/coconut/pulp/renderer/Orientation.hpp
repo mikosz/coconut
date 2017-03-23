@@ -3,8 +3,8 @@
 
 #include <functional>
 
-#include "coconut/milk/math/Matrix.hpp"
-#include "coconut/milk/math/Vector.hpp"
+#include "coconut/pulp/math/Matrix.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 #include "coconut/milk/utils/Lazy.hpp"
 
 namespace coconut {

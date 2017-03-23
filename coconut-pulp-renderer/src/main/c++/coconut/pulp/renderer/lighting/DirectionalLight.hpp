@@ -1,7 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_LIGHTING_DIRECTIONALLIGHT_HPP_
 #define _COCONUT_PULP_RENDERER_LIGHTING_DIRECTIONALLIGHT_HPP_
 
-#include "coconut/milk/math/Vector.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 
 namespace coconut {
 namespace pulp {

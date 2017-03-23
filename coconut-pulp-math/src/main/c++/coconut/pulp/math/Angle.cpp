@@ -1,3 +1,4 @@
+#if 0
 #include "Angle.hpp"
 
 using namespace coconut;
@@ -30,3 +31,4 @@ Angle coconut::milk::math::radians(float radians) {
 Angle coconut::milk::math::degrees(float degrees) {
 	return Angle(degrees * DEGREES_TO_RADIANS_MODIFIER);
 }
+#endif

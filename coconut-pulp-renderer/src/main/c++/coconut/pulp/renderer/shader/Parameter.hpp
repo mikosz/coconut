@@ -6,7 +6,7 @@
 #include <coconut-tools/enum.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
-#include "coconut/milk/math/Matrix.hpp"
+#include "coconut/pulp/math/Matrix.hpp"
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 namespace coconut {
