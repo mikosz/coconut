@@ -13,8 +13,6 @@
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
-#include "coconut/milk/math/Vector.hpp"
-
 #include "PixelFormat.hpp"
 
 namespace coconut {

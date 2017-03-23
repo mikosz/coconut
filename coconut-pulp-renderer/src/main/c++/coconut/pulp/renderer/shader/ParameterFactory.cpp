@@ -246,7 +246,7 @@ std::unique_ptr<Parameter> createDirectionalLightDirectionParameter(const Parame
 
 std::unique_ptr<Parameter> createPointLightAmbientColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
-
+	
 	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector4d>>(
 		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
@@ -308,11 +308,13 @@ std::unique_ptr<Parameter> createMaterialAmbientColourParameter(const ParameterF
 	verifyNotAnArray(instanceDetails);
 
 	return std::make_unique<CallbackParameter<Material*, Vector4d>>(
-		// TODO: should accept different result types, utilise PixelFormat
+		//[](primitive::Primitive& result, const Material* material, size_t arrayIndex) {
 		[](Vector4d& result, const Material* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			material->property(mesh::MaterialConfiguration::AMBIENT_COLOUR_PROPERTY)
-				.storeAs(&result, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
+			// TODO: TEMP HACK!
+			float vecData[4];
+			material->property(mesh::MaterialConfiguration::AMBIENT_COLOUR_PROPERTY).storeAs(vecData, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
+			result = Vector4d(vecData[0], vecData[1], vecData[2], vecData[3]);
 		},
 		instanceDetails.padding
 		);
@@ -324,8 +326,10 @@ std::unique_ptr<Parameter> createMaterialDiffuseColourParameter(const ParameterF
 	return std::make_unique<CallbackParameter<Material*, Vector4d>>(
 		[](Vector4d& result, const Material* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			material->property(mesh::MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY)
-				.storeAs(&result, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
+			// TODO: TEMP HACK!
+			float vecData[4];
+			material->property(mesh::MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY).storeAs(vecData, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
+			result = Vector4d(vecData[0], vecData[1], vecData[2], vecData[3]);
 		},
 		instanceDetails.padding
 		);
@@ -337,8 +341,10 @@ std::unique_ptr<Parameter> createMaterialSpecularColourParameter(const Parameter
 	return std::make_unique<CallbackParameter<Material*, Vector4d>>(
 		[](Vector4d& result, const Material* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			material->property(mesh::MaterialConfiguration::SPECULAR_COLOUR_PROPERTY)
-				.storeAs(&result, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
+			// TODO: TEMP HACK!
+			float vecData[4];
+			material->property(mesh::MaterialConfiguration::SPECULAR_COLOUR_PROPERTY).storeAs(vecData, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
+			result = Vector4d(vecData[0], vecData[1], vecData[2], vecData[3]);
 		},
 		instanceDetails.padding
 		);

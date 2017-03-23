@@ -57,9 +57,11 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 
 			material.shaderName() = "ConstantBuffers";
 
-			materials.emplace("white", std::move(material));
+			materials.emplace("phong", std::move(material));
 
 			auto submesh = pulp::Submesh();
+
+			submesh.primitiveTopology() = milk::graphics::PrimitiveTopology::TRIANGLE_STRIP;
 
 			auto vertex = pulp::Submesh::Vertex();
 			vertex.normal = pulp::Vector(0.0f, 0.0f, -1.0f);
@@ -80,7 +82,7 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 			submesh.indices().emplace_back(submesh.vertices().size());
 			submesh.vertices().emplace_back(vertex);
 
-			submesh.materialId() = "white";
+			submesh.materialId() = "phong";
 
 			submeshes.emplace_back(std::move(submesh));
 		}
@@ -121,6 +123,7 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 	}
 
 	// render
+	for (;;)
 	{
 		app().update();
 

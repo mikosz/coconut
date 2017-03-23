@@ -15,6 +15,9 @@ namespace coconut {
 namespace milk {
 namespace math {
 
+#pragma message("TODO: Vector heavily neads a complete rewrite. Among other problems is the fact")
+#pragma message("that it doesn't even utilise empty base optimisation, so it takes 5 words instead of 4")
+
 template <
 	size_t DIMENSION_PARAM,
 	typename std::enable_if<(DIMENSION_PARAM >= 1)>::type* = nullptr,
