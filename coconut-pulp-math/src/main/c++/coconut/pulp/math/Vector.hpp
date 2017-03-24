@@ -61,46 +61,46 @@ public:
 	template <class... CompatibleTypes>
 	explicit constexpr Vector(CompatibleTypes&&... values) noexcept {
 		static_assert(sizeof...(values) <= DIMENSIONS, "Too many values");
-		data_ = { std::forward<CompatibleTypes>(values)... };
+		elements_ = { std::forward<CompatibleTypes>(values)... };
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Vector& vector) {
 		os << '<';
-		std::copy(vector.data_.begin(), vector.data_.end(),
+		std::copy(vector.elements_.begin(), vector.elements_.end(),
 			coconut_tools::InfixOstreamIterator<ScalarType>(os, ", "));
 		os << '>';
 		return os;
 	}
 
 	friend bool operator==(const Vector& lhs, const Vector& rhs) noexcept {
-		return std::equal(lhs.data_.begin(), lhs.data_.end(), rhs.data_.begin(), ScalarEqualityFunc());
+		return std::equal(lhs.elements_.begin(), lhs.elements_.end(), rhs.elements_.begin(), ScalarEqualityFunc());
 	}
 
 	Vector& operator+=(const Vector& other) noexcept {
-		std::transform(data_.begin(), data_.end(), other.data_.begin(), data_.begin(), std::plus<>());
+		std::transform(elements_.begin(), elements_.end(), other.elements_.begin(), elements_.begin(), std::plus<>());
 		return *this;
 	}
 
 	Vector& operator-=(const Vector& other) noexcept {
-		std::transform(data_.begin(), data_.end(), other.data_.begin(), data_.begin(), std::minus<>());
+		std::transform(elements_.begin(), elements_.end(), other.elements_.begin(), elements_.begin(), std::minus<>());
 		return *this;
 	}
 
 	friend Vector operator-(const Vector& vector) noexcept {
 		auto result = Vector();
-		std::transform(vector.data_.begin(), vector.data_.end(), result.data_.begin(), std::negate<>());
+		std::transform(vector.elements_.begin(), vector.elements_.end(), result.elements_.begin(), std::negate<>());
 		return result;
 	}
 
 	Vector& operator*=(Scalar scalar) noexcept {
-		std::transform(data_.begin(), data_.end(), data_.begin(), [scalar](auto element) {
+		std::transform(elements_.begin(), elements_.end(), elements_.begin(), [scalar](auto element) {
 				return element * scalar;
 			});
 		return *this;
 	}
 
 	Vector& operator/=(Scalar scalar) noexcept {
-		std::transform(data_.begin(), data_.end(), data_.begin(), [scalar](auto element) {
+		std::transform(elements_.begin(), elements_.end(), elements_.begin(), [scalar](auto element) {
 			return element / scalar;
 		});
 		return *this;
@@ -109,7 +109,7 @@ public:
 	// --- VECTOR-SPECIFIC OPERATIONS
 
 	friend Scalar dot(const Vector& lhs, const Vector& rhs) noexcept {
-		return std::inner_product(lhs.data_.begin(), lhs.data_.end(), rhs.data_.begin(), Scalar(0));
+		return std::inner_product(lhs.elements_.begin(), lhs.elements_.end(), rhs.elements_.begin(), Scalar(0));
 	}
 
 	Vector& crossEq(const Vector& other) noexcept {
@@ -140,14 +140,24 @@ public:
 
 	// --- ACCESSORS
 
+	constexpr const Scalar& operator[](size_t index) const noexcept {
+		assert(index < DIMENSIONS);
+		return elements_[index];
+	}
+
+	Scalar& operator[](size_t index) noexcept {
+		assert(index < DIMENSIONS);
+		return elements_[index];
+	}
+
 	template <size_t INDEX>
 	constexpr std::enable_if_t<(DIMENSIONS > INDEX), const Scalar&> get() const noexcept {
-		return data_[INDEX];
+		return elements_[INDEX];
 	}
 
 	template <size_t INDEX>
 	std::enable_if_t<(DIMENSIONS > INDEX), Scalar&> get() noexcept {
-		return data_[INDEX];
+		return elements_[INDEX];
 	}
 
 	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
@@ -192,7 +202,7 @@ public:
 
 private:
 
-	std::array<Scalar, DIMENSIONS> data_;
+	std::array<Scalar, DIMENSIONS> elements_;
 
 };
 

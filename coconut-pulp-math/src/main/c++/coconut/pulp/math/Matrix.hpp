@@ -1,6 +1,128 @@
 #ifndef _COCONUT_PULP_MATH_MATRIX_HPP_
 #define _COCONUT_PULP_MATH_MATRIX_HPP_
 
+#include <array>
+#include <type_traits>
+
+#include <boost/operators.hpp>
+
+#include "Handedness.hpp"
+#include "Vector.hpp"
+
+namespace coconut {
+namespace pulp {
+namespace math {
+
+template <
+	class ScalarType,
+	size_t ROWS_PARAM,
+	size_t COLUMNS_PARAM,
+	class ScalarEqualityFunc = ScalarEqual<ScalarType>
+	>
+class Matrix :
+	boost::equality_comparable<Matrix<ScalarType, ROWS_PARAM, COLUMNS_PARAM, ScalarEqualityFunc>,
+	boost::additive<Matrix<ScalarType, ROWS_PARAM, COLUMNS_PARAM, ScalarEqualityFunc>,
+	boost::multipliable<Matrix<ScalarType, COLUMNS_PARAM, ROWS_PARAM, ScalarEqualityFunc>,
+	boost::multiplicative<Matrix<ScalarType, ROWS_PARAM, COLUMNS_PARAM, ScalarEqualityFunc>, ScalarType
+	>>>>
+{
+public:
+
+	using Scalar = ScalarType;
+
+	static const auto ROWS = ROWS_PARAM;
+
+	static const auto COLUMNS = COLUMNS_PARAM;
+
+	using Row = Vector<ScalarType, ROWS, ScalarEqualityFunc>;
+
+	using Column = Vector<ScalarType, COLUMNS, ScalarEqualityFunc>;
+
+	// --- CONSTRUCTORS AND OPERATORS
+
+	constexpr Matrix() noexcept = default;
+	
+	// TODO: uncomment after switching to VS2017. VS2015 has a bug that
+	// confuses this default constructor with the variadic template one.
+	//template <class... CompatibleTypes>
+	//explicit constexpr Matrix(CompatibleTypes&&... values) noexcept {
+	//	static_assert(sizeof...(values) != ROWS * COLUMNS, "Bad number of arguments");
+	//	elements_ = { std::forward<CompatibleTypes>(values)... };
+	//}
+
+	// --- ACCESSORS
+
+	constexpr const Row& operator[](size_t rowIndex) const noexcept {
+		assert(rowIndex < ROWS);
+		return elements_[rowIndex];
+	}
+
+	Row& operator[](size_t rowIndex) noexcept {
+		assert(rowIndex < ROWS);
+		return elements_[rowIndex];
+	}
+
+	template <size_t ROW, size_t COLUMN>
+	constexpr std::enable_if_t<(ROW < ROWS && COLUMN < COLUMNS), const Scalar&> get() const noexcept {
+		return elements_[ROW].get<COLUMN>();
+	}
+
+	template <size_t ROW, size_t COLUMN>
+	std::enable_if_t<(ROW < ROWS && COLUMN < COLUMNS), Scalar&> get() noexcept {
+		return elements_[ROW].get<COLUMN>();
+	}
+
+	constexpr const Row& row(size_t rowIndex) const noexcept {
+		assert(rowIndex < ROWS);
+		return elements_[rowIndex];
+	}
+
+	Row& row(size_t rowIndex) noexcept {
+		assert(rowIndex < ROWS);
+		return elements_[rowIndex];
+	}
+
+	Column column(size_t columnIndex) const noexcept {
+		assert(columnIndex < COLUMNS);
+		auto column = Column();
+		getColumn<>(column, columnIndex);
+		return column;
+	}
+
+private:
+
+	std::array<Row, ROWS> elements_;
+
+	template <size_t ROW = 0>
+	void getColumn(Column& column, size_t columnIndex) const {
+		column.get<ROW>() = elements_[ROW][columnIndex];
+		getColumn<ROW + 1>(column, columnIndex);
+	}
+
+	template <>
+	void getColumn<ROWS>(Column&, size_t) const {
+	}
+
+};
+
+using Matrix4x4 = Matrix<float, 4, 4>;
+static_assert(sizeof(Matrix4x4) == sizeof(float) * 16, "Empty base optimisation didn't work");
+// TODO: uncomment after switching to VS2017
+// static_assert(std::is_trivial<Matrix4x4>::value, "Matrix is not trivial");
+
+} // namespace math
+
+using math::Matrix4x4;
+
+} // namespace pulp
+} // namespace coconut
+
+#endif /* _COCONUT_PULP_MATH_MATRIX_HPP_ */
+
+
+#ifndef _COCONUT_PULP_MATH_MATRIX_HPP_
+#define _COCONUT_PULP_MATH_MATRIX_HPP_
+
 #include <stdexcept>
 
 #include <DirectXMath.h>
