@@ -94,30 +94,30 @@ BOOST_AUTO_TEST_CASE(SetsConstantBuffers) {
 		scene.add(rectangle);
 
 		auto camera = std::make_unique<OrientedCamera>(); // TODO: shit api
-		camera->translate(coconut::milk::math::Vector3d(0.13f, 0.14f, 0.15f));
+		camera->translate(coconut::pulp::math::Vec3(0.13f, 0.14f, 0.15f));
 		scene.setCamera(std::move(camera));
 
 		{
 			scene.add(lighting::DirectionalLight(
-				milk::math::Vector3d(0.28f, 0.29f, 0.30f),
-				milk::math::Vector4d(0.16f, 0.17f, 0.18f, 0.19f),
-				milk::math::Vector4d(0.20f, 0.21f, 0.22f, 0.23f),
-				milk::math::Vector4d(0.24f, 0.25f, 0.26f, 0.27f)
+				pulp::math::Vec3(0.28f, 0.29f, 0.30f),
+				pulp::math::Vec4(0.16f, 0.17f, 0.18f, 0.19f),
+				pulp::math::Vec4(0.20f, 0.21f, 0.22f, 0.23f),
+				pulp::math::Vec4(0.24f, 0.25f, 0.26f, 0.27f)
 				));
 
 			scene.add(lighting::DirectionalLight(
-				milk::math::Vector3d(0.43f, 0.44f, 0.45f),
-				milk::math::Vector4d(0.31f, 0.32f, 0.33f, 0.34f),
-				milk::math::Vector4d(0.35f, 0.36f, 0.37f, 0.38f),
-				milk::math::Vector4d(0.39f, 0.40f, 0.41f, 0.42f)
+				pulp::math::Vec3(0.43f, 0.44f, 0.45f),
+				pulp::math::Vec4(0.31f, 0.32f, 0.33f, 0.34f),
+				pulp::math::Vec4(0.35f, 0.36f, 0.37f, 0.38f),
+				pulp::math::Vec4(0.39f, 0.40f, 0.41f, 0.42f)
 				));
 
 			scene.add(lighting::PointLight(
-				milk::math::Vector3d(0.46f, 0.47f, 0.48f),
-				milk::math::Vector3d(0.49f, 0.50f, 0.51f),
-				milk::math::Vector4d(0.52f, 0.53f, 0.54f, 0.55f),
-				milk::math::Vector4d(0.56f, 0.57f, 0.58f, 0.59f),
-				milk::math::Vector4d(0.60f, 0.61f, 0.62f, 0.63f)
+				pulp::math::Vec3(0.46f, 0.47f, 0.48f),
+				pulp::math::Vec3(0.49f, 0.50f, 0.51f),
+				pulp::math::Vec4(0.52f, 0.53f, 0.54f, 0.55f),
+				pulp::math::Vec4(0.56f, 0.57f, 0.58f, 0.59f),
+				pulp::math::Vec4(0.60f, 0.61f, 0.62f, 0.63f)
 				));
 		}
 	}

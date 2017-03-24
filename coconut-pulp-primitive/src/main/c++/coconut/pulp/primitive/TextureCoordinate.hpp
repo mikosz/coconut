@@ -15,7 +15,7 @@ public:
 	TextureCoordinate() = default;
 
 	TextureCoordinate(float u, float v) :
-		detail::VectorType<2>(u, v, 0.0f, 0.0f)
+		detail::VectorType<2>(u, v)
 	{
 	}
 

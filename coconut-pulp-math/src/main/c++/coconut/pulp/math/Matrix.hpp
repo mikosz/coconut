@@ -1,6 +1,5 @@
-#if 0
-#ifndef _COCONUT_MILK_MATH_MATRIX_HPP_
-#define _COCONUT_MILK_MATH_MATRIX_HPP_
+#ifndef _COCONUT_PULP_MATH_MATRIX_HPP_
+#define _COCONUT_PULP_MATH_MATRIX_HPP_
 
 #include <stdexcept>
 
@@ -10,27 +9,29 @@
 #include "Vector.hpp"
 
 namespace coconut {
-namespace milk {
+namespace pulp {
 namespace math {
 
+#pragma message("!!!!!VERY VERY TEMP!")
+// TODO: TEMP Replace with portable implementation
 class Matrix {
 public:
 
 	static const Matrix IDENTITY;
 
-	static Matrix translation(const Vector3d& translationVector);
+	static Matrix translation(const Vec3& translationVector);
 
 	static Matrix translation(float x, float y, float z) {
 		return DirectX::XMMatrixTranslation(x, y, z);
 	}
 
-	static Matrix scale(const Vector3d& scaleVector);
+	static Matrix scale(const Vec3& scaleVector);
 
 	static Matrix scale(float x, float y, float z) {
 		return DirectX::XMMatrixScaling(x, y, z);
 	}
 
-	static Matrix rotation(const Vector3d& rotationVector);
+	static Matrix rotation(const Vec3& rotationVector);
 
 	static Matrix rotation(float x, float y, float z) {
 		return DirectX::XMMatrixRotationRollPitchYaw(x, y, z);
@@ -94,8 +95,8 @@ public:
 		return DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&internal_));
 	}
 
-	Vector3d extractTranslation() const { // TODO: cache?
-		return Vector3d(internal_._14, internal_._24, internal_._34);
+	Vec3 extractTranslation() const { // TODO: cache?
+		return Vec3(internal_._14, internal_._24, internal_._34);
 	}
 
 	bool isIdentity() const {
@@ -113,7 +114,7 @@ private:
 };
 
 } // namespace math
-} // namespace milk
+} // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_MATH_MATRIX_HPP_ */
+#endif /* _COCONUT_PULP_MATH_MATRIX_HPP_ */

@@ -62,7 +62,7 @@ public:
 		serialiser_(coconut_tools::Serialiser::Label("value"), value);
 	}
 
-	void operator()(const Vector& value) const {
+	void operator()(const primitive::Vector& value) const {
 		serialiser_(coconut_tools::Serialiser::Label("type"), PrimitiveDataType::VECTOR);
 		serialiser_(coconut_tools::Serialiser::Label("value"), value);
 	}

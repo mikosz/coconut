@@ -6,7 +6,7 @@
 
 using namespace coconut;
 using namespace coconut::milk;
-using namespace coconut::milk::math;
+using namespace coconut::pulp::math;
 
 namespace /* anonymous */ {
 

@@ -66,34 +66,32 @@ public:
 	};
 
 	template <>
-	struct DeducedOperandType<milk::math::Matrix> {
+	struct DeducedOperandType<pulp::math::Matrix> {
 		static const auto type = OperandType::MATRIX;
 		static const auto size = sizeof(float) * 16;
 
-		static void store(void* buffer, const milk::math::Matrix& matrix) {
+		static void store(void* buffer, const pulp::math::Matrix& matrix) {
 			std::memcpy(buffer, &matrix, size); // TODO: can't assume that Matrix is 1:1 represented in buffer
 		}
 	};
 
 	template <>
-	struct DeducedOperandType<milk::math::Vector3d> {
+	struct DeducedOperandType<pulp::math::Vec3> {
 		static const auto type = OperandType::VECTOR3D;
 		static const auto size = sizeof(float) * 3;
 
-		static void store(void* buffer, const milk::math::Vector3d& vector) {
-			const auto shaderParameter = vector.shaderParameter(); // TODO: messy
-			std::memcpy(buffer, &shaderParameter, size);
+		static void store(void* buffer, const pulp::math::Vec3& vector) {
+			std::memcpy(buffer, &vector, size); // TODO: TEMP!?
 		}
 	};
 
 	template <>
-	struct DeducedOperandType<milk::math::Vector4d> {
+	struct DeducedOperandType<pulp::math::Vec4> {
 		static const auto type = OperandType::VECTOR4D;
 		static const auto size = sizeof(float) * 4;
 
-		static void store(void* buffer, const milk::math::Vector4d& vector) {
-			const auto shaderParameter = vector.shaderParameter(); // TODO: messy
-			std::memcpy(buffer, &shaderParameter, size);
+		static void store(void* buffer, const pulp::math::Vec4& vector) {
+			std::memcpy(buffer, &vector, size); // TODO: TEMP!?
 		}
 	};
 

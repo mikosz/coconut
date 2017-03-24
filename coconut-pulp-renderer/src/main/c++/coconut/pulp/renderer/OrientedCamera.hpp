@@ -16,39 +16,39 @@ class OrientedCamera : public Camera {
 public:
 
 	OrientedCamera() :
-		transformation_(milk::math::Matrix::IDENTITY),
-		position_([this](milk::math::Vector3d& position) { position = transformation_.inverted().transposed().extractTranslation(); }) // TODO: could be done with fewer temporaries
+		transformation_(pulp::math::Matrix::IDENTITY),
+		position_([this](pulp::math::Vec3& position) { position = transformation_.inverted().transposed().extractTranslation(); }) // TODO: could be done with fewer temporaries
 	{
 	}
 
-	const milk::math::Matrix& viewTransformation() const override {
+	const pulp::math::Matrix& viewTransformation() const override {
 		return transformation_;
 	}
 
-	const milk::math::Vector3d& position() const override {
+	const pulp::math::Vec3& position() const override {
 		return position_.get();
 	}
 
 	void reset() {
-		transformation_ = milk::math::Matrix::IDENTITY;
+		transformation_ = pulp::math::Matrix::IDENTITY;
 		position_.invalidate();
 	}
 
-	void translate(const milk::math::Vector3d& translation) {
-		transformation_ *= milk::math::Matrix::translation(-translation);
+	void translate(const pulp::math::Vec3& translation) {
+		transformation_ *= pulp::math::Matrix::translation(-translation);
 		position_.invalidate();
 	}
 
-	void rotate(const milk::math::Vector3d& rotation) {
-		transformation_ *= milk::math::Matrix::rotation(-rotation);
+	void rotate(const pulp::math::Vec3& rotation) {
+		transformation_ *= pulp::math::Matrix::rotation(-rotation);
 		position_.invalidate();
 	}
 
 private:
 
-	milk::math::Matrix transformation_;
+	pulp::math::Matrix transformation_;
 
-	milk::utils::Lazy<milk::math::Vector3d> position_;
+	milk::utils::Lazy<pulp::math::Vec3> position_;
 
 };
 

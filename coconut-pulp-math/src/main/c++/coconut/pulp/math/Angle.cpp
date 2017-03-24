@@ -3,7 +3,7 @@
 
 using namespace coconut;
 using namespace coconut::milk;
-using namespace coconut::milk::math;
+using namespace coconut::pulp::math;
 
 namespace /* anonymous */ {
 
@@ -20,15 +20,15 @@ float Angle::degrees() const {
 	return radians_ * RADIANS_TO_DEGREES_MODIFIER;
 }
 
-std::ostream& coconut::milk::math::operator<<(std::ostream& os, const Angle& angle) {
+std::ostream& coconut::pulp::math::operator<<(std::ostream& os, const Angle& angle) {
 	return os << angle.radians();
 }
 
-Angle coconut::milk::math::radians(float radians) {
+Angle coconut::pulp::math::radians(float radians) {
 	return Angle(radians);
 }
 
-Angle coconut::milk::math::degrees(float degrees) {
+Angle coconut::pulp::math::degrees(float degrees) {
 	return Angle(degrees * DEGREES_TO_RADIANS_MODIFIER);
 }
 #endif

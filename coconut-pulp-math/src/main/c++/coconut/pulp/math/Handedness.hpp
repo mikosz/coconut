@@ -1,8 +1,8 @@
-#ifndef _COCONUT_MILK_MATH_HANDEDNESS_HPP_
-#define _COCONUT_MILK_MATH_HANDEDNESS_HPP_
+#ifndef _COCONUT_PULP_MATH_HANDEDNESS_HPP_
+#define _COCONUT_PULP_MATH_HANDEDNESS_HPP_
 
 namespace coconut {
-namespace milk {
+namespace pulp {
 namespace math {
 
 enum class Handedness {
@@ -11,8 +11,8 @@ enum class Handedness {
 	RIGHT,
 };
 
-} // namespace math
+} // namespace pulp
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_MATH_HANDEDNESS_HPP_ */
+#endif /* _COCONUT_PULP_MATH_HANDEDNESS_HPP_ */

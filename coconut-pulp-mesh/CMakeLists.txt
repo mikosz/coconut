@@ -2,7 +2,7 @@ set(DEPENDENCY_LIBRARIES
     coconut-pulp-primitive
     coconut-milk-fs
     coconut-milk-graphics-${MODULE_RENDERER}
-    coconut-milk-math-${MODULE_MATHS}
+    coconut-pulp-math
     coconut-tools-logger
     coconut-tools-configuration
     coconut-tools-serialisation

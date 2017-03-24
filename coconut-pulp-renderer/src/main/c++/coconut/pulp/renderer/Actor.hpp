@@ -30,31 +30,31 @@ public:
 	virtual void render(CommandBuffer& commandBuffer, PassContext passContext);
 
 	// TODO: move below functions to interface?
-	const milk::math::Matrix& worldTransformation() const {
+	const pulp::math::Matrix& worldTransformation() const {
 		return orientation_.worldTransformation();
 	}
 
-	void setTranslation(const milk::math::Vector3d& translation) {
+	void setTranslation(const pulp::math::Vec3& translation) {
 		orientation_.setTranslation(translation);
 	}
 
-	const milk::math::Vector3d& getTranslation() const {
+	const pulp::math::Vec3& getTranslation() const {
 		return orientation_.getTranslation();
 	}
 
-	void setScale(const milk::math::Vector3d& scale) {
+	void setScale(const pulp::math::Vec3& scale) {
 		orientation_.setScale(scale); // TODO: block non-uniform scale?
 	}
 
-	const milk::math::Vector3d& getScale() const {
+	const pulp::math::Vec3& getScale() const {
 		return orientation_.getScale();
 	}
 
-	void setRotation(const milk::math::Vector3d& rotation) {
+	void setRotation(const pulp::math::Vec3& rotation) {
 		orientation_.setRotation(rotation);
 	}
 
-	const milk::math::Vector3d& getRotation() const {
+	const pulp::math::Vec3& getRotation() const {
 		return orientation_.getRotation();
 	}
 

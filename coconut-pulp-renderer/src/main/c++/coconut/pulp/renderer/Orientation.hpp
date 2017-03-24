@@ -23,62 +23,62 @@ public:
 	{
 	}
 
-	const milk::math::Matrix& worldTransformation() const {
+	const pulp::math::Matrix& worldTransformation() const {
 		return worldMatrix_.get();
 	}
 
-	void setTranslation(const milk::math::Vector3d& translation) {
+	void setTranslation(const pulp::math::Vec3& translation) {
 		translation_ = translation;
 		worldMatrix_.invalidate();
 	}
 
-	const milk::math::Vector3d& getTranslation() const {
+	const pulp::math::Vec3& getTranslation() const {
 		return translation_;
 	}
 
-	void translate(const milk::math::Vector3d& translation) {
+	void translate(const pulp::math::Vec3& translation) {
 		translation_ += translation;
 		worldMatrix_.invalidate();
 	}
 
-	void setScale(const milk::math::Vector3d& scale) {
+	void setScale(const pulp::math::Vec3& scale) {
 		scale_ = scale;
 		worldMatrix_.invalidate();
 	}
 
-	const milk::math::Vector3d& getScale() const {
+	const pulp::math::Vec3& getScale() const {
 		return scale_;
 	}
 
-	void setRotation(const milk::math::Vector3d& rotation) {
+	void setRotation(const pulp::math::Vec3& rotation) {
 		rotation_ = rotation;
 		worldMatrix_.invalidate();
 	}
 
-	const milk::math::Vector3d& getRotation() const {
+	const pulp::math::Vec3& getRotation() const {
 		return rotation_;
 	}
 
-	void rotate(const milk::math::Vector3d& rotation) {
+	void rotate(const pulp::math::Vec3& rotation) {
 		rotation_ += rotation;
 		worldMatrix_.invalidate();
 	}
 
 private:
 
-	milk::math::Vector3d translation_;
+	pulp::math::Vec3 translation_;
 
-	milk::math::Vector3d scale_;
+	pulp::math::Vec3 scale_;
 
-	milk::math::Vector3d rotation_;
+	pulp::math::Vec3 rotation_;
 
-	milk::utils::Lazy<milk::math::Matrix> worldMatrix_;
+	milk::utils::Lazy<pulp::math::Matrix> worldMatrix_;
 
-	void calculateWorldTransformation(milk::math::Matrix& matrix) {
+	void calculateWorldTransformation(pulp::math::Matrix& matrix) {
 		matrix =
-			milk::math::Matrix::rotation(rotation_.x(), rotation_.y(), rotation_.z()) *
-			milk::math::Matrix::scale(scale_.x(), scale_.y(), scale_.z()) *
-			milk::math::Matrix::translation(translation_.x(), translation_.y(), translation_.z())
+			pulp::math::Matrix::rotation(rotation_.x(), rotation_.y(), rotation_.z()) *
+			pulp::math::Matrix::scale(scale_.x(), scale_.y(), scale_.z()) *
+			pulp::math::Matrix::translation(translation_.x(), translation_.y(), translation_.z())
 			;
 	}
 

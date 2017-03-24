@@ -1,5 +1,5 @@
 set(DEPENDENCY_LIBRARIES
-	coconut-milk-math-${MODULE_MATHS}
+	coconut-pulp-math
 	coconut-tools-utils
   )
 

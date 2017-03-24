@@ -7,18 +7,18 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
 OrthographicLens::OrthographicLens(
-	milk::math::Handedness handedness,
+	pulp::math::Handedness handedness,
 	float viewWidth,
 	float viewHeight,
 	float nearZ,
 	float farZ
 	) :
 	projectionMatrix_(
-		milk::math::Matrix::orthographicProjection(handedness, viewWidth, viewHeight, nearZ, farZ)
+		pulp::math::Matrix::orthographicProjection(handedness, viewWidth, viewHeight, nearZ, farZ)
 		)
 {
 }
 
-const milk::math::Matrix& OrthographicLens::projectionTransformation() const {
+const pulp::math::Matrix& OrthographicLens::projectionTransformation() const {
 	return projectionMatrix_;
 }

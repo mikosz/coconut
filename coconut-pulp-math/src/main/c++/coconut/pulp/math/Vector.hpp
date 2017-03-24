@@ -54,11 +54,14 @@ public:
 
 	// --- CONSTRUCTORS AND OPERATORS
 
-	constexpr Vector() noexcept = default;
+	// TODO: uncomment after switching to VS2017. VS2015 has a bug that
+	// confuses this default constructor with the variadic template one.
+	// constexpr Vector() noexcept = default;
 
-	constexpr Vector(std::initializer_list<Scalar> initialiserList) noexcept {
-		assert(initialiserList.size() <= DIMENSIONS_PARAM);
-		std::copy(initialiserList.begin(), initialiserList.end(), data_.data());
+	template <class... CompatibleTypes>
+	explicit constexpr Vector(CompatibleTypes&&... values) noexcept {
+		static_assert(sizeof...(values) <= DIMENSIONS, "Too many values");
+		data_ = { std::forward<CompatibleTypes>(values)... };
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Vector& vector) {
@@ -206,17 +209,23 @@ constexpr std::enable_if_t<VectorType::DIMENSIONS == 3, VectorType>
 
 using Vec2 = Vector<float, 2>;
 static_assert(sizeof(Vec2) == sizeof(float) * 2, "Empty base optimisation didn't work");
-static_assert(std::is_trivial<Vec2>::value, "Vector is not trivial");
+// TODO: uncomment these after switching to VS2017
+//static_assert(std::is_trivial<Vec2>::value, "Vector is not trivial");
 
 using Vec3 = Vector<float, 3>;
 static_assert(sizeof(Vec3) == sizeof(float) * 3, "Empty base optimisation didn't work");
-static_assert(std::is_trivial<Vec3>::value, "Vector is not trivial");
+//static_assert(std::is_trivial<Vec3>::value, "Vector is not trivial");
 
 using Vec4 = Vector<float, 4>;
 static_assert(sizeof(Vec4) == sizeof(float) * 4, "Empty base optimisation didn't work");
-static_assert(std::is_trivial<Vec4>::value, "Vector is not trivial");
+//static_assert(std::is_trivial<Vec4>::value, "Vector is not trivial");
 
 } // namespace math
+
+using math::Vec2;
+using math::Vec3;
+using math::Vec4;
+
 } // namespace pulp
 } // namespace coconut
 
