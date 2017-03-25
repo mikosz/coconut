@@ -3,8 +3,13 @@
 
 #include <array>
 #include <type_traits>
+#include <iosfwd>
+#include <algorithm>
+#include <functional>
 
 #include <boost/operators.hpp>
+
+#include "coconut-tools/utils/InfixOstreamIterator.hpp"
 
 #include "Handedness.hpp"
 #include "Vector.hpp"
@@ -34,9 +39,13 @@ public:
 
 	static const auto COLUMNS = COLUMNS_PARAM;
 
+	static const Matrix IDENTITY;
+
 	using Row = Vector<ScalarType, ROWS, ScalarEqualityFunc>;
 
 	using Column = Vector<ScalarType, COLUMNS, ScalarEqualityFunc>;
+
+	using ColumnReference = Vector<ScalarType&, COLUMNS, ScalarEqualityFunc>;
 
 	// --- CONSTRUCTORS AND OPERATORS
 
@@ -49,6 +58,18 @@ public:
 	//	static_assert(sizeof...(values) != ROWS * COLUMNS, "Bad number of arguments");
 	//	elements_ = { std::forward<CompatibleTypes>(values)... };
 	//}
+
+	friend std::ostream& operator<<(std::ostream& os, const Matrix& matrix) {
+		os << '<';
+		std::copy(matrix.elements_.begin(), matrix.elements_.end(),
+			coconut_tools::InfixOstreamIterator<Row>(os, ", "));
+		os << '>';
+		return os;
+	}
+
+	friend bool operator==(const Matrix& lhs, const Matrix& rhs) noexcept {
+		return std::equal(lhs.elements_.begin(), lhs.elements_.end(), rhs.elements_.begin());
+	}
 
 	// --- ACCESSORS
 
@@ -107,8 +128,24 @@ private:
 
 using Matrix4x4 = Matrix<float, 4, 4>;
 static_assert(sizeof(Matrix4x4) == sizeof(float) * 16, "Empty base optimisation didn't work");
-// TODO: uncomment after switching to VS2017
-// static_assert(std::is_trivial<Matrix4x4>::value, "Matrix is not trivial");
+static_assert(std::is_trivially_copyable<Matrix4x4>::value, "Matrix is not trivially copyable");
+
+namespace detail {
+
+template <class ST, size_t R, size_t C, class SEF>
+Matrix<ST, R, C, SEF> makeIdentity() {
+	auto identity = Matrix<ST, R, C, SEF>();
+	for (auto row = 0u; row < R; ++row) {
+		identity[row][row] = ST(1);
+	}
+	return identity;
+}
+
+} // namespace detail
+
+template <class ST, size_t R, size_t C, class SEF>
+const Matrix<ST, R, C, SEF>	Matrix<ST, R, C, SEF>::IDENTITY =
+	detail::makeIdentity<ST, R, C, SEF>();
 
 } // namespace math
 

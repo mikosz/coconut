@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_SUITE(PulpMathVectorTestSuite);
 
 BOOST_AUTO_TEST_CASE(VectorConstructionAndElementAccessWorks) {
 	const auto oneTwoThreeFour = Vec4(1.0f, 2.0f, 3.0f, 4.0f);
-	auto oneTwoThenThree = Vector<int, 2>(1, 2);
+	auto oneTwoThenThree = Vector<int, 2>{ 1, 2 };
 
 	BOOST_CHECK_EQUAL(oneTwoThreeFour.x(), 1.0f);
 	BOOST_CHECK_EQUAL(oneTwoThreeFour.y(), 2.0f);
@@ -26,6 +26,16 @@ BOOST_AUTO_TEST_CASE(VectorConstructionAndElementAccessWorks) {
 	BOOST_CHECK_EQUAL(oneTwoThenThree.y(), 2);
 	oneTwoThenThree.y() = 4;
 	BOOST_CHECK_EQUAL(oneTwoThenThree.y(), 4);
+}
+
+BOOST_AUTO_TEST_CASE(TrailingZerosAreAddedIfNecessary) {
+	const auto zero = Vec2();
+	const auto oneZero = Vec2(1.0f);
+	const auto oneZeroIL = Vec2{ 1.0f };
+	
+	BOOST_CHECK_EQUAL(zero, Vec2(0.0f, 0.0f));
+	BOOST_CHECK_EQUAL(oneZero, Vec2(1.0f, 0.0f));
+	BOOST_CHECK_EQUAL(oneZeroIL, Vec2(1.0f, 0.0f));
 }
 
 BOOST_AUTO_TEST_CASE(VectorsAreEqualityComparable) {

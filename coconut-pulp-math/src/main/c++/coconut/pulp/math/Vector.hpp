@@ -6,11 +6,10 @@
 #include <array>
 #include <algorithm>
 #include <functional>
-#include <iterator>
+#include <memory>
 #include <numeric>
 #include <iosfwd>
 #include <initializer_list>
-
 #include <type_traits>
 
 #include <boost/operators.hpp>
@@ -54,14 +53,25 @@ public:
 
 	// --- CONSTRUCTORS AND OPERATORS
 
-	// TODO: uncomment after switching to VS2017. VS2015 has a bug that
-	// confuses this default constructor with the variadic template one.
-	// constexpr Vector() noexcept = default;
-
 	template <class... CompatibleTypes>
 	explicit constexpr Vector(CompatibleTypes&&... values) noexcept {
-		static_assert(sizeof...(values) <= DIMENSIONS, "Too many values");
+		static_assert(sizeof...(values) <= DIMENSIONS, "Bad number of values");
 		elements_ = { std::forward<CompatibleTypes>(values)... };
+		std::uninitialized_fill(
+			elements_.begin() + sizeof...(values),
+			elements_.end(),
+			Scalar(0)
+			);
+	}
+
+	constexpr Vector(std::initializer_list<Scalar> values) noexcept {
+		assert(values.size() <= DIMENSIONS);
+		std::copy(values.begin(), values.end(), elements_.begin());
+		std::uninitialized_fill(
+			elements_.begin() + values.size(),
+			elements_.end(),
+			Scalar(0)
+			);
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Vector& vector) {
@@ -219,16 +229,15 @@ constexpr std::enable_if_t<VectorType::DIMENSIONS == 3, VectorType>
 
 using Vec2 = Vector<float, 2>;
 static_assert(sizeof(Vec2) == sizeof(float) * 2, "Empty base optimisation didn't work");
-// TODO: uncomment these after switching to VS2017
-//static_assert(std::is_trivial<Vec2>::value, "Vector is not trivial");
+static_assert(std::is_trivially_copyable<Vec2>::value, "Vector is not trivially copiable");
 
 using Vec3 = Vector<float, 3>;
 static_assert(sizeof(Vec3) == sizeof(float) * 3, "Empty base optimisation didn't work");
-//static_assert(std::is_trivial<Vec3>::value, "Vector is not trivial");
+static_assert(std::is_trivially_copyable<Vec3>::value, "Vector is not trivially copiable");
 
 using Vec4 = Vector<float, 4>;
 static_assert(sizeof(Vec4) == sizeof(float) * 4, "Empty base optimisation didn't work");
-//static_assert(std::is_trivial<Vec4>::value, "Vector is not trivial");
+static_assert(std::is_trivially_copyable<Vec4>::value, "Vector is not trivially copiable");
 
 } // namespace math
 
