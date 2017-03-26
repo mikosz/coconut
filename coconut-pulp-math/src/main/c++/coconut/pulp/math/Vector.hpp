@@ -55,7 +55,7 @@ public:
 
 	template <class... CompatibleTypes>
 	explicit constexpr Vector(CompatibleTypes&&... values) noexcept {
-		static_assert(sizeof...(values) <= DIMENSIONS, "Bad number of values");
+		static_assert(sizeof...(values) <= DIMENSIONS, "Too many values");
 		elements_ = { std::forward<CompatibleTypes>(values)... };
 		std::uninitialized_fill(
 			elements_.begin() + sizeof...(values),
@@ -96,9 +96,9 @@ public:
 		return *this;
 	}
 
-	friend Vector operator-(const Vector& vector) noexcept {
+	Vector operator-() noexcept {
 		auto result = Vector();
-		std::transform(vector.elements_.begin(), vector.elements_.end(), result.elements_.begin(), std::negate<>());
+		std::transform(elements_.begin(), elements_.end(), result.elements_.begin(), std::negate<>());
 		return result;
 	}
 

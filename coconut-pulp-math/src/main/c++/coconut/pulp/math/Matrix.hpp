@@ -27,9 +27,8 @@ template <
 class Matrix :
 	boost::equality_comparable<Matrix<ScalarType, ROWS_PARAM, COLUMNS_PARAM, ScalarEqualityFunc>,
 	boost::additive<Matrix<ScalarType, ROWS_PARAM, COLUMNS_PARAM, ScalarEqualityFunc>,
-	boost::multipliable<Matrix<ScalarType, COLUMNS_PARAM, ROWS_PARAM, ScalarEqualityFunc>,
 	boost::multiplicative<Matrix<ScalarType, ROWS_PARAM, COLUMNS_PARAM, ScalarEqualityFunc>, ScalarType
-	>>>>
+	>>>
 {
 public:
 
@@ -41,9 +40,9 @@ public:
 
 	static const Matrix IDENTITY;
 
-	using Row = Vector<ScalarType, ROWS, ScalarEqualityFunc>;
+	using Row = Vector<ScalarType, COLUMNS, ScalarEqualityFunc>;
 
-	using Column = Vector<ScalarType, COLUMNS, ScalarEqualityFunc>;
+	using Column = Vector<ScalarType, ROWS, ScalarEqualityFunc>;
 
 	using ColumnReference = Vector<ScalarType&, COLUMNS, ScalarEqualityFunc>;
 
@@ -51,8 +50,7 @@ public:
 
 	constexpr Matrix() noexcept = default;
 	
-	// TODO: uncomment after switching to VS2017. VS2015 has a bug that
-	// confuses this default constructor with the variadic template one.
+	// TODO: figure out a better constructor (this won't work in VS2015 either way)
 	//template <class... CompatibleTypes>
 	//explicit constexpr Matrix(CompatibleTypes&&... values) noexcept {
 	//	static_assert(sizeof...(values) != ROWS * COLUMNS, "Bad number of arguments");
@@ -69,6 +67,61 @@ public:
 
 	friend bool operator==(const Matrix& lhs, const Matrix& rhs) noexcept {
 		return std::equal(lhs.elements_.begin(), lhs.elements_.end(), rhs.elements_.begin());
+	}
+
+	Matrix& operator+=(const Matrix& other) noexcept {
+		std::transform(elements_.begin(), elements_.end(), other.elements_.begin(), elements_.begin(), std::plus<>());
+		return *this;
+	}
+
+	Matrix& operator-=(const Matrix& other) noexcept {
+		std::transform(elements_.begin(), elements_.end(), other.elements_.begin(), elements_.begin(), std::minus<>());
+		return *this;
+	}
+
+	Matrix operator-() noexcept {
+		auto result = Matrix();
+		std::transform(elements_.begin(), elements_.end(), result.elements_.begin(), std::negate<>());
+		return result;
+	}
+
+	template <class CompatibleMatrixType>
+	friend std::enable_if_t<
+		COLUMNS == CompatibleMatrixType::ROWS,
+		Matrix<ScalarType, ROWS, CompatibleMatrixType::COLUMNS, ScalarEqualityFunc>
+		> operator*(const Matrix& lhs, const CompatibleMatrixType& rhs) noexcept
+	{
+		auto result = Matrix<ScalarType, ROWS, CompatibleMatrixType::COLUMNS, ScalarEqualityFunc>();
+		for (auto rowIndex = 0u; rowIndex < ROWS; ++rowIndex) {
+			for (auto columnIndex = 0u; columnIndex < CompatibleMatrixType::COLUMNS; ++columnIndex) {
+				result[rowIndex][columnIndex] = dot(lhs[rowIndex], rhs.column(columnIndex));
+			}
+		}
+		return result;
+	}
+
+	Matrix& operator*=(Scalar scalar) noexcept {
+		std::transform(elements_.begin(), elements_.end(), elements_.begin(), [scalar](auto element) {
+			return element * scalar;
+		});
+		return *this;
+	}
+
+	Matrix& operator/=(Scalar scalar) noexcept {
+		std::transform(elements_.begin(), elements_.end(), elements_.begin(), [scalar](auto element) {
+			return element / scalar;
+		});
+		return *this;
+	}
+
+	// --- MATRIX-SPECIFIC OPERATIONS
+
+	Matrix<Scalar, COLUMNS, ROWS, ScalarEqualityFunc> transposed() const noexcept {
+		auto result = Matrix<Scalar, COLUMNS, ROWS, ScalarEqualityFunc>();
+		for (auto columnIndex = 0u; columnIndex < COLUMNS; ++columnIndex) {
+			result.row(columnIndex) = column(columnIndex);
+		}
+		return result;
 	}
 
 	// --- ACCESSORS
