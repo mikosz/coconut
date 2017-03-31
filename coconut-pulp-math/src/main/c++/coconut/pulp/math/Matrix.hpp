@@ -116,62 +116,6 @@ public:
 
 	// --- MATRIX-SPECIFIC OPERATIONS
 
-	template <size_t COLUMNS_ = COLUMNS, size_t ROWS_ = ROWS>
-	std::enable_if_t<COLUMNS_ == ROWS_, Matrix<Scalar, COLUMNS_ - 1, ROWS_ - 1, ScalarEqualityFunc>>
-		minor(size_t rowIndex, size_t columnIndex) const noexcept
-	{
-		static_assert(COLUMNS_ == COLUMNS, "Default argument changed");
-		static_assert(ROWS_ == ROWS, "Default argument changed");
-		static_assert(COLUMNS == ROWS, "Determinants only available for square matrices");
-
-		assert(rowIndex < ROWS);
-		assert(columnIndex < COLUMNS);
-
-		auto result = Matrix<Scalar, COLUMNS_ - 1, ROWS_ - 1, ScalarEqualityFunc>();
-		for (size_t sourceRowIndex = 0; sourceRowIndex < ROWS; ++sourceRowIndex) {
-			if (sourceRowIndex == rowIndex) {
-				continue;
-			}
-			const auto targetRowIndex = (sourceRowIndex < rowIndex) ? sourceRowIndex : sourceRowIndex - 1;
-			for (size_t sourceColumnIndex = 0; sourceColumnIndex < COLUMNS; ++sourceColumnIndex) {
-				if (sourceColumnIndex == columnIndex) {
-					continue;
-				}
-				const auto targetColumnIndex =
-					(sourceColumnIndex < columnIndex) ? sourceColumnIndex : sourceColumnIndex - 1;
-
-				result[targetRowIndex][targetColumnIndex] = (*this)[sourceRowIndex][sourceColumnIndex];
-			}
-		}
-	}
-
-	template <size_t COLUMNS_ = COLUMNS, size_t ROWS_ = ROWS>
-	std::enable_if_t<COLUMNS_ == ROWS_, Matrix<Scalar, COLUMNS_ - 1, ROWS_ - 1, ScalarEqualityFunc>>
-		cofactor(size_t rowIndex, size_t columnIndex) const noexcept
-	{
-		static_assert(COLUMNS_ == COLUMNS, "Default argument changed");
-		static_assert(ROWS_ == ROWS, "Default argument changed");
-		static_assert(COLUMNS == ROWS, "Determinants only available for square matrices");
-
-		if ((rowIndex + columnIndex) % 2 == 0) {
-			return minor(rowIndex, columnIndex);
-		} else {
-			return -minor(rowIndex, columnIndex);
-		}
-	}
-
-	template <size_t COLUMNS_ = COLUMNS, size_t ROWS_ = ROWS>
-	std::enable_if_t<COLUMNS_ == ROWS_, Scalar> determinant() const noexcept {
-		static_assert(COLUMNS_ == COLUMNS, "Default argument changed");
-		static_assert(ROWS_ == ROWS, "Default argument changed");
-		static_assert(COLUMNS == ROWS, "Determinants only available for square matrices");
-
-		auto result = Scalar(0);
-		for (size_t columnIndex = 0; columnIndex < COLUMNS; ++columnIndex) {
-			result += get<0>()[columnIndex] * cofactor(0, columnIndex);
-		}
-	}
-
 	Matrix<Scalar, COLUMNS, ROWS, ScalarEqualityFunc> transposed() const noexcept {
 		auto result = Matrix<Scalar, COLUMNS, ROWS, ScalarEqualityFunc>();
 		for (auto columnIndex = 0u; columnIndex < COLUMNS; ++columnIndex) {

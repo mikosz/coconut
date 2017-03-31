@@ -155,18 +155,6 @@ BOOST_AUTO_TEST_CASE(TransposeReturnsTransposed) {
 	BOOST_CHECK_EQUAL(transposed.row(2), mtx2x3.column(2));
 }
 
-BOOST_AUTO_TEST_CASE(MatrixMinorIsCorrectlyCalculated) {
-	BOOST_FAIL("unimplemented");
-}
-
-BOOST_AUTO_TEST_CASE(MatrixCoefficientIsCorrectlyCalculated) {
-	BOOST_FAIL("unimplemented");
-}
-
-BOOST_AUTO_TEST_CASE(MatrixDeterminantIsCorrectlyCalculated) {
-	BOOST_FAIL("unimplemented");
-}
-
 BOOST_AUTO_TEST_SUITE_END(/* PulpMathMatrixTestSuite */);
 BOOST_AUTO_TEST_SUITE_END(/* PulpMathTestSuite */);
 BOOST_AUTO_TEST_SUITE_END(/* PulpTestSuite */);
