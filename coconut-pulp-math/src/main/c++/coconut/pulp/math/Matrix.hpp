@@ -18,6 +18,77 @@ namespace coconut {
 namespace pulp {
 namespace math {
 
+template <class MatrixType, class GetElementFunc>
+class MatrixView {
+public:
+
+	constexpr MatrixView(MatrixType& matrix, GetElementFunc getElementFunc = GetElementFunc()) :
+		matrix_(matrix),
+		getElementFunc_(std::move(getElementFunc))
+	{
+	}
+
+	constexpr auto get(size_t row, size_t column) const noexcept -> decltype(auto) {
+		return getElementFunc_(matrix_, row, column);
+	}
+
+private:
+
+	MatrixType& matrix_;
+
+	GetElementFunc getElementFunc_;
+
+};
+
+template <class MatrixType>
+class TransposedViewFunc {
+public:
+
+	constexpr auto operator()(MatrixType& matrix, size_t row, size_t column) const noexcept
+		-> decltype(auto)
+	{
+		return matrix[column][row];
+	}
+
+};
+
+template <class MatrixType>
+auto viewMatrixTransposed(MatrixType& matrix) {
+	return MatrixView<MatrixType, TransposedViewFunc<MatrixType>>(matrix);
+}
+
+template <class MatrixType>
+class SubmatrixViewFunc {
+public:
+
+	SubmatrixViewFunc(size_t noRow, size_t noColumn) :
+		noRow_(noRow),
+		noColumn_(noColumn)
+	{
+		assert(noRow < MatrixType::ROWS);
+		assert(noColumn < MatrixType::COLUMNS);
+	}
+
+	constexpr auto operator()(MatrixType& matrix, size_t row, size_t column) const noexcept
+		-> decltype(auto)
+	{
+		return matrix[(row < noRow_) ? row : row + 1][(column < noColumn_) ? column : column + 1];
+	}
+
+private:
+
+	size_t noRow_;
+
+	size_t noColumn_;
+
+};
+
+template <class MatrixType>
+auto viewSubmatrix(MatrixType& matrix, size_t noRow, size_t noColumn) {
+	return MatrixView<MatrixType, SubmatrixViewFunc<MatrixType>>(
+		matrix, SubmatrixViewFunc<MatrixType>(noRow, noColumn));
+}
+
 template <
 	class ScalarType,
 	size_t ROWS_PARAM,

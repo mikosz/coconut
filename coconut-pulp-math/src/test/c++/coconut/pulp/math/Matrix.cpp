@@ -13,6 +13,38 @@ BOOST_AUTO_TEST_SUITE(PulpTestSuite);
 BOOST_AUTO_TEST_SUITE(PulpMathTestSuite);
 BOOST_AUTO_TEST_SUITE(PulpMathMatrixTestSuite);
 
+BOOST_AUTO_TEST_CASE(TransposedMatrixViewWorks) {
+	auto mtx = Matrix4x4();
+
+	mtx[0] = Vec4(1.0f, 2.0f, 3.0f, 4.0f);
+	mtx[1] = Vec4(5.0f, 6.0f, 7.0f, 8.0f);
+	mtx[2] = Vec4(9.0f, 10.0f, 11.0f, 12.0f);
+	mtx[3] = Vec4(13.0f, 14.0f, 15.0f, 16.0f);
+
+	auto view = viewMatrixTransposed(mtx);
+
+	BOOST_CHECK_EQUAL(view.get(2, 1), mtx[1][2]);
+
+	view.get(2, 1) = 42.0f;
+	BOOST_CHECK_EQUAL(mtx[1][2], 42.0f);
+}
+
+BOOST_AUTO_TEST_CASE(SubmatrixViewWorks) {
+	auto mtx = Matrix4x4();
+
+	mtx[0] = Vec4(1.0f, 2.0f, 3.0f, 4.0f);
+	mtx[1] = Vec4(5.0f, 6.0f, 7.0f, 8.0f);
+	mtx[2] = Vec4(9.0f, 10.0f, 11.0f, 12.0f);
+	mtx[3] = Vec4(13.0f, 14.0f, 15.0f, 16.0f);
+
+	auto view = viewSubmatrix(mtx, 1, 2);
+
+	BOOST_CHECK_EQUAL(view.get(0, 1), mtx[0][1]);
+	BOOST_CHECK_EQUAL(view.get(1, 1), mtx[2][1]);
+	BOOST_CHECK_EQUAL(view.get(0, 2), mtx[0][3]);
+	BOOST_CHECK_EQUAL(view.get(1, 2), mtx[2][3]);
+}
+
 BOOST_AUTO_TEST_CASE(MatrixElementAccessWorks) {
 	auto mtx = Matrix4x4();
 
