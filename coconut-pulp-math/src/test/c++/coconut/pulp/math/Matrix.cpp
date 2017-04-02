@@ -185,19 +185,19 @@ BOOST_AUTO_TEST_CASE(IdentityMatrixIsIdentity) {
 	BOOST_CHECK_EQUAL(identity, IMatrix2x3::IDENTITY);
 }
 
-BOOST_AUTO_TEST_CASE(TransposedReturnsTransposed) {
+BOOST_AUTO_TEST_CASE(TransposeReturnsTranspose) {
 	using IMatrix2x3 = math::Matrix<int, 2, 3>;
 	auto mtx2x3 = IMatrix2x3();
 	mtx2x3[0] = IMatrix2x3::Row(1, 3, 5);
 	mtx2x3[1] = IMatrix2x3::Row(2, 4, 6);
 
-	const auto transposed = mtx2x3.transposed();
+	const auto transpose = mtx2x3.transpose();
 	
-	BOOST_CHECK_EQUAL(decltype(transposed)::ROWS, 3);
-	BOOST_CHECK_EQUAL(decltype(transposed)::COLUMNS, 2);
-	BOOST_CHECK_EQUAL(transposed.row(0), mtx2x3.column(0));
-	BOOST_CHECK_EQUAL(transposed.row(1), mtx2x3.column(1));
-	BOOST_CHECK_EQUAL(transposed.row(2), mtx2x3.column(2));
+	BOOST_CHECK_EQUAL(decltype(transpose)::ROWS, 3);
+	BOOST_CHECK_EQUAL(decltype(transpose)::COLUMNS, 2);
+	BOOST_CHECK_EQUAL(transpose.row(0), mtx2x3.column(0));
+	BOOST_CHECK_EQUAL(transpose.row(1), mtx2x3.column(1));
+	BOOST_CHECK_EQUAL(transpose.row(2), mtx2x3.column(2));
 }
 
 BOOST_AUTO_TEST_CASE(DeterminantReturnsDeterminant) {

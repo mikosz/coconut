@@ -18,11 +18,11 @@ public:
 		float farZ
 		);
 
-	const pulp::math::Matrix& projectionTransformation() const override;
+	const Matrix4x4& projectionTransformation() const override;
 
 private:
 
-	pulp::math::Matrix projectionMatrix_;
+	Matrix4x4 projectionMatrix_;
 
 };
 

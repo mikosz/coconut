@@ -96,7 +96,7 @@ public:
 		return *this;
 	}
 
-	Vector operator-() noexcept {
+	Vector operator-() const noexcept {
 		auto result = Vector();
 		std::transform(elements_.begin(), elements_.end(), result.elements_.begin(), std::negate<>());
 		return result;
@@ -114,6 +114,16 @@ public:
 			return element / scalar;
 		});
 		return *this;
+	}
+
+	// --- CONVERTERS
+
+	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
+	std::enable_if_t<(DIMENSIONS_PARAM_> 2), Vector<Scalar, 3, ScalarEqualityFunc>>
+		xyz() const noexcept
+	{
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
+		return Vector<Scalar, 3, ScalarEqualityFunc>(x(), y(), z());
 	}
 
 	// --- VECTOR-SPECIFIC OPERATIONS
@@ -172,41 +182,49 @@ public:
 
 	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
 	constexpr std::enable_if_t<(DIMENSIONS_PARAM_> 0), const Scalar&> x() const noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
 		return get<0>();
 	}
 
 	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
 	std::enable_if_t<(DIMENSIONS_PARAM_> 0), Scalar&> x() noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
 		return get<0>();
 	}
 
 	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
 	constexpr std::enable_if_t<(DIMENSIONS_PARAM_> 1), const Scalar&> y() const noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
 		return get<1>();
 	}
 
 	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
 	std::enable_if_t<(DIMENSIONS_PARAM_> 1), Scalar&> y() noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
 		return get<1>();
 	}
 
 	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
 	constexpr std::enable_if_t<(DIMENSIONS_PARAM_ > 2), const Scalar&> z() const noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
 		return get<2>();
 	}
 
 	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
 	std::enable_if_t<(DIMENSIONS_PARAM_> 2), Scalar&> z() noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
 		return get<2>();
 	}
 
 	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
 	constexpr std::enable_if_t<(DIMENSIONS_PARAM_> 3), const Scalar&> w() const noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
 		return get<3>();
 	}
 
 	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
 	std::enable_if_t<(DIMENSIONS_PARAM_> 3), Scalar&> w() noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
 		return get<3>();
 	}
 

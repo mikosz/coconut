@@ -23,63 +23,65 @@ public:
 	{
 	}
 
-	const pulp::math::Matrix& worldTransformation() const {
+	const Matrix4x4& worldTransformation() const {
 		return worldMatrix_.get();
 	}
 
-	void setTranslation(const pulp::math::Vec3& translation) {
+	void setTranslation(const Vec3& translation) {
 		translation_ = translation;
 		worldMatrix_.invalidate();
 	}
 
-	const pulp::math::Vec3& getTranslation() const {
+	const Vec3& getTranslation() const {
 		return translation_;
 	}
 
-	void translate(const pulp::math::Vec3& translation) {
+	void translate(const Vec3& translation) {
 		translation_ += translation;
 		worldMatrix_.invalidate();
 	}
 
-	void setScale(const pulp::math::Vec3& scale) {
+	void setScale(const Vec3& scale) {
 		scale_ = scale;
 		worldMatrix_.invalidate();
 	}
 
-	const pulp::math::Vec3& getScale() const {
+	const Vec3& getScale() const {
 		return scale_;
 	}
 
-	void setRotation(const pulp::math::Vec3& rotation) {
+	void setRotation(const Vec3& rotation) {
 		rotation_ = rotation;
 		worldMatrix_.invalidate();
 	}
 
-	const pulp::math::Vec3& getRotation() const {
+	const Vec3& getRotation() const {
 		return rotation_;
 	}
 
-	void rotate(const pulp::math::Vec3& rotation) {
+	void rotate(const Vec3& rotation) {
 		rotation_ += rotation;
 		worldMatrix_.invalidate();
 	}
 
 private:
 
-	pulp::math::Vec3 translation_;
+	Vec3 translation_;
 
-	pulp::math::Vec3 scale_;
+	Vec3 scale_;
 
-	pulp::math::Vec3 rotation_;
+	Vec3 rotation_;
 
-	milk::utils::Lazy<pulp::math::Matrix> worldMatrix_;
+	milk::utils::Lazy<Matrix4x4> worldMatrix_;
 
-	void calculateWorldTransformation(pulp::math::Matrix& matrix) {
-		matrix =
-			pulp::math::Matrix::rotation(rotation_.x(), rotation_.y(), rotation_.z()) *
-			pulp::math::Matrix::scale(scale_.x(), scale_.y(), scale_.z()) *
-			pulp::math::Matrix::translation(translation_.x(), translation_.y(), translation_.z())
-			;
+	void calculateWorldTransformation(Matrix4x4& matrix) {
+#pragma message("unimplemented")
+		matrix = Matrix4x4::IDENTITY;
+		//matrix =
+		//	Matrix4x4::rotation(rotation_.x(), rotation_.y(), rotation_.z()) *
+		//	Matrix4x4::scale(scale_.x(), scale_.y(), scale_.z()) *
+		//	Matrix4x4::translation(translation_.x(), translation_.y(), translation_.z())
+		//	;
 	}
 
 };

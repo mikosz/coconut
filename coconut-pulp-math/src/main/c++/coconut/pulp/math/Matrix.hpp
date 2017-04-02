@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_MATH_MATRIX_HPP_
 
 #include <array>
+#include <cmath>
 #include <type_traits>
 #include <iosfwd>
 #include <algorithm>
@@ -23,6 +24,8 @@ class MatrixView {
 public:
 
 	using MatrixType = typename GetElementFunc::MatrixType;
+
+	using Scalar = typename MatrixType::Scalar;
 
 	static const auto ROWS = GetElementFunc::ROWS;
 
@@ -74,7 +77,7 @@ public:
 
 		const auto det = determinant();
 		assert(det != Scalar(0));
-		const auto detInverse = typename MatrixType::Scalar(1) / det;
+		const auto detInverse = Scalar(1) / det;
 
 		auto result = MatrixType();
 
@@ -137,13 +140,13 @@ public:
 };
 
 template <class NextViewType>
-constexpr auto transposed(NextViewType nextView) noexcept {
+constexpr auto transpose(NextViewType nextView) noexcept {
 	return MatrixView<NextViewType, TransposedViewFunc<NextViewType>>(std::move(nextView));
 }
 
 template <class MatrixType>
 constexpr auto viewMatrixTransposed(MatrixType& matrix) noexcept {
-	return transposed(viewMatrix(matrix));
+	return transpose(viewMatrix(matrix));
 }
 
 template <class NextViewType>
@@ -217,6 +220,82 @@ public:
 
 	using ColumnReference = Vector<ScalarType&, COLUMNS, ScalarEqualityFunc>;
 
+	// --- STATIC CREATORS
+
+	template <size_t ROWS_ = ROWS, size_t COLUMNS_ = COLUMNS>
+	static std::enable_if_t<COLUMNS_ == 4 && ROWS_ == 4, Matrix>
+		orthographicProjection(
+			Handedness handedness,
+			Scalar left,
+			Scalar right,
+			Scalar top,
+			Scalar bottom,
+			Scalar near,
+			Scalar far
+		)
+	{
+		static_assert(ROWS_ == ROWS, "Rows count changed");
+		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
+
+		auto matrix = Matrix();
+		matrix[0][0] = Scalar(2) / (right - left);
+		matrix[1][1] = Scalar(2) / (top - bottom);
+		if (handedness == Handedness::RIGHT) {
+			matrix[2][2] = -Scalar(2) / (far - near);
+		} else {
+			matrix[2][2] = Scalar(2) / (far - near);
+		}
+		matrix[0][3] = -(right + left) / (right - left);
+		matrix[1][3] = -(top + bottom) / (top - bottom);
+		matrix[2][3] = -(far + near) / (far - near);
+		matrix[3][3] = Scalar(1);
+
+		return matrix;
+	}
+
+	template <size_t ROWS_ = ROWS, size_t COLUMNS_ = COLUMNS>
+	static std::enable_if_t<COLUMNS_ == 4 && ROWS_ == 4, Matrix>
+		perspectiveProjection(
+			Handedness handedness,
+			Scalar horizontalFieldOfView, // TODO: TYPE!
+			Scalar aspectRatio,
+			Scalar near,
+			Scalar far
+		)
+	{
+		static_assert(ROWS_ == ROWS, "Rows count changed");
+		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
+
+		const auto scale = Scalar(1) / std::tan(horizontalFieldOfView / Scalar(2));
+
+		auto matrix = Matrix();
+		matrix[0][0] = scale;
+		matrix[1][1] = scale;
+		if (handedness == Handedness::RIGHT) {
+			matrix[2][2] = -far / (far - near);
+		} else {
+			matrix[2][2] = far / (far - near);
+		}
+		matrix[2][3] = -Scalar(1);
+		matrix[3][2] = -far * near / (far - near);
+
+		return matrix;
+	}
+
+	template <size_t ROWS_ = ROWS, size_t COLUMNS_ = COLUMNS>
+	static std::enable_if_t<COLUMNS_ == 4 && ROWS_ == 4, Matrix>
+		translation(const Vec3& vector) {
+		static_assert(ROWS_ == ROWS, "Rows count changed");
+		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
+
+		auto matrix = IDENTITY;
+		matrix[3][0] = vector.x();
+		matrix[3][1] = vector.y();
+		matrix[3][2] = vector.z();
+
+		return matrix;
+	}
+
 	// --- CONSTRUCTORS AND OPERATORS
 
 	constexpr Matrix() noexcept = default;
@@ -280,6 +359,19 @@ public:
 		return result;
 	}
 
+	template <class CompatibleMatrixType>
+	std::enable_if_t<
+		COLUMNS == ROWS &&
+		CompatibleMatrixType::COLUMNS == CompatibleMatrixType::ROWS &&
+		ROWS == CompatibleMatrixType::ROWS,
+		Matrix&
+		> operator*=(const CompatibleMatrixType& rhs) noexcept
+	{
+		const auto result = *this * rhs;
+		*this = result;
+		return *this;
+	}
+
 	Matrix& operator*=(Scalar scalar) noexcept {
 		std::transform(elements_.begin(), elements_.end(), elements_.begin(), [scalar](auto element) {
 			return element * scalar;
@@ -296,7 +388,7 @@ public:
 
 	// --- MATRIX-SPECIFIC OPERATIONS
 
-	constexpr Matrix<Scalar, COLUMNS, ROWS, ScalarEqualityFunc> transposed() const noexcept {
+	constexpr Matrix<Scalar, COLUMNS, ROWS, ScalarEqualityFunc> transpose() const noexcept {
 		return viewMatrixTransposed(*this);
 	}
 

@@ -26,11 +26,6 @@ namespace /* anonymous */ {
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.PARAMETER_FACTORY");
 
-// TODO: extract creators to external file?
-using pulp::math::Matrix;
-using pulp::math::Vec3;
-using pulp::math::Vec4;
-
 void verifyNotAnArray(const ParameterFactoryInstanceDetails& instanceDetails) {
 	if (instanceDetails.arraySize != 0) {
 		throw coconut_tools::factory::error_policy::NoSuchType<ParameterFactoryInstanceDetails>(
@@ -50,8 +45,8 @@ void verifyIsArray(const ParameterFactoryInstanceDetails& instanceDetails) {
 std::unique_ptr<Parameter> createViewMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Scene, Matrix>>(
-		[](Matrix& result, const Scene& scene, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Scene, Matrix4x4>>(
+		[](Matrix4x4& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = scene.camera().viewTransformation();
 		},
@@ -62,8 +57,8 @@ std::unique_ptr<Parameter> createViewMatrixParameter(const ParameterFactoryInsta
 std::unique_ptr<Parameter> createProjectionMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Scene, Matrix>>(
-		[](Matrix& result, const Scene& scene, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Scene, Matrix4x4>>(
+		[](Matrix4x4& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = scene.lens().projectionTransformation();
 		},
@@ -150,8 +145,8 @@ std::unique_ptr<Parameter> createPointLightsCountParameter(const ParameterFactor
 std::unique_ptr<Parameter> createWorldMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Actor, Matrix>>(
-		[](Matrix& result, const Actor& actor, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Actor, Matrix4x4>>(
+		[](Matrix4x4& result, const Actor& actor, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = actor.worldTransformation();
 		},
@@ -175,10 +170,10 @@ std::unique_ptr<Parameter> createMaterialParameter(const ParameterFactoryInstanc
 std::unique_ptr<Parameter> createInverterParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
-		[](Matrix& result, const Matrix& matrix, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Matrix4x4, Matrix4x4>>(
+		[](Matrix4x4& result, const Matrix4x4& matrix, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = matrix.inverted();
+			result = matrix.inverse();
 		},
 		instanceDetails.padding
 		);
@@ -187,10 +182,10 @@ std::unique_ptr<Parameter> createInverterParameter(const ParameterFactoryInstanc
 std::unique_ptr<Parameter> createTransposedParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
-		[](Matrix& result, const Matrix& matrix, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Matrix4x4, Matrix4x4>>(
+		[](Matrix4x4& result, const Matrix4x4& matrix, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = matrix.transposed();
+			result = matrix.transpose();
 		},
 		instanceDetails.padding
 		);

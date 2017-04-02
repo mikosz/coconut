@@ -66,31 +66,31 @@ public:
 	};
 
 	template <>
-	struct DeducedOperandType<pulp::math::Matrix> {
+	struct DeducedOperandType<Matrix4x4> {
 		static const auto type = OperandType::MATRIX;
 		static const auto size = sizeof(float) * 16;
 
-		static void store(void* buffer, const pulp::math::Matrix& matrix) {
+		static void store(void* buffer, const Matrix4x4& matrix) {
 			std::memcpy(buffer, &matrix, size); // TODO: can't assume that Matrix is 1:1 represented in buffer
 		}
 	};
 
 	template <>
-	struct DeducedOperandType<pulp::math::Vec3> {
+	struct DeducedOperandType<Vec3> {
 		static const auto type = OperandType::VECTOR3D;
 		static const auto size = sizeof(float) * 3;
 
-		static void store(void* buffer, const pulp::math::Vec3& vector) {
+		static void store(void* buffer, const Vec3& vector) {
 			std::memcpy(buffer, &vector, size); // TODO: TEMP!?
 		}
 	};
 
 	template <>
-	struct DeducedOperandType<pulp::math::Vec4> {
+	struct DeducedOperandType<Vec4> {
 		static const auto type = OperandType::VECTOR4D;
 		static const auto size = sizeof(float) * 4;
 
-		static void store(void* buffer, const pulp::math::Vec4& vector) {
+		static void store(void* buffer, const Vec4& vector) {
 			std::memcpy(buffer, &vector, size); // TODO: TEMP!?
 		}
 	};

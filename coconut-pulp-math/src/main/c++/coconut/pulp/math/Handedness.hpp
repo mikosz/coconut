@@ -6,7 +6,6 @@ namespace pulp {
 namespace math {
 
 enum class Handedness {
-	UNKNOWN,
 	LEFT,
 	RIGHT,
 };

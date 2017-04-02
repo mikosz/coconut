@@ -14,11 +14,11 @@ PerspectiveLens::PerspectiveLens(
 	float farZ
 	) :
 	projectionMatrix_(
-		pulp::math::Matrix::perspectiveProjection(handedness, fov, aspectRatio, nearZ, farZ)
+		Matrix4x4::perspectiveProjection(handedness, fov, aspectRatio, nearZ, farZ)
 		)
 {
 }
 
-const pulp::math::Matrix& PerspectiveLens::projectionTransformation() const {
+const Matrix4x4& PerspectiveLens::projectionTransformation() const {
 	return projectionMatrix_;
 }

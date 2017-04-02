@@ -16,39 +16,42 @@ class OrientedCamera : public Camera {
 public:
 
 	OrientedCamera() :
-		transformation_(pulp::math::Matrix::IDENTITY),
-		position_([this](pulp::math::Vec3& position) { position = transformation_.inverted().transposed().extractTranslation(); }) // TODO: could be done with fewer temporaries
+		transformation_(Matrix4x4::IDENTITY),
+		position_([this](Vec3& position) {
+				position = transformation_.inverse().transpose()[3].xyz();
+			}) // TODO: could be done with fewer temporaries
 	{
 	}
 
-	const pulp::math::Matrix& viewTransformation() const override {
+	const Matrix4x4& viewTransformation() const override {
 		return transformation_;
 	}
 
-	const pulp::math::Vec3& position() const override {
+	const Vec3& position() const override {
 		return position_.get();
 	}
 
 	void reset() {
-		transformation_ = pulp::math::Matrix::IDENTITY;
+		transformation_ = Matrix4x4::IDENTITY;
 		position_.invalidate();
 	}
 
-	void translate(const pulp::math::Vec3& translation) {
-		transformation_ *= pulp::math::Matrix::translation(-translation);
+	void translate(const Vec3& translation) {
+		transformation_ *= Matrix4x4::translation(-translation);
 		position_.invalidate();
 	}
 
-	void rotate(const pulp::math::Vec3& rotation) {
-		transformation_ *= pulp::math::Matrix::rotation(-rotation);
+	void rotate(const Vec3& rotation) {
+#pragma message("TODO: unimplemented")
+		//transformation_ *= Matrix4x4::rotation(-rotation);
 		position_.invalidate();
 	}
 
 private:
 
-	pulp::math::Matrix transformation_;
+	Matrix4x4 transformation_;
 
-	milk::utils::Lazy<pulp::math::Vec3> position_;
+	milk::utils::Lazy<Vec3> position_;
 
 };
 

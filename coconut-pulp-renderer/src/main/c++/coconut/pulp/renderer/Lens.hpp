@@ -11,7 +11,7 @@ namespace renderer {
 class Lens {
 public:
 
-	virtual const pulp::math::Matrix& projectionTransformation() const = 0;
+	virtual const Matrix4x4& projectionTransformation() const = 0;
 
 protected:
 

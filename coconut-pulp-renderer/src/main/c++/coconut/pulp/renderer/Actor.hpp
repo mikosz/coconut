@@ -30,31 +30,31 @@ public:
 	virtual void render(CommandBuffer& commandBuffer, PassContext passContext);
 
 	// TODO: move below functions to interface?
-	const pulp::math::Matrix& worldTransformation() const {
+	const Matrix4x4& worldTransformation() const {
 		return orientation_.worldTransformation();
 	}
 
-	void setTranslation(const pulp::math::Vec3& translation) {
+	void setTranslation(const Vec3& translation) {
 		orientation_.setTranslation(translation);
 	}
 
-	const pulp::math::Vec3& getTranslation() const {
+	const Vec3& getTranslation() const {
 		return orientation_.getTranslation();
 	}
 
-	void setScale(const pulp::math::Vec3& scale) {
+	void setScale(const Vec3& scale) {
 		orientation_.setScale(scale); // TODO: block non-uniform scale?
 	}
 
-	const pulp::math::Vec3& getScale() const {
+	const Vec3& getScale() const {
 		return orientation_.getScale();
 	}
 
-	void setRotation(const pulp::math::Vec3& rotation) {
+	void setRotation(const Vec3& rotation) {
 		orientation_.setRotation(rotation);
 	}
 
-	const pulp::math::Vec3& getRotation() const {
+	const Vec3& getRotation() const {
 		return orientation_.getRotation();
 	}
 
