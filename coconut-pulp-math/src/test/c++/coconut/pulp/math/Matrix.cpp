@@ -45,6 +45,19 @@ BOOST_AUTO_TEST_CASE(SubmatrixViewWorks) {
 	BOOST_CHECK_EQUAL(view.get(1, 2), mtx[2][3]);
 }
 
+BOOST_AUTO_TEST_CASE(ViewChainingWorks) {
+	auto mtx = Matrix4x4();
+
+	mtx[0] = Vec4(1.0f, 2.0f, 3.0f, 4.0f);
+	mtx[1] = Vec4(5.0f, 6.0f, 7.0f, 8.0f);
+	mtx[2] = Vec4(9.0f, 10.0f, 11.0f, 12.0f);
+	mtx[3] = Vec4(13.0f, 14.0f, 15.0f, 16.0f);
+
+	auto view = submatrix(viewMatrixTransposed(mtx), 1, 2);
+
+	BOOST_CHECK_EQUAL(view.get(0, 2), mtx[3][0]);
+}
+
 BOOST_AUTO_TEST_CASE(MatrixElementAccessWorks) {
 	auto mtx = Matrix4x4();
 
@@ -172,7 +185,7 @@ BOOST_AUTO_TEST_CASE(IdentityMatrixIsIdentity) {
 	BOOST_CHECK_EQUAL(identity, IMatrix2x3::IDENTITY);
 }
 
-BOOST_AUTO_TEST_CASE(TransposeReturnsTransposed) {
+BOOST_AUTO_TEST_CASE(TransposedReturnsTransposed) {
 	using IMatrix2x3 = math::Matrix<int, 2, 3>;
 	auto mtx2x3 = IMatrix2x3();
 	mtx2x3[0] = IMatrix2x3::Row(1, 3, 5);
@@ -185,6 +198,34 @@ BOOST_AUTO_TEST_CASE(TransposeReturnsTransposed) {
 	BOOST_CHECK_EQUAL(transposed.row(0), mtx2x3.column(0));
 	BOOST_CHECK_EQUAL(transposed.row(1), mtx2x3.column(1));
 	BOOST_CHECK_EQUAL(transposed.row(2), mtx2x3.column(2));
+}
+
+BOOST_AUTO_TEST_CASE(DeterminantReturnsDeterminant) {
+	using IMatrix3x3 = math::Matrix<int, 3, 3>;
+	auto mtx3x3 = IMatrix3x3();
+	mtx3x3[0] = IMatrix3x3::Row(1, -3, 5);
+	mtx3x3[1] = IMatrix3x3::Row(2, 2, 2);
+	mtx3x3[2] = IMatrix3x3::Row(0, -10, 2);
+
+	BOOST_CHECK_EQUAL(mtx3x3.determinant(), -64);
+}
+
+BOOST_AUTO_TEST_CASE(InverseReturnsInverse) {
+	auto mtx = Matrix4x4();
+	mtx[0] = Vec4(1.14f, 0.2f, 0.02f, 0.1f);
+	mtx[1] = Vec4(-0.42f, 2.0f, -0.07f, 0.2f);
+	mtx[2] = Vec4(-0.11f, 0.12f, 2.12f, 0.3f);
+	mtx[3] = Vec4(0.3f, 0.5f, 1.2f, 0.1f);
+
+	auto inverse = Matrix4x4();
+	inverse[0] = Vec4(0.6738507691955666f, -0.16325918484540142f, -0.264793054785559f, 0.44704676485191314f);
+	inverse[1] = Vec4(-0.13578742231611368f, 0.33564346090725455f, -0.45189877709993576f, 0.8201968318014119f);
+	inverse[2] = Vec4(-0.33324502303465253f, -0.20155148605280812f, -0.07360723126261765f, 0.9571696889281217f);
+	inverse[3] = Vec4(2.656325080409698f, 1.2301780826336286f, 3.9371598250077673f, -6.928160720700258f);
+
+	BOOST_CHECK_EQUAL(mtx.inverse(), inverse);
+	BOOST_CHECK_EQUAL(mtx.inverse() * mtx, mtx * mtx.inverse());
+	BOOST_CHECK_EQUAL(mtx.inverse() * mtx, Matrix4x4::IDENTITY);
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* PulpMathMatrixTestSuite */);

@@ -18,61 +18,156 @@ namespace coconut {
 namespace pulp {
 namespace math {
 
-template <class MatrixType, class GetElementFunc>
+template <class NextViewType, class GetElementFunc>
 class MatrixView {
 public:
 
-	constexpr MatrixView(MatrixType& matrix, GetElementFunc getElementFunc = GetElementFunc()) :
-		matrix_(matrix),
+	using MatrixType = typename GetElementFunc::MatrixType;
+
+	static const auto ROWS = GetElementFunc::ROWS;
+
+	static const auto COLUMNS = GetElementFunc::COLUMNS;
+
+	constexpr MatrixView(NextViewType nextView, GetElementFunc getElementFunc = GetElementFunc()) :
+		next_(std::move(nextView)),
 		getElementFunc_(std::move(getElementFunc))
 	{
 	}
 
+	// TODO: for compatibility add this function to Matrix as well
 	constexpr auto get(size_t row, size_t column) const noexcept -> decltype(auto) {
-		return getElementFunc_(matrix_, row, column);
+		return getElementFunc_(next_, row, column);
+	}
+
+	template <size_t ROWS_ = ROWS>
+	auto determinant() const noexcept {
+		static_assert(ROWS_ == ROWS, "Rows count changed");
+		static_assert(ROWS == COLUMNS, "Determinant only available for square matrices");
+
+		auto result = MatrixType::Scalar(0);
+		for (size_t columnIndex = 0; columnIndex < COLUMNS; ++columnIndex) {
+			const auto absElement = get(0, columnIndex) * submatrix(*this, 0, columnIndex).determinant();
+			if (columnIndex % 2 == 0) {
+				result += absElement;
+			} else {
+				result -= absElement;
+			}
+		}
+		return result;
+	}
+
+	template <>
+	auto determinant<1>() const noexcept {
+		static_assert(ROWS == COLUMNS, "Determinant only available for square matrices");
+		return get(0, 0);
+	}
+
+	auto cofactor(size_t rowIndex, size_t columnIndex) const noexcept {
+		const auto det = submatrix(*this, rowIndex, columnIndex).determinant();
+		return ((rowIndex + columnIndex) % 2 == 0) ? det : -det;
+	}
+
+	template <size_t ROWS_ = ROWS>
+	auto inverse() const noexcept {
+		static_assert(ROWS_ == ROWS, "Rows count changed");
+		static_assert(ROWS == COLUMNS, "Inverse only available for square matrices");
+
+		const auto det = determinant();
+		assert(det != Scalar(0));
+		const auto detInverse = typename MatrixType::Scalar(1) / det;
+
+		auto result = MatrixType();
+
+		for (size_t rowIndex = 0; rowIndex < COLUMNS; ++rowIndex) {
+			for (size_t columnIndex = 0; columnIndex < COLUMNS; ++columnIndex) {
+				result[rowIndex][columnIndex] = detInverse * cofactor(columnIndex, rowIndex);
+			}
+		}
+
+		return result;
 	}
 
 private:
 
-	MatrixType& matrix_;
+	NextViewType next_;
 
 	GetElementFunc getElementFunc_;
 
 };
 
-template <class MatrixType>
-class TransposedViewFunc {
+template <class MatrixT>
+class MatrixViewFunc {
 public:
+
+	using MatrixType = MatrixT;
+
+	static const auto ROWS = MatrixType::ROWS;
+
+	static const auto COLUMNS = MatrixType::COLUMNS;
 
 	constexpr auto operator()(MatrixType& matrix, size_t row, size_t column) const noexcept
 		-> decltype(auto)
 	{
-		return matrix[column][row];
+		return matrix[row][column];
 	}
 
 };
 
 template <class MatrixType>
-auto viewMatrixTransposed(MatrixType& matrix) {
-	return MatrixView<MatrixType, TransposedViewFunc<MatrixType>>(matrix);
+constexpr auto viewMatrix(MatrixType& matrix) noexcept {
+	return MatrixView<MatrixType&, MatrixViewFunc<MatrixType>>(matrix);
+}
+
+template <class NextViewType>
+class TransposedViewFunc {
+public:
+
+	using MatrixType = typename NextViewType::MatrixType;
+
+	static const auto ROWS = NextViewType::ROWS;
+
+	static const auto COLUMNS = NextViewType::COLUMNS;
+
+	constexpr auto operator()(NextViewType nextView, size_t row, size_t column) const noexcept
+		-> decltype(auto)
+	{
+		return nextView.get(column, row);
+	}
+
+};
+
+template <class NextViewType>
+constexpr auto transposed(NextViewType nextView) noexcept {
+	return MatrixView<NextViewType, TransposedViewFunc<NextViewType>>(std::move(nextView));
 }
 
 template <class MatrixType>
+constexpr auto viewMatrixTransposed(MatrixType& matrix) noexcept {
+	return transposed(viewMatrix(matrix));
+}
+
+template <class NextViewType>
 class SubmatrixViewFunc {
 public:
 
-	SubmatrixViewFunc(size_t noRow, size_t noColumn) :
+	using MatrixType = typename NextViewType::MatrixType;
+
+	static const auto ROWS = NextViewType::ROWS - 1;
+
+	static const auto COLUMNS = NextViewType::COLUMNS - 1;
+
+	constexpr SubmatrixViewFunc(size_t noRow, size_t noColumn) :
 		noRow_(noRow),
 		noColumn_(noColumn)
 	{
-		assert(noRow < MatrixType::ROWS);
-		assert(noColumn < MatrixType::COLUMNS);
+		assert(noRow < NextViewType::ROWS);
+		assert(noColumn < NextViewType::COLUMNS);
 	}
 
-	constexpr auto operator()(MatrixType& matrix, size_t row, size_t column) const noexcept
+	constexpr auto operator()(NextViewType nextView, size_t row, size_t column) const noexcept
 		-> decltype(auto)
 	{
-		return matrix[(row < noRow_) ? row : row + 1][(column < noColumn_) ? column : column + 1];
+		return nextView.get((row < noRow_) ? row : row + 1, (column < noColumn_) ? column : column + 1);
 	}
 
 private:
@@ -83,10 +178,15 @@ private:
 
 };
 
+template <class NextViewType>
+constexpr auto submatrix(NextViewType nextView, size_t noRow, size_t noColumn) noexcept {
+	return MatrixView<NextViewType, SubmatrixViewFunc<NextViewType>>(
+		std::move(nextView), SubmatrixViewFunc<NextViewType>(noRow, noColumn));
+}
+
 template <class MatrixType>
-auto viewSubmatrix(MatrixType& matrix, size_t noRow, size_t noColumn) {
-	return MatrixView<MatrixType, SubmatrixViewFunc<MatrixType>>(
-		matrix, SubmatrixViewFunc<MatrixType>(noRow, noColumn));
+constexpr auto viewSubmatrix(MatrixType& matrix, size_t noRow, size_t noColumn) noexcept {
+	return submatrix(viewMatrix(matrix), noRow, noColumn);
 }
 
 template <
@@ -121,6 +221,15 @@ public:
 
 	constexpr Matrix() noexcept = default;
 	
+	template <class NVT, class GEF>
+	Matrix(const MatrixView<NVT, GEF>& view) {
+		for (size_t rowIndex = 0; rowIndex < ROWS; ++rowIndex) {
+			for (size_t columnIndex = 0; columnIndex < COLUMNS; ++columnIndex) {
+				(*this)[rowIndex][columnIndex] = view.get(rowIndex, columnIndex);
+			}
+		}
+	}
+
 	// TODO: figure out a better constructor (this won't work in VS2015 either way)
 	//template <class... CompatibleTypes>
 	//explicit constexpr Matrix(CompatibleTypes&&... values) noexcept {
@@ -187,12 +296,20 @@ public:
 
 	// --- MATRIX-SPECIFIC OPERATIONS
 
-	Matrix<Scalar, COLUMNS, ROWS, ScalarEqualityFunc> transposed() const noexcept {
-		auto result = Matrix<Scalar, COLUMNS, ROWS, ScalarEqualityFunc>();
-		for (auto columnIndex = 0u; columnIndex < COLUMNS; ++columnIndex) {
-			result.row(columnIndex) = column(columnIndex);
-		}
-		return result;
+	constexpr Matrix<Scalar, COLUMNS, ROWS, ScalarEqualityFunc> transposed() const noexcept {
+		return viewMatrixTransposed(*this);
+	}
+
+	Scalar determinant() const noexcept {
+		return viewMatrix(*this).determinant();
+	}
+
+	Scalar cofactor(size_t rowIndex, size_t columnIndex) const noexcept {
+		return viewMatrix(*this).cofactor(rowIndex, columnIndex);
+	}
+
+	Matrix inverse() const noexcept {
+		return viewMatrix(*this).inverse();
 	}
 
 	// --- ACCESSORS
@@ -230,7 +347,7 @@ public:
 	Column column(size_t columnIndex) const noexcept {
 		assert(columnIndex < COLUMNS);
 		auto column = Column();
-		getColumn<>(column, columnIndex);
+		getColumn_<>(column, columnIndex);
 		return column;
 	}
 
@@ -239,13 +356,13 @@ private:
 	std::array<Row, ROWS> elements_;
 
 	template <size_t ROW = 0>
-	void getColumn(Column& column, size_t columnIndex) const {
+	void getColumn_(Column& column, size_t columnIndex) const {
 		column.get<ROW>() = elements_[ROW][columnIndex];
-		getColumn<ROW + 1>(column, columnIndex);
+		getColumn_<ROW + 1>(column, columnIndex);
 	}
 
 	template <>
-	void getColumn<ROWS>(Column&, size_t) const {
+	void getColumn_<ROWS>(Column&, size_t) const {
 	}
 
 };
@@ -275,128 +392,6 @@ const Matrix<ST, R, C, SEF>	Matrix<ST, R, C, SEF>::IDENTITY =
 
 using math::Matrix4x4;
 
-} // namespace pulp
-} // namespace coconut
-
-#endif /* _COCONUT_PULP_MATH_MATRIX_HPP_ */
-
-
-#ifndef _COCONUT_PULP_MATH_MATRIX_HPP_
-#define _COCONUT_PULP_MATH_MATRIX_HPP_
-
-#include <stdexcept>
-
-#include <DirectXMath.h>
-
-#include "Handedness.hpp"
-#include "Vector.hpp"
-
-namespace coconut {
-namespace pulp {
-namespace math {
-
-#pragma message("!!!!!VERY VERY TEMP!")
-// TODO: TEMP Replace with portable implementation
-class Matrix {
-public:
-
-	static const Matrix IDENTITY;
-
-	static Matrix translation(const Vec3& translationVector);
-
-	static Matrix translation(float x, float y, float z) {
-		return DirectX::XMMatrixTranslation(x, y, z);
-	}
-
-	static Matrix scale(const Vec3& scaleVector);
-
-	static Matrix scale(float x, float y, float z) {
-		return DirectX::XMMatrixScaling(x, y, z);
-	}
-
-	static Matrix rotation(const Vec3& rotationVector);
-
-	static Matrix rotation(float x, float y, float z) {
-		return DirectX::XMMatrixRotationRollPitchYaw(x, y, z);
-	}
-
-	static Matrix orthographicProjection(
-		Handedness handedness, float width, float height, float nearZ, float farZ) {
-		switch (handedness) {
-		case Handedness::LEFT:
-			return DirectX::XMMatrixOrthographicLH(width, height, nearZ, farZ);
-		case Handedness::RIGHT:
-			return DirectX::XMMatrixOrthographicRH(width, height, nearZ, farZ);
-		default:
-			throw std::logic_error("Unknown handedness value");
-		}
-	}
-
-	// TODO: change float fov to a Angle type
-	static Matrix perspectiveProjection(
-		Handedness handedness, float fov, float aspectRatio, float nearZ, float farZ) {
-		switch (handedness) {
-		case Handedness::LEFT:
-			return DirectX::XMMatrixPerspectiveFovLH(fov, aspectRatio, nearZ, farZ);
-		case Handedness::RIGHT:
-			return DirectX::XMMatrixPerspectiveFovRH(fov, aspectRatio, nearZ, farZ);
-		default:
-			throw std::logic_error("Unknown handedness value");
-		}
-	}
-
-	Matrix() {
-	}
-
-	Matrix(const DirectX::XMMATRIX& xmMatrix) {
-		DirectX::XMStoreFloat4x4(&internal_, xmMatrix);
-	}
-
-	Matrix operator *(const Matrix& other) { // TODO: use boost operator
-		return DirectX::XMMatrixMultiply(
-			DirectX::XMLoadFloat4x4(&internal_),
-			DirectX::XMLoadFloat4x4(&other.internal_)
-			);
-	}
-
-	Matrix& operator *=(const Matrix& other) {
-		DirectX::XMStoreFloat4x4(
-			&internal_,
-			DirectX::XMMatrixMultiply(
-				DirectX::XMLoadFloat4x4(&internal_),
-				DirectX::XMLoadFloat4x4(&other.internal_)
-				)
-			);
-		return *this;
-	}
-
-	Matrix transposed() const { // TODO: cache?
-		return DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&internal_));
-	}
-
-	Matrix inverted() const { // TODO: cache?
-		return DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&internal_));
-	}
-
-	Vec3 extractTranslation() const { // TODO: cache?
-		return Vec3(internal_._14, internal_._24, internal_._34);
-	}
-
-	bool isIdentity() const {
-		return DirectX::XMMatrixIsIdentity(DirectX::XMLoadFloat4x4(&internal_));
-	}
-
-	DirectX::XMMATRIX internal() const {
-		return DirectX::XMLoadFloat4x4(&internal_);
-	}
-
-private:
-
-	DirectX::XMFLOAT4X4 internal_;
-
-};
-
-} // namespace math
 } // namespace pulp
 } // namespace coconut
 
