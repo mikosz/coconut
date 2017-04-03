@@ -291,9 +291,9 @@ public:
 		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
 
 		auto matrix = IDENTITY;
-		matrix[0][3] = vector.x();
-		matrix[1][3] = vector.y();
-		matrix[2][3] = vector.z();
+		matrix[3][0] = vector.x();
+		matrix[3][1] = vector.y();
+		matrix[3][2] = vector.z();
 
 		return matrix;
 	}
@@ -335,13 +335,13 @@ public:
 
 		auto matrix = Matrix();
 		matrix[0][0] = xSq + (Scalar(1) - xSq) * cos;
-		matrix[0][1] = xy * (Scalar(1) - cos) - z * sin;
-		matrix[0][2] = xz * (Scalar(1) - cos) + y * sin;
-		matrix[1][0] = xy * (Scalar(1) - cos) + z * sin;
+		matrix[1][0] = xy * (Scalar(1) - cos) - z * sin;
+		matrix[2][0] = xz * (Scalar(1) - cos) + y * sin;
+		matrix[0][1] = xy * (Scalar(1) - cos) + z * sin;
 		matrix[1][1] = ySq + (Scalar(1) - ySq) * cos;
-		matrix[1][2] = yz * (Scalar(1) - cos) - x * sin;
-		matrix[2][0] = xz * (Scalar(1) - cos) - y * sin;
-		matrix[2][1] = yz * (Scalar(1) - cos) + x * sin;
+		matrix[2][1] = yz * (Scalar(1) - cos) - x * sin;
+		matrix[0][2] = xz * (Scalar(1) - cos) - y * sin;
+		matrix[1][2] = yz * (Scalar(1) - cos) + x * sin;
 		matrix[2][2] = zSq + (Scalar(1) - zSq) * cos;
 		matrix[3][3] = Scalar(1);
 
@@ -431,14 +431,14 @@ public:
 		return *this;
 	}
 
-	friend Vector<Scalar, COLUMNS, ScalarEqualityFunc> operator*(
+	friend Vector<Scalar, ROWS, ScalarEqualityFunc> operator*(
 		const Matrix& matrix,
-		const Vector<Scalar, COLUMNS, ScalarEqualityFunc>& vector
+		const Vector<Scalar, ROWS, ScalarEqualityFunc>& vector
 		) noexcept
 	{
-		auto result = Vector<Scalar, COLUMNS, ScalarEqualityFunc>();
-		for (auto rowIndex = 0u; rowIndex < ROWS; ++rowIndex) {
-			result[rowIndex] = dot(matrix[rowIndex], vector);
+		auto result = Vector<Scalar, ROWS, ScalarEqualityFunc>();
+		for (auto columnIndex = 0u; columnIndex < COLUMNS; ++columnIndex) {
+			result[columnIndex] = dot(matrix.column(columnIndex), vector);
 		}
 		return result;
 	}

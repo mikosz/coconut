@@ -17,14 +17,12 @@ BOOST_AUTO_TEST_SUITE(PulpMathMatrixTestSuite);
 
 BOOST_AUTO_TEST_CASE(ConstructsValidOrthographicProjectionMatrix) {
 	const auto orthoLH = Matrix4x4::orthographicProjection(Handedness::LEFT, -5.0f, 5.0f, 2.5f, -2.5f, -0.1f, 100.0f);
-	const auto expectedLHXMM = DirectX::XMMatrixOrthographicOffCenterLH(-5.0f, 5.0f, -2.5f, 2.5f, -0.1f, 100.0f);
 	auto expectedLH = DirectX::XMFLOAT4X4();
-	DirectX::XMStoreFloat4x4(&expectedLH, expectedLHXMM);
+	DirectX::XMStoreFloat4x4(&expectedLH, DirectX::XMMatrixOrthographicOffCenterLH(-5.0f, 5.0f, -2.5f, 2.5f, -0.1f, 100.0f));
 
 	const auto orthoRH = Matrix4x4::orthographicProjection(Handedness::RIGHT, -5.0f, 5.0f, 2.5f, -2.5f, -0.1f, 100.0f);
-	const auto expectedRHXMM = DirectX::XMMatrixOrthographicOffCenterRH(-5.0f, 5.0f, -2.5f, 2.5f, -0.1f, 100.0f);
 	auto expectedRH = DirectX::XMFLOAT4X4();
-	DirectX::XMStoreFloat4x4(&expectedRH, expectedRHXMM);
+	DirectX::XMStoreFloat4x4(&expectedRH, DirectX::XMMatrixOrthographicOffCenterRH(-5.0f, 5.0f, -2.5f, 2.5f, -0.1f, 100.0f));
 
 	for (size_t row = 0; row < 4; ++row) {
 		for (size_t column = 0; column < 4; ++column) {
@@ -36,14 +34,12 @@ BOOST_AUTO_TEST_CASE(ConstructsValidOrthographicProjectionMatrix) {
 
 BOOST_AUTO_TEST_CASE(ConstructsValidPerspectiveProjectionMatrix) {
 	const auto perspectiveLH = Matrix4x4::perspectiveProjection(Handedness::LEFT, 0.25f, 0.75f, -0.1f, 100.0f);
-	const auto expectedLHXMM = DirectX::XMMatrixPerspectiveFovLH(0.25f, 0.75f, -0.1f, 100.0f);
 	auto expectedLH = DirectX::XMFLOAT4X4();
-	DirectX::XMStoreFloat4x4(&expectedLH, expectedLHXMM);
+	DirectX::XMStoreFloat4x4(&expectedLH, DirectX::XMMatrixPerspectiveFovLH(0.25f, 0.75f, -0.1f, 100.0f));
 
 	const auto perspectiveRH = Matrix4x4::perspectiveProjection(Handedness::RIGHT, 0.25f, 0.75f, -0.1f, 100.0f);
-	const auto expectedRHXMM = DirectX::XMMatrixPerspectiveFovRH(0.25f, 0.75f, -0.1f, 100.0f);
 	auto expectedRH = DirectX::XMFLOAT4X4();
-	DirectX::XMStoreFloat4x4(&expectedRH, expectedRHXMM);
+	DirectX::XMStoreFloat4x4(&expectedRH, DirectX::XMMatrixPerspectiveFovRH(0.25f, 0.75f, -0.1f, 100.0f));
 
 	for (size_t row = 0; row < 4; ++row) {
 		for (size_t column = 0; column < 4; ++column) {
@@ -56,39 +52,59 @@ BOOST_AUTO_TEST_CASE(ConstructsValidPerspectiveProjectionMatrix) {
 BOOST_AUTO_TEST_CASE(ConstructsValidTranslationMatrix) {
 	auto translation = Matrix4x4::translation({ 1.0f, 2.0f, 3.0f });
 
-	auto expected = Matrix4x4::IDENTITY;
-	expected[0][3] = 1.0f;
-	expected[1][3] = 2.0f;
-	expected[2][3] = 3.0f;
+	auto expected = DirectX::XMFLOAT4X4();
+	DirectX::XMStoreFloat4x4(&expected, DirectX::XMMatrixTranslation(1.0f, 2.0f, 3.0f));
 	
-	BOOST_CHECK_EQUAL(translation, expected);
+	for (size_t row = 0; row < 4; ++row) {
+		for (size_t column = 0; column < 4; ++column) {
+			BOOST_CHECK_EQUAL(translation[row][column], expected(row, column));
+		}
+	}
 
 	const auto start = Vec4(2.0f, 0.2f, 1.0f, 1.0f);
 	const auto end = Vec4(3.0f, 2.2f, 4.0f, 1.0f);
-	BOOST_CHECK_EQUAL(translation * start, end);
+	const auto translated = translation * start;
+	BOOST_CHECK_EQUAL(translated, end);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructsValidScaleMatrix) {
 	auto scale = Matrix4x4::scale({ 1.0f, 2.0f, 3.0f });
 
-	auto expected = Matrix4x4::IDENTITY;
-	expected[0][0] = 1.0f;
-	expected[1][1] = 2.0f;
-	expected[2][2] = 3.0f;
-	
-	BOOST_CHECK_EQUAL(scale, expected);
+	auto expected = DirectX::XMFLOAT4X4();
+	DirectX::XMStoreFloat4x4(&expected, DirectX::XMMatrixScaling(1.0f, 2.0f, 3.0f));
+
+	for (size_t row = 0; row < 4; ++row) {
+		for (size_t column = 0; column < 4; ++column) {
+			BOOST_CHECK_EQUAL(scale[row][column], expected(row, column));
+		}
+	}
 
 	const auto start = Vec4(2.0f, 0.2f, 1.0f, 1.0f);
 	const auto end = Vec4(2.0f, 0.4f, 3.0f, 1.0f);
-	BOOST_CHECK_EQUAL(scale * start, end);
+	const auto scaled = scale * start;
+	BOOST_CHECK_EQUAL(scaled, end);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructsValidRotationMatrix) {
 	auto rotation = Matrix4x4::rotation(Vec3(2.0f, 1.0f, 3.0f).normalised(), -0.401425728f);
 
+	auto expected = DirectX::XMFLOAT4X4();
+	const auto axis = DirectX::XMFLOAT3(2.0f, 1.0f, 3.0f);
+	DirectX::XMStoreFloat4x4(
+		&expected,
+		DirectX::XMMatrixRotationAxis(DirectX::XMLoadFloat3(&axis), -0.401425728f)
+		);
+
+	for (size_t row = 0; row < 4; ++row) {
+		for (size_t column = 0; column < 4; ++column) {
+			BOOST_CHECK_EQUAL(rotation[row][column], expected(row, column));
+		}
+	}
+
 	const auto start = Vec4(1.0f, 3.0f, 5.0f, 1.0f);
 	const auto end = Vec4(1.565343f, 3.60607f, 4.421081f, 1.0f);
-	BOOST_CHECK_EQUAL(rotation * start, end);
+	const auto rotated = rotation * start;
+	BOOST_CHECK_EQUAL(rotated, end);
 }
 
 BOOST_AUTO_TEST_CASE(TransposedMatrixViewWorks) {
