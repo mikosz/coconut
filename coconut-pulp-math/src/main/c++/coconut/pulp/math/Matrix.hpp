@@ -335,13 +335,13 @@ public:
 
 		auto matrix = Matrix();
 		matrix[0][0] = xSq + (Scalar(1) - xSq) * cos;
-		matrix[1][0] = xy * (Scalar(1) - cos) - z * sin;
-		matrix[2][0] = xz * (Scalar(1) - cos) + y * sin;
 		matrix[0][1] = xy * (Scalar(1) - cos) + z * sin;
-		matrix[1][1] = ySq + (Scalar(1) - ySq) * cos;
-		matrix[2][1] = yz * (Scalar(1) - cos) - x * sin;
 		matrix[0][2] = xz * (Scalar(1) - cos) - y * sin;
+		matrix[1][0] = xy * (Scalar(1) - cos) - z * sin;
+		matrix[1][1] = ySq + (Scalar(1) - ySq) * cos;
 		matrix[1][2] = yz * (Scalar(1) - cos) + x * sin;
+		matrix[2][0] = xz * (Scalar(1) - cos) + y * sin;
+		matrix[2][1] = yz * (Scalar(1) - cos) - x * sin;
 		matrix[2][2] = zSq + (Scalar(1) - zSq) * cos;
 		matrix[3][3] = Scalar(1);
 
