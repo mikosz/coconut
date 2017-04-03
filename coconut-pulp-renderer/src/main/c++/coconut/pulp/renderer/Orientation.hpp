@@ -75,13 +75,14 @@ private:
 	milk::utils::Lazy<Matrix4x4> worldMatrix_;
 
 	void calculateWorldTransformation(Matrix4x4& matrix) {
-#pragma message("unimplemented")
 		matrix = Matrix4x4::IDENTITY;
-		//matrix =
-		//	Matrix4x4::rotation(rotation_.x(), rotation_.y(), rotation_.z()) *
-		//	Matrix4x4::scale(scale_.x(), scale_.y(), scale_.z()) *
-		//	Matrix4x4::translation(translation_.x(), translation_.y(), translation_.z())
-		//	;
+		matrix =
+			Matrix4x4::rotation(Vec3(1.0f, 0.0f, 0.0f), rotation_.x()) * // Vec3 constants for unit vectors
+			Matrix4x4::rotation(Vec3(0.0f, 1.0f, 0.0f), rotation_.y()) *
+			Matrix4x4::rotation(Vec3(0.0f, 0.0f, 1.0f), rotation_.z()) *
+			Matrix4x4::scale(scale_) *
+			Matrix4x4::translation(translation_)
+			;
 	}
 
 };

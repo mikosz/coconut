@@ -1,6 +1,8 @@
 #define BOOST_TEST_NO_LIB
 #include <boost/test/auto_unit_test.hpp>
 
+#include <DirectXMath.h>
+
 #include "coconut/pulp/math/Matrix.hpp"
 
 using namespace coconut;
@@ -12,6 +14,82 @@ namespace /* anonymous */ {
 BOOST_AUTO_TEST_SUITE(PulpTestSuite);
 BOOST_AUTO_TEST_SUITE(PulpMathTestSuite);
 BOOST_AUTO_TEST_SUITE(PulpMathMatrixTestSuite);
+
+BOOST_AUTO_TEST_CASE(ConstructsValidOrthographicProjectionMatrix) {
+	const auto orthoLH = Matrix4x4::orthographicProjection(Handedness::LEFT, -5.0f, 5.0f, 2.5f, -2.5f, -0.1f, 100.0f);
+	const auto expectedLHXMM = DirectX::XMMatrixOrthographicOffCenterLH(-5.0f, 5.0f, -2.5f, 2.5f, -0.1f, 100.0f);
+	auto expectedLH = DirectX::XMFLOAT4X4();
+	DirectX::XMStoreFloat4x4(&expectedLH, expectedLHXMM);
+
+	const auto orthoRH = Matrix4x4::orthographicProjection(Handedness::RIGHT, -5.0f, 5.0f, 2.5f, -2.5f, -0.1f, 100.0f);
+	const auto expectedRHXMM = DirectX::XMMatrixOrthographicOffCenterRH(-5.0f, 5.0f, -2.5f, 2.5f, -0.1f, 100.0f);
+	auto expectedRH = DirectX::XMFLOAT4X4();
+	DirectX::XMStoreFloat4x4(&expectedRH, expectedRHXMM);
+
+	for (size_t row = 0; row < 4; ++row) {
+		for (size_t column = 0; column < 4; ++column) {
+			BOOST_CHECK_EQUAL(orthoLH[row][column], expectedLH(row, column));
+			BOOST_CHECK_EQUAL(orthoRH[row][column], expectedRH(row, column));
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(ConstructsValidPerspectiveProjectionMatrix) {
+	const auto perspectiveLH = Matrix4x4::perspectiveProjection(Handedness::LEFT, 0.25f, 0.75f, -0.1f, 100.0f);
+	const auto expectedLHXMM = DirectX::XMMatrixPerspectiveFovLH(0.25f, 0.75f, -0.1f, 100.0f);
+	auto expectedLH = DirectX::XMFLOAT4X4();
+	DirectX::XMStoreFloat4x4(&expectedLH, expectedLHXMM);
+
+	const auto perspectiveRH = Matrix4x4::perspectiveProjection(Handedness::RIGHT, 0.25f, 0.75f, -0.1f, 100.0f);
+	const auto expectedRHXMM = DirectX::XMMatrixPerspectiveFovRH(0.25f, 0.75f, -0.1f, 100.0f);
+	auto expectedRH = DirectX::XMFLOAT4X4();
+	DirectX::XMStoreFloat4x4(&expectedRH, expectedRHXMM);
+
+	for (size_t row = 0; row < 4; ++row) {
+		for (size_t column = 0; column < 4; ++column) {
+			BOOST_CHECK_EQUAL(perspectiveLH[row][column], expectedLH(row, column));
+			BOOST_CHECK_EQUAL(perspectiveRH[row][column], expectedRH(row, column));
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(ConstructsValidTranslationMatrix) {
+	auto translation = Matrix4x4::translation({ 1.0f, 2.0f, 3.0f });
+
+	auto expected = Matrix4x4::IDENTITY;
+	expected[0][3] = 1.0f;
+	expected[1][3] = 2.0f;
+	expected[2][3] = 3.0f;
+	
+	BOOST_CHECK_EQUAL(translation, expected);
+
+	const auto start = Vec4(2.0f, 0.2f, 1.0f, 1.0f);
+	const auto end = Vec4(3.0f, 2.2f, 4.0f, 1.0f);
+	BOOST_CHECK_EQUAL(translation * start, end);
+}
+
+BOOST_AUTO_TEST_CASE(ConstructsValidScaleMatrix) {
+	auto scale = Matrix4x4::scale({ 1.0f, 2.0f, 3.0f });
+
+	auto expected = Matrix4x4::IDENTITY;
+	expected[0][0] = 1.0f;
+	expected[1][1] = 2.0f;
+	expected[2][2] = 3.0f;
+	
+	BOOST_CHECK_EQUAL(scale, expected);
+
+	const auto start = Vec4(2.0f, 0.2f, 1.0f, 1.0f);
+	const auto end = Vec4(2.0f, 0.4f, 3.0f, 1.0f);
+	BOOST_CHECK_EQUAL(scale * start, end);
+}
+
+BOOST_AUTO_TEST_CASE(ConstructsValidRotationMatrix) {
+	auto rotation = Matrix4x4::rotation(Vec3(2.0f, 1.0f, 3.0f).normalised(), -0.401425728f);
+
+	const auto start = Vec4(1.0f, 3.0f, 5.0f, 1.0f);
+	const auto end = Vec4(1.565343f, 3.60607f, 4.421081f, 1.0f);
+	BOOST_CHECK_EQUAL(rotation * start, end);
+}
 
 BOOST_AUTO_TEST_CASE(TransposedMatrixViewWorks) {
 	auto mtx = Matrix4x4();

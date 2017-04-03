@@ -257,7 +257,7 @@ public:
 	static std::enable_if_t<COLUMNS_ == 4 && ROWS_ == 4, Matrix>
 		perspectiveProjection(
 			Handedness handedness,
-			Scalar horizontalFieldOfView, // TODO: TYPE!
+			Scalar verticalFOV, // TODO: TYPE!
 			Scalar aspectRatio,
 			Scalar near,
 			Scalar far
@@ -266,17 +266,18 @@ public:
 		static_assert(ROWS_ == ROWS, "Rows count changed");
 		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
 
-		const auto scale = Scalar(1) / std::tan(horizontalFieldOfView / Scalar(2));
+		const auto scale = Scalar(1) / std::tan(verticalFOV / Scalar(2));
 
 		auto matrix = Matrix();
-		matrix[0][0] = scale;
+		matrix[0][0] = (Scalar(1) / aspectRatio) * scale;
 		matrix[1][1] = scale;
 		if (handedness == Handedness::RIGHT) {
 			matrix[2][2] = -far / (far - near);
+			matrix[2][3] = -Scalar(1);
 		} else {
 			matrix[2][2] = far / (far - near);
+			matrix[2][3] = Scalar(1);
 		}
-		matrix[2][3] = -Scalar(1);
 		matrix[3][2] = -far * near / (far - near);
 
 		return matrix;
@@ -284,17 +285,68 @@ public:
 
 	template <size_t ROWS_ = ROWS, size_t COLUMNS_ = COLUMNS>
 	static std::enable_if_t<COLUMNS_ == 4 && ROWS_ == 4, Matrix>
-		translation(const Vec3& vector) {
+		translation(const Vec3& vector)
+	{
 		static_assert(ROWS_ == ROWS, "Rows count changed");
 		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
 
 		auto matrix = IDENTITY;
-		matrix[3][0] = vector.x();
-		matrix[3][1] = vector.y();
-		matrix[3][2] = vector.z();
+		matrix[0][3] = vector.x();
+		matrix[1][3] = vector.y();
+		matrix[2][3] = vector.z();
 
 		return matrix;
 	}
+
+	template <size_t ROWS_ = ROWS, size_t COLUMNS_ = COLUMNS>
+	static std::enable_if_t<COLUMNS_ == 4 && ROWS_ == 4, Matrix>
+		scale(const Vec3& by)
+	{
+		static_assert(ROWS_ == ROWS, "Rows count changed");
+		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
+
+		auto matrix = IDENTITY;
+		matrix[0][0] = by.x();
+		matrix[1][1] = by.y();
+		matrix[2][2] = by.z();
+
+		return matrix;
+	}	
+
+	template <size_t ROWS_ = ROWS, size_t COLUMNS_ = COLUMNS>
+	static std::enable_if_t<COLUMNS_ == 4 && ROWS_ == 4, Matrix>
+		rotation(const Vec3& around, Scalar by) // TODO: TYPE!
+	{
+		static_assert(ROWS_ == ROWS, "Rows count changed");
+		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
+		assert(ScalarEqualityFunc()(around.length(), Scalar(1)));
+
+		const auto x = around.x();
+		const auto y = around.y();
+		const auto z = around.z();
+		const auto xSq = x * x;
+		const auto ySq = y * y;
+		const auto zSq = z * z;
+		const auto xy = x * y;
+		const auto xz = x * z;
+		const auto yz = y * z;
+		const auto cos = std::cos(by);
+		const auto sin = std::sin(by);
+
+		auto matrix = Matrix();
+		matrix[0][0] = xSq + (Scalar(1) - xSq) * cos;
+		matrix[0][1] = xy * (Scalar(1) - cos) - z * sin;
+		matrix[0][2] = xz * (Scalar(1) - cos) + y * sin;
+		matrix[1][0] = xy * (Scalar(1) - cos) + z * sin;
+		matrix[1][1] = ySq + (Scalar(1) - ySq) * cos;
+		matrix[1][2] = yz * (Scalar(1) - cos) - x * sin;
+		matrix[2][0] = xz * (Scalar(1) - cos) - y * sin;
+		matrix[2][1] = yz * (Scalar(1) - cos) + x * sin;
+		matrix[2][2] = zSq + (Scalar(1) - zSq) * cos;
+		matrix[3][3] = Scalar(1);
+
+		return matrix;
+	}	
 
 	// --- CONSTRUCTORS AND OPERATORS
 
@@ -379,6 +431,18 @@ public:
 		return *this;
 	}
 
+	friend Vector<Scalar, COLUMNS, ScalarEqualityFunc> operator*(
+		const Matrix& matrix,
+		const Vector<Scalar, COLUMNS, ScalarEqualityFunc>& vector
+		) noexcept
+	{
+		auto result = Vector<Scalar, COLUMNS, ScalarEqualityFunc>();
+		for (auto rowIndex = 0u; rowIndex < ROWS; ++rowIndex) {
+			result[rowIndex] = dot(matrix[rowIndex], vector);
+		}
+		return result;
+	}
+
 	Matrix& operator/=(Scalar scalar) noexcept {
 		std::transform(elements_.begin(), elements_.end(), elements_.begin(), [scalar](auto element) {
 			return element / scalar;
@@ -441,6 +505,14 @@ public:
 		auto column = Column();
 		getColumn_<>(column, columnIndex);
 		return column;
+	}
+
+	auto view() const noexcept {
+		return viewMatrix(*this);
+	}
+
+	auto view() noexcept {
+		return viewMatrix(*this);
 	}
 
 private:

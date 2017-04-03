@@ -156,8 +156,8 @@ void Game::loop() {
 		camera->reset();
 		// camera->rotate(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
 		camera->translate(pulp::math::Vec3(0.0f, 2.0f, 0.0f));
-		camera->rotate(pulp::math::Vec3(0.25f, 0.0f, 0.0f));
-		camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.f));
+		camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25f);
+		camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
 		actor->setRotation(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
 		// actor->setRotation(pulp::math::Vec3(0.0f, 0.0f, 0.0f));

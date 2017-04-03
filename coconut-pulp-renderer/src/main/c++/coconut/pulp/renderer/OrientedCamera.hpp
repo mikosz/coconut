@@ -41,9 +41,8 @@ public:
 		position_.invalidate();
 	}
 
-	void rotate(const Vec3& rotation) {
-#pragma message("TODO: unimplemented")
-		//transformation_ *= Matrix4x4::rotation(-rotation);
+	void rotate(const Vec3& around, float by) { // TODO: angle type!
+		transformation_ *= Matrix4x4::rotation(around, -by);
 		position_.invalidate();
 	}
 
