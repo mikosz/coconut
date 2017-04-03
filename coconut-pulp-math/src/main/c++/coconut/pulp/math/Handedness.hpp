@@ -10,8 +10,11 @@ enum class Handedness {
 	RIGHT,
 };
 
+} // namespace math
+
+using math::Handedness;
+
 } // namespace pulp
-} // namespace milk
 } // namespace coconut
 
 #endif /* _COCONUT_PULP_MATH_HANDEDNESS_HPP_ */

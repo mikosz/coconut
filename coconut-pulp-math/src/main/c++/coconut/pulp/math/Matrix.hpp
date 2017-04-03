@@ -12,6 +12,7 @@
 
 #include "coconut-tools/utils/InfixOstreamIterator.hpp"
 
+#include "Angle.hpp"
 #include "Handedness.hpp"
 #include "Vector.hpp"
 
@@ -37,7 +38,6 @@ public:
 	{
 	}
 
-	// TODO: for compatibility add this function to Matrix as well
 	constexpr auto get(size_t row, size_t column) const noexcept -> decltype(auto) {
 		return getElementFunc_(next_, row, column);
 	}
@@ -257,7 +257,7 @@ public:
 	static std::enable_if_t<COLUMNS_ == 4 && ROWS_ == 4, Matrix>
 		perspectiveProjection(
 			Handedness handedness,
-			Scalar verticalFOV, // TODO: TYPE!
+			Angle verticalFOV,
 			Scalar aspectRatio,
 			Scalar near,
 			Scalar far
@@ -266,7 +266,7 @@ public:
 		static_assert(ROWS_ == ROWS, "Rows count changed");
 		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
 
-		const auto scale = Scalar(1) / std::tan(verticalFOV / Scalar(2));
+		const auto scale = Scalar(1) / std::tan(verticalFOV.radians() / Scalar(2));
 
 		auto matrix = Matrix();
 		matrix[0][0] = (Scalar(1) / aspectRatio) * scale;
@@ -315,7 +315,7 @@ public:
 
 	template <size_t ROWS_ = ROWS, size_t COLUMNS_ = COLUMNS>
 	static std::enable_if_t<COLUMNS_ == 4 && ROWS_ == 4, Matrix>
-		rotation(const Vec3& around, Scalar by) // TODO: TYPE!
+		rotation(const Vec3& around, Angle by)
 	{
 		static_assert(ROWS_ == ROWS, "Rows count changed");
 		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
@@ -330,8 +330,8 @@ public:
 		const auto xy = x * y;
 		const auto xz = x * z;
 		const auto yz = y * z;
-		const auto cos = std::cos(by);
-		const auto sin = std::sin(by);
+		const auto cos = std::cos(by.radians());
+		const auto sin = std::sin(by.radians());
 
 		auto matrix = Matrix();
 		matrix[0][0] = xSq + (Scalar(1) - xSq) * cos;

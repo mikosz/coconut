@@ -77,9 +77,9 @@ private:
 	void calculateWorldTransformation(Matrix4x4& matrix) {
 		matrix = Matrix4x4::IDENTITY;
 		matrix =
-			Matrix4x4::rotation(Vec3(1.0f, 0.0f, 0.0f), rotation_.x()) * // Vec3 constants for unit vectors
-			Matrix4x4::rotation(Vec3(0.0f, 1.0f, 0.0f), rotation_.y()) *
-			Matrix4x4::rotation(Vec3(0.0f, 0.0f, 1.0f), rotation_.z()) *
+			Matrix4x4::rotation(Vec3(1.0f, 0.0f, 0.0f), radians(rotation_.x())) * // Vec3 constants for unit vectors
+			Matrix4x4::rotation(Vec3(0.0f, 1.0f, 0.0f), radians(rotation_.y())) *
+			Matrix4x4::rotation(Vec3(0.0f, 0.0f, 1.0f), radians(rotation_.z())) *
 			Matrix4x4::scale(scale_) *
 			Matrix4x4::translation(translation_)
 			;

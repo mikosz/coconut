@@ -33,11 +33,11 @@ BOOST_AUTO_TEST_CASE(ConstructsValidOrthographicProjectionMatrix) {
 }
 
 BOOST_AUTO_TEST_CASE(ConstructsValidPerspectiveProjectionMatrix) {
-	const auto perspectiveLH = Matrix4x4::perspectiveProjection(Handedness::LEFT, 0.25f, 0.75f, -0.1f, 100.0f);
+	const auto perspectiveLH = Matrix4x4::perspectiveProjection(Handedness::LEFT, 0.25_rad, 0.75f, -0.1f, 100.0f);
 	auto expectedLH = DirectX::XMFLOAT4X4();
 	DirectX::XMStoreFloat4x4(&expectedLH, DirectX::XMMatrixPerspectiveFovLH(0.25f, 0.75f, -0.1f, 100.0f));
 
-	const auto perspectiveRH = Matrix4x4::perspectiveProjection(Handedness::RIGHT, 0.25f, 0.75f, -0.1f, 100.0f);
+	const auto perspectiveRH = Matrix4x4::perspectiveProjection(Handedness::RIGHT, 0.25_rad, 0.75f, -0.1f, 100.0f);
 	auto expectedRH = DirectX::XMFLOAT4X4();
 	DirectX::XMStoreFloat4x4(&expectedRH, DirectX::XMMatrixPerspectiveFovRH(0.25f, 0.75f, -0.1f, 100.0f));
 
@@ -86,13 +86,13 @@ BOOST_AUTO_TEST_CASE(ConstructsValidScaleMatrix) {
 }
 
 BOOST_AUTO_TEST_CASE(ConstructsValidRotationMatrix) {
-	auto rotation = Matrix4x4::rotation(Vec3(2.0f, 1.0f, 3.0f).normalised(), -0.401425728f);
+	auto rotation = Matrix4x4::rotation(Vec3(2.0f, 1.0f, 3.0f).normalised(), -23.0_deg);
 
 	auto expected = DirectX::XMFLOAT4X4();
 	const auto axis = DirectX::XMFLOAT3(2.0f, 1.0f, 3.0f);
 	DirectX::XMStoreFloat4x4(
 		&expected,
-		DirectX::XMMatrixRotationAxis(DirectX::XMLoadFloat3(&axis), -0.401425728f)
+		DirectX::XMMatrixRotationAxis(DirectX::XMLoadFloat3(&axis), -23.0_deg.radians())
 		);
 
 	for (size_t row = 0; row < 4; ++row) {

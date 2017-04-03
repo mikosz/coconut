@@ -1,21 +1,21 @@
-#ifndef _COCONUT_MILK_MATH_ANGLE_HPP_
-#define _COCONUT_MILK_MATH_ANGLE_HPP_
+#ifndef _COCONUT_PULP_MATH_ANGLE_HPP_
+#define _COCONUT_PULP_MATH_ANGLE_HPP_
 
 #include <iosfwd>
 
 #include <boost/operators.hpp>
 
 namespace coconut {
-namespace milk {
+namespace pulp {
 namespace math {
 
-const float PI = static_cast<float>(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899);
+const float PI = static_cast<float>(3.14159264f);
 
 class Angle :
-	boost::less_than_comparable<Angle>,
-	boost::equality_comparable<Angle>,
-	boost::additive<Angle>,
-	boost::multiplicative<Angle, float>
+	boost::less_than_comparable<Angle,
+	boost::equality_comparable<Angle,
+	boost::additive<Angle,
+	boost::multiplicative<Angle, float>>>>
 {
 public:
 
@@ -25,51 +25,53 @@ public:
 
 	static const Angle FULL;
 
-	float radians() const {
+	constexpr float radians() const noexcept {
 		return radians_;
 	}
 
-	float degrees() const;
+	constexpr float degrees() const noexcept {
+		return radians_ * (180.0f / PI);
+	}
 
-	bool operator==(const Angle& rhs) const {
+	constexpr bool operator==(const Angle& rhs) const noexcept {
 		return radians_ == rhs.radians_;
 	}
 
-	bool operator<(const Angle& rhs) const {
+	constexpr bool operator<(const Angle& rhs) const noexcept {
 		return radians_ < rhs.radians_;
 	}
 
-	Angle& operator+=(const Angle& rhs) {
+	Angle& operator+=(const Angle& rhs) noexcept {
 		radians_ += rhs.radians_;
 		return *this;
 	}
 
-	Angle& operator-=(const Angle& rhs) {
+	Angle& operator-=(const Angle& rhs) noexcept {
 		radians_ -= rhs.radians_;
 		return *this;
 	}
 
-	Angle& operator*=(float rhs) {
+	Angle& operator*=(float rhs) noexcept {
 		radians_ *= rhs;
 		return *this;
 	}
 
-	Angle& operator/=(float rhs) {
+	Angle& operator/=(float rhs) noexcept {
 		radians_ /= rhs;
 		return *this;
 	}
 
-	Angle operator-() const {
+	Angle operator-() const noexcept {
 		return -1.0f * (*this);
 	}
 
-	friend Angle radians(float radians);
+	friend const Angle radians(float radians) noexcept;
 
-	friend Angle degrees(float degrees);
+	friend const Angle degrees(float degrees) noexcept;
 
 private:
 
-	explicit Angle(float radians) :
+	constexpr explicit Angle(float radians) noexcept :
 		radians_(radians)
 	{
 	}
@@ -80,14 +82,35 @@ private:
 
 };
 
+static_assert(sizeof(Angle) == sizeof(float), "Angle should have no extra data");
+
 std::ostream& operator<<(std::ostream& os, const Angle& angle);
 
-Angle radians(float radians);
+inline const Angle radians(float radians) noexcept {
+	return Angle(radians);
+}
 
-Angle degrees(float degrees);
+inline const Angle degrees(float degrees) noexcept {
+	return Angle(degrees * (PI / 180.0f));
+}
+
+inline const Angle operator""_rad(long double r) noexcept {
+	return radians(r);
+}
+
+inline const Angle operator""_deg(long double d) noexcept {
+	return degrees(d);
+}
 
 } // namespace math
-} // namespace milk
+
+using math::Angle;
+using math::radians;
+using math::degrees;
+using math::operator ""_deg;
+using math::operator ""_rad;
+
+} // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_MATH_ANGLE_HPP_ */
+#endif /* _COCONUT_PULP_MATH_ANGLE_HPP_ */

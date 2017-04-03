@@ -12,7 +12,7 @@ public:
 
 	PerspectiveLens(
 		pulp::math::Handedness handedness,
-		float fov,
+		Angle fov,
 		float aspectRatio,
 		float nearZ,
 		float farZ
