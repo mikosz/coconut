@@ -31,6 +31,8 @@ using namespace coconut;
 using namespace coconut::shell;
 using namespace coconut::shell::game;
 
+using namespace coconut::pulp::math_literals;
+
 Game::Game(std::shared_ptr<milk::system::App> app) :
 	app_(app),
 	filesystem_(std::make_unique<milk::Filesystem>())
@@ -68,7 +70,15 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 void Game::loop() {
 	pulp::renderer::OrientedCameraSharedPtr camera(new pulp::renderer::OrientedCamera);
 
-	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(pulp::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
+	pulp::renderer::LensSharedPtr lens(
+		std::make_unique<pulp::renderer::PerspectiveLens>(
+			pulp::math::Handedness::LEFT,
+			1.0_rad,
+			800.0f / 600.0f,
+			0.001f,
+			1000.0f
+			)
+		);
 
 	auto fs = milk::FilesystemContext(filesystem_);
 
@@ -156,7 +166,7 @@ void Game::loop() {
 		camera->reset();
 		// camera->rotate(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
 		camera->translate(pulp::math::Vec3(0.0f, 2.0f, 0.0f));
-		camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25f);
+		camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
 		camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
 		actor->setRotation(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));

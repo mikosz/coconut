@@ -110,6 +110,13 @@ using math::degrees;
 using math::operator ""_deg;
 using math::operator ""_rad;
 
+namespace math_literals {
+
+using math::operator ""_deg;
+using math::operator ""_rad;
+
+} // namespace math_literals
+
 } // namespace pulp
 } // namespace coconut
 

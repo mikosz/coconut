@@ -41,7 +41,7 @@ public:
 		position_.invalidate();
 	}
 
-	void rotate(const Vec3& around, float by) { // TODO: angle type!
+	void rotate(const Vec3& around, Angle by) {
 		transformation_ *= Matrix4x4::rotation(around, -by);
 		position_.invalidate();
 	}
