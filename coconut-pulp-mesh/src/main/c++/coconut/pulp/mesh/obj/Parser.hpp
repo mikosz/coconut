@@ -1,6 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_MESH_OBJ_PARSER_HPP_
 #define _COCONUT_PULP_RENDERER_MESH_OBJ_PARSER_HPP_
 
+#include <array>
 #include <vector>
 #include <string>
 #include <memory>
@@ -43,7 +44,7 @@ public:
 
 	struct Face {
 
-		Vertex vertices[3];
+		std::array<Vertex, 3> vertices;
 
 	};
 

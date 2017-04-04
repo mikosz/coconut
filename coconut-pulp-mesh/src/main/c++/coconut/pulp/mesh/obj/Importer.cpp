@@ -85,7 +85,7 @@ void generateNormals(
 
 	for (const auto faceIdx : coconut_tools::range<size_t>(0, indices.size(), 3)) {
 		for (const auto vertexIdx : coconut_tools::range(faceIdx, faceIdx + 3)) {
-			affectingFaces.emplace(vertexIdx, faceIdx);
+			affectingFaces.emplace(indices[vertexIdx], faceIdx);
 		}
 	}
 

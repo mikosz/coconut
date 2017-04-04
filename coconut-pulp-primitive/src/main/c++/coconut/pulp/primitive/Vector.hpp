@@ -49,7 +49,7 @@ public:
 		auto lhsV3 = pulp::math::Vec3(x(), y(), z());
 		const auto rhsV3 = pulp::math::Vec3(rhs.x(), rhs.y(), rhs.z());
 		lhsV3.crossEq(rhsV3);
-		return Vector(rhsV3.x(), rhsV3.y(), rhsV3.z());
+		return Vector(lhsV3.x(), lhsV3.y(), lhsV3.z());
 	}
 
 	using detail::VectorType<4>::normalise;

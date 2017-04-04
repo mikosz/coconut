@@ -41,13 +41,14 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 		auto currentMount = std::make_unique<milk::DirectoryMount>(".", false);
 		filesystem_->mount("/", std::move(currentMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
 
-		auto worldMount = std::make_unique<milk::DirectoryMount>("../coconut-pulp-world", false);
+		// TODO: readOnly is ignored!
+		auto worldMount = std::make_unique<milk::DirectoryMount>("../coconut-pulp-world", true);
 		filesystem_->mount("/", std::move(worldMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
 	}
 
 	{
 		milk::system::Window::Configuration configuration;
-		configuration.className = "coconut/milk::graphics::device::Window";
+		configuration.className = "coconut::milk::graphics::device::Window";
 		configuration.fullscreen = false;
 		configuration.width = 800;
 		configuration.height = 600;
@@ -83,15 +84,19 @@ void Game::loop() {
 	auto fs = milk::FilesystemContext(filesystem_);
 
 	if (!fs.exists("daniel.model")) {
+	//if (true) {
 		auto modelContext = fs;
 
 		modelContext.changeWorkingDirectory("/data/models/Daniel/craig chemise bleu/");
 		auto data = modelContext.load("craig chemis bleu.obj").get();
+		//modelContext.changeWorkingDirectory("/data/models/");
+		//auto data = modelContext.load("triangle.obj").get();
 
 		auto modelData = pulp::mesh::obj::Importer().import(*data, modelContext);
 
 		{
 			auto modelOS = fs.overwrite("daniel.model");
+			//auto modelOS = fs.overwrite("triangle.model");
 			coconut_tools::serialisation::BinarySerialiser serialiser(*modelOS);
 			serialiser << modelData;
 		}
@@ -101,6 +106,7 @@ void Game::loop() {
 
 	{
 		auto modelIS = fs.open("daniel.model");
+		//auto modelIS = fs.open("triangle.model");
 		coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS);
 		deserialiser >> modelData;
 	}
