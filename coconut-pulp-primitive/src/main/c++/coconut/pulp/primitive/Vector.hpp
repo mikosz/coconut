@@ -12,7 +12,7 @@ namespace coconut {
 namespace pulp {
 namespace primitive {
 
-class Vector :
+class Vector : // TODO: clashes with pulp::math::Vector name
 	boost::additive<Vector>,
 	detail::VectorType<4>
 {
@@ -20,16 +20,14 @@ public:
 
 	Vector() = default;
 
-	Vector(const milk::math::Vector3d& vector) :
+	Vector(const Vec3& vector) :
 		detail::VectorType<4>(vector.x(), vector.y(), vector.z(), 0.0f)
 	{
 	}
 
-	Vector(const milk::math::Vector4d& vector) :
+	Vector(const Vec4& vector) :
 		detail::VectorType<4>(vector.x(), vector.y(), vector.z(), 0.0f)
 	{
-		assert(vector.w() < 0.0f + EPSILON); // TODO: replace with some "between" function
-		assert(vector.w() > 0.0f - EPSILON);
 	}
 
 	Vector(float x, float y, float z) :
@@ -48,8 +46,8 @@ public:
 	}
 
 	Vector cross(const Vector& rhs) const {
-		auto lhsV3 = milk::math::Vector3d(x(), y(), z());
-		const auto rhsV3 = milk::math::Vector3d(rhs.x(), rhs.y(), rhs.z());
+		auto lhsV3 = pulp::math::Vec3(x(), y(), z());
+		const auto rhsV3 = pulp::math::Vec3(rhs.x(), rhs.y(), rhs.z());
 		lhsV3.crossEq(rhsV3);
 		return Vector(rhsV3.x(), rhsV3.y(), rhsV3.z());
 	}

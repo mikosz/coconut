@@ -1,23 +1,23 @@
 #define BOOST_TEST_NO_LIB
 #include <boost/test/auto_unit_test.hpp>
 
-#include "coconut/milk/math/Angle.hpp"
+#include "coconut/pulp/math/Angle.hpp"
 
 using namespace coconut;
-using namespace coconut::milk;
-using namespace coconut::milk::math;
+using namespace coconut::pulp;
+using namespace coconut::pulp::math;
 
 namespace /* anonymous */ {
 
 BOOST_AUTO_TEST_SUITE(MilkMathAngleTestSuite);
 
 BOOST_AUTO_TEST_CASE(AngleIsConstructibleWithRadians) {
-	Angle a(radians(3.0f));
+	Angle a(3.0_rad);
 	BOOST_CHECK_EQUAL(a.radians(), 3.0f);
 }
 
 BOOST_AUTO_TEST_CASE(AngleIsConstructibleWithDegrees) {
-	Angle a(degrees(90.0f));
+	Angle a(90.0_deg);
 	BOOST_CHECK_EQUAL(a.degrees(), 90.0f);
 }
 

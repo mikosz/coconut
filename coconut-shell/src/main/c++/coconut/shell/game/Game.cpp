@@ -31,6 +31,8 @@ using namespace coconut;
 using namespace coconut::shell;
 using namespace coconut::shell::game;
 
+using namespace coconut::pulp::math_literals;
+
 Game::Game(std::shared_ptr<milk::system::App> app) :
 	app_(app),
 	filesystem_(std::make_unique<milk::Filesystem>())
@@ -68,7 +70,15 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 void Game::loop() {
 	pulp::renderer::OrientedCameraSharedPtr camera(new pulp::renderer::OrientedCamera);
 
-	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
+	pulp::renderer::LensSharedPtr lens(
+		std::make_unique<pulp::renderer::PerspectiveLens>(
+			pulp::math::Handedness::LEFT,
+			1.0_rad,
+			800.0f / 600.0f,
+			0.001f,
+			1000.0f
+			)
+		);
 
 	auto fs = milk::FilesystemContext(filesystem_);
 
@@ -103,19 +113,19 @@ void Game::loop() {
 	auto m = std::make_shared<pulp::renderer::Model>(std::move(modelData), *graphicsRenderer_, passFactory, fs);
 
 	pulp::renderer::lighting::DirectionalLight white(
-		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
-		milk::math::Vector4d(0.1f, 0.1f, 0.1f, 0.0f),
-		milk::math::Vector4d(0.7f, 0.7f, 0.7f, 1.0f),
-		milk::math::Vector4d(0.4f, 0.4f, 0.4f, 0.0f)
+		pulp::math::Vec3(-0.5f, -0.5f, 0.5f).normalised(),
+		pulp::math::Vec4(0.1f, 0.1f, 0.1f, 0.0f),
+		pulp::math::Vec4(0.7f, 0.7f, 0.7f, 1.0f),
+		pulp::math::Vec4(0.4f, 0.4f, 0.4f, 0.0f)
 		);
 	scene.add(white);
 
 	/* pulp::renderer::lighting::PointLight yellow(
-		milk::math::Vector3d(0.0f, 1.5f, -3.5f),
-		milk::math::Vector3d(0.0f, 1.0f, 0.0f),
-		milk::math::Vector4d(0.1f, 0.0f, 0.0f, 0.0f),
-		milk::math::Vector4d(0.7f, 0.0f, 0.0f, 1.0f),
-		milk::math::Vector4d(0.4f, 0.0f, 0.0f, 0.0f)
+		pulp::math::Vec3(0.0f, 1.5f, -3.5f),
+		pulp::math::Vec3(0.0f, 1.0f, 0.0f),
+		pulp::math::Vec4(0.1f, 0.0f, 0.0f, 0.0f),
+		pulp::math::Vec4(0.7f, 0.0f, 0.0f, 1.0f),
+		pulp::math::Vec4(0.4f, 0.0f, 0.0f, 0.0f)
 		);
 	scene.add(yellow); */
 
@@ -128,9 +138,9 @@ void Game::loop() {
 	pulp::renderer::ActorSharedPtr actor2(new pulp::renderer::Actor(m));
 
 	// scene.add(actor2);
-	actor2->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
-	actor2->setTranslation(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
-	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
+	actor2->setRotation(pulp::math::Vec3(0.0f, 0.0f, 0.0f));
+	actor2->setTranslation(pulp::math::Vec3(0.0f, 2.0f, 0.0f));
+	actor2->setScale(pulp::math::Vec3(1.0f, 1.0f, 1.0f));
 
 	auto grassActor = std::make_shared<pulp::world::foliage::Grass>(*graphicsRenderer_, passFactory, fs);
 	scene.add(grassActor);
@@ -154,15 +164,15 @@ void Game::loop() {
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;
 
 		camera->reset();
-		// camera->rotate(milk::math::Vector3d(0.0f, 0.09f * 3.14f * secs, 0.0f));
-		camera->translate(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
-		camera->rotate(milk::math::Vector3d(0.25f, 0.0f, 0.0f));
-		camera->translate(milk::math::Vector3d(0.0f, 0.0f, -5.f));
+		// camera->rotate(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
+		camera->translate(pulp::math::Vec3(0.0f, 2.0f, 0.0f));
+		camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
+		camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
-		actor->setRotation(milk::math::Vector3d(0.0f, 0.09f * 3.14f * secs, 0.0f));
-		// actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
-		actor->setTranslation(milk::math::Vector3d(0.0f, -.0f, 0.0f));
-		actor->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
+		actor->setRotation(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
+		// actor->setRotation(pulp::math::Vec3(0.0f, 0.0f, 0.0f));
+		actor->setTranslation(pulp::math::Vec3(0.0f, -.0f, 0.0f));
+		actor->setScale(pulp::math::Vec3(1.0f, 1.0f, 1.0f));
 
 		scene.render(commandBuffer);
 

@@ -1,7 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_LIGHTING_DIRECTIONALLIGHT_HPP_
 #define _COCONUT_PULP_RENDERER_LIGHTING_DIRECTIONALLIGHT_HPP_
 
-#include "coconut/milk/math/Vector.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -12,10 +12,10 @@ class DirectionalLight {
 public:
 
 	DirectionalLight(
-		const milk::math::Vector3d& direction,
-		const milk::math::Vector4d& ambientColour,
-		const milk::math::Vector4d& diffuseColour,
-		const milk::math::Vector4d& specularColour
+		const pulp::math::Vec3& direction,
+		const pulp::math::Vec4& ambientColour,
+		const pulp::math::Vec4& diffuseColour,
+		const pulp::math::Vec4& specularColour
 		) :
 		direction_(direction),
 		ambientColour_(ambientColour),
@@ -24,31 +24,31 @@ public:
 	{
 	}
 
-	const milk::math::Vector3d& direction() const {
+	const pulp::math::Vec3& direction() const {
 		return direction_;
 	}
 
-	const milk::math::Vector4d& ambientColour() const {
+	const pulp::math::Vec4& ambientColour() const {
 		return ambientColour_;
 	}
 
-	const milk::math::Vector4d& diffuseColour() const {
+	const pulp::math::Vec4& diffuseColour() const {
 		return diffuseColour_;
 	}
 
-	const milk::math::Vector4d& specularColour() const {
+	const pulp::math::Vec4& specularColour() const {
 		return specularColour_;
 	}
 
 private:
 
-	milk::math::Vector3d direction_;
+	pulp::math::Vec3 direction_;
 
-	milk::math::Vector4d ambientColour_;
+	pulp::math::Vec4 ambientColour_;
 
-	milk::math::Vector4d diffuseColour_;
+	pulp::math::Vec4 diffuseColour_;
 
-	milk::math::Vector4d specularColour_;
+	pulp::math::Vec4 specularColour_;
 
 };
 

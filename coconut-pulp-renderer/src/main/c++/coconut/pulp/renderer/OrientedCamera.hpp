@@ -1,8 +1,8 @@
 #ifndef _COCONUT_PULP_RENDERER_ORIENTEDCAMERA_HPP_
 #define _COCONUT_PULP_RENDERER_ORIENTEDCAMERA_HPP_
 
-#include "coconut/milk/math/Matrix.hpp"
-#include "coconut/milk/math/Vector.hpp"
+#include "coconut/pulp/math/Matrix.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 
 #include "coconut/milk/utils/Lazy.hpp"
 
@@ -16,39 +16,41 @@ class OrientedCamera : public Camera {
 public:
 
 	OrientedCamera() :
-		transformation_(milk::math::Matrix::IDENTITY),
-		position_([this](milk::math::Vector3d& position) { position = transformation_.inverted().transposed().extractTranslation(); }) // TODO: could be done with fewer temporaries
+		transformation_(Matrix4x4::IDENTITY),
+		position_([this](Vec3& position) {
+				position = transformation_.inverse().transpose()[3].xyz();
+			}) // TODO: could be done with fewer temporaries
 	{
 	}
 
-	const milk::math::Matrix& viewTransformation() const override {
+	const Matrix4x4& viewTransformation() const override {
 		return transformation_;
 	}
 
-	const milk::math::Vector3d& position() const override {
+	const Vec3& position() const override {
 		return position_.get();
 	}
 
 	void reset() {
-		transformation_ = milk::math::Matrix::IDENTITY;
+		transformation_ = Matrix4x4::IDENTITY;
 		position_.invalidate();
 	}
 
-	void translate(const milk::math::Vector3d& translation) {
-		transformation_ *= milk::math::Matrix::translation(-translation);
+	void translate(const Vec3& translation) {
+		transformation_ *= Matrix4x4::translation(-translation);
 		position_.invalidate();
 	}
 
-	void rotate(const milk::math::Vector3d& rotation) {
-		transformation_ *= milk::math::Matrix::rotation(-rotation);
+	void rotate(const Vec3& around, Angle by) {
+		transformation_ *= Matrix4x4::rotation(around, -by);
 		position_.invalidate();
 	}
 
 private:
 
-	milk::math::Matrix transformation_;
+	Matrix4x4 transformation_;
 
-	milk::utils::Lazy<milk::math::Vector3d> position_;
+	milk::utils::Lazy<Vec3> position_;
 
 };
 

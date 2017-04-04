@@ -13,24 +13,24 @@ namespace math {
 class Rotation {
 public:
 
-	Rotation(const Angle& angle, const Vector3d& axis);
+	Rotation(const Angle& angle, const Vec3& axis);
 
-	Rotation(const Vector4d& quaternion) :
+	Rotation(const Vec4& quaternion) :
 		rotationQuaternion_(quaternion)
 	{
 	}
 
 	Rotation interpolate(const Rotation& other, float factor) const;
 
-	Vector3d rotate(const Vector3d& vector) const;
+	Vec3 rotate(const Vec3& vector) const;
 
-	const Vector4d& rotationQuaternion() const {
+	const Vec4& rotationQuaternion() const {
 		return rotationQuaternion_;
 	}
 
 private:
 
-	Vector4d rotationQuaternion_;
+	Vec4 rotationQuaternion_;
 
 };
 
@@ -38,11 +38,11 @@ inline Rotation interpolate(const Rotation& lhs, const Rotation& rhs, float fact
 	return lhs.interpolate(rhs, factor);
 }
 
-inline Vector3d rotated(const Vector3d& vector, const Rotation& rotation) {
+inline Vec3 rotated(const Vec3& vector, const Rotation& rotation) {
 	return rotation.rotate(vector);
 }
 
-inline void rotate(Vector3d& vector, const Rotation& rotation) {
+inline void rotate(Vec3& vector, const Rotation& rotation) {
 	vector = rotation.rotate(vector);
 }
 

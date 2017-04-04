@@ -1,7 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_LENS_HPP_
 #define _COCONUT_PULP_RENDERER_LENS_HPP_
 
-#include "coconut/milk/math/Matrix.hpp"
+#include "coconut/pulp/math/Matrix.hpp"
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 namespace coconut {
@@ -11,7 +11,7 @@ namespace renderer {
 class Lens {
 public:
 
-	virtual const milk::math::Matrix& projectionTransformation() const = 0;
+	virtual const Matrix4x4& projectionTransformation() const = 0;
 
 protected:
 

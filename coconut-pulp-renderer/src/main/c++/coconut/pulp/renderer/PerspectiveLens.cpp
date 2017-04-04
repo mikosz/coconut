@@ -7,18 +7,18 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
 PerspectiveLens::PerspectiveLens(
-	milk::math::Handedness handedness,
-	float fov,
+	Handedness handedness,
+	Angle fov,
 	float aspectRatio,
 	float nearZ,
 	float farZ
 	) :
 	projectionMatrix_(
-		milk::math::Matrix::perspectiveProjection(handedness, fov, aspectRatio, nearZ, farZ)
+		Matrix4x4::perspectiveProjection(handedness, fov, aspectRatio, nearZ, farZ)
 		)
 {
 }
 
-const milk::math::Matrix& PerspectiveLens::projectionTransformation() const {
+const Matrix4x4& PerspectiveLens::projectionTransformation() const {
 	return projectionMatrix_;
 }

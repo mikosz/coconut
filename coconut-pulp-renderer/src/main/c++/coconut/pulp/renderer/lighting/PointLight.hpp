@@ -1,7 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_LIGHTING_POINTLIGHT_HPP_
 #define _COCONUT_PULP_RENDERER_LIGHTING_POINTLIGHT_HPP_
 
-#include "coconut/milk/math/Vector.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -12,11 +12,11 @@ class PointLight {
 public:
 
 	PointLight(
-		const milk::math::Vector3d& position,
-		const milk::math::Vector3d& attenuation, // <constant, linear, quadratic>
-		const milk::math::Vector4d& ambientColour,
-		const milk::math::Vector4d& diffuseColour,
-		const milk::math::Vector4d& specularColour
+		const pulp::math::Vec3& position,
+		const pulp::math::Vec3& attenuation, // <constant, linear, quadratic>
+		const pulp::math::Vec4& ambientColour,
+		const pulp::math::Vec4& diffuseColour,
+		const pulp::math::Vec4& specularColour
 		) :
 		position_(position),
 		attenuation_(attenuation),
@@ -26,37 +26,37 @@ public:
 	{
 	}
 
-	const milk::math::Vector3d& position() const {
+	const pulp::math::Vec3& position() const {
 		return position_;
 	}
 
-	const milk::math::Vector3d& attenuation() const {
+	const pulp::math::Vec3& attenuation() const {
 		return attenuation_;
 	}
 
-	const milk::math::Vector4d& ambientColour() const {
+	const pulp::math::Vec4& ambientColour() const {
 		return ambientColour_;
 	}
 
-	const milk::math::Vector4d& diffuseColour() const {
+	const pulp::math::Vec4& diffuseColour() const {
 		return diffuseColour_;
 	}
 
-	const milk::math::Vector4d& specularColour() const {
+	const pulp::math::Vec4& specularColour() const {
 		return specularColour_;
 	}
 
 private:
 
-	milk::math::Vector3d position_;
+	pulp::math::Vec3 position_;
 
-	milk::math::Vector3d attenuation_;
+	pulp::math::Vec3 attenuation_;
 
-	milk::math::Vector4d ambientColour_;
+	pulp::math::Vec4 ambientColour_;
 
-	milk::math::Vector4d diffuseColour_;
+	pulp::math::Vec4 diffuseColour_;
 
-	milk::math::Vector4d specularColour_;
+	pulp::math::Vec4 specularColour_;
 
 };
 

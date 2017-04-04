@@ -26,11 +26,6 @@ namespace /* anonymous */ {
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.PARAMETER_FACTORY");
 
-// TODO: extract creators to external file?
-using milk::math::Matrix;
-using milk::math::Vector3d;
-using milk::math::Vector4d;
-
 void verifyNotAnArray(const ParameterFactoryInstanceDetails& instanceDetails) {
 	if (instanceDetails.arraySize != 0) {
 		throw coconut_tools::factory::error_policy::NoSuchType<ParameterFactoryInstanceDetails>(
@@ -50,8 +45,8 @@ void verifyIsArray(const ParameterFactoryInstanceDetails& instanceDetails) {
 std::unique_ptr<Parameter> createViewMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Scene, Matrix>>(
-		[](Matrix& result, const Scene& scene, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Scene, Matrix4x4>>(
+		[](Matrix4x4& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = scene.camera().viewTransformation();
 		},
@@ -62,8 +57,8 @@ std::unique_ptr<Parameter> createViewMatrixParameter(const ParameterFactoryInsta
 std::unique_ptr<Parameter> createProjectionMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Scene, Matrix>>(
-		[](Matrix& result, const Scene& scene, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Scene, Matrix4x4>>(
+		[](Matrix4x4& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = scene.lens().projectionTransformation();
 		},
@@ -74,8 +69,8 @@ std::unique_ptr<Parameter> createProjectionMatrixParameter(const ParameterFactor
 std::unique_ptr<Parameter> createEyePositionParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Scene, Vector3d>>(
-		[](Vector3d& result, const Scene& scene, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Scene, Vec3>>(
+		[](Vec3& result, const Scene& scene, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = scene.camera().position();
 		},
@@ -150,8 +145,8 @@ std::unique_ptr<Parameter> createPointLightsCountParameter(const ParameterFactor
 std::unique_ptr<Parameter> createWorldMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Actor, Matrix>>(
-		[](Matrix& result, const Actor& actor, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Actor, Matrix4x4>>(
+		[](Matrix4x4& result, const Actor& actor, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = actor.worldTransformation();
 		},
@@ -175,10 +170,10 @@ std::unique_ptr<Parameter> createMaterialParameter(const ParameterFactoryInstanc
 std::unique_ptr<Parameter> createInverterParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
-		[](Matrix& result, const Matrix& matrix, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Matrix4x4, Matrix4x4>>(
+		[](Matrix4x4& result, const Matrix4x4& matrix, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = matrix.inverted();
+			result = matrix.inverse();
 		},
 		instanceDetails.padding
 		);
@@ -187,10 +182,10 @@ std::unique_ptr<Parameter> createInverterParameter(const ParameterFactoryInstanc
 std::unique_ptr<Parameter> createTransposedParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Matrix, Matrix>>(
-		[](Matrix& result, const Matrix& matrix, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Matrix4x4, Matrix4x4>>(
+		[](Matrix4x4& result, const Matrix4x4& matrix, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = matrix.transposed();
+			result = matrix.transpose();
 		},
 		instanceDetails.padding
 		);
@@ -199,8 +194,8 @@ std::unique_ptr<Parameter> createTransposedParameter(const ParameterFactoryInsta
 std::unique_ptr<Parameter> createDirectionalLightAmbientColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vector4d>>(
-		[](Vector4d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vec4>>(
+		[](Vec4& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->ambientColour();
 		},
@@ -211,8 +206,8 @@ std::unique_ptr<Parameter> createDirectionalLightAmbientColourParameter(const Pa
 std::unique_ptr<Parameter> createDirectionalLightDiffuseColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vector4d>>(
-		[](Vector4d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vec4>>(
+		[](Vec4& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->diffuseColour();
 		},
@@ -223,8 +218,8 @@ std::unique_ptr<Parameter> createDirectionalLightDiffuseColourParameter(const Pa
 std::unique_ptr<Parameter> createDirectionalLightSpecularColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vector4d>>(
-		[](Vector4d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vec4>>(
+		[](Vec4& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->specularColour();
 		},
@@ -235,8 +230,8 @@ std::unique_ptr<Parameter> createDirectionalLightSpecularColourParameter(const P
 std::unique_ptr<Parameter> createDirectionalLightDirectionParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vector3d>>(
-		[](Vector3d& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<lighting::DirectionalLight*, Vec3>>(
+		[](Vec3& result, const lighting::DirectionalLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->direction();
 		},
@@ -247,8 +242,8 @@ std::unique_ptr<Parameter> createDirectionalLightDirectionParameter(const Parame
 std::unique_ptr<Parameter> createPointLightAmbientColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 	
-	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector4d>>(
-		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vec4>>(
+		[](Vec4& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->ambientColour();
 		},
@@ -259,8 +254,8 @@ std::unique_ptr<Parameter> createPointLightAmbientColourParameter(const Paramete
 std::unique_ptr<Parameter> createPointLightDiffuseColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector4d>>(
-		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vec4>>(
+		[](Vec4& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->diffuseColour();
 		},
@@ -271,8 +266,8 @@ std::unique_ptr<Parameter> createPointLightDiffuseColourParameter(const Paramete
 std::unique_ptr<Parameter> createPointLightSpecularColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector4d>>(
-		[](Vector4d& result, const lighting::PointLight* light, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vec4>>(
+		[](Vec4& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->specularColour();
 		},
@@ -283,8 +278,8 @@ std::unique_ptr<Parameter> createPointLightSpecularColourParameter(const Paramet
 std::unique_ptr<Parameter> createPointLightPositionParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector3d>>(
-		[](Vector3d& result, const lighting::PointLight* light, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vec3>>(
+		[](Vec3& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->position();
 		},
@@ -295,8 +290,8 @@ std::unique_ptr<Parameter> createPointLightPositionParameter(const ParameterFact
 std::unique_ptr<Parameter> createPointLightAttenuationParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<lighting::PointLight*, Vector3d>>(
-		[](Vector3d& result, const lighting::PointLight* light, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<lighting::PointLight*, Vec3>>(
+		[](Vec3& result, const lighting::PointLight* light, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = light->attenuation();
 		},
@@ -307,14 +302,14 @@ std::unique_ptr<Parameter> createPointLightAttenuationParameter(const ParameterF
 std::unique_ptr<Parameter> createMaterialAmbientColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Material*, Vector4d>>(
+	return std::make_unique<CallbackParameter<Material*, Vec4>>(
 		//[](primitive::Primitive& result, const Material* material, size_t arrayIndex) {
-		[](Vector4d& result, const Material* material, size_t arrayIndex) {
+		[](Vec4& result, const Material* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			// TODO: TEMP HACK!
 			float vecData[4];
 			material->property(mesh::MaterialConfiguration::AMBIENT_COLOUR_PROPERTY).storeAs(vecData, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
-			result = Vector4d(vecData[0], vecData[1], vecData[2], vecData[3]);
+			result = Vec4(vecData[0], vecData[1], vecData[2], vecData[3]);
 		},
 		instanceDetails.padding
 		);
@@ -323,13 +318,13 @@ std::unique_ptr<Parameter> createMaterialAmbientColourParameter(const ParameterF
 std::unique_ptr<Parameter> createMaterialDiffuseColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Material*, Vector4d>>(
-		[](Vector4d& result, const Material* material, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Material*, Vec4>>(
+		[](Vec4& result, const Material* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			// TODO: TEMP HACK!
 			float vecData[4];
 			material->property(mesh::MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY).storeAs(vecData, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
-			result = Vector4d(vecData[0], vecData[1], vecData[2], vecData[3]);
+			result = Vec4(vecData[0], vecData[1], vecData[2], vecData[3]);
 		},
 		instanceDetails.padding
 		);
@@ -338,13 +333,13 @@ std::unique_ptr<Parameter> createMaterialDiffuseColourParameter(const ParameterF
 std::unique_ptr<Parameter> createMaterialSpecularColourParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Material*, Vector4d>>(
-		[](Vector4d& result, const Material* material, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<Material*, Vec4>>(
+		[](Vec4& result, const Material* material, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			// TODO: TEMP HACK!
 			float vecData[4];
 			material->property(mesh::MaterialConfiguration::SPECULAR_COLOUR_PROPERTY).storeAs(vecData, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
-			result = Vector4d(vecData[0], vecData[1], vecData[2], vecData[3]);
+			result = Vec4(vecData[0], vecData[1], vecData[2], vecData[3]);
 		},
 		instanceDetails.padding
 		);

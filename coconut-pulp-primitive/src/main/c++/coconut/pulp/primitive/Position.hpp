@@ -20,16 +20,14 @@ public:
 
 	Position() = default;
 
-	Position(const milk::math::Vector3d& vector) :
+	Position(const pulp::math::Vec3& vector) :
 		detail::VectorType<4>(vector.x(), vector.y(), vector.z(), 1.0f)
 	{
 	}
 
-	Position(const milk::math::Vector4d& vector) :
+	Position(const pulp::math::Vec4& vector) :
 		detail::VectorType<4>(vector.x(), vector.y(), vector.z(), 1.0f)
 	{
-		assert(vector.w() < 1.0f + EPSILON); // TODO: replace with some "between" function
-		assert(vector.w() > 1.0f - EPSILON);
 	}
 
 	Position(float x, float y, float z) :
