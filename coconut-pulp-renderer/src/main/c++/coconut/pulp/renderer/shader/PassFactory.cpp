@@ -13,23 +13,6 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.PASS_FACTORY");
 
 } // anonymous namespace
 
-auto detail::PassCreator::doCreate(
-	const std::string& id,
-	milk::graphics::Renderer& graphicsRenderer,
-	const milk::fs::FilesystemContext& filesystemContext
-	) -> Instance
-{
-	CT_LOG_INFO << "Creating shader pass: \"" << id << "\"";
-
-	return std::make_unique<Pass>(
-		inputFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
-		std::dynamic_pointer_cast<VertexShader>(
-			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),
-		std::dynamic_pointer_cast<PixelShader>(
-			shaderFactory_.create(id + ".p", graphicsRenderer, filesystemContext))
-		);
-}
-
 void detail::PassCreator::scanShaderCodeDirectory(
 	const milk::fs::FilesystemContext& filesystemContext,
 	const milk::fs::Path& directory,
@@ -41,7 +24,7 @@ void detail::PassCreator::scanShaderCodeDirectory(
 	const auto names = filesystemContext.list(directory);
 
 	for (const auto& name : names) {
-		auto path = directory / name;
+		const auto path = directory / name;
 
 		if (path.extension() == ".hlsl") {
 			detail::ShaderCreator::ShaderCodeInfo shaderInfo; // TODO: must expose this type or use different param to constructor (d'uh)
@@ -94,4 +77,21 @@ void detail::PassCreator::scanCompiledShaderDirectory(
 			}
 		}
 	}
+}
+
+auto detail::PassCreator::doCreate(
+	const std::string& id,
+	milk::graphics::Renderer& graphicsRenderer,
+	const milk::fs::FilesystemContext& filesystemContext
+	) -> Instance
+{
+	CT_LOG_INFO << "Creating shader pass: \"" << id << "\"";
+
+	return std::make_unique<Pass>(
+		inputFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
+		std::dynamic_pointer_cast<VertexShader>(
+			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),
+		std::dynamic_pointer_cast<PixelShader>(
+			shaderFactory_.create(id + ".p", graphicsRenderer, filesystemContext))
+		);
 }

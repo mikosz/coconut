@@ -56,7 +56,7 @@ public:
 	};
 
 	template <>
-	struct DeducedOperandType<Actor> {
+	struct DeducedOperandType<std::vector<const Actor*>> {
 		static const auto type = OperandType::ACTOR;
 	};
 

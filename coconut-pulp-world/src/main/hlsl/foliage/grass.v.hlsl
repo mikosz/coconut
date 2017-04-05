@@ -15,7 +15,7 @@ struct VIn {
 	float4 posL : POSITION;
 	float2 tex : TEXCOORD;
 	float3 normalL : NORMAL;
-	//float4 patchPosW: PATCH_POSITION;
+	float4 patchPosW: PATCH_POSITION;
 };
 
 struct VOut {
@@ -32,7 +32,7 @@ VOut main(VIn vin)
 	VOut vout;
 
 	float4 posW = mul(vin.posL, worldMatrix);
-	//posW += vin.patchPosW;
+	posW += vin.patchPosW;
 
 	float4 noise_fac = frac((posW.z * 0.5 + 0.5) * float4(1923, 338, 879,1631)) * 0.1f;
 	float2 noise_fac2 = frac((posW.z * 0.5 + 0.5) * float2(493, 579)) * 10.0f;

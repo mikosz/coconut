@@ -50,9 +50,9 @@ private:
 		boost::optional<milk::graphics::VertexBuffer> vertexBuffer; // TODO: vertex and index buffers
 			// don't want to be optional, but they don't have a default constructor, fix this
 
-		//boost::optional<milk::graphics::VertexBuffer> instanceDataBuffer;
+		boost::optional<milk::graphics::VertexBuffer> instanceDataBuffer;
 
-		//size_t instanceCount;
+		size_t instanceCount;
 
 		boost::optional<milk::graphics::IndexBuffer> indexBuffer;
 

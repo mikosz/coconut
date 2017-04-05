@@ -29,7 +29,7 @@ public:
 
 	using SceneData = std::vector<ConstantBufferSharedPtr<Scene>>;
 
-	using ActorData = std::vector<ConstantBufferSharedPtr<Actor>>;
+	using ActorData = std::vector<ConstantBufferSharedPtr<std::vector<const Actor*>>>;
 
 	using MaterialData = std::vector<ConstantBufferSharedPtr<Material>>;
 

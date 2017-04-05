@@ -94,12 +94,12 @@ Mesh grassMesh() {
 	materials.emplace("blade"s, std::move(material));
 
 	// patches
-	//for (auto x : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
-	//	for (auto z : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
-	//		drawGroup.instances.emplace_back();
-	//		drawGroup.instances.back().patchPosition = pulp::math::Vec4(x, 0.0f, z, 1.0f);
-	//	}
-	//}
+	for (auto x : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
+		for (auto z : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
+			drawGroup.instances.emplace_back();
+			drawGroup.instances.back().patchPosition = pulp::math::Vec4(x, 0.0f, z, 1.0f);
+		}
+	}
 
 	return Mesh(std::move(submeshes), std::move(materials));
 }

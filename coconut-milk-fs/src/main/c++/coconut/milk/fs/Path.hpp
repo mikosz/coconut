@@ -64,7 +64,7 @@ public:
 		return unifiedPath_.extension().string();
 	}
 
-	Path stem() const {
+	Path stem() const { // TODO: shouldn't stem return std::string?
 		return unifiedPath_.stem();
 	}
 

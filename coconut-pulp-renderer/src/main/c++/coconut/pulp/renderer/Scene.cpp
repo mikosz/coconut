@@ -33,23 +33,23 @@ Scene::Scene(milk::graphics::Renderer& graphicsRenderer) :
 }
 
 void Scene::add(ActorSharedPtr actor) {
-	actors_.push_back(actor);
+	actors_.emplace_back(std::move(actor));
 }
 
 void Scene::add(lighting::DirectionalLight directionalLight) {
-	directionalLights_.emplace_back(directionalLight);
+	directionalLights_.emplace_back(std::move(directionalLight));
 }
 
 void Scene::add(lighting::PointLight pointLight) {
-	pointLights_.emplace_back(pointLight);
+	pointLights_.emplace_back(std::move(pointLight));
 }
 
 void Scene::setCamera(CameraSharedPtr camera) {
-	camera_ = camera;
+	camera_ = std::move(camera);
 }
 
 void Scene::setLens(LensSharedPtr lens) {
-	lens_ = lens;
+	lens_ = std::move(lens);
 }
 
 void Scene::render(CommandBuffer& commandBuffer) {
@@ -59,16 +59,29 @@ void Scene::render(CommandBuffer& commandBuffer) {
 	context.screenDepthStencil = depthStencil_;
 	context.scene = this;
 
+	auto modelToActor = std::unordered_multimap<std::string, Actor*>();
+	for (const auto& actor : actors_) {
+		modelToActor.emplace(actor->modelId(), actor.get());
+	}
+
+	auto actors = std::vector<const Actor*>(); // TODO: can't stay like this
+
 	context.passType = mesh::MaterialConfiguration::PassType::OPAQUE;
 
-	for (auto actor : actors_) {
-		actor->render(commandBuffer, context);
+	for (const auto& model : models_) { // TODO: this is obviously temp
+		auto modelId = std::string();
+		auto modelPtr = ModelSharedPtr();
+		std::tie(modelId, modelPtr) = model;
+
+		actors.resize(modelToActor.count(modelId));
+		auto actorRange = modelToActor.equal_range(modelId);
+		std::transform(actorRange.first, actorRange.second, actors.begin(), [](const auto& entry) {
+				return entry.second;
+			});
+
+		context.model = modelPtr.get();
+		context.actors = &actors;
+
+		modelPtr->render(commandBuffer, context);
 	}
-
-	context.passType = mesh::MaterialConfiguration::PassType::TRANSPARENT;
-
-	for (auto actor : actors_) {
-		actor->render(commandBuffer, context);
-	}
-
 }

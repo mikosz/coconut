@@ -13,6 +13,7 @@
 #include "lighting/PointLight.hpp"
 
 #include "Actor.hpp"
+#include "Model.hpp"
 #include "Camera.hpp"
 #include "Lens.hpp"
 
@@ -58,6 +59,8 @@ public:
 private:
 
 	std::vector<ActorSharedPtr> actors_;
+
+	std::unordered_map<std::string, ModelSharedPtr> models_;
 
 	std::vector<lighting::DirectionalLight> directionalLights_;
 

@@ -1,14 +1,11 @@
 #ifndef _COCONUT_PULP_RENDERER_ACTOR_HPP_
 #define _COCONUT_PULP_RENDERER_ACTOR_HPP_
 
-#include <chrono>
-#include <vector>
+#include <string>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "Model.hpp"
 #include "Orientation.hpp"
-#include "PassContext.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -16,18 +13,13 @@ namespace renderer {
 
 class CommandBuffer;
 
-class Actor { // TODO: api
+class Actor { // TODO: api, is this needed at all?
 public:
 
-	Actor(ModelSharedPtr model) :
-		model_(model)
+	Actor(std::string modelId) :
+		modelId_(std::move(modelId))
 	{
 	}
-
-	virtual void update(std::chrono::milliseconds dt) {
-	}
-
-	virtual void render(CommandBuffer& commandBuffer, PassContext passContext);
 
 	// TODO: move below functions to interface?
 	const Matrix4x4& worldTransformation() const {
@@ -58,9 +50,13 @@ public:
 		return orientation_.getRotation();
 	}
 
+	const std::string& modelId() const {
+		return modelId_;
+	}
+
 private:
 
-	ModelSharedPtr model_;
+	std::string modelId_;
 
 	Orientation orientation_;
 

@@ -145,10 +145,11 @@ std::unique_ptr<Parameter> createPointLightsCountParameter(const ParameterFactor
 std::unique_ptr<Parameter> createWorldMatrixParameter(const ParameterFactoryInstanceDetails& instanceDetails) {
 	verifyNotAnArray(instanceDetails);
 
-	return std::make_unique<CallbackParameter<Actor, Matrix4x4>>(
-		[](Matrix4x4& result, const Actor& actor, size_t arrayIndex) {
+	return std::make_unique<CallbackParameter<const std::vector<const Actor*>&, Matrix4x4>>(
+		[](Matrix4x4& result, const std::vector<const Actor*>& actors, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = actor.worldTransformation();
+#pragma message("TODO: temp")
+			result = actors[0]->worldTransformation(); // TODO: grass TEMP
 		},
 		instanceDetails.padding
 		);

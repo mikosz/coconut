@@ -216,9 +216,9 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 	pass.pixelShader().bind(*drawCommand, passContext);
 
 	drawCommand->setVertexBuffer(vertexBuffer.get_ptr());
-	//if (instanceDataBuffer) {
-	//	drawCommand->setInstanceDataBuffer(instanceDataBuffer.get_ptr());
-	//}
+	if (instanceDataBuffer) {
+		drawCommand->setInstanceDataBuffer(instanceDataBuffer.get_ptr());
+	}
 	if (indexBuffer) {
 		drawCommand->setIndexBuffer(indexBuffer.get_ptr());
 	}
@@ -229,8 +229,7 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 	drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
 	drawCommand->setViewport(passContext.viewport); // TODO
 
-	// drawCommand->setInstanceCount(instanceCount);
-	drawCommand->setInstanceCount(0);
+	drawCommand->setInstanceCount(instanceCount);
 
 	commandBuffer.add(std::move(drawCommand));
 }
