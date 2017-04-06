@@ -34,7 +34,7 @@ void detail::Shader<GraphicsShaderType>::bind(
 	}
 
 	for (auto buffer : actorData_) {
-		buffer->bind(drawCommand, *passContext.actors); // TODO: update conditionally (if changed since last update)
+		buffer->bind(drawCommand, *passContext.actor); // TODO: update conditionally (if changed since last update)
 	}
 
 	for (auto buffer : materialData_) {

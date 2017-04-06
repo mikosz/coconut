@@ -129,7 +129,7 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 					));
 				break;
 			case Parameter::OperandType::ACTOR:
-				actorData.emplace_back(std::make_unique<ConstantBuffer<std::vector<const Actor*>>>(
+				actorData.emplace_back(std::make_unique<ConstantBuffer<Actor>>(
 					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
 					));
 				break;
