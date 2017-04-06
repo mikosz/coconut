@@ -1,6 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_ACTOR_HPP_
 #define _COCONUT_PULP_RENDERER_ACTOR_HPP_
 
+#include <chrono>
 #include <string>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
@@ -19,6 +20,9 @@ public:
 	Actor(std::string modelId) :
 		modelId_(std::move(modelId))
 	{
+	}
+
+	virtual void update(std::chrono::milliseconds dt) {
 	}
 
 	// TODO: move below functions to interface?

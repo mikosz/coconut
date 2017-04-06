@@ -23,21 +23,23 @@ public:
 	{
 	}
 
-	const Input& input() const {
+	const Input& input() const noexcept {
 		return *input_;
 	}
 
-	Input& input() {
+	Input& input() noexcept {
 		return *input_;
 	}
 
-	VertexShader& vertexShader() {
+	VertexShader& vertexShader() noexcept {
 		return *vertexShader_;
 	}
 
-	PixelShader& pixelShader() {
+	PixelShader& pixelShader() noexcept {
 		return *pixelShader_;
 	}
+
+	bool isInstanced() const noexcept;
 
 private:
 

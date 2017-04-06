@@ -1,8 +1,9 @@
-#include "Grass.hpp"
+#include "GrassActor.hpp"
 
 #include <coconut-tools/utils/Range.hpp>
 
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
+#include "coconut/pulp/mesh/Mesh.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -93,37 +94,23 @@ Mesh grassMesh() {
 
 	materials.emplace("blade"s, std::move(material));
 
-	// patches
-	for (auto x : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
-		for (auto z : coconut_tools::range(-25.0f, 25.0f, 1.0f)) {
-			drawGroup.instances.emplace_back();
-			drawGroup.instances.back().patchPosition = pulp::math::Vec4(x, 0.0f, z, 1.0f);
-		}
-	}
-
 	return Mesh(std::move(submeshes), std::move(materials));
 }
 
 } // anonymous namespace
 
-Grass::Grass(
+GrassActor::GrassActor(
 	milk::graphics::Renderer& graphicsRenderer,
 	renderer::shader::PassFactory& passFactory,
-	milk::FilesystemContext& filesystemContext
+	milk::FilesystemContext& filesystemContext,
+	const math::Vec3& patchPosition
 	) :
 	Actor(std::make_shared<renderer::Model>(
 		grassMesh(),
 		graphicsRenderer,
 		passFactory,
 		filesystemContext
-		))
+		)),
+	patchPosition_(patchPosition)
 {
-}
-
-void Grass::update(std::chrono::milliseconds dt) {
-
-}
-
-void Grass::render(renderer::CommandBuffer& commandBuffer, renderer::PassContext PassContext) {
-	renderer::Actor::render(commandBuffer, PassContext);
 }

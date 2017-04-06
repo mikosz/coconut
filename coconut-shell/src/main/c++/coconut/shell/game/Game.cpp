@@ -23,7 +23,7 @@
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
 #include "coconut/pulp/renderer/shader/PassFactory.hpp"
 
-#include "coconut/pulp/world/foliage/Grass.hpp"
+#include "coconut/pulp/world/foliage/GrassActor.hpp"
 
 #include "globals.hpp"
 

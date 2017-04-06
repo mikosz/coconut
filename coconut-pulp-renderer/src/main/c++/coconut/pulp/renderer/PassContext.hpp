@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_RENDERER_PASSCONTEXT_HPP_
 
 #include <string>
+#include <vector>
 
 #include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
@@ -33,6 +34,8 @@ public:
 
 	const Actor* actor = nullptr;
 
+	const std::vector<const Actor*>* actors = nullptr;
+
 	const Model* model = nullptr;
 
 	const Material* material = nullptr;
@@ -47,6 +50,7 @@ public:
 		screenDepthStencil = nullptr;
 		scene = nullptr;
 		actor = nullptr;
+		actors = nullptr;
 		model = nullptr;
 		material = nullptr;
 		shader.clear();

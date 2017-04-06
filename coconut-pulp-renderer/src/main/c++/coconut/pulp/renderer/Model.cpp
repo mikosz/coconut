@@ -211,25 +211,52 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 
 	drawCommand->setInputLayout(&pass.input().layout());
 	drawCommand->setVertexShader(&pass.vertexShader().shaderData());
-	pass.vertexShader().bind(*drawCommand, passContext);
 	drawCommand->setPixelShader(&pass.pixelShader().shaderData());
-	pass.pixelShader().bind(*drawCommand, passContext);
+	
+	if (material.shaderPass().isInstanced() && passContext.actors->size() > 1) { // TODO this and next lines
+		pass.vertexShader().bind(*drawCommand, passContext);
+		pass.pixelShader().bind(*drawCommand, passContext);
 
-	drawCommand->setVertexBuffer(vertexBuffer.get_ptr());
-	if (instanceDataBuffer) {
-		drawCommand->setInstanceDataBuffer(instanceDataBuffer.get_ptr());
+		drawCommand->setVertexBuffer(vertexBuffer.get_ptr());
+		if (instanceDataBuffer) {
+			drawCommand->setInstanceDataBuffer(instanceDataBuffer.get_ptr());
+		}
+		if (indexBuffer) {
+			drawCommand->setIndexBuffer(indexBuffer.get_ptr());
+		}
+		drawCommand->setIndexCount(indexCount);
+		drawCommand->setPrimitiveTopology(primitiveTopology);
+
+		drawCommand->setRenderTarget(passContext.backBuffer); // TODO
+		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
+		drawCommand->setViewport(passContext.viewport); // TODO
+
+		drawCommand->setInstanceCount(instanceCount);
+
+		commandBuffer.add(std::move(drawCommand));
+	} else {
+		for (const auto* actor : *passContext.actors) {
+			passContext.actor = actor;
+			pass.vertexShader().bind(*drawCommand, passContext);
+			pass.pixelShader().bind(*drawCommand, passContext);
+
+			drawCommand->setVertexBuffer(vertexBuffer.get_ptr());
+			if (instanceDataBuffer) {
+				drawCommand->setInstanceDataBuffer(instanceDataBuffer.get_ptr());
+			}
+			if (indexBuffer) {
+				drawCommand->setIndexBuffer(indexBuffer.get_ptr());
+			}
+			drawCommand->setIndexCount(indexCount);
+			drawCommand->setPrimitiveTopology(primitiveTopology);
+
+			drawCommand->setRenderTarget(passContext.backBuffer); // TODO
+			drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
+			drawCommand->setViewport(passContext.viewport); // TODO
+
+			drawCommand->setInstanceCount(instanceCount);
+
+			commandBuffer.add(std::move(drawCommand));
+		}
 	}
-	if (indexBuffer) {
-		drawCommand->setIndexBuffer(indexBuffer.get_ptr());
-	}
-	drawCommand->setIndexCount(indexCount);
-	drawCommand->setPrimitiveTopology(primitiveTopology);
-
-	drawCommand->setRenderTarget(passContext.backBuffer); // TODO
-	drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
-	drawCommand->setViewport(passContext.viewport); // TODO
-
-	drawCommand->setInstanceCount(instanceCount);
-
-	commandBuffer.add(std::move(drawCommand));
 }

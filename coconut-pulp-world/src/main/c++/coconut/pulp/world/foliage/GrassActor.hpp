@@ -5,28 +5,33 @@
 
 #include "coconut/pulp/renderer/shader/PassFactory.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace world {
 namespace foliage {
 
-class Grass : public renderer::Actor {
+class GrassActor : public renderer::Actor {
 public:
 
-	Grass(
+	GrassActor(
 		milk::graphics::Renderer& graphicsRenderer,
 		renderer::shader::PassFactory& passFactory,
-		milk::FilesystemContext& filesystemContext
+		milk::FilesystemContext& filesystemContext,
+		const math::Vec3& patchPosition
 		);
 
-	void update(std::chrono::milliseconds dt) override;
+	void update(std::chrono::milliseconds dt) override {
+	}
 
-	void render(renderer::CommandBuffer& commandBuffer, renderer::PassContext PassContext) override;
+	const math::Vec3& patchPosition() const noexcept {
+		return patchPosition_;
+	}
 
 private:
 
-
+	math::Vec3 patchPosition_;
 
 };
 
