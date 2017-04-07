@@ -15,12 +15,7 @@ namespace foliage {
 class GrassActor : public renderer::Actor {
 public:
 
-	GrassActor(
-		milk::graphics::Renderer& graphicsRenderer,
-		renderer::shader::PassFactory& passFactory,
-		milk::FilesystemContext& filesystemContext,
-		const math::Vec3& patchPosition
-		);
+	GrassActor(const math::Vec3& patchPosition);
 
 	void update(std::chrono::milliseconds dt) override {
 	}

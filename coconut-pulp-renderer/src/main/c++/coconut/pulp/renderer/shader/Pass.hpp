@@ -13,10 +13,12 @@ class Pass {
 public:
 
 	Pass(
+		bool isInstanced,
 		InputSharedPtr input,
 		VertexShaderSharedPtr vertexShader,
-		PixelShaderSharedPtr pixelShader
+		PixelShaderSharedPtr pixelShader,
 		) :
+		isInstanced_(isInstanced),
 		input_(std::move(input)),
 		vertexShader_(std::move(vertexShader)),
 		pixelShader_(std::move(pixelShader))
@@ -39,9 +41,13 @@ public:
 		return *pixelShader_;
 	}
 
-	bool isInstanced() const noexcept;
+	bool isInstanced() const noexcept {
+		return isInstanced_;
+	}
 
 private:
+
+	bool isInstanced_;
 
 	InputSharedPtr input_;
 

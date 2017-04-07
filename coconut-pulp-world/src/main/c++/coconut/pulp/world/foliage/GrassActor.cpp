@@ -99,18 +99,8 @@ Mesh grassMesh() {
 
 } // anonymous namespace
 
-GrassActor::GrassActor(
-	milk::graphics::Renderer& graphicsRenderer,
-	renderer::shader::PassFactory& passFactory,
-	milk::FilesystemContext& filesystemContext,
-	const math::Vec3& patchPosition
-	) :
-	Actor(std::make_shared<renderer::Model>(
-		grassMesh(),
-		graphicsRenderer,
-		passFactory,
-		filesystemContext
-		)),
+GrassActor::GrassActor(const math::Vec3& patchPosition) :
+	Actor("grass"),
 	patchPosition_(patchPosition)
 {
 }

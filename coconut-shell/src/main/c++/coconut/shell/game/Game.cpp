@@ -83,40 +83,10 @@ void Game::loop() {
 
 	auto fs = milk::FilesystemContext(filesystem_);
 
-	if (!fs.exists("daniel.model")) {
-	//if (true) {
-		auto modelContext = fs;
-
-		modelContext.changeWorkingDirectory("/data/models/Daniel/craig chemise bleu/");
-		auto data = modelContext.load("craig chemis bleu.obj").get();
-		//modelContext.changeWorkingDirectory("/data/models/");
-		//auto data = modelContext.load("triangle.obj").get();
-
-		auto modelData = pulp::mesh::obj::Importer().import(*data, modelContext);
-
-		{
-			auto modelOS = fs.overwrite("daniel.model");
-			//auto modelOS = fs.overwrite("triangle.model");
-			coconut_tools::serialisation::BinarySerialiser serialiser(*modelOS);
-			serialiser << modelData;
-		}
-	}
-
-	auto modelData = pulp::Mesh();
-
-	{
-		auto modelIS = fs.open("daniel.model");
-		//auto modelIS = fs.open("triangle.model");
-		coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS);
-		deserialiser >> modelData;
-	}
-
 	pulp::renderer::shader::PassFactory passFactory;
 	passFactory.scanCompiledShaderDirectory(fs, "Debug");
 
 	auto scene = pulp::renderer::Scene(*graphicsRenderer_);
-
-	auto m = std::make_shared<pulp::renderer::Model>(std::move(modelData), *graphicsRenderer_, passFactory, fs);
 
 	pulp::renderer::lighting::DirectionalLight white(
 		pulp::math::Vec3(-0.5f, -0.5f, 0.5f).normalised(),
@@ -135,20 +105,7 @@ void Game::loop() {
 		);
 	scene.add(yellow); */
 
-	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
-
-	scene.add(actor);
-	scene.setCamera(camera);
-	scene.setLens(lens);
-
-	pulp::renderer::ActorSharedPtr actor2(new pulp::renderer::Actor(m));
-
-	// scene.add(actor2);
-	actor2->setRotation(pulp::math::Vec3(0.0f, 0.0f, 0.0f));
-	actor2->setTranslation(pulp::math::Vec3(0.0f, 2.0f, 0.0f));
-	actor2->setScale(pulp::math::Vec3(1.0f, 1.0f, 1.0f));
-
-	auto grassActor = std::make_shared<pulp::world::foliage::Grass>(*graphicsRenderer_, passFactory, fs);
+	auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{0.0, 0.0, 0.0});
 	scene.add(grassActor);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
@@ -175,11 +132,6 @@ void Game::loop() {
 		camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
 		camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
-		actor->setRotation(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
-		// actor->setRotation(pulp::math::Vec3(0.0f, 0.0f, 0.0f));
-		actor->setTranslation(pulp::math::Vec3(0.0f, -.0f, 0.0f));
-		actor->setScale(pulp::math::Vec3(1.0f, 1.0f, 1.0f));
-
 		scene.render(commandBuffer);
 
 		commandBuffer.submit(commandList);
