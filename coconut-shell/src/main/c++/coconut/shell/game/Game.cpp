@@ -16,6 +16,7 @@
 #include "coconut/pulp/mesh/obj/Importer.hpp"
 
 #include "coconut/pulp/renderer/Model.hpp"
+#include "coconut/pulp/renderer/ModelFactory.hpp"
 #include "coconut/pulp/renderer/PerspectiveLens.hpp"
 #include "coconut/pulp/renderer/OrientedCamera.hpp"
 #include "coconut/pulp/renderer/Scene.hpp"
@@ -105,8 +106,14 @@ void Game::loop() {
 		);
 	scene.add(yellow); */
 
+	pulp::renderer::ModelFactory modelFactory;
+	modelFactory.scanSourceDirectory(fs, "data/models");
+	modelFactory.scanModelDirectory(fs, "data/models");
+
 	auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{0.0, 0.0, 0.0});
-	scene.add(grassActor);
+	auto grassModel = modelFactory.create("grass", *graphicsRenderer_, passFactory, fs);
+
+	scene.add(grassActor, grassModel);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;
@@ -132,7 +139,7 @@ void Game::loop() {
 		camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
 		camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
-		scene.render(commandBuffer);
+		scene.render(*graphicsRenderer_, commandBuffer);
 
 		commandBuffer.submit(commandList);
 		graphicsRenderer_->submit(commandList);

@@ -1,6 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_MODEL_HPP_
 #define _COCONUT_PULP_RENDERER_MODEL_HPP_
 
+#include <string>
 #include <vector>
 
 #include <boost/optional.hpp>
@@ -34,6 +35,7 @@ class Model {
 public:
 
 	Model(
+		std::string id,
 		Mesh mesh,
 		milk::graphics::Renderer& graphicsRenderer,
 		shader::PassFactory& passFactory,
@@ -42,19 +44,20 @@ public:
 
 	void render(CommandBuffer& commandBuffer, PassContext PassContext); // TODO: make const
 
+	const std::string& id() const {
+		return id_;
+	}
+
 private:
 
 	struct DrawGroup {
 	public:
 	
-		boost::optional<milk::graphics::VertexBuffer> vertexBuffer; // TODO: vertex and index buffers
-			// don't want to be optional, but they don't have a default constructor, fix this
+		milk::graphics::VertexBuffer vertexBuffer;
 
-		boost::optional<milk::graphics::VertexBuffer> instanceDataBuffer;
+		milk::graphics::IndexBuffer indexBuffer;
 
-		size_t instanceCount;
-
-		boost::optional<milk::graphics::IndexBuffer> indexBuffer;
+		milk::graphics::VertexBuffer instanceDataBuffer;
 
 		size_t indexCount;
 
@@ -76,6 +79,8 @@ private:
 	};
 
 	using DrawGroups = std::vector<DrawGroup>;
+
+	std::string id_;
 
 	DrawGroups drawGroups_;
 

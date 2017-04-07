@@ -43,7 +43,11 @@ protected:
 
 private:
 
+	using SourceFiles = std::unordered_map<std::string, milk::AbsolutePath>;
+
 	using ModelFiles = std::unordered_map<std::string, milk::AbsolutePath>;
+
+	SourceFiles sourceFiles_;
 
 	ModelFiles modelFiles_;
 
@@ -51,7 +55,7 @@ private:
 
 } // namespace detail
 
-using PassFactory = 
+using ModelFactory = 
 	coconut_tools::Factory<
 		std::string,
 		detail::ModelCreator,

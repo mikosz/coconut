@@ -17,7 +17,7 @@ public:
 
 	void addScene(SceneSharedPtr scene);
 
-	void render(milk::graphics::CommandList& commandList);
+	void render(milk::graphics::Renderer& renderer, milk::graphics::CommandList& commandList);
 
 private:
 

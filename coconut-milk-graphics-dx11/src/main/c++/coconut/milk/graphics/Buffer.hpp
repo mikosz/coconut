@@ -30,18 +30,17 @@ public:
 
 	struct Configuration {
 
-		size_t size;
+		size_t size = 0;
 
-		size_t stride;
+		size_t stride = 0;
 
-		bool allowModifications;
+		bool allowModifications = false;
 
-		bool allowCPURead;
+		bool allowCPURead = false;
 
-		bool allowGPUWrite;
+		bool allowGPUWrite = false;
 
-		Configuration() {
-		}
+		Configuration() = default;
 
 		Configuration(
 			size_t size,
@@ -60,7 +59,13 @@ public:
 
 	};
 
+	Buffer() = default;
+
 	Buffer(Renderer& renderer, CreationPurpose purpose, const Configuration& configuration, const void* initialData = 0);
+
+	const Configuration& configuration() const noexcept {
+		return configuration_;
+	}
 
 	ID3D11Buffer& internalBuffer() {
 		return *buffer_;
@@ -71,6 +76,8 @@ public:
 	}
 
 private:
+
+	Configuration configuration_;
 
 	system::COMWrapper<ID3D11Buffer> buffer_;
 

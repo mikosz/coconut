@@ -16,7 +16,7 @@ public:
 		bool isInstanced,
 		InputSharedPtr input,
 		VertexShaderSharedPtr vertexShader,
-		PixelShaderSharedPtr pixelShader,
+		PixelShaderSharedPtr pixelShader
 		) :
 		isInstanced_(isInstanced),
 		input_(std::move(input)),

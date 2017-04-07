@@ -15,6 +15,8 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
+class Actor;
+
 namespace shader {
 
 class Input {
@@ -44,9 +46,13 @@ public:
 
 	Input(milk::graphics::Renderer& graphicsRenderer, Elements elements);
 
-	size_t vertexSize() const;
+	size_t vertexSize() const noexcept;
 
-	void writeVertex(void* buffer, const void* input) const;
+	void* writeVertex(void* buffer, const void* input) const;
+
+	size_t instanceSize() const noexcept;
+
+	void* writeInstance(void* buffer, const Actor& actor) const;
 
 	milk::graphics::InputLayout& layout() {
 		return layout_;

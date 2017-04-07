@@ -3,6 +3,8 @@
 #include <coconut-tools/serialisation/BinaryDeserialiser.hpp>
 #include <coconut-tools/logger.hpp>
 
+#include "coconut/pulp/mesh/obj/Importer.hpp"
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
@@ -25,7 +27,8 @@ void detail::ModelCreator::scanSourceDirectory(
 	for (const auto& name : names) {
 		const auto path = directory / name;
 		if (path.extension() == ".obj") {
-			assert(!"unimplemented");
+			CT_LOG_INFO << "Found " << path;
+			sourceFiles_.emplace(path.stem().string(), filesystemContext.makeAbsolute(path));
 		}
 	}
 }
@@ -42,6 +45,7 @@ void detail::ModelCreator::scanModelDirectory(
 	for (const auto& name : names) {
 		const auto path = directory / name;
 		if (path.extension() == ".model") {
+			CT_LOG_INFO << "Found " << path;
 			modelFiles_.emplace(path.stem().string(), filesystemContext.makeAbsolute(path));
 		}
 	}
@@ -58,15 +62,33 @@ auto detail::ModelCreator::doCreate(
 		auto modelIS = filesystemContext.open(modelFiles_[id]);
 		coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS);
 
-		auto modelData = pulp::Mesh();
-		deserialiser >> modelData;
+		auto mesh = pulp::Mesh();
+		deserialiser >> mesh;
 
 		return std::make_unique<pulp::renderer::Model>(
-			std::move(modelData),
+			id,
+			std::move(mesh),
 			graphicsRenderer,
 			passFactory,
 			filesystemContext
 			);
+	} else if (sourceFiles_.count(id)) {
+		mesh::obj::Importer importer;
+		const auto path = sourceFiles_[id];
+		if (path.extension() == ".obj") {
+			auto directoryContext = filesystemContext; // TODO: need a constructor that creates a context off another context
+			directoryContext.changeWorkingDirectory(path.parent());
+			return std::make_unique<pulp::renderer::Model>(
+				id,
+				importer.import(*filesystemContext.load(path), directoryContext),
+				graphicsRenderer,
+				passFactory,
+				filesystemContext
+				);
+		} else {
+			assert(false);
+			throw "aaa"; // TODO
+		}
 	} else {
 		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
 	}

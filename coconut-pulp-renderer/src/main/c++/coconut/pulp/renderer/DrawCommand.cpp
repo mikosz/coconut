@@ -52,13 +52,12 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	commandList.setVertexBuffer(*vertexBuffer_, 0);
 	commandList.setIndexBuffer(*indexBuffer_, 0);
 	
-	if (instanceCount_ > 0 && indexBuffer_ != nullptr) {
+	if (instanceCount_ > 1) {
 		if (instanceDataBuffer_ != nullptr) {
 			commandList.setVertexBuffer(*instanceDataBuffer_, 1);
 		}
-
 		commandList.drawIndexedInstanced(indexCount_, instanceCount_, 0u, primitiveTopology_);
-	} else if (indexBuffer_ != nullptr) {
+	} else {
 		commandList.drawIndexed(0, indexCount_, primitiveTopology_); 
 	}
 }

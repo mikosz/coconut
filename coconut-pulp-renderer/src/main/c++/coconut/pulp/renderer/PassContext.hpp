@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
 
@@ -24,6 +25,8 @@ class Material;
 class PassContext {
 public:
 
+	milk::graphics::Renderer* graphicsRenderer = nullptr; // TODO: only needed if Model updates the instance data buffer
+
 	milk::graphics::Viewport* viewport = nullptr;
 
 	milk::graphics::Texture2d* backBuffer = nullptr;
@@ -34,7 +37,7 @@ public:
 
 	const Actor* actor = nullptr;
 
-	const std::vector<const Actor*>* actors = nullptr;
+	const std::vector<std::shared_ptr<Actor>>* actors = nullptr;
 
 	const Model* model = nullptr;
 
@@ -45,11 +48,11 @@ public:
 	mesh::MaterialConfiguration::PassType passType; // TODO: I don't like this
 
 	void reset() {
+		graphicsRenderer = nullptr;
 		viewport = nullptr;
 		backBuffer = nullptr;
 		screenDepthStencil = nullptr;
 		scene = nullptr;
-		actor = nullptr;
 		actors = nullptr;
 		model = nullptr;
 		material = nullptr;
