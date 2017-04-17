@@ -67,7 +67,7 @@ void Parser::parse(const milk::fs::RawData& data, const milk::FilesystemContext&
 	bool result = qi::phrase_parse(it, end, *this, ascii::blank);
 
 	if (!result || it != end) {
-		std::runtime_error("Failed to parse mesh file");
+		throw std::runtime_error("Failed to parse mesh file"); // TODO: exceptions, error line
 	}
 
 	MaterialLibParser materialLibParser;
@@ -183,7 +183,7 @@ void Parser::addNormal(const std::vector<double>& vector) {
 void Parser::newObject(const std::vector<char>& nameChars) {
 	CT_LOG_TRACE << "New object: " << std::string(nameChars.begin(), nameChars.end());
 
-	objects_.push_back(Object());
+	objects_.emplace_back();
 }
 
 void Parser::newGroup(const std::vector<char>& nameChars) {
@@ -193,7 +193,7 @@ void Parser::newGroup(const std::vector<char>& nameChars) {
 		throw std::runtime_error("Attempted to add a group with no object specified");
 	}
 
-	objects_.back().groups.push_back(Group());
+	objects_.back().groups.emplace_back();
 }
 
 void Parser::addMaterialLib(const std::vector<char>& materialLibChars) {

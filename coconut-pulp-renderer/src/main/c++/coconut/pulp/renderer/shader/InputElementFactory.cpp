@@ -63,30 +63,6 @@ std::unique_ptr<Input::Element> createTexcoordElement(
 		);
 }
 
-
-std::unique_ptr<Input::Element> createPatchPositionElement(
-	const InputElementFactoryInstanceDetails& instanceDetails)
-{
-	return std::make_unique<Input::Element>(
-		instanceDetails.semantic,
-		instanceDetails.semanticIndex,
-		instanceDetails.format,
-		Input::SlotType::PER_INSTANCE_DATA,
-		1, // TODO: instance step rate should be deduced somehow
-		[](void* buffer, const void* input) {
-			assert(false);
-			//auto* target = reinterpret_cast<float*>(buffer);
-			//const auto& instance = *reinterpret_cast<const model::Data::Instance*>(input);
-			//const auto& patchPosition = instance.patchPosition;
-
-			//target[0] = patchPosition.x();
-			//target[1] = patchPosition.y();
-			//target[2] = patchPosition.z();
-			//target[3] = 1.0f; // TODO
-		}
-		);
-}
-
 } // anonymous namespace
 
 bool coconut::pulp::renderer::shader::operator==(
@@ -116,6 +92,4 @@ void detail::InputElementCreator::registerBuiltins() {
 	registerCreator(InstanceDetails("POSITION", 0), &createPositionElement);
 	registerCreator(InstanceDetails("NORMAL", 0), &createNormalElement);
 	registerCreator(InstanceDetails("TEXCOORD", 0), &createTexcoordElement);
-
-	registerCreator(InstanceDetails("PATCH_POSITION", 0), &createPatchPositionElement);
 }

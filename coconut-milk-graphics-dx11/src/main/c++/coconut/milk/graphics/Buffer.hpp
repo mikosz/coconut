@@ -61,7 +61,7 @@ public:
 
 	Buffer() = default;
 
-	Buffer(Renderer& renderer, CreationPurpose purpose, const Configuration& configuration, const void* initialData = 0);
+	Buffer(Renderer& renderer, CreationPurpose purpose, Configuration configuration, const void* initialData = 0);
 
 	const Configuration& configuration() const noexcept {
 		return configuration_;

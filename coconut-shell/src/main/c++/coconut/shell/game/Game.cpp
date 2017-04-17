@@ -70,6 +70,13 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 }
 
 void Game::loop() {
+	auto fs = milk::FilesystemContext(filesystem_);
+
+	pulp::renderer::shader::PassFactory passFactory;
+	passFactory.scanCompiledShaderDirectory(fs, "Debug");
+
+	auto scene = pulp::renderer::Scene(*graphicsRenderer_);
+
 	pulp::renderer::OrientedCameraSharedPtr camera(new pulp::renderer::OrientedCamera);
 
 	pulp::renderer::LensSharedPtr lens(
@@ -82,12 +89,8 @@ void Game::loop() {
 			)
 		);
 
-	auto fs = milk::FilesystemContext(filesystem_);
-
-	pulp::renderer::shader::PassFactory passFactory;
-	passFactory.scanCompiledShaderDirectory(fs, "Debug");
-
-	auto scene = pulp::renderer::Scene(*graphicsRenderer_);
+	scene.setCamera(camera);
+	scene.setLens(lens);
 
 	pulp::renderer::lighting::DirectionalLight white(
 		pulp::math::Vec3(-0.5f, -0.5f, 0.5f).normalised(),
@@ -110,9 +113,21 @@ void Game::loop() {
 	modelFactory.scanSourceDirectory(fs, "data/models");
 	modelFactory.scanModelDirectory(fs, "data/models");
 
-	auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{0.0, 0.0, 0.0});
+	auto& inputElementFactory = passFactory.inputFactory().inputElementFactory();
+	pulp::world::foliage::GrassActor::registerShaderInputElements(inputElementFactory);
+
 	auto grassModel = modelFactory.create("grass", *graphicsRenderer_, passFactory, fs);
 
+	auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{0.0, 0.0, 0.0});
+	scene.add(grassActor, grassModel);
+
+	grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ 1.0, 0.0, 0.0 });
+	scene.add(grassActor, grassModel);
+
+	grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ 2.0, 0.0, 0.0 });
+	scene.add(grassActor, grassModel);
+
+	grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ 3.0, 0.0, 0.0 });
 	scene.add(grassActor, grassModel);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list

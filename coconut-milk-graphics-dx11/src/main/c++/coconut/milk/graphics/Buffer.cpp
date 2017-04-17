@@ -11,16 +11,18 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
-Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, const Configuration& configuration, const void* initialData) {
+Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, Configuration configuration, const void* initialData) :
+	configuration_(std::move(configuration))
+{
 	D3D11_BUFFER_DESC desc;
 	std::memset(&desc, 0, sizeof(desc));
 
-	desc.ByteWidth = static_cast<UINT>(configuration.size);
+	desc.ByteWidth = static_cast<UINT>(configuration_.size);
 	desc.BindFlags = static_cast<UINT>(purpose);
-	desc.StructureByteStride = static_cast<UINT>(configuration.stride);
+	desc.StructureByteStride = static_cast<UINT>(configuration_.stride);
 
-	if (configuration.allowModifications) {
-		if (configuration.allowCPURead) {
+	if (configuration_.allowModifications) {
+		if (configuration_.allowCPURead) {
 			desc.Usage = D3D11_USAGE_STAGING;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 		} else {
@@ -28,11 +30,11 @@ Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, const Configuration&
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		}
 	} else {
-		if (configuration.allowCPURead) {
+		if (configuration_.allowCPURead) {
 			desc.Usage = D3D11_USAGE_STAGING;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 		} else {
-			if (configuration.allowGPUWrite) {
+			if (configuration_.allowGPUWrite) {
 				desc.Usage = D3D11_USAGE_DEFAULT;
 			} else {
 				desc.Usage = D3D11_USAGE_IMMUTABLE;

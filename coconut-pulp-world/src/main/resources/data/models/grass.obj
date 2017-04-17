@@ -1,17 +1,18 @@
 mtllib grass.mtl
 o grass
-v -0.03 0.0 0.0 # bottom left
-v 0.03 0.0 0.0 # bottom right
-v -0.03 0.5 0.0 # top left
-v 0.03 0.5 0.0 # top right
 
-vt 0.0 0.0 # bottom left
-vt 1.0 0.0 # bottom right
-vt 0.0 1.0 # top left
-vt 1.0 1.0 # bottom right
+v -0.03 0.0 0.0
+v 0.03 0.0 0.0
+v -0.03 0.5 0.0
+v 0.03 0.5 0.0
+
+vt 0.0 0.0
+vt 1.0 0.0
+vt 0.0 1.0
+vt 1.0 1.0
 
 g blade
 usemtl blade
 s off
 f 1/1 2/2 3/3
-f 2/2 3/3 4/4
+f 3/3 2/2 4/4

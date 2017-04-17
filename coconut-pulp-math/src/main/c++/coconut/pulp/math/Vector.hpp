@@ -148,8 +148,9 @@ public:
 	}
 
 	Vector& normalise() noexcept {
-		assert(length() > 0.0f);
-		*this /= length();
+		if (lengthSq() > Scalar(0)) {
+			*this /= length();
+		}
 		return *this;
 	}
 

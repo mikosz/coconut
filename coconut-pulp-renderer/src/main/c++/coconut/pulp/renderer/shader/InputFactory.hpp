@@ -37,6 +37,10 @@ public:
 
 	void registerCompiledShader(std::string id, milk::AbsolutePath compiledShaderPath);
 
+	InputElementFactory& inputElementFactory() noexcept {
+		return inputElementFactory_;
+	}
+
 protected:
 
 	Instance doCreate(

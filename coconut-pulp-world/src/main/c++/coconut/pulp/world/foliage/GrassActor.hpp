@@ -4,6 +4,7 @@
 #include "coconut/milk/fs.hpp"
 
 #include "coconut/pulp/renderer/shader/PassFactory.hpp"
+#include "coconut/pulp/renderer/shader/InputElementFactory.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
 #include "coconut/pulp/math/Vector.hpp"
 
@@ -14,6 +15,8 @@ namespace foliage {
 
 class GrassActor : public renderer::Actor {
 public:
+
+	static void registerShaderInputElements(renderer::shader::InputElementFactory& inputElementFactory);
 
 	GrassActor(const math::Vec3& patchPosition);
 

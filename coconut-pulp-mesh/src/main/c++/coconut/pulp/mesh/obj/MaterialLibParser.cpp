@@ -39,6 +39,7 @@ MaterialLibParser::MaterialLibParser() :
 	illuminationModelRule_ = qi::lit("illum") >> qi::int_ >> endRule_;
 	dissolveRule_ = qi::lit("d") >> qi::double_ >> endRule_;
 	opticalDensityRule_ = qi::lit("Ni") >> qi::double_ >> endRule_;
+	shaderRule_ = qi::lit("@shader") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&MaterialLibParser::setShader, this, _1)] >> endRule_;
 
 	startRule_ = *blankRule_
 		>> *(
@@ -52,7 +53,8 @@ MaterialLibParser::MaterialLibParser() :
 			dissolveMapRule_ |
 			illuminationModelRule_ |
 			dissolveRule_ |
-			opticalDensityRule_
+			opticalDensityRule_ |
+			shaderRule_
 			);
 }
 
@@ -139,4 +141,8 @@ void MaterialLibParser::setBumpMap(const std::vector<char>& bumpMapChars) {
 
 void MaterialLibParser::setDissolveMap(const std::vector<char>& dissolveMapChars) {
 	materials_.back().dissolveMap = std::string(dissolveMapChars.begin(), dissolveMapChars.end());
+}
+
+void MaterialLibParser::setShader(const std::vector<char>& dissolveMapChars) {
+	materials_.back().shader = std::string(dissolveMapChars.begin(), dissolveMapChars.end());
 }

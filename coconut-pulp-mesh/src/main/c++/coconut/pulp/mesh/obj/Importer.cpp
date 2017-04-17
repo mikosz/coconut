@@ -34,7 +34,11 @@ MaterialConfiguration createMaterialConfiguration(
 
 	auto material = MaterialConfiguration();
 
-	material.shaderName() = "mesh"; // TODO: literal in code, export
+	if (!materialData.shader.empty()) {
+		material.shaderName() = materialData.shader;
+	} else {
+		material.shaderName() = "mesh"; // TODO: literal in code, export
+	}
 
 	material.passType() =  (materialData.diffuseColour.a() < 0.999f) ?
 		MaterialConfiguration::PassType::TRANSPARENT :

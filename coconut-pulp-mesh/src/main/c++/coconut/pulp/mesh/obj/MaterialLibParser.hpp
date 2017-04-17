@@ -43,6 +43,8 @@ public:
 
 		std::string dissolveMap;
 
+		std::string shader;
+
 		Material() :
 			ambientColour(0.0f, 0.0f, 0.0f),
 			diffuseColour(0.0f, 0.0f, 0.0f),
@@ -97,6 +99,8 @@ private:
 
 	Rule opticalDensityRule_;
 
+	Rule shaderRule_;
+
 	Rule startRule_;
 
 	Materials materials_;
@@ -118,6 +122,8 @@ private:
 	void setBumpMap(const std::vector<char>& bumpMapChars);
 
 	void setDissolveMap(const std::vector<char>& dissolveMapChars);
+
+	void setShader(const std::vector<char>& dissolveMapChars);
 
 };
 

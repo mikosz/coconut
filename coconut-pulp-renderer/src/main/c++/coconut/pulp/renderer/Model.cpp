@@ -238,7 +238,7 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 				);
 			instanceDataBuffer = milk::graphics::VertexBuffer(
 				*passContext.graphicsRenderer,
-				std::move(configuration),
+				configuration,
 				buffer.data()
 				);
 		}
@@ -246,6 +246,7 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 		pass.vertexShader().bind(*drawCommand, passContext);
 		pass.pixelShader().bind(*drawCommand, passContext);
 
+		drawCommand->setInstanceDataBuffer(&instanceDataBuffer);
 		drawCommand->setInstanceCount(passContext.actors->size());
 
 		drawCommand->setRenderTarget(passContext.backBuffer); // TODO

@@ -36,6 +36,10 @@ public:
 		const milk::fs::Path& directory
 		);
 
+	InputFactory& inputFactory() noexcept {
+		return inputFactory_;
+	}
+
 protected:
 
 	Instance doCreate(
