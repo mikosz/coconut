@@ -60,6 +60,14 @@ MaterialConfiguration createMaterialConfiguration(
 			);
 	}
 
+	if (!materialData.noiseMap.empty()) {
+		material.addTexture(
+			MaterialConfiguration::NOISE_MAP_TEXTURE,
+			filesystemContext.currentWorkingDirectory() / materialData.noiseMap,
+			milk::graphics::Sampler::Configuration()
+		);
+	}
+
 	return material;
 }
 

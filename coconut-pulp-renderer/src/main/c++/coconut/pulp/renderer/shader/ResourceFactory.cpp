@@ -23,9 +23,9 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.RESOURCE_FACTORY");
 std::unique_ptr<Resource> createDiffuseMap(milk::graphics::ShaderType shaderType, size_t slot) {
 	return std::make_unique<TextureResource>(
 		[](const PassContext& passContext) -> const milk::graphics::Texture* {
-			static const auto DIFFUSE_MAP_PROPERTY = mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE;
-			if (passContext.material->hasTexture(DIFFUSE_MAP_PROPERTY)) {
-				return &std::get<milk::graphics::Texture2d>(passContext.material->texture(DIFFUSE_MAP_PROPERTY));
+			static const auto DIFFUSE_MAP_TEXTURE = mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(DIFFUSE_MAP_TEXTURE)) {
+				return &std::get<milk::graphics::Texture2d>(passContext.material->texture(DIFFUSE_MAP_TEXTURE));
 			} else {
 				return nullptr;
 			}
@@ -38,9 +38,24 @@ std::unique_ptr<Resource> createDiffuseMap(milk::graphics::ShaderType shaderType
 std::unique_ptr<Resource> createDiffuseMapSampler(milk::graphics::ShaderType shaderType, size_t slot) {
 	return std::make_unique<SamplerResource>(
 		[](const PassContext& passContext) -> const milk::graphics::Sampler* {
-			static const auto DIFFUSE_MAP_PROPERTY = mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE;
-			if (passContext.material->hasTexture(DIFFUSE_MAP_PROPERTY)) {
-				return &std::get<milk::graphics::Sampler>(passContext.material->texture(DIFFUSE_MAP_PROPERTY));
+			static const auto DIFFUSE_MAP_TEXTURE = mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(DIFFUSE_MAP_TEXTURE)) {
+				return &std::get<milk::graphics::Sampler>(passContext.material->texture(DIFFUSE_MAP_TEXTURE));
+			} else {
+				return nullptr;
+			}
+		},
+		shaderType,
+		slot
+		);
+}
+
+std::unique_ptr<Resource> createNoiseMap(milk::graphics::ShaderType shaderType, size_t slot) {
+	return std::make_unique<TextureResource>(
+		[](const PassContext& passContext) -> const milk::graphics::Texture* {
+			static const auto NOISE_MAP_TEXTURE = mesh::MaterialConfiguration::NOISE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(NOISE_MAP_TEXTURE)) {
+				return &std::get<milk::graphics::Texture2d>(passContext.material->texture(NOISE_MAP_TEXTURE));
 			} else {
 				return nullptr;
 			}
@@ -78,4 +93,7 @@ void detail::ResourceCreator::registerBuiltins() {
 	// phong material
 	registerCreator("diffuse_map", &createDiffuseMap);
 	registerCreator("diffuse_map_sampler_state", &createDiffuseMapSampler);
+
+	// noise
+	registerCreator("noise_map", &createNoiseMap);
 }

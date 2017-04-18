@@ -40,6 +40,7 @@ MaterialLibParser::MaterialLibParser() :
 	dissolveRule_ = qi::lit("d") >> qi::double_ >> endRule_;
 	opticalDensityRule_ = qi::lit("Ni") >> qi::double_ >> endRule_;
 	shaderRule_ = qi::lit("@shader") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&MaterialLibParser::setShader, this, _1)] >> endRule_;
+	noiseMapRule_ = qi::lit("@noise") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&MaterialLibParser::setNoiseMap, this, _1)] >> endRule_;
 
 	startRule_ = *blankRule_
 		>> *(
@@ -51,6 +52,7 @@ MaterialLibParser::MaterialLibParser() :
 			specularExponentRule_ |
 			bumpMapRule_ |
 			dissolveMapRule_ |
+			noiseMapRule_ |
 			illuminationModelRule_ |
 			dissolveRule_ |
 			opticalDensityRule_ |
@@ -145,4 +147,8 @@ void MaterialLibParser::setDissolveMap(const std::vector<char>& dissolveMapChars
 
 void MaterialLibParser::setShader(const std::vector<char>& dissolveMapChars) {
 	materials_.back().shader = std::string(dissolveMapChars.begin(), dissolveMapChars.end());
+}
+
+void MaterialLibParser::setNoiseMap(const std::vector<char>& noiseMapChars) {
+	materials_.back().noiseMap = std::string(noiseMapChars.begin(), noiseMapChars.end());
 }

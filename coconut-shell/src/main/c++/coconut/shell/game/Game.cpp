@@ -93,10 +93,10 @@ void Game::loop() {
 	scene.setLens(lens);
 
 	pulp::renderer::lighting::DirectionalLight white(
-		pulp::math::Vec3(-0.5f, -0.5f, 0.5f).normalised(),
+		pulp::math::Vec3(-0.2f, -0.1f, 1.0f).normalised(),
 		pulp::math::Vec4(0.1f, 0.1f, 0.1f, 0.0f),
-		pulp::math::Vec4(0.7f, 0.7f, 0.7f, 1.0f),
-		pulp::math::Vec4(0.4f, 0.4f, 0.4f, 0.0f)
+		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
+		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 0.0f)
 		);
 	scene.add(white);
 
@@ -118,17 +118,12 @@ void Game::loop() {
 
 	auto grassModel = modelFactory.create("grass", *graphicsRenderer_, passFactory, fs);
 
-	auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{0.0, 0.0, 0.0});
-	scene.add(grassActor, grassModel);
-
-	grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ 1.0, 0.0, 0.0 });
-	scene.add(grassActor, grassModel);
-
-	grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ 2.0, 0.0, 0.0 });
-	scene.add(grassActor, grassModel);
-
-	grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ 3.0, 0.0, 0.0 });
-	scene.add(grassActor, grassModel);
+	for (float x = -10.0f; x < 10.0f; x += 0.5f) {
+		for (float z = -10.0f; z < 10.0f; z += 0.5f) {
+			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
+			scene.add(grassActor, grassModel);
+		}
+	}
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;
@@ -150,9 +145,9 @@ void Game::loop() {
 
 		camera->reset();
 		// camera->rotate(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
-		camera->translate(pulp::math::Vec3(0.0f, 2.0f, 0.0f));
-		camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
-		camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
+		camera->translate(pulp::math::Vec3(0.0f, 0.8f, 0.0f));
+		//camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
+		//camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
 		scene.render(*graphicsRenderer_, commandBuffer);
 

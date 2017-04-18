@@ -20,6 +20,8 @@ struct VOut {
 	float3 normalW : NORMAL;
 };
 
+Texture2D noiseMap : register(t0);
+
 VOut main(VIn vin)
 {
 	vin.posL.w = 1.0f;
@@ -27,17 +29,12 @@ VOut main(VIn vin)
 	VOut vout;
 
 	float4 posW = vin.posL + float4(vin.patchPosW, 1.0f);
-
-	float4 noise_fac = frac((posW.z * 0.5 + 0.5) * float4(1923, 338, 879,1631)) * 0.1f;
-	float2 noise_fac2 = frac((posW.z * 0.5 + 0.5) * float2(493, 579)) * 10.0f;
-
-	posW.x += noise_fac.x;
-	posW.z += noise_fac.z;
+	posW += noiseMap[uint2(0, 0)];
 
 	vout.posH = mul(mul(posW, viewMatrix), projectionMatrix);
-	vout.tex = vin.tex + noise_fac2;
+	vout.tex = vin.tex;
 	vout.posW = posW;
-	vout.normalW = vin.normalL; // mul(vin.normalL, (float3x3)(worldInvTranspose));
+	vout.normalW = vin.normalL;
 
 	return vout;
 }

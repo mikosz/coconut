@@ -43,6 +43,8 @@ public:
 
 		std::string dissolveMap;
 
+		std::string noiseMap;
+
 		std::string shader;
 
 		Material() :
@@ -101,6 +103,8 @@ private:
 
 	Rule shaderRule_;
 
+	Rule noiseMapRule_;
+
 	Rule startRule_;
 
 	Materials materials_;
@@ -124,6 +128,8 @@ private:
 	void setDissolveMap(const std::vector<char>& dissolveMapChars);
 
 	void setShader(const std::vector<char>& dissolveMapChars);
+
+	void setNoiseMap(const std::vector<char>& noiseMapChars);
 
 };
 

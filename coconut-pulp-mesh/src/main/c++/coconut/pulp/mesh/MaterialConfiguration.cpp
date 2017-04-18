@@ -12,3 +12,4 @@ const std::string MaterialConfiguration::SPECULAR_COLOUR_PROPERTY = "specular-co
 const std::string MaterialConfiguration::SPECULAR_EXPONENT_PROPERTY = "specular-exponent"s;
 
 const std::string MaterialConfiguration::DIFFUSE_MAP_TEXTURE = "diffuse-map"s;
+const std::string MaterialConfiguration::NOISE_MAP_TEXTURE = "noise-map"s;

@@ -38,6 +38,7 @@ public:
 	static const std::string SPECULAR_EXPONENT_PROPERTY;
 
 	static const std::string DIFFUSE_MAP_TEXTURE;
+	static const std::string NOISE_MAP_TEXTURE;
 
 	using Properties = std::unordered_map<std::string, Primitive>;
 
