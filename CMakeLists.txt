@@ -67,7 +67,6 @@ set(CoconutTools_INCLUDE_HINT ${EXTENSIONS_DIR})
 set(CoconutTools_LIBRARY_HINT ${EXTENSIONS_DIR})
 find_package(CoconutTools REQUIRED)
 include_directories(${CoconutTools_INCLUDE_DIR})
-link_directories(${CoconutTools_LIBRARY_DIR})
 
 find_package(Threads REQUIRED)
 

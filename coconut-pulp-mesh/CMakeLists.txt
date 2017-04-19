@@ -3,15 +3,14 @@ set(DEPENDENCY_LIBRARIES
     coconut-milk-fs
     coconut-milk-graphics-${MODULE_RENDERER}
     coconut-pulp-math
-    coconut-tools-logger
-    coconut-tools-configuration
-    coconut-tools-serialisation
-    coconut-tools-system
-    coconut-tools-exceptions
+    ${CoconutTools_LOGGER_LIBRARY}
+    ${CoconutTools_CONFIGURATION_LIBRARY}
+    ${CoconutTools_SERIALISATION_LIBRARY}
+    ${CoconutTools_SYSTEM_LIBRARY}
+    ${CoconutTools_EXCEPTIONS_LIBRARY}
     )
 
 set(TEST_LIBRARIES
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
     )
 
 library_module(coconut-pulp-mesh "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" ${LIBRARY_TYPE})

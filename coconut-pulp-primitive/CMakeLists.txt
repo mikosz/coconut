@@ -1,6 +1,6 @@
 set(DEPENDENCY_LIBRARIES
 	coconut-pulp-math
-	coconut-tools-utils
+	${CoconutTools_UTILS_LIBRARY}
   )
 
 set(TEST_LIBRARIES

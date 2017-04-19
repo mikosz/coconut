@@ -3,11 +3,11 @@ set(DEPENDENCY_LIBRARIES
     coconut-milk-graphics-${MODULE_RENDERER}
     coconut-pulp-math
     coconut-pulp-mesh
-    coconut-tools-logger
-    coconut-tools-configuration
-    coconut-tools-system
-    coconut-tools-exceptions
-    coconut-tools-utils
+    ${CoconutTools_LOGGER_LIBRARY}
+    ${CoconutTools_CONFIGURATION_LIBRARY}
+    ${CoconutTools_SYSTEM_LIBRARY}
+    ${CoconutTools_EXCEPTIONS_LIBRARY}
+    ${CoconutTools_UTILS_LIBRARY}
     )
 
 set(TEST_LIBRARIES

@@ -34,10 +34,10 @@ set(
 
 set(DEPENDENCY_LIBRARIES
     coconut-milk-system-${MODULE_SYSTEM}
-    coconut-tools-exceptions
-    coconut-tools-logger
-    coconut-tools-configuration
-    coconut-tools-system
+    ${CoconutTools_EXCEPTIONS_LIBRARY}
+    ${CoconutTools_LOGGER_LIBRARY}
+    ${CoconutTools_CONFIGURATION_LIBRARY}
+    ${CoconutTools_SYSTEM_LIBRARY}
     ${DirectXTex_LIBRARY}
     )
 
