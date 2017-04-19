@@ -108,6 +108,6 @@ float4 main(PIn pin) : SV_TARGET
 
 	float4 endColour = saturate(ambient + diffuse + specular);
 	endColour.a = 1.0f;
-
+	
 	return endColour;
 }

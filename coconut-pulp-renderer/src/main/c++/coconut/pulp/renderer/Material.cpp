@@ -25,7 +25,9 @@ auto loadTextures(
 		std::tie(path, samplerConfiguration) = textureEntry.second;
 
 		auto texture = milk::graphics::Texture2d(graphicsRenderer, imageLoader.load(filesystemContext, path));
-		auto sampler = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration);
+		auto sampler = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: at the moment
+			// we force that a sampler be provided for all textures - this should not be required, as some
+			// textures are just provided as memory buffers (correctly?)
 
 		result.emplace(name, std::make_tuple(texture, sampler));
 	}

@@ -93,7 +93,7 @@ void Game::loop() {
 	scene.setLens(lens);
 
 	pulp::renderer::lighting::DirectionalLight white(
-		pulp::math::Vec3(-0.2f, -0.1f, 1.0f).normalised(),
+		pulp::math::Vec3(0.0f, 0.0f, 1.0f).normalised(),
 		pulp::math::Vec4(0.1f, 0.1f, 0.1f, 0.0f),
 		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
 		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 0.0f)
@@ -118,8 +118,8 @@ void Game::loop() {
 
 	auto grassModel = modelFactory.create("grass", *graphicsRenderer_, passFactory, fs);
 
-	for (float x = -10.0f; x < 10.0f; x += 0.5f) {
-		for (float z = -10.0f; z < 10.0f; z += 0.5f) {
+	for (float x = -20.0f; x < 20.0f; x += 0.05f) {
+		for (float z = -20.0f; z < 100.0f; z += 0.05f) {
 			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
 			scene.add(grassActor, grassModel);
 		}

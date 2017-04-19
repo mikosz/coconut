@@ -61,10 +61,17 @@ MaterialConfiguration createMaterialConfiguration(
 	}
 
 	if (!materialData.noiseMap.empty()) {
+		using milk::graphics::Sampler; // TODO: ?
+		auto noiseMapSamplerConfiguration = Sampler::Configuration();
+		noiseMapSamplerConfiguration.addressModeU = Sampler::AddressMode::WRAP;
+		noiseMapSamplerConfiguration.addressModeV = Sampler::AddressMode::WRAP;
+		noiseMapSamplerConfiguration.addressModeW = Sampler::AddressMode::WRAP;
+		noiseMapSamplerConfiguration.filter = Sampler::Filter::MIN_MAG_MIP_POINT;
+
 		material.addTexture(
 			MaterialConfiguration::NOISE_MAP_TEXTURE,
 			filesystemContext.currentWorkingDirectory() / materialData.noiseMap,
-			milk::graphics::Sampler::Configuration()
+			noiseMapSamplerConfiguration
 		);
 	}
 

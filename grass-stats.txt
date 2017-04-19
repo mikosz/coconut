@@ -1,0 +1,19 @@
+BLADE IS TWO TRIANGLES (1 segment)
+
+Area: x in [-20.0, 20.0), z in [-20.0, 100.0)
+Blades every 0.05
+
+test 1 (1 920 000 blades, 1 920 000 instances with 1 blade each, all vertex/pixel shaded):
+13.35 ms (75 FPS)
+
+test 1.5 (1 920 000 blades, 480 000 instances with 4 blades each, all vertex/pixel shaded):
+9.86 ms (101 FPS)
+
+test 2 (1 919 997 blades, 213 333 instances with 9 blades each):
+11.57 ms (86 FPS)
+
+test 3 (1 920 000 blades, 19 200 instances with 100 blades each, all vertex/pixel shaded):
+12.82 (78 FPS)
+
+test 4 (1 920 000 blades, 192 instances with 10 000 blades each, all vertex/pixel shaded):
+13.14 (76 FPS)

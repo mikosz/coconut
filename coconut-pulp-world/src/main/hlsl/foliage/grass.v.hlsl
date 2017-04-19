@@ -21,6 +21,7 @@ struct VOut {
 };
 
 Texture2D noiseMap : register(t0);
+SamplerState noiseMapSamplerState : register(s0);
 
 VOut main(VIn vin)
 {
@@ -29,11 +30,15 @@ VOut main(VIn vin)
 	VOut vout;
 
 	float4 posW = vin.posL + float4(vin.patchPosW, 1.0f);
-	posW += noiseMap[uint2(0, 0)];
+
+	float4 noise = noiseMap.SampleLevel(noiseMapSamplerState, vin.patchPosW.xz * 0.01f, 0);
+	posW.x += noise.x;
+	posW.y *= 1.0f + noise.y;
+	posW.z += noise.z;
 
 	vout.posH = mul(mul(posW, viewMatrix), projectionMatrix);
 	vout.tex = vin.tex;
-	vout.posW = posW;
+	vout.posW = posW.xyz;
 	vout.normalW = vin.normalL;
 
 	return vout;

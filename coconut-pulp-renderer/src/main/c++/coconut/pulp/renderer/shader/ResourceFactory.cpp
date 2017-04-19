@@ -65,6 +65,22 @@ std::unique_ptr<Resource> createNoiseMap(milk::graphics::ShaderType shaderType, 
 		);
 }
 
+// TODO: duplicated code, generate these using property keys
+std::unique_ptr<Resource> createNoiseMapSampler(milk::graphics::ShaderType shaderType, size_t slot) {
+	return std::make_unique<SamplerResource>(
+		[](const PassContext& passContext) -> const milk::graphics::Sampler* {
+			static const auto NOISE_MAP_TEXTURE = mesh::MaterialConfiguration::NOISE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(NOISE_MAP_TEXTURE)) {
+				return &std::get<milk::graphics::Sampler>(passContext.material->texture(NOISE_MAP_TEXTURE));
+			} else {
+				return nullptr;
+			}
+		},
+		shaderType,
+		slot
+		);
+}
+
 } // anonymous namespace
 
 detail::ResourceCreator::ResourceCreator() {
@@ -96,4 +112,5 @@ void detail::ResourceCreator::registerBuiltins() {
 
 	// noise
 	registerCreator("noise_map", &createNoiseMap);
+	registerCreator("noise_map_sampler_state", &createNoiseMapSampler);
 }
