@@ -24,11 +24,7 @@ detail::Shader<GraphicsShaderType>::Shader(
 }
 
 template <class GraphicsShaderType>
-void detail::Shader<GraphicsShaderType>::bind(
-	DrawCommand& drawCommand,
-	const PassContext& passContext
-	) const
-{
+void detail::Shader<GraphicsShaderType>::bind(DrawCommand& drawCommand, const PassContext& passContext) const {
 	for (auto buffer : sceneData_) {
 		buffer->bind(drawCommand, *passContext.scene); // TODO: update conditionally (if changed since last update)
 	}
@@ -47,4 +43,7 @@ void detail::Shader<GraphicsShaderType>::bind(
 }
 
 template class detail::Shader<milk::graphics::VertexShader>;
+template class detail::Shader<milk::graphics::GeometryShader>;
+template class detail::Shader<milk::graphics::HullShader>;
+template class detail::Shader<milk::graphics::DomainShader>;
 template class detail::Shader<milk::graphics::PixelShader>;

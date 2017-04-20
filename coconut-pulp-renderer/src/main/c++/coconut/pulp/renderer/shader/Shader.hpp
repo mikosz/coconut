@@ -53,10 +53,7 @@ public:
 		Resources resources
 		);
 
-	void bind(
-		DrawCommand& drawCommand,
-		const PassContext& PassContext
-		) const;
+	void bind(DrawCommand& drawCommand, const PassContext& passContext) const;
 
 	GraphicsShaderType& shaderData() {
 		return shaderData_;

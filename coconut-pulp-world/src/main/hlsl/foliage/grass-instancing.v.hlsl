@@ -14,6 +14,7 @@ struct VIn {
 	float4 posL : POSITION;
 	float2 tex : TEXCOORD;
 	float3 normalL : NORMAL;
+	float3 patchPosW: GRASS_PATCH_POSITION;
 };
 
 struct VOut {
@@ -28,7 +29,7 @@ SamplerState noiseMapSamplerState : register(s0);
 
 VOut main(VIn vin)
 {
-	float3 patchPosW = grassPatchPosition;
+	float3 patchPosW = vin.patchPosW;
 
 	vin.posL.w = 1.0f;
 
