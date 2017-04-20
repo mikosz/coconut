@@ -41,9 +41,15 @@ private:
 } // namespace detail
 
 using VertexShader = detail::Shader<ID3D11VertexShader>;
+using GeometryShader = detail::Shader<ID3D11GeometryShader>;
+using HullShader = detail::Shader<ID3D11HullShader>;
+using DomainShader = detail::Shader<ID3D11DomainShader>;
 using PixelShader = detail::Shader<ID3D11PixelShader>;
 
 CCN_MAKE_POINTER_DEFINITIONS(VertexShader);
+CCN_MAKE_POINTER_DEFINITIONS(GeometryShader);
+CCN_MAKE_POINTER_DEFINITIONS(HullShader);
+CCN_MAKE_POINTER_DEFINITIONS(DomainShader);
 CCN_MAKE_POINTER_DEFINITIONS(PixelShader);
 
 } // namespace graphics

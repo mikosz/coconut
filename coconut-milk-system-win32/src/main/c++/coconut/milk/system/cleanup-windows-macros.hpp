@@ -17,3 +17,7 @@
 #if defined(TRANSPARENT)
 #	undef TRANSPARENT
 #endif /* TRANSPARENT */
+
+#if defined(DOMAIN)
+#	undef DOMAIN
+#endif /* DOMAIN */

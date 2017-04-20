@@ -24,6 +24,39 @@ system::COMWrapper<ID3D11VertexShader> create<ID3D11VertexShader>(
 }
 
 template <>
+system::COMWrapper<ID3D11GeometryShader> create<ID3D11GeometryShader>(
+	Renderer& renderer, void* data, size_t size) {
+	system::COMWrapper<ID3D11GeometryShader> shader;
+	checkDirectXCall(
+		renderer.internalDevice().CreateGeometryShader(data, size, 0, &shader.get()),
+		"Failed to create a geometry shader"
+	);
+	return shader;
+}
+
+template <>
+system::COMWrapper<ID3D11HullShader> create<ID3D11HullShader>(
+	Renderer& renderer, void* data, size_t size) {
+	system::COMWrapper<ID3D11HullShader> shader;
+	checkDirectXCall(
+		renderer.internalDevice().CreateHullShader(data, size, 0, &shader.get()),
+		"Failed to create a hull shader"
+	);
+	return shader;
+}
+
+template <>
+system::COMWrapper<ID3D11DomainShader> create<ID3D11DomainShader>(
+	Renderer& renderer, void* data, size_t size) {
+	system::COMWrapper<ID3D11DomainShader> shader;
+	checkDirectXCall(
+		renderer.internalDevice().CreateDomainShader(data, size, 0, &shader.get()),
+		"Failed to create a domain shader"
+	);
+	return shader;
+}
+
+template <>
 system::COMWrapper<ID3D11PixelShader> create<ID3D11PixelShader>(
 	Renderer& renderer, void* data, size_t size) {
 	system::COMWrapper<ID3D11PixelShader> shader;
@@ -42,4 +75,7 @@ detail::Shader<InternalShaderType>::Shader(Renderer& renderer, const void* data,
 }
 
 template class detail::Shader<ID3D11VertexShader>;
+template class detail::Shader<ID3D11GeometryShader>;
+template class detail::Shader<ID3D11HullShader>;
+template class detail::Shader<ID3D11DomainShader>;
 template class detail::Shader<ID3D11PixelShader>;

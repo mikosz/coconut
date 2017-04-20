@@ -6,6 +6,7 @@
 #include <memory>
 #include <functional>
 #include <unordered_map>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include <coconut-tools/factory.hpp>
 #include <coconut-tools/factory/CreatorRegistry.hpp>

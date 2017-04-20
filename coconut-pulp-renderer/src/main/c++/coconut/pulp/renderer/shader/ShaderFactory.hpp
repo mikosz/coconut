@@ -40,6 +40,8 @@ public:
 		milk::graphics::ShaderType shaderType;
 	};
 
+	bool hasShader(const std::string& id) const noexcept;
+
 	void registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo);
 
 	void registerCompiledShader(std::string id, const CompiledShaderInfo& compiledShaderInfo);

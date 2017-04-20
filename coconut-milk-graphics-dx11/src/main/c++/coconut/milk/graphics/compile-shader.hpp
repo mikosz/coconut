@@ -2,10 +2,10 @@
 #define _COCONUT_MILK_GRAPHICS_DX11_COMPILESHADER_HPP_
 
 #include <d3dcommon.h>
-#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include <vector>
 #include <cstddef>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include "coconut/milk/system/COMWrapper.hpp"
 

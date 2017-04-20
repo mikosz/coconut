@@ -240,6 +240,10 @@ auto detail::ShaderCreator::doCreate(
 	}
 }
 
+bool detail::ShaderCreator::hasShader(const std::string& id) const noexcept {
+	return shaderCodeInfos_.count(id) > 0 || compiledShaderInfos_.count(id) > 0;
+}
+
 void detail::ShaderCreator::registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo) {
 	CT_LOG_INFO << "Registering shader code \"" << id << "\" (" << shaderCodeInfo.shaderType
 		<< ") at " << shaderCodeInfo.shaderCodePath << "::" << shaderCodeInfo.entrypoint;

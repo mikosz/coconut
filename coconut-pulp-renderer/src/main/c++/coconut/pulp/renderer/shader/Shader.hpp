@@ -79,9 +79,15 @@ private:
 } // namespace detail
 
 using VertexShader = detail::Shader<milk::graphics::VertexShader>;
+using GeometryShader = detail::Shader<milk::graphics::GeometryShader>;
+using HullShader = detail::Shader<milk::graphics::HullShader>;
+using DomainShader = detail::Shader<milk::graphics::DomainShader>;
 using PixelShader = detail::Shader<milk::graphics::PixelShader>;
 
 CCN_MAKE_POINTER_DEFINITIONS(VertexShader);
+CCN_MAKE_POINTER_DEFINITIONS(GeometryShader);
+CCN_MAKE_POINTER_DEFINITIONS(HullShader);
+CCN_MAKE_POINTER_DEFINITIONS(DomainShader);
 CCN_MAKE_POINTER_DEFINITIONS(PixelShader);
 
 } // namespace shader

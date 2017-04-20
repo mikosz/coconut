@@ -1,5 +1,5 @@
 cbuffer ViewTransformations : register(b0) {
-	matrix viewMatrix; // TODO: one world-view-proj matrix would suffice in b0 (and would be quicker)
+	matrix viewMatrix;
 }
 
 cbuffer ProjectionTransformations : register(b1) {
