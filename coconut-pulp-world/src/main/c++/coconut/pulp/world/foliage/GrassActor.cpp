@@ -2,6 +2,7 @@
 
 #include <coconut-tools/utils/Range.hpp>
 
+#include "coconut/pulp/renderer/shader/CallbackParameter.hpp"
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
 #include "coconut/pulp/mesh/Mesh.hpp"
 
@@ -14,7 +15,7 @@ using namespace std::string_literals;
 
 namespace /* anonymous */ {
 
-std::unique_ptr<renderer::shader::Input::Element> createGrassPatchPositionElement(
+std::unique_ptr<renderer::shader::Input::Element> createGrassPatchPositionInputElement(
 	const renderer::shader::InputElementFactoryInstanceDetails& instanceDetails)
 {
 	return std::make_unique<renderer::shader::Input::Element>(
@@ -30,6 +31,23 @@ std::unique_ptr<renderer::shader::Input::Element> createGrassPatchPositionElemen
 		);
 }
 
+std::unique_ptr<renderer::shader::Parameter> createGrassPatchPositionParameter(
+	const renderer::shader::ParameterFactoryInstanceDetails& instanceDetails)
+{
+	if (instanceDetails.arraySize > 0) {
+		throw std::runtime_error("grass_patch_position can't be an array");
+	}
+
+	return std::make_unique<renderer::shader::CallbackParameter<renderer::Actor, Vec3>>(
+		[](Vec3& result, const renderer::Actor& actor, size_t arrayIndex) {
+				assert(arrayIndex == 0);
+				const auto& grassActor = dynamic_cast<const GrassActor&>(actor);
+				result = grassActor.patchPosition();
+			},
+			instanceDetails.padding
+			);
+}
+
 } // anonymous namespace
 
 void GrassActor::registerShaderInputElements(renderer::shader::InputElementFactory& inputElementFactory) {
@@ -37,8 +55,18 @@ void GrassActor::registerShaderInputElements(renderer::shader::InputElementFacto
 	if (!inputElementFactory.isCreatorRegistered(instanceDetails)) {
 		inputElementFactory.registerCreator(
 			instanceDetails,
-			&createGrassPatchPositionElement
+			&createGrassPatchPositionInputElement
 			);
+	}
+}
+
+void GrassActor::registerParameters(renderer::shader::ParameterFactory& parameterFactory) {
+	auto instanceDetails = renderer::shader::ParameterFactoryInstanceDetails("grass_patch_position");
+	if (!parameterFactory.isCreatorRegistered(instanceDetails)) {
+		parameterFactory.registerCreator(
+			instanceDetails,
+			&createGrassPatchPositionParameter
+		);
 	}
 }
 

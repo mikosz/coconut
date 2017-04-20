@@ -40,6 +40,10 @@ public:
 		return inputFactory_;
 	}
 
+	ShaderFactory& shaderFactory() noexcept {
+		return shaderFactory_;
+	}
+
 protected:
 
 	Instance doCreate(

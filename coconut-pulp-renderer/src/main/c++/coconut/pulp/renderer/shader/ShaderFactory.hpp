@@ -44,6 +44,14 @@ public:
 
 	void registerCompiledShader(std::string id, const CompiledShaderInfo& compiledShaderInfo);
 
+	ParameterFactory& parameterFactory() noexcept {
+		return parameterFactory_;
+	}
+
+	ResourceFactory& resourceFactory() noexcept {
+		return resourceFactory_;
+	}
+
 protected:
 
 	Instance doCreate(

@@ -115,11 +115,12 @@ void Game::loop() {
 
 	auto& inputElementFactory = passFactory.inputFactory().inputElementFactory();
 	pulp::world::foliage::GrassActor::registerShaderInputElements(inputElementFactory);
+	pulp::world::foliage::GrassActor::registerParameters(passFactory.shaderFactory().parameterFactory());
 
 	auto grassModel = modelFactory.create("grass", *graphicsRenderer_, passFactory, fs);
-
-	for (float x = -20.0f; x < 20.0f; x += 0.05f) {
-		for (float z = -20.0f; z < 100.0f; z += 0.05f) {
+	
+	for (float x = -20.0f; x < 20.0f; x += 10.0f) {
+		for (float z = -20.0f; z < 100.0f; z += 10.0f) {
 			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
 			scene.add(grassActor, grassModel);
 		}

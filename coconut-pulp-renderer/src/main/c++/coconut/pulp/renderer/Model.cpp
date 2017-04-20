@@ -203,24 +203,24 @@ Model::DrawGroup::DrawGroup(
 }
 
 void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
-	auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
-
-	drawCommand->setRenderState(&material.renderState());
-
-	auto& pass = material.shaderPass();
-
-	passContext.material = &material;
-
-	drawCommand->setInputLayout(&pass.input().layout());
-	drawCommand->setVertexShader(&pass.vertexShader().shaderData());
-	drawCommand->setPixelShader(&pass.pixelShader().shaderData());
-	
-	drawCommand->setVertexBuffer(&vertexBuffer);
-	drawCommand->setIndexBuffer(&indexBuffer);
-	drawCommand->setIndexCount(indexCount);
-	drawCommand->setPrimitiveTopology(primitiveTopology);
-
 	if (material.shaderPass().isInstanced() && passContext.actors->size() > 1) { // TODO this and next lines
+		auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
+
+		drawCommand->setRenderState(&material.renderState());
+
+		auto& pass = material.shaderPass();
+
+		passContext.material = &material;
+
+		drawCommand->setInputLayout(&pass.input().layout());
+		drawCommand->setVertexShader(&pass.vertexShader().shaderData());
+		drawCommand->setPixelShader(&pass.pixelShader().shaderData());
+
+		drawCommand->setVertexBuffer(&vertexBuffer);
+		drawCommand->setIndexBuffer(&indexBuffer);
+		drawCommand->setIndexCount(indexCount);
+		drawCommand->setPrimitiveTopology(primitiveTopology);
+		
 		const auto instanceBufferSize = passContext.actors->size() * pass.input().instanceSize();
 		if (instanceBufferSize > instanceDataBuffer.configuration().size) { // TODO: TEMP (update conditionally, not here possibly, but in Scene)
 			auto buffer = std::vector<std::uint8_t>(instanceBufferSize);
@@ -256,6 +256,23 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 		commandBuffer.add(std::move(drawCommand));
 	} else {
 		for (const auto& actor : *passContext.actors) {
+			auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
+				// TODO: duplicated code above
+			drawCommand->setRenderState(&material.renderState());
+
+			auto& pass = material.shaderPass();
+
+			passContext.material = &material;
+
+			drawCommand->setInputLayout(&pass.input().layout());
+			drawCommand->setVertexShader(&pass.vertexShader().shaderData());
+			drawCommand->setPixelShader(&pass.pixelShader().shaderData());
+
+			drawCommand->setVertexBuffer(&vertexBuffer);
+			drawCommand->setIndexBuffer(&indexBuffer);
+			drawCommand->setIndexCount(indexCount);
+			drawCommand->setPrimitiveTopology(primitiveTopology);
+
 			passContext.actor = actor.get();
 			pass.vertexShader().bind(*drawCommand, passContext);
 			pass.pixelShader().bind(*drawCommand, passContext);

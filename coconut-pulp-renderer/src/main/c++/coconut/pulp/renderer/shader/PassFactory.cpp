@@ -88,7 +88,7 @@ auto detail::PassCreator::doCreate(
 	CT_LOG_INFO << "Creating shader pass: \"" << id << "\"";
 
 	return std::make_unique<Pass>(
-		true, // TODO: temp - need to discern between instanced and non instanced shaders
+		false, // true, // TODO: temp - need to discern between instanced and non instanced shaders
 		inputFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
 		std::dynamic_pointer_cast<VertexShader>(
 			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),
