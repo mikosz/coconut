@@ -34,12 +34,13 @@ Parser::Parser() :
 	smoothingGroupRule_ = 's' >> (qi::lit("off") | qi::int_) >> endRule_;
 	materialRule_ = qi::lit("usemtl") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&Parser::setMaterial, this, _1)] >> endRule_;
 	vertexRule_ = (qi::uint_ % '/')[qi::_val = phoenix::bind(&Parser::makeVertex, this, qi::_1)];
-	faceRule_ = 'f' >> qi::repeat(3)[vertexRule_][boost::bind(&Parser::addFace, this, _1)] >> endRule_;
+	faceRule_ = 'f' >> qi::repeat(1, 3)[vertexRule_][boost::bind(&Parser::addFace, this, _1)] >> endRule_;
 	positionRule_ = 'v' >> qi::repeat(3)[qi::double_][boost::bind(&Parser::addPosition, this, _1)] >> endRule_;
 	textureCoordinateRule_ = qi::lit("vt") >> qi::repeat(2)[qi::double_][boost::bind(&Parser::addTextureCoordinate, this, _1)] >> endRule_;
 	normalRule_ = qi::lit("vn") >> qi::repeat(3)[qi::double_][boost::bind(&Parser::addNormal, this, _1)] >> endRule_;
 	objectNameRule_ = (qi::char_('o')) >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&Parser::newObject, this, _1)] >> endRule_;
 	groupNameRule_ = (qi::char_('g')) >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&Parser::newGroup, this, _1)] >> endRule_;
+	topologyRule_ = qi::lit("@topology") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&Parser::setTopology, this, _1)] >> endRule_;
 	materialLibRule_ = qi::lit("mtllib") >> qi::lexeme[*(qi::char_ - qi::eol - qi::eoi)][boost::bind(&Parser::addMaterialLib, this, _1)] >> endRule_;
 
 	startRule_ = *blankRule_
@@ -52,7 +53,8 @@ Parser::Parser() :
 			textureCoordinateRule_ |
 			normalRule_ |
 			objectNameRule_ |
-			groupNameRule_
+			groupNameRule_ |
+			topologyRule_
 			);
 }
 
@@ -132,9 +134,6 @@ Parser::Vertex Parser::makeVertex(const std::vector<unsigned int>& vertexData) {
 }
 
 void Parser::addFace(const std::vector<Vertex>& face) {
-	if (face.size() != 3) {
-		throw std::runtime_error("Currently supporting only faces with 3 vertices");
-	}
 	if (objects_.empty()) {
 		throw std::runtime_error("Attempted to add a face with no object specified");
 	}
@@ -142,17 +141,33 @@ void Parser::addFace(const std::vector<Vertex>& face) {
 		throw std::runtime_error("Attempted to add a face with no group specified");
 	}
 
-	// changing counter-clockwise to clockwise winding while storing indices
-	Face storedFace;
-	storedFace.vertices[0] = face[0];
-	storedFace.vertices[2] = face[1];
-	storedFace.vertices[1] = face[2];
+	auto& group = objects_.back().groups.back();
+	auto storedFace = Face();
 
-	objects_.back().groups.back().faces.push_back(storedFace);
+	if (group.primitiveTopology == milk::graphics::PrimitiveTopology::POINT_LIST) {
+		if (face.size() != 1) {
+			throw std::runtime_error("Invalid number of vertices for POINT_LIST face");
+		} else {
+			storedFace.vertices[0] = face[0];
+		}
+	} else if (group.primitiveTopology == milk::graphics::PrimitiveTopology::TRIANGLE_LIST) {
+		if (face.size() != 3) {
+			throw std::runtime_error("Invalid number of vertices for TRIANGLE_LIST face");
+		} else {
+			// TODO: should be done optionally, or not at all?
+			// changing counter-clockwise to clockwise winding while storing indices
+			storedFace.vertices[0] = face[0];
+			storedFace.vertices[2] = face[1];
+			storedFace.vertices[1] = face[2];
+		}
+	}
+
+	group.faces.emplace_back(std::move(storedFace));
 }
 
 void Parser::addPosition(const std::vector<double>& vector) {
 	assert(vector.size() == 3);
+	// TODO: should be done optionally, or not at all?
 	// right-hand to left-hand system conversion (z inverted)
 	positions_.emplace_back(
 		static_cast<float>(vector[0]),
@@ -194,6 +209,12 @@ void Parser::newGroup(const std::vector<char>& nameChars) {
 	}
 
 	objects_.back().groups.emplace_back();
+	objects_.back().groups.back().primitiveTopology = milk::graphics::PrimitiveTopology::TRIANGLE_LIST;
+}
+
+void Parser::setTopology(const std::vector<char>& topologyNameChars) {
+	const auto topologyName = std::string(topologyNameChars.begin(), topologyNameChars.end());
+	milk::graphics::fromString(objects_.back().groups.back().primitiveTopology, topologyName);
 }
 
 void Parser::addMaterialLib(const std::vector<char>& materialLibChars) {

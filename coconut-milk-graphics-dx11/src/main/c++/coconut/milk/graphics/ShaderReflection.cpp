@@ -39,7 +39,10 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 			"Failed to get input parameter description"
 			);
 
-		if (desc.SemanticName == "SV_InstanceID"s) { // TODO: extract literal
+		if (
+			desc.SemanticName == "SV_InstanceID"s ||
+			desc.SemanticName == "SV_VertexID"s
+			) { // TODO: extract literals
 			continue;
 		}
 
@@ -175,7 +178,7 @@ ShaderReflection::ResourceInfos buildResourceInfos(
 		info.name = resourceDesc.Name;
 		info.slot = resourceDesc.BindPoint;
 		assert(resourceDesc.BindCount == 1);
-		info.dimensions = resourceDesc.Dimension;
+		fromIntegral(info.dimension, milk::utils::integralValue(resourceDesc.Dimension));
 
 		resources.emplace_back(std::move(info));
 	}

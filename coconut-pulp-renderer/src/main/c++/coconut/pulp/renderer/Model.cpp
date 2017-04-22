@@ -174,11 +174,13 @@ Model::DrawGroup::DrawGroup(
 		});
 	const auto& shaderInput = material.shaderPass().input();
 
-	vertexBuffer = milk::graphics::VertexBuffer(
-		graphicsRenderer,
-		vertexBufferConfiguration(totalVertices, shaderInput.vertexSize()),
-		vertexBufferData(shaderInput, submeshIt, submeshEnd, totalVertices).data()
-		);
+	if (shaderInput.vertexSize() > 0) {
+		vertexBuffer = milk::graphics::VertexBuffer(
+			graphicsRenderer,
+			vertexBufferConfiguration(totalVertices, shaderInput.vertexSize()),
+			vertexBufferData(shaderInput, submeshIt, submeshEnd, totalVertices).data()
+			);
+	}
 
 	indexCount = std::accumulate(submeshIt, submeshEnd, zero, [](size_t v, const auto& submesh) {
 			return v + submesh.indices().size();

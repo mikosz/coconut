@@ -14,6 +14,8 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
+#include "coconut/milk/graphics/PrimitiveTopology.hpp"
+
 #include "coconut/pulp/primitive.hpp"
 
 #include "MaterialLibParser.hpp"
@@ -51,6 +53,8 @@ public:
 	using Faces = std::vector<Face>;
 
 	struct Group {
+
+		milk::graphics::PrimitiveTopology primitiveTopology;
 
 		Faces faces;
 
@@ -142,6 +146,8 @@ private:
 
 	Rule groupNameRule_;
 
+	Rule topologyRule_;
+
 	Rule materialLibRule_;
 
 	Rule startRule_;
@@ -175,6 +181,8 @@ private:
 	void newObject(const std::vector<char>& nameChars);
 
 	void newGroup(const std::vector<char>& nameChars);
+
+	void setTopology(const std::vector<char>& topologyNameChars);
 
 	void addMaterialLib(const std::vector<char>& materialLibChars);
 

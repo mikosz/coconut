@@ -10,7 +10,7 @@
 #include "coconut/milk/utils/IntOfSize.hpp"
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "Data.hpp"
+#include "Resource.hpp"
 #include "ShaderType.hpp"
 
 namespace coconut {
@@ -19,7 +19,7 @@ namespace graphics {
 
 class Renderer;
 
-class Buffer : public Data {
+class Buffer : public Resource {
 public:
 
 	enum class CreationPurpose {
@@ -67,8 +67,8 @@ public:
 		return configuration_;
 	}
 
-	ID3D11Buffer& internalBuffer() {
-		return *buffer_;
+	ID3D11Buffer* internalBuffer() {
+		return buffer_;
 	}
 
 	ID3D11Resource& internalResource() override {

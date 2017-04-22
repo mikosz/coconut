@@ -4,6 +4,7 @@
 
 #include "coconut/pulp/renderer/shader/CallbackParameter.hpp"
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
+#include "coconut/pulp/renderer/PassContext.hpp"
 #include "coconut/pulp/mesh/Mesh.hpp"
 
 using namespace coconut;
@@ -48,7 +49,19 @@ std::unique_ptr<renderer::shader::Parameter> createGrassPatchPositionParameter(
 			);
 }
 
+std::unique_ptr<renderer::shader::Resource> createGrassPatchPositionsResource(milk::graphics::ShaderType shaderType, size_t slot) {
+	return std::make_unique<renderer::shader::TextureResource>(
+		[](const renderer::PassContext& passContext) -> const milk::graphics::Texture* {
+			return &GrassActor::grassPatchPositionsTexture(*passContext.graphicsRenderer);
+		},
+		shaderType,
+		slot
+		);
+}
+
 } // anonymous namespace
+
+std::vector<math::Vec3> GrassActor::allPatchPositions_;
 
 void GrassActor::registerShaderInputElements(renderer::shader::InputElementFactory& inputElementFactory) {
 	auto instanceDetails = renderer::shader::InputElementFactoryInstanceDetails("GRASS_PATCH_POSITION", 0);
@@ -70,8 +83,43 @@ void GrassActor::registerParameters(renderer::shader::ParameterFactory& paramete
 	}
 }
 
+void GrassActor::registerResources(renderer::shader::ResourceFactory& resourceFactory) {
+	const auto instanceDetails = "grass_patch_positions"s;
+	if (!resourceFactory.isCreatorRegistered(instanceDetails)) {
+		resourceFactory.registerCreator(
+			instanceDetails,
+			&createGrassPatchPositionsResource
+		);
+	}
+}
+
+const milk::graphics::Texture& GrassActor::grassPatchPositionsTexture(milk::graphics::Renderer& graphicsRenderer) {
+	static auto initialised = false;
+	static auto texture = milk::graphics::Texture2d();
+	if (!initialised) {
+		auto configuration = milk::graphics::Texture2d::Configuration();
+		configuration.width = GrassActor::allPatchPositions_.size();
+		configuration.height = 1;
+		configuration.mipLevels = 1;
+		configuration.pixelFormat = milk::graphics::PixelFormat::R32G32B32_FLOAT;
+		configuration.sampleCount = 1;
+		configuration.sampleQuality = 0;
+		configuration.allowModifications = false;
+		configuration.allowCPURead = false;
+		configuration.allowGPUWrite = false;
+		configuration.purposeFlags = static_cast<milk::graphics::Texture::CreationPurposeFlag>(milk::graphics::Texture::CreationPurpose::SHADER_RESOURCE);
+		configuration.initialData = GrassActor::allPatchPositions_.data();
+		configuration.dataRowPitch = configuration.width;
+
+		texture.initialise(graphicsRenderer, configuration);
+	}
+
+	return texture;
+}
+
 GrassActor::GrassActor(const math::Vec3& patchPosition) :
 	Actor("grass"),
 	patchPosition_(patchPosition)
 {
+	allPatchPositions_.emplace_back(patchPosition);
 }

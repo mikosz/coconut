@@ -41,7 +41,7 @@ Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, Configuration config
 			}
 		}
 	}
-
+	
 	D3D11_SUBRESOURCE_DATA* dataPtr = 0;
 	D3D11_SUBRESOURCE_DATA data;
 	if (initialData) {

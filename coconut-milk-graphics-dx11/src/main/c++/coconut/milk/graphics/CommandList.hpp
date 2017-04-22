@@ -18,7 +18,7 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-class Data;
+class Resource;
 class Renderer;
 class ConstantBuffer;
 class IndexBuffer;
@@ -52,7 +52,7 @@ public:
 	void drawIndexedInstanced(size_t vertexCountPerInstance, size_t instanceCount, size_t startingIndex,
 		PrimitiveTopology primitiveTopology);
 
-	LockedData lock(Data& data, LockPurpose lockPurpose);
+	LockedData lock(Resource& data, LockPurpose lockPurpose);
 
 	void setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil);
 

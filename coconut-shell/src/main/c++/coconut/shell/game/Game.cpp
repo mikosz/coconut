@@ -116,8 +116,9 @@ void Game::loop() {
 	auto& inputElementFactory = passFactory.inputFactory().inputElementFactory();
 	pulp::world::foliage::GrassActor::registerShaderInputElements(inputElementFactory);
 	pulp::world::foliage::GrassActor::registerParameters(passFactory.shaderFactory().parameterFactory());
+	pulp::world::foliage::GrassActor::registerResources(passFactory.shaderFactory().resourceFactory());
 
-	auto grassModel = modelFactory.create("grass", *graphicsRenderer_, passFactory, fs);
+	auto grassModel = modelFactory.create("grass-fakeinst", *graphicsRenderer_, passFactory, fs);
 	
 	for (float x = -20.0f; x < 20.0f; x += 10.0f) {
 		for (float z = -20.0f; z < 100.0f; z += 10.0f) {

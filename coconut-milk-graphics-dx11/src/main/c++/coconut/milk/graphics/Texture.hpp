@@ -11,7 +11,7 @@
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "PixelFormat.hpp"
-#include "Data.hpp"
+#include "Resource.hpp"
 
 namespace coconut {
 namespace milk {
@@ -19,7 +19,7 @@ namespace graphics {
 
 class Renderer;
 
-class Texture : public Data {
+class Texture : public Resource {
 public:
 
 	enum class CreationPurpose {

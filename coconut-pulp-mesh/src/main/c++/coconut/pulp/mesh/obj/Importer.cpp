@@ -97,8 +97,9 @@ void generateNormals(
 {
 	CT_LOG_DEBUG << "Generating normals";
 
-	// TODO is it possible to have other topologies in .obj? if not, drop parameter
-	assert(primitiveTopology == milk::graphics::PrimitiveTopology::TRIANGLE_LIST);
+	if (primitiveTopology != milk::graphics::PrimitiveTopology::TRIANGLE_LIST) {
+		throw std::runtime_error("Unsupported topology for normal generation");
+	}
 
 	auto affectingFaces = std::unordered_multimap<size_t, size_t>();
 
@@ -192,8 +193,20 @@ Mesh obj::Importer::import(
 
 				auto vertexIndices = std::unordered_map<VertexDescriptor, size_t, VertexDescriptorHasher>();
 
+				auto verticesPerFace = 0u;
+				// TODO: add something in PrimitiveTopology that tells the number of vertices?
+				// TRIANGLE_STRIP will be tricky
+				if (group.primitiveTopology == milk::graphics::PrimitiveTopology::POINT_LIST) {
+					verticesPerFace = 1u;
+				} else if (group.primitiveTopology == milk::graphics::PrimitiveTopology::TRIANGLE_LIST) {
+					verticesPerFace = 3u;
+				} else {
+					throw std::runtime_error("Unsupported primitive topology");
+				}
+
 				for (const auto& face : group.faces) {
-					for (const auto& vertexData : face.vertices) {
+					for (const auto vertexIndex : coconut_tools::range(0u, verticesPerFace)) {
+						const auto& vertexData = face.vertices[vertexIndex];
 						const auto vertexDesc = VertexDescriptor(
 							vertexData.positionIndex, vertexData.textureCoordinateIndex, vertexData.normalIndex);
 						if (vertexIndices.count(vertexDesc) == 0) {
@@ -216,14 +229,14 @@ Mesh obj::Importer::import(
 				}
 
 				if (normalsNeedGeneration) {
-					generateNormals(vertices, indices, milk::graphics::PrimitiveTopology::TRIANGLE_LIST);
+					generateNormals(vertices, indices, group.primitiveTopology);
 				}
 
 				submeshes.emplace_back(
 					std::move(vertices),
 					std::move(indices),
 					group.material,
-					milk::graphics::PrimitiveTopology::TRIANGLE_LIST
+					group.primitiveTopology
 					);
 			}
 		}

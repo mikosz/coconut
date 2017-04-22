@@ -31,6 +31,12 @@ milk::graphics::PixelFormat makeFormat( // TODO: could be done by a smarter pixe
 	using milk::graphics::PixelFormat;
 
 	switch (dataType) {
+	case ShaderReflection::InputParameterInfo::DataType::UINT:
+		switch (elements) {
+		case 1:
+			return PixelFormat::R32_UINT;
+		}
+		break;
 	case ShaderReflection::InputParameterInfo::DataType::FLOAT:
 		switch (elements) {
 		case 2:
@@ -40,6 +46,7 @@ milk::graphics::PixelFormat makeFormat( // TODO: could be done by a smarter pixe
 		case 4:
 			return PixelFormat::R32G32B32A32_FLOAT;
 		}
+		break;
 	}
 
 	throw coconut_tools::exceptions::RuntimeError(

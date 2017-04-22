@@ -85,7 +85,6 @@ public:
 			drawCommand.addSampler(*sampler, stage_, slot_);
 		}
 	}
-
 	
 private:
 

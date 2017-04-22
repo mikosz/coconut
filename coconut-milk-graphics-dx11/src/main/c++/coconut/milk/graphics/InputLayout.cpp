@@ -48,10 +48,12 @@ system::COMWrapper<ID3D11InputLayout> createLayout(
 		desc.InstanceDataStepRate = static_cast<UINT>(element.instanceDataStepRate);
 	}
 
+	const auto dummy = D3D11_INPUT_ELEMENT_DESC();
+
 	system::COMWrapper<ID3D11InputLayout> layout;
 	checkDirectXCall(
 		renderer.internalDevice().CreateInputLayout(
-			&descs.front(),
+			descs.empty() ? &dummy : descs.data(),
 			static_cast<UINT>(descs.size()),
 			shaderData.data(),
 			shaderData.size(),

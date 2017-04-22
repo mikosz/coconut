@@ -1,0 +1,13 @@
+mtllib grass.mtl
+o grass
+
+v 0.0 0.0 0.0
+vn 0.0 0.0 1.0
+vt 0.0 0.0
+
+g blade
+usemtl blade
+s off
+
+@topology POINT_LIST
+f 1/1/1

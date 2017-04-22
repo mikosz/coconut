@@ -240,7 +240,7 @@ void Renderer::endScene() {
 	swapChain_->Present(configuration_.vsync, 0);
 }
 
-Renderer::LockedData Renderer::lock(Data& data, LockPurpose lockPurpose) {
+Renderer::LockedData Renderer::lock(Resource& data, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
 		immediateCommandList_.internalDeviceContext().Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
