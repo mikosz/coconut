@@ -28,7 +28,7 @@ public:
 		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
 	};
 
-	using CreationPurposeFlag = std::underlying_type_t<CreationPurpose>;
+	using CreationPurposeFlag = std::underlying_type_t<CreationPurpose>; // TODO: create a general flag type
 
 	void initialise(Renderer& renderer, CreationPurposeFlag purposeFlags);
 
@@ -42,7 +42,7 @@ public:
 		return *depthStencilView_;
 	}
 
-	ID3D11ShaderResourceView& internalShaderResourceView() const {
+	ID3D11ShaderResourceView& internalShaderResourceView() const override {
 		return *shaderResourceView_;
 	}
 

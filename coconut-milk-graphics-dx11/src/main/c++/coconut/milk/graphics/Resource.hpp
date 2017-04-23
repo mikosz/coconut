@@ -17,6 +17,8 @@ public:
 
 	virtual ID3D11Resource& internalResource() = 0;
 
+	virtual ID3D11ShaderResourceView& internalShaderResourceView() const = 0; // TODO: temp
+
 protected:
 
 	// TODO: is this how it's supposed to be done?

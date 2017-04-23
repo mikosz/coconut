@@ -50,9 +50,9 @@ std::unique_ptr<renderer::shader::Parameter> createGrassPatchPositionParameter(
 }
 
 std::unique_ptr<renderer::shader::Resource> createGrassPatchPositionsResource(milk::graphics::ShaderType shaderType, size_t slot) {
-	return std::make_unique<renderer::shader::TextureResource>(
-		[](const renderer::PassContext& passContext) -> const milk::graphics::Texture* {
-			return &GrassActor::grassPatchPositionsTexture(*passContext.graphicsRenderer);
+	return std::make_unique<renderer::shader::DataResource>(
+		[](const renderer::PassContext& passContext) -> const milk::graphics::Resource* {
+			return &GrassActor::grassPatchPositionsResource(*passContext.graphicsRenderer);
 		},
 		shaderType,
 		slot
@@ -93,28 +93,29 @@ void GrassActor::registerResources(renderer::shader::ResourceFactory& resourceFa
 	}
 }
 
-const milk::graphics::Texture& GrassActor::grassPatchPositionsTexture(milk::graphics::Renderer& graphicsRenderer) {
+const milk::graphics::Resource& GrassActor::grassPatchPositionsResource(milk::graphics::Renderer& graphicsRenderer) {
 	static auto initialised = false;
-	static auto texture = milk::graphics::Texture2d();
+	static auto buffer = milk::graphics::Buffer();
 	if (!initialised) {
-		auto configuration = milk::graphics::Texture2d::Configuration();
-		configuration.width = GrassActor::allPatchPositions_.size();
-		configuration.height = 1;
-		configuration.mipLevels = 1;
-		configuration.pixelFormat = milk::graphics::PixelFormat::R32G32B32_FLOAT;
-		configuration.sampleCount = 1;
-		configuration.sampleQuality = 0;
+		auto configuration = milk::graphics::Buffer::Configuration();
+		configuration.size = GrassActor::allPatchPositions_.size() * sizeof(Vec3);
+		configuration.stride = sizeof(Vec3);
 		configuration.allowModifications = false;
 		configuration.allowCPURead = false;
 		configuration.allowGPUWrite = false;
-		configuration.purposeFlags = static_cast<milk::graphics::Texture::CreationPurposeFlag>(milk::graphics::Texture::CreationPurpose::SHADER_RESOURCE);
-		configuration.initialData = GrassActor::allPatchPositions_.data();
-		configuration.dataRowPitch = configuration.width;
+		configuration.elementFormat = milk::graphics::PixelFormat::R32G32B32_FLOAT;
 
-		texture.initialise(graphicsRenderer, configuration);
+		buffer = milk::graphics::Buffer( // TODO: add initialise? have unified approach with Texture
+			graphicsRenderer,
+			milk::graphics::Buffer::CreationPurpose::SHADER_RESOURCE,
+			configuration,
+			GrassActor::allPatchPositions_.data()
+			);
+
+		initialised = true;
 	}
 
-	return texture;
+	return buffer;
 }
 
 GrassActor::GrassActor(const math::Vec3& patchPosition) :

@@ -74,12 +74,12 @@ public:
 		constantBuffersData_.emplace_back(constantBuffer, data, size, stage, slot);
 	}
 
-	void addTexture(
-		const milk::graphics::Texture* texture,
+	void addResource(
+		const milk::graphics::Resource* resource,
 		milk::graphics::ShaderType stage,
 		size_t slot
 		) {
-		textures_.emplace_back(texture, stage, slot);
+		resources_.emplace_back(resource, stage, slot);
 	}
 
 	void setRenderTarget(milk::graphics::Texture2d* texture) {
@@ -160,16 +160,16 @@ private:
 
 	};
 
-	struct Texture {
+	struct Resource {
 
-		const milk::graphics::Texture* texture; // TODO: pointer
+		const milk::graphics::Resource* resource; // TODO: pointer
 
 		milk::graphics::ShaderType stage;
 
 		size_t slot;
 
-		Texture(const milk::graphics::Texture* texture, milk::graphics::ShaderType stage, size_t slot) :
-			texture(texture),
+		Resource(const milk::graphics::Resource* resource, milk::graphics::ShaderType stage, size_t slot) :
+			resource(resource),
 			stage(stage),
 			slot(slot)
 		{
@@ -181,7 +181,7 @@ private:
 
 	using ConstantBuffersData = std::vector<ConstantBufferData>; // TODO: ,,
 
-	using Textures = std::vector<Texture>; // TODO: ,,
+	using Resources = std::vector<Resource>; // TODO: ,,
 
 	// TODO: pointers
 	milk::graphics::Viewport* viewport_ = nullptr;
@@ -202,7 +202,7 @@ private:
 
 	ConstantBuffersData constantBuffersData_;
 
-	Textures textures_;
+	Resources resources_;
 
 	milk::graphics::VertexBuffer* vertexBuffer_ = nullptr;
 

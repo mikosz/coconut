@@ -12,6 +12,7 @@
 
 #include "Resource.hpp"
 #include "ShaderType.hpp"
+#include "PixelFormat.hpp"
 
 namespace coconut {
 namespace milk {
@@ -26,6 +27,7 @@ public:
 		VERTEX_BUFFER = D3D11_BIND_VERTEX_BUFFER,
 		INDEX_BUFFER = D3D11_BIND_INDEX_BUFFER,
 		CONSTANT_BUFFER = D3D11_BIND_CONSTANT_BUFFER,
+		SHADER_RESOURCE = D3D11_BIND_SHADER_RESOURCE, // TODO: duplicated with texture
 	};
 
 	struct Configuration {
@@ -39,6 +41,9 @@ public:
 		bool allowCPURead = false;
 
 		bool allowGPUWrite = false;
+
+		// TODO: move to another argument? Use different constructor?
+		PixelFormat elementFormat; // Used only when purpose is SHADER_RESOURCE
 
 		Configuration() = default;
 
@@ -61,7 +66,7 @@ public:
 
 	Buffer() = default;
 
-	Buffer(Renderer& renderer, CreationPurpose purpose, Configuration configuration, const void* initialData = 0);
+	Buffer(Renderer& renderer, CreationPurpose purpose, Configuration configuration, const void* initialData = nullptr);
 
 	const Configuration& configuration() const noexcept {
 		return configuration_;
@@ -75,11 +80,17 @@ public:
 		return *buffer_;
 	}
 
+	ID3D11ShaderResourceView& internalShaderResourceView() const override {
+		return *shaderResourceView_;
+	}
+
 private:
 
 	Configuration configuration_;
 
 	system::COMWrapper<ID3D11Buffer> buffer_;
+
+	system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_; // TODO: duplicated with texture
 
 };
 

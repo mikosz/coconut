@@ -37,8 +37,8 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 
 	}
 
-	for (auto& texture: textures_) {
-		commandList.setTexture(*texture.texture, texture.stage, texture.slot);
+	for (auto& resource : resources_) {
+		commandList.setResource(*resource.resource, resource.stage, resource.slot);
 	}
 
 	commandList.setInputLayout(*inputLayout_);

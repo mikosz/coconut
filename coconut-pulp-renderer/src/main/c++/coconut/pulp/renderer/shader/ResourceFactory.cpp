@@ -21,7 +21,7 @@ namespace /* anonymous */ {
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.RESOURCE_FACTORY");
 
 std::unique_ptr<Resource> createDiffuseMap(milk::graphics::ShaderType shaderType, size_t slot) {
-	return std::make_unique<TextureResource>(
+	return std::make_unique<DataResource>(
 		[](const PassContext& passContext) -> const milk::graphics::Texture* {
 			static const auto DIFFUSE_MAP_TEXTURE = mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE;
 			if (passContext.material->hasTexture(DIFFUSE_MAP_TEXTURE)) {
@@ -51,7 +51,7 @@ std::unique_ptr<Resource> createDiffuseMapSampler(milk::graphics::ShaderType sha
 }
 
 std::unique_ptr<Resource> createNoiseMap(milk::graphics::ShaderType shaderType, size_t slot) {
-	return std::make_unique<TextureResource>(
+	return std::make_unique<DataResource>(
 		[](const PassContext& passContext) -> const milk::graphics::Texture* {
 			static const auto NOISE_MAP_TEXTURE = mesh::MaterialConfiguration::NOISE_MAP_TEXTURE;
 			if (passContext.material->hasTexture(NOISE_MAP_TEXTURE)) {

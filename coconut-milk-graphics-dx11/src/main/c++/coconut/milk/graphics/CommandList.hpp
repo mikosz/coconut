@@ -23,7 +23,6 @@ class Renderer;
 class ConstantBuffer;
 class IndexBuffer;
 class VertexBuffer;
-class Texture;
 class Texture2d;
 class Sampler;
 class RenderState;
@@ -72,7 +71,7 @@ public:
 
 	void setInstanceDataBuffer(VertexBuffer& buffer, size_t slot);
 
-	void setTexture(const Texture& texture, ShaderType stage, size_t slot);
+	void setResource(const Resource& resource, ShaderType stage, size_t slot);
 
 	void setSampler(Sampler& sampler, ShaderType stage, size_t slot);
 

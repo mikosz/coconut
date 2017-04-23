@@ -5,11 +5,11 @@ def frange(x, y, jump):
 
 output = 'grass.obj'
 blade_width = 0.006
-x_blades = 200
+x_blades = 1
 x_step = 0.05 # from left edge to left edge
-z_blades = 200
+z_blades = 1
 z_step = 0.05
-y_segments = 4
+y_segments = 1
 y_step = 0.15 # i.e. segment height
 
 preamble = '''mtllib grass.mtl

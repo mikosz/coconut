@@ -7,7 +7,7 @@
 #include "VertexBuffer.hpp"
 #include "Renderer.hpp"
 #include "RenderState.hpp"
-#include "Texture2d.hpp"
+#include "Resource.hpp"
 #include "Sampler.hpp"
 #include "DirectXError.hpp"
 #include "ShaderType.hpp"
@@ -123,8 +123,8 @@ void CommandList::setInstanceDataBuffer(VertexBuffer& buffer, size_t slot) {
 	deviceContext_->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buf, &strideParam, &offsetParam);
 }
 
-void CommandList::setTexture(const Texture& texture, ShaderType stage, size_t slot) {
-	auto* srv = &texture.internalShaderResourceView();
+void CommandList::setResource(const Resource& resource, ShaderType stage, size_t slot) {
+	auto* srv = &resource.internalShaderResourceView();
 
 	switch (stage) {
 	case ShaderType::VERTEX:

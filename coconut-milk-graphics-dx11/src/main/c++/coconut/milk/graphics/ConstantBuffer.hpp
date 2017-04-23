@@ -7,7 +7,7 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-class ConstantBuffer : public Buffer {
+class ConstantBuffer : public Buffer { // TODO: this, Vertex and IndexBuffer classes are probably useless.
 public:
 
 	ConstantBuffer(Renderer& renderer, const Configuration& configuration, const void* initialData = 0) :

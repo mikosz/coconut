@@ -23,7 +23,7 @@ public:
 
 	static void registerResources(renderer::shader::ResourceFactory& resourceFactory);
 
-	static const milk::graphics::Texture& grassPatchPositionsTexture(milk::graphics::Renderer& graphicsRenderer);
+	static const milk::graphics::Resource& grassPatchPositionsResource(milk::graphics::Renderer& graphicsRenderer);
 
 	GrassActor(const math::Vec3& patchPosition);
 

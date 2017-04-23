@@ -5,7 +5,7 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "coconut/milk/graphics/Texture.hpp"
+#include "coconut/milk/graphics/Resource.hpp"
 
 #include "../DrawCommand.hpp"
 
@@ -28,14 +28,15 @@ public:
 
 CCN_MAKE_POINTER_DEFINITIONS(Resource);
 
-class TextureResource : public Resource {
+// TODO: should sampler be a resource? thanks to this we have this weird ResourceResource class
+class DataResource : public Resource {
 public:
 
 	// TODO: pointer?
-	using TextureCallback = std::function<const milk::graphics::Texture* (const PassContext&)>;
+	using DataCallback = std::function<const milk::graphics::Resource* (const PassContext&)>;
 
-	TextureResource(
-		TextureCallback callback,
+	DataResource(
+		DataCallback callback,
 		milk::graphics::ShaderType shaderType,
 		size_t slot
 		) :
@@ -46,15 +47,15 @@ public:
 	}
 
 	void bind(DrawCommand& drawCommand, const PassContext& context) override {
-		auto* texture = callback_(context);
-		if (texture) {
-			drawCommand.addTexture(texture, stage_, slot_);
+		auto* resource = callback_(context);
+		if (resource) {
+			drawCommand.addResource(resource, stage_, slot_);
 		}
 	}
 	
 private:
 
-	TextureCallback callback_;
+	DataCallback callback_;
 
 	milk::graphics::ShaderType stage_;
 
