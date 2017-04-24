@@ -16,27 +16,11 @@
 
 #include "coconut-tools/utils/InfixOstreamIterator.hpp"
 
+#include "ScalarEqual.hpp"
+
 namespace coconut {
 namespace pulp {
 namespace math {
-
-template <class ScalarType>
-struct ScalarEqual {
-
-	constexpr bool operator()(ScalarType lhs, ScalarType rhs) const noexcept {
-		return std::equal_to<ScalarType>()(lhs, rhs);
-	}
-
-};
-
-template <>
-struct ScalarEqual<float> {
-
-	constexpr bool operator()(float lhs, float rhs) const noexcept {
-		return std::abs(lhs - rhs) < (1.0f / 10000.0f);
-	}
-
-};
 
 template <class ScalarType, size_t DIMENSIONS_PARAM, class ScalarEqualityFunc = ScalarEqual<ScalarType>>
 class Vector :

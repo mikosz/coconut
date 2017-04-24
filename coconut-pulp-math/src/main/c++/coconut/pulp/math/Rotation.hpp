@@ -1,37 +1,32 @@
-#ifndef _COCONUT_MILK_MATH_ROTATION_HPP_
-#define _COCONUT_MILK_MATH_ROTATION_HPP_
+#ifndef _COCONUT_PULP_MATH_ROTATION_HPP_
+#define _COCONUT_PULP_MATH_ROTATION_HPP_
 
 #include "Angle.hpp"
 #include "Vector.hpp"
-
-#include <DirectXMath.h>
+#include "Quaternion.hpp"
+#include "ScalarEqual.hpp"
 
 namespace coconut {
-namespace milk {
+namespace pulp {
 namespace math {
 
-#pragma message("TODO: rewrite!")
 class Rotation {
 public:
 
 	Rotation(const Angle& angle, const Vec3& axis);
 
-	Rotation(const Vec4& quaternion) :
-		rotationQuaternion_(quaternion)
+	Rotation(Quat q) noexcept :
+		q_(std::move(q))
 	{
 	}
 
-	Rotation interpolate(const Rotation& other, float factor) const;
+	Rotation interpolate(const Rotation& other, float factor) const noexcept;
 
-	Vec3 rotate(const Vec3& vector) const;
-
-	const Vec4& rotationQuaternion() const {
-		return rotationQuaternion_;
-	}
+	Vec3 rotate(const Vec3& vector) const noexcept;
 
 private:
 
-	Vec4 rotationQuaternion_;
+	Quat q_;
 
 };
 
@@ -39,16 +34,8 @@ inline Rotation interpolate(const Rotation& lhs, const Rotation& rhs, float fact
 	return lhs.interpolate(rhs, factor);
 }
 
-inline Vec3 rotated(const Vec3& vector, const Rotation& rotation) {
-	return rotation.rotate(vector);
-}
-
-inline void rotate(Vec3& vector, const Rotation& rotation) {
-	vector = rotation.rotate(vector);
-}
-
 } // namespace math
-} // namespace milk
+} // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_MATH_ROTATION_HPP_ */
+#endif /* _COCONUT_PULP_MATH_ROTATION_HPP_ */

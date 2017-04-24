@@ -1,3 +1,4 @@
+# TODO: move finding DirectXTex to a find module
 if(DEFINED DirectXTex_ROOT)
   set(DirectXTex_ALL_HINT ${DirectXTex_ROOT})
   set(DirectXTex_INCLUDE_HINT ${DirectXTex_ROOT})
