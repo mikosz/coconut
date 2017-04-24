@@ -11,14 +11,14 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
 void DrawCommand::submit(milk::graphics::CommandList& commandList) {
-	assert(rasteriser_ != nullptr);
+	assert(renderState_ != nullptr);
 	assert(inputLayout_ != nullptr);
 	assert(vertexShader_ != nullptr);
 	assert(pixelShader_ != nullptr);
 	assert(vertexBuffer_ != nullptr);
 	assert(primitiveTopology_ != milk::graphics::PrimitiveTopology::INVALID);
 
-	commandList.setRasteriser(*rasteriser_);
+	commandList.setRenderState(*renderState_);
 	
 	for (auto& sampler: samplers_) {
 		commandList.setSampler(sampler.sampler, sampler.stage, sampler.slot);
@@ -37,8 +37,8 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 
 	}
 
-	for (auto& texture: textures_) {
-		commandList.setTexture(*texture.texture, texture.stage, texture.slot);
+	for (auto& resource : resources_) {
+		commandList.setResource(*resource.resource, resource.stage, resource.slot);
 	}
 
 	commandList.setInputLayout(*inputLayout_);
@@ -52,13 +52,12 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	commandList.setVertexBuffer(*vertexBuffer_, 0);
 	commandList.setIndexBuffer(*indexBuffer_, 0);
 	
-	if (instanceCount_ > 0 && indexBuffer_ != nullptr) {
+	if (instanceCount_ > 1) {
 		if (instanceDataBuffer_ != nullptr) {
 			commandList.setVertexBuffer(*instanceDataBuffer_, 1);
 		}
-
 		commandList.drawIndexedInstanced(indexCount_, instanceCount_, 0u, primitiveTopology_);
-	} else if (indexBuffer_ != nullptr) {
+	} else {
 		commandList.drawIndexed(0, indexCount_, primitiveTopology_); 
 	}
 }

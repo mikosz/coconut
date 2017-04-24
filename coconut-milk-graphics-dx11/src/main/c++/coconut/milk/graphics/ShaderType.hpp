@@ -4,6 +4,9 @@
 #include <coconut-tools/enum.hpp>
 
 struct ID3D11VertexShader;
+struct ID3D11GeometryShader;
+struct ID3D11HullShader;
+struct ID3D11DomainShader;
 struct ID3D11PixelShader;
 
 namespace coconut {
@@ -12,6 +15,9 @@ namespace graphics {
 
 CCN_ENUM(ShaderType,
 	(VERTEX)
+	(GEOMETRY)
+	(HULL)
+	(DOMAIN)
 	(PIXEL)
 	);
 
@@ -21,6 +27,21 @@ constexpr ShaderType shaderTypeFromShader();
 template <>
 constexpr ShaderType shaderTypeFromShader<ID3D11VertexShader>() {
 	return ShaderType::VERTEX;
+}
+
+template <>
+constexpr ShaderType shaderTypeFromShader<ID3D11GeometryShader>() {
+	return ShaderType::GEOMETRY;
+}
+
+template <>
+constexpr ShaderType shaderTypeFromShader<ID3D11HullShader>() {
+	return ShaderType::HULL;
+}
+
+template <>
+constexpr ShaderType shaderTypeFromShader<ID3D11DomainShader>() {
+	return ShaderType::DOMAIN;
 }
 
 template <>

@@ -1,8 +1,10 @@
 /cmake.cfg
-*.suo
 
 # visual-studio files
 .vs/
+*.suo
+*.sln
+*.pyproj
 
 # renderdoc .cap files
 *.cap

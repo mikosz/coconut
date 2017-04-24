@@ -18,6 +18,6 @@
 #	undef TRANSPARENT
 #endif /* TRANSPARENT */
 
-#if defined(VOID)
-#	undef VOID
-#endif /* VOID */
+#if defined(DOMAIN)
+#	undef DOMAIN
+#endif /* DOMAIN */

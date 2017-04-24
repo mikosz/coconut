@@ -3,16 +3,9 @@
 
 #include <vector>
 
-#include <boost/filesystem/path.hpp>
-
-#include <wincodec.h>
-#include "coconut/milk/system/cleanup-windows-macros.hpp"
-#pragma comment(lib, "windowscodecs.lib")
-
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
-#include "coconut/milk/system/COMWrapper.hpp"
-#include "coconut/milk/math/Vector.hpp"
+#include "coconut/milk/fs.hpp"
 
 #include "PixelFormat.hpp"
 
@@ -26,7 +19,7 @@ public:
 	using Dimensions = std::pair<size_t, size_t>; // TODO: find a better type
 
 	const std::uint8_t* pixels() const {
-		return pixels_.get();
+		return pixels_.data();
 	}
 
 	Dimensions size() const {
@@ -43,7 +36,7 @@ public:
 
 private:
 
-	Image(std::unique_ptr<std::uint8_t[]> pixels, Dimensions size, size_t rowPitch, PixelFormat pixelFormat) :
+	Image(std::vector<std::uint8_t> pixels, Dimensions size, size_t rowPitch, PixelFormat pixelFormat) :
 		pixels_(std::move(pixels)),
 		size_(size),
 		rowPitch_(rowPitch),
@@ -51,7 +44,7 @@ private:
 	{
 	}
 
-	std::unique_ptr<std::uint8_t[]> pixels_;
+	std::vector<std::uint8_t> pixels_;
 
 	Dimensions size_;
 
@@ -66,37 +59,31 @@ private:
 class ImageLoadingError : public coconut_tools::exceptions::RuntimeError {
 public:
 
-	ImageLoadingError(const boost::filesystem::path& path, const std::string& message);
+	ImageLoadingError(const AbsolutePath& path, const std::string& message);
 
-	ImageLoadingError(const boost::filesystem::path& path, const std::exception& cause);
+	ImageLoadingError(const AbsolutePath& path, const std::exception& cause);
 
 	const std::string& name() const noexcept override {
 		static const std::string NAME = "ImageLoadingError";
 		return NAME;
 	}
 
-	const boost::filesystem::path& path() const {
+	const AbsolutePath& path() const {
 		return path_;
 	}
 
 private:
 
-	boost::filesystem::path path_;
+	AbsolutePath path_;
 
-	static std::string buildMessage(const boost::filesystem::path& path, const std::string& message);
+	static std::string buildMessage(const AbsolutePath& path, const std::string& message);
 
 };
 
-class ImageLoader {
+class ImageLoader { // TODO: extract load as a free function, remove this class
 public:
 
-	ImageLoader();
-
-	Image load(const boost::filesystem::path& path) const;
-
-private:
-
-	system::COMWrapper<IWICImagingFactory> imagingFactory_;
+	Image load(const FilesystemContext& filesystemContext, const Path& path) const;
 
 };
 

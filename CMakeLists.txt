@@ -37,10 +37,10 @@ if(${CMAKE_COMPILER_IS_GNUCXX})
     if(${COMPILER_WARNINGS_AS_ERRORS})
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -O0")
 elseif(${MSVC})
-	# set(CMAKE_CXX_FLAGS "/std:c++latest")
+	set(CMAKE_CXX_FLAGS " /std:c++14 /EHsc")
     if(${COMPILER_WARNINGS_AS_ERRORS})
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
     endif()
@@ -67,18 +67,19 @@ set(CoconutTools_INCLUDE_HINT ${EXTENSIONS_DIR})
 set(CoconutTools_LIBRARY_HINT ${EXTENSIONS_DIR})
 find_package(CoconutTools REQUIRED)
 include_directories(${CoconutTools_INCLUDE_DIR})
-link_directories(${CoconutTools_LIBRARY_DIR})
 
 find_package(Threads REQUIRED)
 
 set(MODULES
     "coconut-milk-fs"
     "coconut-milk-graphics-${MODULE_RENDERER}"
-    "coconut-milk-math-${MODULE_MATHS}"
     "coconut-milk-system-${MODULE_SYSTEM}"
     "coconut-milk-utils"
-    "coconut-pulp-model"
+    "coconut-pulp-math"
+    "coconut-pulp-mesh"
+    "coconut-pulp-primitive"
     "coconut-pulp-renderer"
+    "coconut-pulp-world"
     "coconut-shell"
     )
 

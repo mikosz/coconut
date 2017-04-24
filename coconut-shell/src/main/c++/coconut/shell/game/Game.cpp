@@ -5,17 +5,18 @@
 #include <memory>
 #include <chrono>
 
-#include <coconut-tools/serialisation/BinarySerialiser.hpp>
-#include <coconut-tools/serialisation/BinaryDeserialiser.hpp>
-#include <coconut-tools/serialisation/JSONDeserialiser.hpp>
+#include <coconut-tools/serialisation.hpp>
 
 #include "coconut/milk/graphics/Shader.hpp"
 
 #include "coconut/milk/fs.hpp"
 
-#include "coconut/pulp/model/obj/Importer.hpp"
+#include "coconut/milk/system/Window.hpp"
+
+#include "coconut/pulp/mesh/obj/Importer.hpp"
 
 #include "coconut/pulp/renderer/Model.hpp"
+#include "coconut/pulp/renderer/ModelFactory.hpp"
 #include "coconut/pulp/renderer/PerspectiveLens.hpp"
 #include "coconut/pulp/renderer/OrientedCamera.hpp"
 #include "coconut/pulp/renderer/Scene.hpp"
@@ -23,25 +24,32 @@
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
 #include "coconut/pulp/renderer/shader/PassFactory.hpp"
 
+#include "coconut/pulp/world/foliage/GrassActor.hpp"
+
 #include "globals.hpp"
-#include "coconut/milk/system/Window.hpp"
 
 using namespace coconut;
 using namespace coconut::shell;
 using namespace coconut::shell::game;
+
+using namespace coconut::pulp::math_literals;
 
 Game::Game(std::shared_ptr<milk::system::App> app) :
 	app_(app),
 	filesystem_(std::make_unique<milk::Filesystem>())
 {
 	{
-		auto mount = std::make_unique<milk::DirectoryMount>(".", false);
-		filesystem_->mount("/", std::move(mount), milk::Filesystem::PredecessorHidingPolicy::ADD);
+		auto currentMount = std::make_unique<milk::DirectoryMount>(".", false);
+		filesystem_->mount("/", std::move(currentMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
+
+		// TODO: readOnly is ignored!
+		auto worldMount = std::make_unique<milk::DirectoryMount>("../coconut-pulp-world", true);
+		filesystem_->mount("/", std::move(worldMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
 	}
 
 	{
 		milk::system::Window::Configuration configuration;
-		configuration.className = "coconut/milk::graphics::device::Window";
+		configuration.className = "coconut::milk::graphics::device::Window";
 		configuration.fullscreen = false;
 		configuration.width = 800;
 		configuration.height = 600;
@@ -62,132 +70,73 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 }
 
 void Game::loop() {
-	pulp::renderer::OrientedCameraSharedPtr camera(new pulp::renderer::OrientedCamera);
-
-	pulp::renderer::LensSharedPtr lens(new pulp::renderer::PerspectiveLens(milk::math::Handedness::LEFT, 1.0f, 800.0f / 600.0f, 0.001f, 1000.0f));
-
 	auto fs = milk::FilesystemContext(filesystem_);
 
-	if (!fs.exists("daniel.model")) {
-		auto modelContext = fs;
-
-		modelContext.changeWorkingDirectory("/data/models/Daniel/craig chemise bleu/");
-		auto data = modelContext.load("craig chemis bleu.obj").get();
-
-		auto modelData = pulp::model::obj::Importer().import("daniel", *data, modelContext);
-
-		{
-			auto modelOS = fs.overwrite("daniel.model");
-			coconut_tools::serialisation::BinarySerialiser serialiser(*modelOS);
-			serialiser << modelData;
-		}
-	}
-
-	pulp::renderer::MaterialManager materialManager;
-
-	pulp::model::Data modelData;
-
-	{
-		auto modelIS = fs.open("daniel.model");
-		coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS);
-		deserialiser >> modelData;
-	}
-
-	// ---
-	for (auto& drawGroup : modelData.drawGroups) {
-		auto instance = pulp::model::Data::Instance();
-
-		instance.patchPosition = milk::math::Vector4d(0.0f, 0.0f, 0.0f);
-		drawGroup.instances.emplace_back(instance);
-
-		instance.patchPosition = milk::math::Vector4d(3.0f, 0.0f, 0.0f);
-		drawGroup.instances.emplace_back(instance);
-
-		instance.patchPosition = milk::math::Vector4d(-3.0f, 0.0f, 0.0f);
-		drawGroup.instances.emplace_back(instance);
-	}
-	// ---
-
 	pulp::renderer::shader::PassFactory passFactory;
+	// TODO: temp
+#ifdef NDEBUG
+	passFactory.scanCompiledShaderDirectory(fs, "Release");
+#else
 	passFactory.scanCompiledShaderDirectory(fs, "Debug");
+#endif
 
-	pulp::renderer::Scene scene(*graphicsRenderer_);
-	scene.setRenderingPass(passFactory.create("sprite", *graphicsRenderer_, fs));
+	auto scene = pulp::renderer::Scene(*graphicsRenderer_);
 
-	pulp::renderer::ModelSharedPtr m(new pulp::renderer::Model(modelData, *graphicsRenderer_, scene.renderingPass().input(), materialManager));
+	pulp::renderer::OrientedCameraSharedPtr camera(new pulp::renderer::OrientedCamera);
 
-	pulp::renderer::lighting::DirectionalLight white(
-		milk::math::Vector3d(-0.5f, -0.5f, 0.5f).normalised(),
-		milk::math::Vector4d(0.1f, 0.1f, 0.1f, 0.0f),
-		milk::math::Vector4d(0.7f, 0.7f, 0.7f, 1.0f),
-		milk::math::Vector4d(0.4f, 0.4f, 0.4f, 0.0f)
+	pulp::renderer::LensSharedPtr lens(
+		std::make_unique<pulp::renderer::PerspectiveLens>(
+			pulp::math::Handedness::LEFT,
+			1.0_rad,
+			800.0f / 600.0f,
+			0.001f,
+			1000.0f
+			)
 		);
-	scene.add(white);
 
-	pulp::renderer::lighting::PointLight yellow(
-		milk::math::Vector3d(0.0f, 1.5f, -3.5f),
-		milk::math::Vector3d(0.0f, 1.0f, 0.0f),
-		milk::math::Vector4d(0.1f, 0.0f, 0.0f, 0.0f),
-		milk::math::Vector4d(0.7f, 0.0f, 0.0f, 1.0f),
-		milk::math::Vector4d(0.4f, 0.0f, 0.0f, 0.0f)
-		);
-	scene.add(yellow);
-
-	pulp::renderer::ActorSharedPtr actor(new pulp::renderer::Actor(m));
-
-	scene.add(actor);
 	scene.setCamera(camera);
 	scene.setLens(lens);
 
-	pulp::renderer::ActorSharedPtr actor2(new pulp::renderer::Actor(m));
+	pulp::renderer::lighting::DirectionalLight white(
+		pulp::math::Vec3(0.0f, 0.0f, 1.0f).normalised(),
+		pulp::math::Vec4(0.1f, 0.1f, 0.1f, 0.0f),
+		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
+		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 0.0f)
+		);
+	scene.add(white);
 
-	// scene.add(actor2);
-	actor2->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
-	actor2->setTranslation(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
-	actor2->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
+	/* pulp::renderer::lighting::PointLight yellow(
+		pulp::math::Vec3(0.0f, 1.5f, -3.5f),
+		pulp::math::Vec3(0.0f, 1.0f, 0.0f),
+		pulp::math::Vec4(0.1f, 0.0f, 0.0f, 0.0f),
+		pulp::math::Vec4(0.7f, 0.0f, 0.0f, 1.0f),
+		pulp::math::Vec4(0.4f, 0.0f, 0.0f, 0.0f)
+		);
+	scene.add(yellow); */
 
-	pulp::model::Data floorData;
+	pulp::renderer::ModelFactory modelFactory;
+	modelFactory.scanSourceDirectory(fs, "data/models");
+	modelFactory.scanModelDirectory(fs, "data/models");
 
-	{
-		floorData.rasteriserConfiguration.cullMode = milk::graphics::Rasteriser::CullMode::BACK;
-		floorData.rasteriserConfiguration.fillMode = milk::graphics::Rasteriser::FillMode::SOLID;
-		floorData.rasteriserConfiguration.frontCounterClockwise = false;
+	auto& inputElementFactory = passFactory.inputFactory().inputElementFactory();
+	pulp::world::foliage::GrassActor::registerShaderInputElements(inputElementFactory);
+	pulp::world::foliage::GrassActor::registerParameters(passFactory.shaderFactory().parameterFactory());
+	pulp::world::foliage::GrassActor::registerResources(passFactory.shaderFactory().resourceFactory());
 
-		floorData.positions.emplace_back(2.0f, 0.0f, 2.0f);
-		floorData.positions.emplace_back(2.0f, 0.0f, -2.0f);
-		floorData.positions.emplace_back(-2.0f, 0.0f, 2.0f);
-		floorData.positions.emplace_back(-2.0f, 0.0f, -2.0f);
-
-		floorData.normals.emplace_back(0.0f, 1.0f, 0.0f);
-
-		floorData.textureCoordinates.emplace_back(0.0f, 0.0f);
-
-		floorData.phongMaterials.emplace_back();
-		floorData.phongMaterials.back().ambientColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
-		floorData.phongMaterials.back().diffuseColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
-		floorData.phongMaterials.back().specularColour = milk::math::Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
-		floorData.phongMaterials.back().name = "floor::white";
-
-		pulp::model::Data::DrawGroup drawGroup;
-
-		for (size_t i = 0; i < 4; ++i) {
-			drawGroup.vertices.emplace_back();
-			drawGroup.vertices.back().positionIndex = i;
-			drawGroup.vertices.back().normalIndex = 0;
-			drawGroup.vertices.back().textureCoordinateIndex = 0;
-
-			drawGroup.primitiveTopology = milk::graphics::PrimitiveTopology::TRIANGLE_STRIP;
-
-			drawGroup.indices.emplace_back(i);
-
-			drawGroup.materialId = "floor::white";
+	auto grassModel = modelFactory.create("grass"/*"grass-fakeinst"*/, *graphicsRenderer_, passFactory, fs);
+	
+	bool once = false;
+	//for (float x = -20.0f; x < 20.0f; x += 0.05f) {
+	//	for (float z = -20.0f; z < 100.0f; z += 0.05f) {
+	for (float x = -4.0f; x < 3.9f; x += 1.0f) {
+		for (float z = -4.0f; z < 3.9f; z += 1.0f) {
+			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
+			if (!once) {
+				scene.add(grassActor, grassModel);
+				//once = true;
+			}
 		}
-
-		floorData.drawGroups.emplace_back(drawGroup);
 	}
-	auto floorModel = std::make_shared<pulp::renderer::Model>(floorData, *graphicsRenderer_, scene.renderingPass().input(), materialManager);
-	auto floorActor = std::make_shared<pulp::renderer::Actor>(floorModel);
-	// scene.add(floorActor);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;
@@ -208,17 +157,12 @@ void Game::loop() {
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;
 
 		camera->reset();
-		// camera->rotate(milk::math::Vector3d(0.0f, 0.09f * 3.14f * secs, 0.0f));
-		camera->translate(milk::math::Vector3d(0.0f, 2.0f, 0.0f));
-		camera->rotate(milk::math::Vector3d(0.25f, 0.0f, 0.0f));
-		camera->translate(milk::math::Vector3d(0.0f, 0.0f, -5.f));
+		// camera->rotate(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
+		camera->translate(pulp::math::Vec3(0.0f, 0.8f, 0.0f));
+		//camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
+		//camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
-		actor->setRotation(milk::math::Vector3d(0.0f, 0.09f * 3.14f * secs, 0.0f));
-		// actor->setRotation(milk::math::Vector3d(0.0f, 0.0f, 0.0f));
-		actor->setTranslation(milk::math::Vector3d(0.0f, -.0f, 0.0f));
-		actor->setScale(milk::math::Vector3d(1.0f, 1.0f, 1.0f));
-
-		scene.render(commandBuffer);
+		scene.render(*graphicsRenderer_, commandBuffer);
 
 		commandBuffer.submit(commandList);
 		graphicsRenderer_->submit(commandList);

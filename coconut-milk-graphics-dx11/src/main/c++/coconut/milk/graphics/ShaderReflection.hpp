@@ -62,7 +62,7 @@ public:
 
 		CCN_MEMBER_ENUM_VALUES(
 			ScalarType,
-			(VOID)(D3D_SVT_VOID)
+			(EMPTY)(D3D_SVT_VOID)
 			(BOOL)(D3D_SVT_BOOL)
 			(INT)(D3D_SVT_INT)
 			(UINT)(D3D_SVT_UINT)
@@ -119,13 +119,20 @@ public:
 			(TEXTURE)(D3D_SIT_TEXTURE)
 			);
 
+		CCN_MEMBER_ENUM_VALUES(
+			Dimension,
+			(UNKNOWN)(D3D_SRV_DIMENSION_UNKNOWN)
+			(BUFFER)(D3D_SRV_DIMENSION_BUFFER)
+			(TEXTURE2D)(D3D_SRV_DIMENSION_TEXTURE2D)
+			);
+
 		Type type;
 
 		std::string name;
 
 		size_t slot;
 
-		size_t dimensions;
+		Dimension dimension;
 
 	};
 

@@ -3,8 +3,8 @@
 
 #include <functional>
 
-#include "coconut/milk/math/Matrix.hpp"
-#include "coconut/milk/math/Vector.hpp"
+#include "coconut/pulp/math/Matrix.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 #include "coconut/milk/utils/Lazy.hpp"
 
 namespace coconut {
@@ -23,62 +23,65 @@ public:
 	{
 	}
 
-	const milk::math::Matrix& worldTransformation() const {
+	const Matrix4x4& worldTransformation() const {
 		return worldMatrix_.get();
 	}
 
-	void setTranslation(const milk::math::Vector3d& translation) {
+	void setTranslation(const Vec3& translation) {
 		translation_ = translation;
 		worldMatrix_.invalidate();
 	}
 
-	const milk::math::Vector3d& getTranslation() const {
+	const Vec3& getTranslation() const {
 		return translation_;
 	}
 
-	void translate(const milk::math::Vector3d& translation) {
+	void translate(const Vec3& translation) {
 		translation_ += translation;
 		worldMatrix_.invalidate();
 	}
 
-	void setScale(const milk::math::Vector3d& scale) {
+	void setScale(const Vec3& scale) {
 		scale_ = scale;
 		worldMatrix_.invalidate();
 	}
 
-	const milk::math::Vector3d& getScale() const {
+	const Vec3& getScale() const {
 		return scale_;
 	}
 
-	void setRotation(const milk::math::Vector3d& rotation) {
+	void setRotation(const Vec3& rotation) {
 		rotation_ = rotation;
 		worldMatrix_.invalidate();
 	}
 
-	const milk::math::Vector3d& getRotation() const {
+	const Vec3& getRotation() const {
 		return rotation_;
 	}
 
-	void rotate(const milk::math::Vector3d& rotation) {
+	void rotate(const Vec3& rotation) {
 		rotation_ += rotation;
 		worldMatrix_.invalidate();
 	}
 
 private:
 
-	milk::math::Vector3d translation_;
+	Vec3 translation_;
 
-	milk::math::Vector3d scale_;
+	Vec3 scale_;
 
-	milk::math::Vector3d rotation_;
+	Vec3 rotation_;
 
-	milk::utils::Lazy<milk::math::Matrix> worldMatrix_;
+	milk::utils::Lazy<Matrix4x4> worldMatrix_;
 
-	void calculateWorldTransformation(milk::math::Matrix& matrix) {
+	void calculateWorldTransformation(Matrix4x4& matrix) {
+		matrix = Matrix4x4::IDENTITY;
 		matrix =
-			milk::math::Matrix::rotation(rotation_.x(), rotation_.y(), rotation_.z()) *
-			milk::math::Matrix::scale(scale_.x(), scale_.y(), scale_.z()) *
-			milk::math::Matrix::translation(translation_.x(), translation_.y(), translation_.z())
+			Matrix4x4::rotation(Vec3(1.0f, 0.0f, 0.0f), radians(rotation_.x())) * // Vec3 constants for unit vectors
+			Matrix4x4::rotation(Vec3(0.0f, 1.0f, 0.0f), radians(rotation_.y())) *
+			Matrix4x4::rotation(Vec3(0.0f, 0.0f, 1.0f), radians(rotation_.z())) *
+			Matrix4x4::scale(scale_) *
+			Matrix4x4::translation(translation_)
 			;
 	}
 

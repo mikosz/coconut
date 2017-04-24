@@ -10,8 +10,9 @@
 #include "coconut/milk/utils/IntOfSize.hpp"
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "Data.hpp"
+#include "Resource.hpp"
 #include "ShaderType.hpp"
+#include "PixelFormat.hpp"
 
 namespace coconut {
 namespace milk {
@@ -19,29 +20,32 @@ namespace graphics {
 
 class Renderer;
 
-class Buffer : public Data {
+class Buffer : public Resource {
 public:
 
 	enum class CreationPurpose {
 		VERTEX_BUFFER = D3D11_BIND_VERTEX_BUFFER,
 		INDEX_BUFFER = D3D11_BIND_INDEX_BUFFER,
 		CONSTANT_BUFFER = D3D11_BIND_CONSTANT_BUFFER,
+		SHADER_RESOURCE = D3D11_BIND_SHADER_RESOURCE, // TODO: duplicated with texture
 	};
 
 	struct Configuration {
 
-		size_t size;
+		size_t size = 0;
 
-		size_t stride;
+		size_t stride = 0;
 
-		bool allowModifications;
+		bool allowModifications = false;
 
-		bool allowCPURead;
+		bool allowCPURead = false;
 
-		bool allowGPUWrite;
+		bool allowGPUWrite = false;
 
-		Configuration() {
-		}
+		// TODO: move to another argument? Use different constructor?
+		PixelFormat elementFormat; // Used only when purpose is SHADER_RESOURCE
+
+		Configuration() = default;
 
 		Configuration(
 			size_t size,
@@ -60,19 +64,33 @@ public:
 
 	};
 
-	Buffer(Renderer& renderer, CreationPurpose purpose, const Configuration& configuration, const void* initialData = 0);
+	Buffer() = default;
 
-	ID3D11Buffer& internalBuffer() {
-		return *buffer_;
+	Buffer(Renderer& renderer, CreationPurpose purpose, Configuration configuration, const void* initialData = nullptr);
+
+	const Configuration& configuration() const noexcept {
+		return configuration_;
+	}
+
+	ID3D11Buffer* internalBuffer() {
+		return buffer_;
 	}
 
 	ID3D11Resource& internalResource() override {
 		return *buffer_;
 	}
 
+	ID3D11ShaderResourceView& internalShaderResourceView() const override {
+		return *shaderResourceView_;
+	}
+
 private:
 
+	Configuration configuration_;
+
 	system::COMWrapper<ID3D11Buffer> buffer_;
+
+	system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_; // TODO: duplicated with texture
 
 };
 

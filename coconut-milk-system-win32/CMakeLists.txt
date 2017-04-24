@@ -1,5 +1,5 @@
 set(DEPENDENCY_LIBRARIES
-    coconut-tools-exceptions
+    ${CoconutTools_EXCEPTIONS_LIBRARY}
     # ${Boost_THREAD_LIBRARY}
     # ${Boost_SYSTEM_LIBRARY}
     )

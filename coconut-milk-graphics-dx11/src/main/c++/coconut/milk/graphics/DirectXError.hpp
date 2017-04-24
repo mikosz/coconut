@@ -6,6 +6,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 

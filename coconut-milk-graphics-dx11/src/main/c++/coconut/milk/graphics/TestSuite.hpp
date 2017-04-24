@@ -8,7 +8,7 @@
 
 #include "IndexBuffer.hpp"
 #include "VertexBuffer.hpp"
-#include "Rasteriser.hpp"
+#include "RenderState.hpp"
 #include "Viewport.hpp"
 #include "Renderer.hpp"
 
@@ -23,7 +23,7 @@ public:
 		app_(std::make_unique<system::App>(*system::GlobalMainArguments::instance())),
 		window_(windowConfiguration(), app_),
 		renderer_(window_, rendererConfiguration()),
-		rasteriser_(renderer_, rasteriserConfiguration()),
+		renderState_(renderer_, renderStateConfiguration()),
 		viewport_(viewportConfiguration()),
 		squareVertexBuffer_(createSquareVertexBuffer(renderer_)),
 		squareIndexBuffer_(createSquareIndexBuffer(renderer_))
@@ -34,7 +34,7 @@ public:
 		auto& commandList = renderer().getImmediateCommandList();
 
 		commandList.setRenderTarget(renderer().backBuffer(), renderer().depthStencil());
-		commandList.setRasteriser(rasteriser_);
+		commandList.setRenderState(renderState_);
 		commandList.setViewport(viewport_);
 	}
 
@@ -70,7 +70,7 @@ private:
 
 	Renderer renderer_;
 
-	Rasteriser rasteriser_;
+	RenderState renderState_;
 
 	Viewport viewport_;
 
@@ -97,10 +97,10 @@ private:
 		return conf;
 	}
 
-	static Rasteriser::Configuration rasteriserConfiguration() {
-		Rasteriser::Configuration conf;
-		conf.cullMode = Rasteriser::CullMode::BACK;
-		conf.fillMode = Rasteriser::FillMode::SOLID;
+	static RenderState::Configuration renderStateConfiguration() {
+		RenderState::Configuration conf;
+		conf.cullMode = RenderState::CullMode::BACK;
+		conf.fillMode = RenderState::FillMode::SOLID;
 		conf.frontCounterClockwise = false;
 		return conf;
 	}

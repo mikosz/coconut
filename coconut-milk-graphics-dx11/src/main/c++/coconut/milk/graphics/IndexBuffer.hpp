@@ -2,6 +2,7 @@
 #define _COCONUT_MILK_GRAPHICS_INDEXBUFFER_HPP_
 
 #include <cassert>
+#include <cstdint>
 
 #include "Buffer.hpp"
 #include "PixelFormat.hpp"
@@ -12,6 +13,11 @@ namespace graphics {
 
 class IndexBuffer : public Buffer {
 public:
+
+	template <class IntegralType>
+	static IntegralType degenerateIndex();
+
+	IndexBuffer() = default;
 
 	IndexBuffer(Renderer& renderer, const Configuration& configuration, const void* initialData = 0) :
 		Buffer(renderer, CreationPurpose::INDEX_BUFFER, configuration, initialData),
@@ -29,6 +35,16 @@ private:
 	PixelFormat pixelFormat_;
 
 };
+
+template <>
+inline std::uint16_t IndexBuffer::degenerateIndex<std::uint16_t>() {
+	return static_cast<std::uint16_t>(-1);
+}
+
+template <>
+inline std::uint32_t IndexBuffer::degenerateIndex<std::uint32_t>() {
+	return static_cast<std::uint32_t>(-1);
+}
 
 } // namespace graphics
 } // namespace milk

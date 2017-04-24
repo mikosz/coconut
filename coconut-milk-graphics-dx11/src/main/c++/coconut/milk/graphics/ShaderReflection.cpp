@@ -4,8 +4,8 @@
 
 #include <d3d11shader.h>
 #include <d3dcompiler.h>
-
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
+
 #include <coconut-tools/logger.hpp>
 
 #include "coconut/milk/utils/bits.hpp"
@@ -39,7 +39,10 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 			"Failed to get input parameter description"
 			);
 
-		if (desc.SemanticName == "SV_InstanceID"s) { // TODO: extract literal
+		if (
+			desc.SemanticName == "SV_InstanceID"s ||
+			desc.SemanticName == "SV_VertexID"s
+			) { // TODO: extract literals
 			continue;
 		}
 
@@ -59,7 +62,7 @@ ShaderReflection::InputParameterInfos buildInputParameterInfos(
 }
 
 ShaderReflection::Type buildTypeInfo(ID3D11ShaderReflectionType& typeInfo, size_t size) {
-	D3D11_SHADER_TYPE_DESC desc;
+	auto desc = D3D11_SHADER_TYPE_DESC();
 	checkDirectXCall(typeInfo.GetDesc(&desc), "Failed to get variable type desc");
 
 	CT_LOG_DEBUG << "Shader variable type: " << (desc.Name ? desc.Name : "<NULL>");
@@ -70,20 +73,22 @@ ShaderReflection::Type buildTypeInfo(ID3D11ShaderReflectionType& typeInfo, size_
 	fromIntegral(type.klass, milk::utils::integralValue(desc.Class));
 	fromIntegral(type.scalarType, milk::utils::integralValue(desc.Type));
 	type.elements = desc.Elements;
+	//type.columns = desc.Columns;
+	//type.rows = desc.Rows;
 
 	const auto elementSize = size / std::max<size_t>(type.elements, 1);
 	type.elementOffset = milk::utils::roundUpToMultipleOf(elementSize, 16);
 
 	for (UINT memberIdx = 0; memberIdx < desc.Members; ++memberIdx) {
 		auto* memberType = typeInfo.GetMemberTypeByIndex(memberIdx);
-		D3D11_SHADER_TYPE_DESC memberTypeDesc;
+		auto memberTypeDesc = D3D11_SHADER_TYPE_DESC();
 		checkDirectXCall(typeInfo.GetDesc(&memberTypeDesc), "Failed to get member type desc");
 
 		size_t memberSize; // hehehe
 
 		if (memberIdx < desc.Members - 1) {
 			auto* nextMemberType = typeInfo.GetMemberTypeByIndex(memberIdx + 1);
-			D3D11_SHADER_TYPE_DESC nextMemberTypeDesc;
+			auto nextMemberTypeDesc = D3D11_SHADER_TYPE_DESC();
 			checkDirectXCall(typeInfo.GetDesc(&nextMemberTypeDesc), "Failed to get member type desc");
 			memberSize = nextMemberTypeDesc.Offset - memberTypeDesc.Offset;
 		} else {
@@ -173,7 +178,7 @@ ShaderReflection::ResourceInfos buildResourceInfos(
 		info.name = resourceDesc.Name;
 		info.slot = resourceDesc.BindPoint;
 		assert(resourceDesc.BindCount == 1);
-		info.dimensions = resourceDesc.Dimension;
+		fromIntegral(info.dimension, milk::utils::integralValue(resourceDesc.Dimension));
 
 		resources.emplace_back(std::move(info));
 	}

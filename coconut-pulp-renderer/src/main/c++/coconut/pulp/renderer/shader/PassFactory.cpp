@@ -13,23 +13,6 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.PASS_FACTORY");
 
 } // anonymous namespace
 
-std::unique_ptr<Pass> detail::PassCreator::doCreate(
-	const std::string& id,
-	milk::graphics::Renderer& graphicsRenderer,
-	const milk::fs::FilesystemContext& filesystemContext
-	)
-{
-	CT_LOG_INFO << "Creating shader pass: \"" << id << "\"";
-
-	return std::make_unique<Pass>(
-		inputLayoutFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
-		std::dynamic_pointer_cast<VertexShader>(
-			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),
-		std::dynamic_pointer_cast<PixelShader>(
-			shaderFactory_.create(id + ".p", graphicsRenderer, filesystemContext))
-		);
-}
-
 void detail::PassCreator::scanShaderCodeDirectory(
 	const milk::fs::FilesystemContext& filesystemContext,
 	const milk::fs::Path& directory,
@@ -41,7 +24,7 @@ void detail::PassCreator::scanShaderCodeDirectory(
 	const auto names = filesystemContext.list(directory);
 
 	for (const auto& name : names) {
-		auto path = directory / name;
+		const auto path = directory / name;
 
 		if (path.extension() == ".hlsl") {
 			detail::ShaderCreator::ShaderCodeInfo shaderInfo; // TODO: must expose this type or use different param to constructor (d'uh)
@@ -53,9 +36,18 @@ void detail::PassCreator::scanShaderCodeDirectory(
 				detail::InputCreator::ShaderCodeInfo inputInfo;
 				inputInfo.shaderCodePath = shaderInfo.shaderCodePath;
 				inputInfo.entrypoint = entrypointName;
-				inputLayoutFactory_.registerShaderCode(shaderName.string(), inputInfo);
+				inputFactory_.registerShaderCode(shaderName.string(), inputInfo);
 
 				shaderInfo.shaderType = milk::graphics::ShaderType::VERTEX;
+				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
+			} else if (shaderName.extension() == ".g") {
+				shaderInfo.shaderType = milk::graphics::ShaderType::GEOMETRY;
+				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
+			} else if (shaderName.extension() == ".h") {
+				shaderInfo.shaderType = milk::graphics::ShaderType::HULL;
+				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
+			} else if (shaderName.extension() == ".d") {
+				shaderInfo.shaderType = milk::graphics::ShaderType::DOMAIN;
 				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
 			} else if (shaderName.extension() == ".p") {
 				shaderInfo.shaderType = milk::graphics::ShaderType::PIXEL;
@@ -84,9 +76,18 @@ void detail::PassCreator::scanCompiledShaderDirectory(
 			const auto shaderName = path.stem();
 
 			if (shaderName.extension() == ".v") {
-				inputLayoutFactory_.registerCompiledShader(shaderName.string(), info.compiledShaderPath);
+				inputFactory_.registerCompiledShader(shaderName.string(), info.compiledShaderPath);
 
 				info.shaderType = milk::graphics::ShaderType::VERTEX;
+				shaderFactory_.registerCompiledShader(shaderName.string(), info);
+			} else if (shaderName.extension() == ".g") {
+				info.shaderType = milk::graphics::ShaderType::GEOMETRY;
+				shaderFactory_.registerCompiledShader(shaderName.string(), info);
+			} else if (shaderName.extension() == ".h") {
+				info.shaderType = milk::graphics::ShaderType::HULL;
+				shaderFactory_.registerCompiledShader(shaderName.string(), info);
+			} else if (shaderName.extension() == ".d") {
+				info.shaderType = milk::graphics::ShaderType::DOMAIN;
 				shaderFactory_.registerCompiledShader(shaderName.string(), info);
 			} else if (shaderName.extension() == ".p") {
 				info.shaderType = milk::graphics::ShaderType::PIXEL;
@@ -94,4 +95,42 @@ void detail::PassCreator::scanCompiledShaderDirectory(
 			}
 		}
 	}
+}
+
+auto detail::PassCreator::doCreate(
+	const std::string& id,
+	milk::graphics::Renderer& graphicsRenderer,
+	const milk::fs::FilesystemContext& filesystemContext
+	) -> Instance
+{
+	CT_LOG_INFO << "Creating shader pass: \"" << id << "\"";
+
+	auto geometryShader = GeometryShaderSharedPtr();
+	auto hullShader = HullShaderSharedPtr();
+	auto domainShader = DomainShaderSharedPtr();
+
+	if (shaderFactory_.hasShader(id + ".g")) {
+		geometryShader = std::dynamic_pointer_cast<GeometryShader>(
+			shaderFactory_.create(id + ".g", graphicsRenderer, filesystemContext));
+	}
+	if (shaderFactory_.hasShader(id + ".h")) {
+		hullShader = std::dynamic_pointer_cast<HullShader>(
+			shaderFactory_.create(id + ".h", graphicsRenderer, filesystemContext));
+	}
+	if (shaderFactory_.hasShader(id + ".d")) {
+		domainShader = std::dynamic_pointer_cast<DomainShader>(
+			shaderFactory_.create(id + ".h", graphicsRenderer, filesystemContext));
+	}
+
+	return std::make_unique<Pass>(
+		false, // true, // TODO: temp - need to discern between instanced and non instanced shaders
+		inputFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
+		std::dynamic_pointer_cast<VertexShader>(
+			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),
+		std::move(geometryShader),
+		std::move(hullShader),
+		std::move(domainShader),
+		std::dynamic_pointer_cast<PixelShader>(
+			shaderFactory_.create(id + ".p", graphicsRenderer, filesystemContext))
+		);
 }

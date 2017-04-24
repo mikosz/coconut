@@ -10,6 +10,8 @@ namespace graphics {
 class VertexBuffer : public Buffer {
 public:
 
+	VertexBuffer() = default;
+
 	VertexBuffer(Renderer& renderer, const Configuration& configuration, const void* initialData = 0) :
 		Buffer(renderer, CreationPurpose::VERTEX_BUFFER, configuration, initialData),
 		stride_(configuration.stride)
@@ -22,7 +24,7 @@ public:
 
 private:
 
-	size_t stride_;
+	size_t stride_ = 0;
 
 };
 

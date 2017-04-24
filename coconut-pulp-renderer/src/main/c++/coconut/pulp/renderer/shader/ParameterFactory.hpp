@@ -143,9 +143,10 @@ private:
 using ParameterFactory = 
 	coconut_tools::Factory<
 		ParameterFactoryInstanceDetails,
-		Parameter,
-		coconut_tools::factory::storage::Volatile,
 		detail::ParameterCreator,
+	// TODO: parameters can't be stored, as they get modified in the ShaderFactory (chained)
+	// this needs to be changed. Parameter chains should be handled by some other class.
+		coconut_tools::factory::storage::None,
 		std::mutex
 		>;
 

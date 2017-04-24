@@ -18,15 +18,14 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-class Data;
+class Resource;
 class Renderer;
 class ConstantBuffer;
 class IndexBuffer;
 class VertexBuffer;
-class Texture;
 class Texture2d;
 class Sampler;
-class Rasteriser;
+class RenderState;
 class InputLayout;
 class Viewport;
 enum class PixelFormat;
@@ -52,7 +51,7 @@ public:
 	void drawIndexedInstanced(size_t vertexCountPerInstance, size_t instanceCount, size_t startingIndex,
 		PrimitiveTopology primitiveTopology);
 
-	LockedData lock(Data& data, LockPurpose lockPurpose);
+	LockedData lock(Resource& data, LockPurpose lockPurpose);
 
 	void setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil);
 
@@ -72,11 +71,11 @@ public:
 
 	void setInstanceDataBuffer(VertexBuffer& buffer, size_t slot);
 
-	void setTexture(Texture& texture, ShaderType stage, size_t slot);
+	void setResource(const Resource& resource, ShaderType stage, size_t slot);
 
 	void setSampler(Sampler& sampler, ShaderType stage, size_t slot);
 
-	void setRasteriser(Rasteriser& rasteriser);
+	void setRenderState(const RenderState& renderState);
 
 	ID3D11DeviceContext& internalDeviceContext() {
 		return *deviceContext_;

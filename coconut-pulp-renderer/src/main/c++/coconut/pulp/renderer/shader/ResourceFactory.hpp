@@ -6,6 +6,7 @@
 #include <memory>
 #include <functional>
 #include <unordered_map>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include <coconut-tools/factory.hpp>
 #include <coconut-tools/factory/CreatorRegistry.hpp>
@@ -13,7 +14,6 @@
 
 #include "coconut/milk/graphics/ShaderType.hpp"
 
-#include "../Material.hpp"
 #include "Resource.hpp"
 
 namespace coconut {
@@ -40,11 +40,13 @@ class ResourceCreator :
 {
 public:
 
+	using Instance = std::unique_ptr<Resource>;
+
 	ResourceCreator();
 
 protected:
 
-	std::unique_ptr<Resource> doCreate(
+	Instance doCreate(
 		const std::string& id,
 		milk::graphics::ShaderType shaderType,
 		size_t slot
@@ -71,9 +73,8 @@ private:
 using ResourceFactory = 
 	coconut_tools::Factory<
 		std::string,
-		Resource,
-		coconut_tools::factory::storage::Volatile,
 		detail::ResourceCreator,
+		coconut_tools::factory::storage::Volatile,
 		std::mutex
 		>;
 

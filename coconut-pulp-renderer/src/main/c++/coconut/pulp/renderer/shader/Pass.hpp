@@ -8,46 +8,91 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
-class DrawCommand;
 class PassContext;
-
+	
 namespace shader {
 
 class Pass {
 public:
 
 	Pass(
+		bool isInstanced,
 		InputSharedPtr input,
 		VertexShaderSharedPtr vertexShader,
+		GeometryShaderSharedPtr geometryShader,
+		HullShaderSharedPtr hullShader,
+		DomainShaderSharedPtr domainShader,
 		PixelShaderSharedPtr pixelShader
 		) :
+		isInstanced_(isInstanced),
 		input_(std::move(input)),
 		vertexShader_(std::move(vertexShader)),
+		geometryShader_(std::move(geometryShader)),
+		hullShader_(std::move(hullShader)),
+		domainShader_(std::move(domainShader)),
 		pixelShader_(std::move(pixelShader))
 	{
 	}
 
-	const Input& input() const {
+	void bind(DrawCommand& drawCommand, const PassContext& passContext) const;
+
+	const Input& input() const noexcept {
 		return *input_;
 	}
 
-	Input& input() {
+	Input& input() noexcept {
 		return *input_;
 	}
 
-	VertexShader& vertexShader() {
+	bool isInstanced() const noexcept {
+		return isInstanced_;
+	}
+
+	VertexShader& vertexShader() noexcept {
 		return *vertexShader_;
 	}
 
-	PixelShader& pixelShader() {
+	bool hasGeometryShader() const noexcept {
+		return !!geometryShader_;
+	}
+
+	GeometryShader& geometryShader() noexcept {
+		return *geometryShader_;
+	}
+
+	bool hasHullShader() const noexcept {
+		return !!hullShader_;
+	}
+
+	HullShader& hullShader() noexcept {
+		return *hullShader_;
+	}
+
+	bool hasDomainShader() const noexcept {
+		return !!domainShader_;
+	}
+
+	DomainShader& domainShader() noexcept {
+		return *domainShader_;
+	}
+
+	PixelShader& pixelShader() noexcept {
 		return *pixelShader_;
 	}
 
 private:
 
+	bool isInstanced_;
+
 	InputSharedPtr input_;
 
 	VertexShaderSharedPtr vertexShader_;
+
+	GeometryShaderSharedPtr geometryShader_;
+
+	HullShaderSharedPtr hullShader_;
+	
+	DomainShaderSharedPtr domainShader_;
 
 	PixelShaderSharedPtr pixelShader_;
 

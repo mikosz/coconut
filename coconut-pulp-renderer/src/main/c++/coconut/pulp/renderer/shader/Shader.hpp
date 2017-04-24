@@ -8,7 +8,7 @@
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
-#include "coconut/pulp/renderer/Material.hpp"
+#include "coconut/pulp/mesh/MaterialConfiguration.hpp"
 
 #include "Resource.hpp"
 #include "ConstantBuffer.hpp"
@@ -53,10 +53,7 @@ public:
 		Resources resources
 		);
 
-	void bind(
-		DrawCommand& drawCommand,
-		const PassContext& PassContext
-		) const;
+	void bind(DrawCommand& drawCommand, const PassContext& passContext) const;
 
 	GraphicsShaderType& shaderData() {
 		return shaderData_;
@@ -79,9 +76,15 @@ private:
 } // namespace detail
 
 using VertexShader = detail::Shader<milk::graphics::VertexShader>;
+using GeometryShader = detail::Shader<milk::graphics::GeometryShader>;
+using HullShader = detail::Shader<milk::graphics::HullShader>;
+using DomainShader = detail::Shader<milk::graphics::DomainShader>;
 using PixelShader = detail::Shader<milk::graphics::PixelShader>;
 
 CCN_MAKE_POINTER_DEFINITIONS(VertexShader);
+CCN_MAKE_POINTER_DEFINITIONS(GeometryShader);
+CCN_MAKE_POINTER_DEFINITIONS(HullShader);
+CCN_MAKE_POINTER_DEFINITIONS(DomainShader);
 CCN_MAKE_POINTER_DEFINITIONS(PixelShader);
 
 } // namespace shader

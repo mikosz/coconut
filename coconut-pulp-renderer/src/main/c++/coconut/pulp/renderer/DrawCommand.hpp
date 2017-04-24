@@ -6,7 +6,7 @@
 
 #include "coconut/milk/graphics/CommandList.hpp"
 #include "coconut/milk/graphics/ConstantBuffer.hpp"
-#include "coconut/milk/graphics/Rasteriser.hpp"
+#include "coconut/milk/graphics/RenderState.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
 #include "coconut/milk/graphics/InputLayout.hpp"
@@ -44,7 +44,7 @@ public:
 
 	void submit(milk::graphics::CommandList& commandList);
 
-	void setInputLayout(milk::graphics::InputLayout* inputLayout) {
+	void setInputLayout(milk::graphics::InputLayout* inputLayout) { // TODO: POINTERS!!! CONST!
 		inputLayout_ = inputLayout;
 	}
 
@@ -56,8 +56,8 @@ public:
 		pixelShader_ = pixelShader;
 	}
 
-	void setRasteriser(milk::graphics::Rasteriser* rasteriser) {
-		rasteriser_ = rasteriser;
+	void setRenderState(const milk::graphics::RenderState* renderState) {
+		renderState_ = renderState;
 	}
 
 	void addSampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) {
@@ -74,12 +74,12 @@ public:
 		constantBuffersData_.emplace_back(constantBuffer, data, size, stage, slot);
 	}
 
-	void addTexture(
-		milk::graphics::Texture* texture,
+	void addResource(
+		const milk::graphics::Resource* resource,
 		milk::graphics::ShaderType stage,
 		size_t slot
 		) {
-		textures_.emplace_back(texture, stage, slot);
+		resources_.emplace_back(resource, stage, slot);
 	}
 
 	void setRenderTarget(milk::graphics::Texture2d* texture) {
@@ -160,16 +160,16 @@ private:
 
 	};
 
-	struct Texture {
+	struct Resource {
 
-		milk::graphics::Texture* texture; // TODO: pointer
+		const milk::graphics::Resource* resource; // TODO: pointer
 
 		milk::graphics::ShaderType stage;
 
 		size_t slot;
 
-		Texture(milk::graphics::Texture* texture, milk::graphics::ShaderType stage, size_t slot) :
-			texture(texture),
+		Resource(const milk::graphics::Resource* resource, milk::graphics::ShaderType stage, size_t slot) :
+			resource(resource),
 			stage(stage),
 			slot(slot)
 		{
@@ -181,7 +181,7 @@ private:
 
 	using ConstantBuffersData = std::vector<ConstantBufferData>; // TODO: ,,
 
-	using Textures = std::vector<Texture>; // TODO: ,,
+	using Resources = std::vector<Resource>; // TODO: ,,
 
 	// TODO: pointers
 	milk::graphics::Viewport* viewport_ = nullptr;
@@ -196,13 +196,13 @@ private:
 
 	milk::graphics::PixelShader* pixelShader_ = nullptr;
 
-	milk::graphics::Rasteriser* rasteriser_ = nullptr;
+	const milk::graphics::RenderState* renderState_ = nullptr;
 
 	Samplers samplers_;
 
 	ConstantBuffersData constantBuffersData_;
 
-	Textures textures_;
+	Resources resources_;
 
 	milk::graphics::VertexBuffer* vertexBuffer_ = nullptr;
 

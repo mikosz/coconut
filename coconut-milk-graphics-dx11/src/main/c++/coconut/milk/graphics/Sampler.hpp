@@ -5,9 +5,7 @@
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include <coconut-tools/enum.hpp>
-#include <coconut-tools/serialisation/Serialiser.hpp>
-#include <coconut-tools/serialisation/Deserialiser.hpp>
-#include <coconut-tools/serialisation/make-serialisable-macro.hpp>
+#include <coconut-tools/serialisation.hpp>
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
@@ -30,6 +28,7 @@ public:
 
 	CCN_MEMBER_ENUM_VALUES(
 		Filter,
+		(MIN_MAG_MIP_POINT)(D3D11_FILTER_MIN_MAG_MIP_POINT)
 		(MIN_MAG_MIP_LINEAR)(D3D11_FILTER_MIN_MAG_MIP_LINEAR)
 		(ANISOTROPIC)(D3D11_FILTER_ANISOTROPIC)
 		);

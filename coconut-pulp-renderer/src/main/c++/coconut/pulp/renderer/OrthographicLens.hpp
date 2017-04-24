@@ -11,18 +11,18 @@ class OrthographicLens : public Lens {
 public:
 
 	OrthographicLens(
-		milk::math::Handedness handedness,
+		pulp::math::Handedness handedness,
 		float viewWidth,
 		float viewHeight,
 		float nearZ,
 		float farZ
 		);
 
-	const milk::math::Matrix& projectionTransformation() const override;
+	const Matrix4x4& projectionTransformation() const override;
 
 private:
 
-	milk::math::Matrix projectionMatrix_;
+	Matrix4x4 projectionMatrix_;
 
 };
 

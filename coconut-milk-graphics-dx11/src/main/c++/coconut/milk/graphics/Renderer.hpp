@@ -60,7 +60,7 @@ public:
 
 	void submit(CommandList& commandList);
 
-	LockedData lock(Data& data, LockPurpose lockPurpose);
+	LockedData lock(Resource& data, LockPurpose lockPurpose);
 
 	Texture2d& backBuffer() {
 		return backBuffer_;

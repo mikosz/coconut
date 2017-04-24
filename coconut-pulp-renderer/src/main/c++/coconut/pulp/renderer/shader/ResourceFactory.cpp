@@ -9,7 +9,7 @@
 #include "coconut/milk/utils/sliceIdentifier.hpp"
 
 #include "../PassContext.hpp"
-#include "../PhongMaterial.hpp"
+#include "../Material.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -21,11 +21,11 @@ namespace /* anonymous */ {
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.RESOURCE_FACTORY");
 
 std::unique_ptr<Resource> createDiffuseMap(milk::graphics::ShaderType shaderType, size_t slot) {
-	return std::make_unique<TextureResource>(
-		[](const PassContext& passContext) -> milk::graphics::Texture* {
-			const auto& phongMaterial = dynamic_cast<const PhongMaterial&>(*passContext.material);
-			if (phongMaterial.hasDiffuseMap()) {
-				return &phongMaterial.diffuseMap();
+	return std::make_unique<DataResource>(
+		[](const PassContext& passContext) -> const milk::graphics::Texture* {
+			static const auto DIFFUSE_MAP_TEXTURE = mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(DIFFUSE_MAP_TEXTURE)) {
+				return &std::get<milk::graphics::Texture2d>(passContext.material->texture(DIFFUSE_MAP_TEXTURE));
 			} else {
 				return nullptr;
 			}
@@ -37,10 +37,41 @@ std::unique_ptr<Resource> createDiffuseMap(milk::graphics::ShaderType shaderType
 
 std::unique_ptr<Resource> createDiffuseMapSampler(milk::graphics::ShaderType shaderType, size_t slot) {
 	return std::make_unique<SamplerResource>(
-		[](const PassContext& passContext) -> milk::graphics::Sampler* {
-			const auto& phongMaterial = dynamic_cast<const PhongMaterial&>(*passContext.material);
-			if (phongMaterial.hasDiffuseMap()) {
-				return &phongMaterial.diffuseMapSampler();
+		[](const PassContext& passContext) -> const milk::graphics::Sampler* {
+			static const auto DIFFUSE_MAP_TEXTURE = mesh::MaterialConfiguration::DIFFUSE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(DIFFUSE_MAP_TEXTURE)) {
+				return &std::get<milk::graphics::Sampler>(passContext.material->texture(DIFFUSE_MAP_TEXTURE));
+			} else {
+				return nullptr;
+			}
+		},
+		shaderType,
+		slot
+		);
+}
+
+std::unique_ptr<Resource> createNoiseMap(milk::graphics::ShaderType shaderType, size_t slot) {
+	return std::make_unique<DataResource>(
+		[](const PassContext& passContext) -> const milk::graphics::Texture* {
+			static const auto NOISE_MAP_TEXTURE = mesh::MaterialConfiguration::NOISE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(NOISE_MAP_TEXTURE)) {
+				return &std::get<milk::graphics::Texture2d>(passContext.material->texture(NOISE_MAP_TEXTURE));
+			} else {
+				return nullptr;
+			}
+		},
+		shaderType,
+		slot
+		);
+}
+
+// TODO: duplicated code, generate these using property keys
+std::unique_ptr<Resource> createNoiseMapSampler(milk::graphics::ShaderType shaderType, size_t slot) {
+	return std::make_unique<SamplerResource>(
+		[](const PassContext& passContext) -> const milk::graphics::Sampler* {
+			static const auto NOISE_MAP_TEXTURE = mesh::MaterialConfiguration::NOISE_MAP_TEXTURE;
+			if (passContext.material->hasTexture(NOISE_MAP_TEXTURE)) {
+				return &std::get<milk::graphics::Sampler>(passContext.material->texture(NOISE_MAP_TEXTURE));
 			} else {
 				return nullptr;
 			}
@@ -56,11 +87,11 @@ detail::ResourceCreator::ResourceCreator() {
 	registerBuiltins();
 }
 
-std::unique_ptr<Resource> detail::ResourceCreator::doCreate(
+auto detail::ResourceCreator::doCreate(
 	const std::string& id,
 	milk::graphics::ShaderType shaderType,
 	size_t slot
-	)
+	) -> Instance
 {
 	CT_LOG_INFO << "Creating resource " << id << " at slot " << slot << " of " << shaderType;
 
@@ -78,4 +109,8 @@ void detail::ResourceCreator::registerBuiltins() {
 	// phong material
 	registerCreator("diffuse_map", &createDiffuseMap);
 	registerCreator("diffuse_map_sampler_state", &createDiffuseMapSampler);
+
+	// noise
+	registerCreator("noise_map", &createNoiseMap);
+	registerCreator("noise_map_sampler_state", &createNoiseMapSampler);
 }

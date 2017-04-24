@@ -1,15 +1,15 @@
 set(DEPENDENCY_LIBRARIES
-	coconut-milk-fs
+    ${CoconutTools_LOGGER_LIBRARY}
+    ${CoconutTools_CONFIGURATION_LIBRARY}
+    ${CoconutTools_SERIALISATION_LIBRARY}
+    ${CoconutTools_SYSTEM_LIBRARY}
+    ${CoconutTools_EXCEPTIONS_LIBRARY}
+    coconut-milk-fs
     coconut-pulp-renderer
-    coconut-tools-logger
-    coconut-tools-configuration
-    coconut-tools-serialisation
-    coconut-tools-system
-    coconut-tools-exceptions
+    coconut-pulp-world
     )
 
 set(TEST_LIBRARIES
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
     )
     
 executable_module(

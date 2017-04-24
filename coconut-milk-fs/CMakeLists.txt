@@ -1,9 +1,9 @@
 set(DEPENDENCY_LIBRARIES
-    coconut-tools-exceptions
+    ${CoconutTools_EXCEPTIONS_LIBRARY}
     )
 
 set(TEST_LIBRARIES
-    coconut-tools-system
+    ${CoconutTools_SYSTEM_LIBRARY}
     )
 
 library_module(coconut-milk-fs "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" USE_GMOCK ${LIBRARY_TYPE})

@@ -10,8 +10,8 @@ namespace renderer {
 class StaticCamera : public Camera {
 public:
 
-	const milk::math::Matrix& viewTransformation() const override {
-		return milk::math::Matrix::IDENTITY;
+	const pulp::math::Matrix& viewTransformation() const override {
+		return pulp::math::Matrix::IDENTITY;
 	}
 
 };

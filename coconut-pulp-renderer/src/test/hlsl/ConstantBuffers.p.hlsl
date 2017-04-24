@@ -1,4 +1,4 @@
-struct PhongMaterial {
+struct Material {
 	float4 ambientColour;
 	float4 diffuseColour;
 	float4 specularColour;
@@ -31,7 +31,7 @@ cbuffer ObjectData {
 }
 
 cbuffer GroupData {
-	PhongMaterial phongMaterial;
+	Material material;
 }
 
 bool almostEqual(float lhs, float rhs) {
@@ -47,15 +47,15 @@ bool almostEqual(float4 lhs, float4 rhs) {
 }
 
 float4 main(float4 pos : SV_POSITION) : SV_TARGET {
-	if (!almostEqual(phongMaterial.ambientColour, float4(0.01f, 0.02f, 0.03f, 0.04f))) {
+	if (!almostEqual(material.ambientColour, float4(0.01f, 0.02f, 0.03f, 0.04f))) {
 		return float4(0.01f, 0.01f, 0.01f, 0.01f);
 	}
 
-	if (!almostEqual(phongMaterial.diffuseColour, float4(0.05f, 0.06f, 0.07f, 0.08f))) {
+	if (!almostEqual(material.diffuseColour, float4(0.05f, 0.06f, 0.07f, 0.08f))) {
 		return float4(0.02f, 0.02f, 0.02f, 0.02f);
 	}
 	
-	if (!almostEqual(phongMaterial.specularColour, float4(0.09f, 0.10f, 0.11f, 0.12f))) {
+	if (!almostEqual(material.specularColour, float4(0.09f, 0.10f, 0.11f, 0.12f))) {
 		return float4(0.03f, 0.03f, 0.03f, 0.03f);
 	}
 	

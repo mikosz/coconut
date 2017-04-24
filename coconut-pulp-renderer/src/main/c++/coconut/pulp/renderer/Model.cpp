@@ -1,60 +1,289 @@
 #include "Model.hpp"
 
+#include <algorithm>
+#include <iterator>
+#include <numeric>
+
 #include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/milk/graphics/ImageLoader.hpp"
-
-#include "PhongMaterial.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 
-Model::Model(
-	const model::Data& data,
-	milk::graphics::Renderer& graphicsRenderer,
-	const shader::Input& input,
-	MaterialManager& materialManager
+namespace /* anonymous */ {
+
+milk::graphics::Buffer::Configuration vertexBufferConfiguration(
+	size_t vertexCount,
+	size_t vertexSize
 	) {
-	for (const auto& phongMaterial : data.phongMaterials) {
-		ShaderPassType shaderPassType;
-		if (phongMaterial.diffuseColour.w() < 1.0f) { // TODO: - epsilon
-			shaderPassType = ShaderPassType::TRANSPARENT;
-		} else {
-			shaderPassType = ShaderPassType::OPAQUE;
+	return milk::graphics::Buffer::Configuration(
+		vertexSize * vertexCount,
+		vertexSize,
+		false,
+		false,
+		false
+		);
+}
+
+std::vector<milk::fs::Byte> vertexBufferData(
+	const shader::Input& shaderInput,
+	mesh::Mesh::Submeshes::iterator submeshIt,
+	mesh::Mesh::Submeshes::iterator submeshEnd,
+	size_t totalVertices
+	)
+{
+	auto data = std::vector<milk::fs::Byte>(); // TODO: this should be a common type
+	data.resize(shaderInput.vertexSize() * totalVertices);
+	auto* bufferPtr = data.data();
+
+	std::for_each(submeshIt, submeshEnd, [&shaderInput, &bufferPtr](const auto& submesh) {
+			std::for_each(
+				submesh.vertices().begin(),
+				submesh.vertices().end(),
+				[&shaderInput, &bufferPtr](const auto& vertex) {
+					shaderInput.writeVertex(bufferPtr, &vertex);
+					bufferPtr += shaderInput.vertexSize();
+				}
+				);
+		});
+
+	return data;
+}
+
+size_t indexBufferStride(size_t totalVertices) {
+	const auto max2ByteIndex = std::numeric_limits<std::uint16_t>::max();
+	return totalVertices <= max2ByteIndex ? 2 : 4;
+}
+
+milk::graphics::Buffer::Configuration indexBufferConfiguration(size_t totalIndices, size_t totalVertices) {
+	const auto stride = indexBufferStride(totalVertices);
+	auto configuration = milk::graphics::Buffer::Configuration(
+		stride * totalIndices,
+		stride,
+		false,
+		false,
+		false
+		);
+
+	return configuration;
+}
+
+template <class IndexType>
+std::vector<std::uint8_t> indexBufferData(
+	mesh::Mesh::Submeshes::iterator submeshIt,
+	mesh::Mesh::Submeshes::iterator submeshEnd,
+	size_t totalIndices
+	)
+{
+	const auto needsDegenerateIndices =
+		(submeshIt->primitiveTopology() == milk::graphics::PrimitiveTopology::TRIANGLE_STRIP);
+	const auto totalDegenerateIndices = std::distance(submeshIt, submeshEnd) - 1;
+
+	auto data = std::vector<std::uint8_t>();
+	data.resize(sizeof(IndexType) * (totalIndices + totalDegenerateIndices));
+
+	auto* dataPtr = reinterpret_cast<IndexType*>(data.data());
+
+	auto baseIndex = static_cast<IndexType>(0);
+	std::for_each(
+		submeshIt,
+		submeshEnd,
+		[&dataPtr, &baseIndex, needsDegenerateIndices](const auto& submesh) {
+			if (baseIndex != 0 && needsDegenerateIndices) {
+				*dataPtr++ = milk::graphics::IndexBuffer::degenerateIndex<IndexType>();
+			}
+			dataPtr = std::transform(
+				submesh.indices().begin(),
+				submesh.indices().end(),
+				dataPtr,
+				[baseIndex](auto index) {
+					return static_cast<IndexType>(index + baseIndex);
+				}
+				);
+			baseIndex += static_cast<IndexType>(submesh.vertices().size());
+		});
+
+	assert(dataPtr - reinterpret_cast<IndexType*>(data.data()) == data.size() / sizeof(IndexType));
+
+	return data;
+}
+
+} // anonymous namespace
+
+Model::Model(
+	std::string id,
+	Mesh mesh,
+	milk::graphics::Renderer& graphicsRenderer,
+	shader::PassFactory& passFactory,
+	const milk::FilesystemContext& filesystemContext
+	) :
+	id_(std::move(id))
+{
+	assert(!mesh.submeshes().empty());
+
+	auto submeshMaterialComparator = [](const auto& lhs, const auto& rhs) {
+			return lhs.materialId() < rhs.materialId();
+		};
+
+	auto& submeshes = mesh.submeshes();
+	std::sort(submeshes.begin(), submeshes.end(), submeshMaterialComparator);
+
+	auto it = submeshes.begin();
+	while (it != submeshes.end()) {
+		auto end = mesh::Mesh::Submeshes::iterator();
+		std::tie(it, end) = std::equal_range(it, submeshes.end(), *it, submeshMaterialComparator);
+		if (it != submeshes.end()) {
+			drawGroups_.emplace_back(
+				graphicsRenderer,
+				passFactory,
+				filesystemContext,
+				it,
+				end,
+				mesh.materials()[it->materialId()]
+				);
+			it = end;
 		}
-
-		auto material = std::make_unique<PhongMaterial>(shaderPassType);
-		material->setAmbientColour(phongMaterial.ambientColour);
-		material->setDiffuseColour(phongMaterial.diffuseColour);
-
-		if (!phongMaterial.diffuseMap.empty()) {
-			milk::graphics::ImageLoader imageLoader;
-			auto diffuseMap = std::make_unique<milk::graphics::Texture2d>(
-				graphicsRenderer, imageLoader.load(phongMaterial.diffuseMap.string()));
-			material->setDiffuseMap(std::move(diffuseMap));
-			material->setDiffuseMapSampler(
-				milk::graphics::Sampler(
-					graphicsRenderer, phongMaterial.diffuseMapSamplerConfiguration
-					)
-				); // TODO: use configuration-derived key, store samplers in manager
-		}
-
-		material->setSpecularColour(phongMaterial.specularColour);
-		material->setSpecularExponent(phongMaterial.specularExponent);
-
-		materialManager.registerMaterial(phongMaterial.name, std::move(material)); // TODO: feed the material manager somewhere else
-	}
-
-	for (size_t groupIndex = 0; groupIndex < data.drawGroups.size(); ++groupIndex) {
-		drawGroups_.emplace_back(std::make_shared<DrawGroup>(data, groupIndex, graphicsRenderer, input, materialManager));
 	}
 }
 
-void Model::render(CommandBuffer& commandBuffer, PassContext PassContext) {
-	PassContext.model = this;
+void Model::render(CommandBuffer& commandBuffer, PassContext passContext) {
+	passContext.model = this;
 
-	for (auto drawGroup : drawGroups_) {
-		drawGroup->render(commandBuffer, PassContext);
+	for (auto& drawGroup : drawGroups_) {
+		drawGroup.render(commandBuffer, passContext);
+	}
+}
+
+Model::DrawGroup::DrawGroup(
+	milk::graphics::Renderer& graphicsRenderer,
+	shader::PassFactory& passFactory,
+	const milk::fs::FilesystemContext& filesystemContext,
+	mesh::Mesh::Submeshes::iterator submeshIt,
+	mesh::Mesh::Submeshes::iterator submeshEnd,
+	const mesh::MaterialConfiguration& materialConfiguration
+	) :
+	primitiveTopology(submeshIt->primitiveTopology()),
+	material(graphicsRenderer, passFactory, filesystemContext, materialConfiguration)
+{
+	const auto zero = static_cast<size_t>(0);
+
+	const auto totalVertices = std::accumulate(submeshIt, submeshEnd, zero, [](size_t v, const auto& submesh) {
+			return v + submesh.vertices().size();
+		});
+	const auto& shaderInput = material.shaderPass().input();
+
+	if (shaderInput.vertexSize() > 0) {
+		vertexBuffer = milk::graphics::VertexBuffer(
+			graphicsRenderer,
+			vertexBufferConfiguration(totalVertices, shaderInput.vertexSize()),
+			vertexBufferData(shaderInput, submeshIt, submeshEnd, totalVertices).data()
+			);
+	}
+
+	indexCount = std::accumulate(submeshIt, submeshEnd, zero, [](size_t v, const auto& submesh) {
+			return v + submesh.indices().size();
+		});
+
+	const auto indexSize = indexBufferStride(totalVertices);
+	if (indexSize == 2) {
+		indexBuffer = milk::graphics::IndexBuffer(
+			graphicsRenderer,
+			indexBufferConfiguration(indexCount, totalVertices),
+			indexBufferData<std::uint16_t>(submeshIt, submeshEnd, indexCount).data()
+			);
+	} else if (indexSize == 4) {
+		indexBuffer = milk::graphics::IndexBuffer(
+			graphicsRenderer,
+			indexBufferConfiguration(indexCount, totalVertices),
+			indexBufferData<std::uint32_t>(submeshIt, submeshEnd, indexCount).data()
+			);
+	} else {
+		assert(!("Unexpected index size: " + std::to_string(indexSize)).c_str());
+	}
+}
+
+void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
+	if (material.shaderPass().isInstanced() && passContext.actors->size() > 1) { // TODO this and next lines
+		auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
+
+		drawCommand->setRenderState(&material.renderState());
+
+		auto& pass = material.shaderPass();
+
+		passContext.material = &material;
+
+		drawCommand->setInputLayout(&pass.input().layout());
+		drawCommand->setVertexShader(&pass.vertexShader().shaderData());
+		drawCommand->setPixelShader(&pass.pixelShader().shaderData());
+
+		drawCommand->setVertexBuffer(&vertexBuffer);
+		drawCommand->setIndexBuffer(&indexBuffer);
+		drawCommand->setIndexCount(indexCount);
+		drawCommand->setPrimitiveTopology(primitiveTopology);
+		
+		const auto instanceBufferSize = passContext.actors->size() * pass.input().instanceSize();
+		if (instanceBufferSize > instanceDataBuffer.configuration().size) { // TODO: TEMP (update conditionally, not here possibly, but in Scene)
+			auto buffer = std::vector<std::uint8_t>(instanceBufferSize);
+			auto* outputPtr = reinterpret_cast<void*>(buffer.data());
+			for (const auto& actor : *passContext.actors) {
+				outputPtr = pass.input().writeInstance(outputPtr, *actor);
+			}
+			
+			auto configuration = milk::graphics::Buffer::Configuration(
+				instanceBufferSize,
+				pass.input().instanceSize(),
+				true,
+				false,
+				false
+				);
+			instanceDataBuffer = milk::graphics::VertexBuffer(
+				*passContext.graphicsRenderer,
+				configuration,
+				buffer.data()
+				);
+		}
+
+		pass.bind(*drawCommand, passContext);
+
+		drawCommand->setInstanceDataBuffer(&instanceDataBuffer);
+		drawCommand->setInstanceCount(passContext.actors->size());
+
+		drawCommand->setRenderTarget(passContext.backBuffer); // TODO
+		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
+		drawCommand->setViewport(passContext.viewport); // TODO
+
+		commandBuffer.add(std::move(drawCommand));
+	} else {
+		for (const auto& actor : *passContext.actors) {
+			auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
+				// TODO: duplicated code above
+			drawCommand->setRenderState(&material.renderState());
+
+			auto& pass = material.shaderPass();
+
+			passContext.material = &material;
+
+			drawCommand->setInputLayout(&pass.input().layout());
+			drawCommand->setVertexShader(&pass.vertexShader().shaderData());
+			drawCommand->setPixelShader(&pass.pixelShader().shaderData());
+
+			drawCommand->setVertexBuffer(&vertexBuffer);
+			drawCommand->setIndexBuffer(&indexBuffer);
+			drawCommand->setIndexCount(indexCount);
+			drawCommand->setPrimitiveTopology(primitiveTopology);
+
+			passContext.actor = actor.get();
+			pass.bind(*drawCommand, passContext);
+
+			drawCommand->setRenderTarget(passContext.backBuffer); // TODO
+			drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
+			drawCommand->setViewport(passContext.viewport); // TODO
+
+			drawCommand->setInstanceCount(1);
+
+			commandBuffer.add(std::move(drawCommand));
+		}
 	}
 }

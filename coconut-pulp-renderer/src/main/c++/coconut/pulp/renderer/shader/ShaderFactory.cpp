@@ -209,11 +209,11 @@ std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 
 } // anonymous namespace
 
-std::unique_ptr<UnknownShader> detail::ShaderCreator::doCreate(
+auto detail::ShaderCreator::doCreate(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::FilesystemContext& filesystemContext
-	)
+	) -> Instance
 {
 	CT_LOG_INFO << "Creating shader: \"" << id << "\"";
 
@@ -238,6 +238,10 @@ std::unique_ptr<UnknownShader> detail::ShaderCreator::doCreate(
 	} else {
 		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
 	}
+}
+
+bool detail::ShaderCreator::hasShader(const std::string& id) const noexcept {
+	return shaderCodeInfos_.count(id) > 0 || compiledShaderInfos_.count(id) > 0;
 }
 
 void detail::ShaderCreator::registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo) {

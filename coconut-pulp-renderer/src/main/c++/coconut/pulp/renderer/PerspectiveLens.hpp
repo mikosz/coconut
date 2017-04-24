@@ -11,18 +11,18 @@ class PerspectiveLens : public Lens {
 public:
 
 	PerspectiveLens(
-		milk::math::Handedness handedness,
-		float fov,
+		pulp::math::Handedness handedness,
+		Angle fov,
 		float aspectRatio,
 		float nearZ,
 		float farZ
 		);
 
-	const milk::math::Matrix& projectionTransformation() const override;
+	const Matrix4x4& projectionTransformation() const override;
 
 private:
 
-	milk::math::Matrix projectionMatrix_;
+	Matrix4x4 projectionMatrix_;
 
 };
 

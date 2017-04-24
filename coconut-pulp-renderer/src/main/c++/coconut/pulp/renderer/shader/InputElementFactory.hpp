@@ -39,8 +39,18 @@ struct InputElementFactoryInstanceDetails {
 	{
 	}
 
+	InputElementFactoryInstanceDetails(
+		std::string semantic,
+		size_t semanticIndex
+		) :
+		semantic(std::move(semantic)),
+		semanticIndex(semanticIndex)
+	{
+	}
+
 };
 
+// TODO: operator== ignores PixelFormat, which is not intuitive
 bool operator==(const InputElementFactoryInstanceDetails& lhs, const InputElementFactoryInstanceDetails& rhs);
 std::ostream& operator<<(std::ostream& os, const InputElementFactoryInstanceDetails& instanceDetails);
 
@@ -109,9 +119,8 @@ private:
 using InputElementFactory = 
 	coconut_tools::Factory<
 		InputElementFactoryInstanceDetails,
-		Input::Element,
-		coconut_tools::factory::storage::Volatile,
 		detail::InputElementCreator,
+		coconut_tools::factory::storage::Volatile,
 		std::mutex
 		>;
 

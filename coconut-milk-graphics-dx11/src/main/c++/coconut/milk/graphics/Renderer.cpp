@@ -31,19 +31,23 @@ void queryAdapterAndRefreshRate(
 	system::COMWrapper<IDXGIOutput> output;
 	checkDirectXCall((*adapter)->EnumOutputs(0, &output.get()), "Failed to enumerate outputs");
 
-	std::vector<DXGI_MODE_DESC> displayModes;
-	UINT modeCount;
-	checkDirectXCall(
-		output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, 0),
-		"Failed to get display mode count"
-		);
+	auto displayModes = std::vector<DXGI_MODE_DESC>();
+	auto modeCount = UINT();
+	auto displayModeListResult = HRESULT();
+	displayModeListResult = output->GetDisplayModeList(
+		DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, nullptr);
+	if (displayModeListResult == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE) {
+		modeCount = 0;
+	} else {
+		checkDirectXCall(displayModeListResult, "Failed to get display mode count");
 
-	displayModes.resize(modeCount);
-	checkDirectXCall(
-		output->GetDisplayModeList(
-			DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, &displayModes.front()),
-		"Failed to get display modes"
+		displayModes.resize(modeCount);
+		checkDirectXCall(
+			output->GetDisplayModeList(
+				DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modeCount, &displayModes.front()),
+			"Failed to get display modes"
 		);
+	}
 
 	assert(modeCount == displayModes.size());
 
@@ -53,9 +57,9 @@ void queryAdapterAndRefreshRate(
 	size_t clientWidth = window.clientWidth();
 	size_t clientHeight = window.clientHeight();
 
-	for (size_t i = 0; i< displayModes.size(); ++i) {
-		if (displayModes[i].Width == clientWidth && displayModes[i].Height == clientHeight) {
-			*refreshRate = displayModes[i].RefreshRate;
+	for (const auto& displayMode : displayModes) {
+		if (displayMode.Width == clientWidth && displayMode.Height == clientHeight) {
+			*refreshRate = displayMode.RefreshRate;
 		}
 	}
 }
@@ -236,7 +240,7 @@ void Renderer::endScene() {
 	swapChain_->Present(configuration_.vsync, 0);
 }
 
-Renderer::LockedData Renderer::lock(Data& data, LockPurpose lockPurpose) {
+Renderer::LockedData Renderer::lock(Resource& data, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
 		immediateCommandList_.internalDeviceContext().Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),

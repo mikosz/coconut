@@ -32,42 +32,43 @@ Scene::Scene(milk::graphics::Renderer& graphicsRenderer) :
 {
 }
 
-void Scene::add(ActorSharedPtr actor) {
-	actors_.push_back(actor);
+void Scene::add(ActorSharedPtr actor, ModelSharedPtr model) {
+	auto it = instances_.emplace(model->id(), Instance(model)).first;
+	auto& instance = it->second;
+	instance.actors.emplace_back(std::move(actor));
 }
 
 void Scene::add(lighting::DirectionalLight directionalLight) {
-	directionalLights_.emplace_back(directionalLight);
+	directionalLights_.emplace_back(std::move(directionalLight));
 }
 
 void Scene::add(lighting::PointLight pointLight) {
-	pointLights_.emplace_back(pointLight);
+	pointLights_.emplace_back(std::move(pointLight));
 }
 
 void Scene::setCamera(CameraSharedPtr camera) {
-	camera_ = camera;
+	camera_ = std::move(camera);
 }
 
 void Scene::setLens(LensSharedPtr lens) {
-	lens_ = lens;
+	lens_ = std::move(lens);
 }
 
-void Scene::render(CommandBuffer& commandBuffer) {
+void Scene::render(milk::graphics::Renderer& graphicsRenderer, CommandBuffer& commandBuffer) {
 	PassContext context;
+	context.graphicsRenderer = &graphicsRenderer;
 	context.viewport = &viewport_;
 	context.backBuffer = renderTarget_;
 	context.screenDepthStencil = depthStencil_;
 	context.scene = this;
 
-	context.setPass(ShaderPassType::OPAQUE, renderingPass_.get()); // TODO!
+	context.passType = mesh::MaterialConfiguration::PassType::OPAQUE;
 
-	for (auto actor : actors_) {
-		actor->render(commandBuffer, context);
-	}
+	for (const auto& instanceEntry : instances_) { // TODO: this is obviously temp
+		const auto& instance = instanceEntry.second;
+		context.model = instance.model.get();
+		context.actors = &instance.actors;
 
-	context.setPass(ShaderPassType::TRANSPARENT, renderingPass_.get()); // TODO!
-
-	for (auto actor : actors_) {
-		actor->render(commandBuffer, context);
+		instance.model->render(commandBuffer, context);
 	}
 }

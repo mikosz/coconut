@@ -1,13 +1,13 @@
 set(DEPENDENCY_LIBRARIES
     coconut-milk-fs
-    coconut-milk-math-${MODULE_MATHS}
     coconut-milk-graphics-${MODULE_RENDERER}
-    coconut-pulp-model
-    coconut-tools-logger
-    coconut-tools-configuration
-    coconut-tools-system
-    coconut-tools-exceptions
-    coconut-tools-utils
+    coconut-pulp-math
+    coconut-pulp-mesh
+    ${CoconutTools_LOGGER_LIBRARY}
+    ${CoconutTools_CONFIGURATION_LIBRARY}
+    ${CoconutTools_SYSTEM_LIBRARY}
+    ${CoconutTools_EXCEPTIONS_LIBRARY}
+    ${CoconutTools_UTILS_LIBRARY}
     )
 
 set(TEST_LIBRARIES

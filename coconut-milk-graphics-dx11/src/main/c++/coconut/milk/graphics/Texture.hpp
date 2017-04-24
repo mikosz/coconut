@@ -11,7 +11,7 @@
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 
 #include "PixelFormat.hpp"
-#include "Data.hpp"
+#include "Resource.hpp"
 
 namespace coconut {
 namespace milk {
@@ -19,7 +19,7 @@ namespace graphics {
 
 class Renderer;
 
-class Texture : public Data {
+class Texture : public Resource {
 public:
 
 	enum class CreationPurpose {
@@ -28,7 +28,7 @@ public:
 		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
 	};
 
-	using CreationPurposeFlag = std::underlying_type_t<CreationPurpose>;
+	using CreationPurposeFlag = std::underlying_type_t<CreationPurpose>; // TODO: create a general flag type
 
 	void initialise(Renderer& renderer, CreationPurposeFlag purposeFlags);
 
@@ -42,7 +42,7 @@ public:
 		return *depthStencilView_;
 	}
 
-	ID3D11ShaderResourceView& internalShaderResourceView() {
+	ID3D11ShaderResourceView& internalShaderResourceView() const override {
 		return *shaderResourceView_;
 	}
 

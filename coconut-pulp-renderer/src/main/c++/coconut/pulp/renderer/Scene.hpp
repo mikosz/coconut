@@ -13,6 +13,7 @@
 #include "lighting/PointLight.hpp"
 
 #include "Actor.hpp"
+#include "Model.hpp"
 #include "Camera.hpp"
 #include "Lens.hpp"
 
@@ -27,7 +28,7 @@ public:
 
 	Scene(milk::graphics::Renderer& graphicsRenderer);
 
-	void add(ActorSharedPtr actor);
+	void add(ActorSharedPtr actor, ModelSharedPtr model);
 
 	void add(lighting::DirectionalLight directionalLight);
 
@@ -37,7 +38,7 @@ public:
 
 	void setLens(LensSharedPtr lens);
 
-	void render(CommandBuffer& commandBuffer);
+	void render(milk::graphics::Renderer& graphicsRenderer, CommandBuffer& commandBuffer);
 
 	const Camera& camera() const {
 		return *camera_;
@@ -45,14 +46,6 @@ public:
 
 	const Lens& lens() const {
 		return *lens_;
-	}
-
-	void setRenderingPass(shader::PassSharedPtr renderingPass) {
-		renderingPass_ = std::move(renderingPass);
-	}
-
-	const shader::Pass& renderingPass() const {
-		return *renderingPass_;
 	}
 
 	const std::vector<lighting::DirectionalLight>& directionalLights() const {
@@ -65,17 +58,30 @@ public:
 
 private:
 
-	std::vector<ActorSharedPtr> actors_;
+	struct Instance {
+
+		ModelSharedPtr model;
+
+		std::vector<ActorSharedPtr> actors;
+
+		// milk::graphics::VertexBuffer instanceDataBuffer; // TODO: move from model?
+
+		Instance(ModelSharedPtr model) :
+			model(std::move(model))
+		{
+		}
+
+	};
+
+	std::unordered_map<std::string, Instance> instances_;
 
 	std::vector<lighting::DirectionalLight> directionalLights_;
 
 	std::vector<lighting::PointLight> pointLights_;
 
-	CameraSharedPtr camera_;
-
-	LensSharedPtr lens_;
-
-	shader::PassSharedPtr renderingPass_; // TODO
+	CameraSharedPtr camera_; // TODO
+	
+	LensSharedPtr lens_; // TODO
 
 	milk::graphics::Texture2d* renderTarget_; // TODO
 
