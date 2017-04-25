@@ -57,8 +57,7 @@ size_t indexBufferStride(size_t totalVertices) {
 	return totalVertices <= max2ByteIndex ? 2 : 4;
 }
 
-milk::graphics::Buffer::Configuration indexBufferConfiguration(size_t totalIndices, size_t totalVertices) {
-	const auto stride = indexBufferStride(totalVertices);
+milk::graphics::Buffer::Configuration indexBufferConfiguration(size_t totalIndices, size_t stride) {
 	auto configuration = milk::graphics::Buffer::Configuration(
 		stride * totalIndices,
 		stride,
@@ -186,17 +185,18 @@ Model::DrawGroup::DrawGroup(
 			return v + submesh.indices().size();
 		});
 
-	const auto indexSize = indexBufferStride(totalVertices);
+	// TODO: should be max index, not indexCount
+	const auto indexSize = indexBufferStride((totalVertices > 0) ? totalVertices : indexCount);
 	if (indexSize == 2) {
 		indexBuffer = milk::graphics::IndexBuffer(
 			graphicsRenderer,
-			indexBufferConfiguration(indexCount, totalVertices),
+			indexBufferConfiguration(indexCount, indexSize),
 			indexBufferData<std::uint16_t>(submeshIt, submeshEnd, indexCount).data()
 			);
 	} else if (indexSize == 4) {
 		indexBuffer = milk::graphics::IndexBuffer(
 			graphicsRenderer,
-			indexBufferConfiguration(indexCount, totalVertices),
+			indexBufferConfiguration(indexCount, indexSize),
 			indexBufferData<std::uint32_t>(submeshIt, submeshEnd, indexCount).data()
 			);
 	} else {

@@ -51,6 +51,14 @@ void detail::ModelCreator::scanModelDirectory(
 	}
 }
 
+bool detail::ModelCreator::hasGenerator(const std::string& id) const noexcept {
+	return generators_.count(id) != 0;
+}
+
+void detail::ModelCreator::registerGenerator(std::string id, Generator generator) {
+	generators_.emplace(std::move(id), std::move(generator));
+}
+
 auto detail::ModelCreator::doCreate(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
@@ -58,7 +66,9 @@ auto detail::ModelCreator::doCreate(
 	const milk::fs::FilesystemContext& filesystemContext
 	) -> Instance
 {
-	if (modelFiles_.count(id)) {
+	if (hasGenerator(id)) {
+		return generators_[id](id, graphicsRenderer, passFactory, filesystemContext);
+	} else if (modelFiles_.count(id)) {
 		auto modelIS = filesystemContext.open(modelFiles_[id]);
 		coconut_tools::serialisation::BinaryDeserialiser deserialiser(*modelIS);
 

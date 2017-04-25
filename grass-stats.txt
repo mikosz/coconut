@@ -46,6 +46,21 @@ test 6 (100x100, 1 920 000 blades, 192 draw calls with 10 000 blades each, vs):
 test 7 (200x200, 1 920 000 blades, 48 draw calls with 40 000 blades each, vs):
 8 (119 FPS) <- BEST
 
+BLADE IS 2 TRIANGLES (1 segment), FAKE INSTANCED
+--------------------------------
+
+test 6 (100x100, 1 920 000 blades, ..., vs):
+6.28 (159 FPS)
+
+test 7 (200x200, 1 920 000 blades, ..., vs):
+5.66 (177 FPS)
+
+test 8 (400x400, 1 920 000 blades, ..., vs):
+5.41 (185 FPS)
+
+test 9 (800x800, ..., vs):
+5.37 (186 FPS)
+
 BLADE IS 8 TRIANGLES (4 segments), INSTANCED
 ---------------------------------
 
@@ -72,3 +87,14 @@ test 6 (100x100, 1 920 000 blades, 192 draw calls with 10 000 blades each, vs):
 
 test 7 (200x200, 1 920 000 blades, 48 draw calls with 40 000 blades each, vs):
 35 (28 FPS)
+
+BLADE IS 8 TRIANGLES (4 segments), FAKE INSTANCED
+--------------------------------
+
+test 6 (100x100, 1 920 000 blades, ..., vs):
+
+test 7 (200x200, 1 920 000 blades, ..., vs):
+
+test 8 (400x400, 1 920 000 blades, ..., vs):
+
+test 9 (800x800, ..., vs):

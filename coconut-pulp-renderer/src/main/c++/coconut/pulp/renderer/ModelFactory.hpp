@@ -1,6 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_MODELFACTORY_HPP_
 #define _COCONUT_PULP_RENDERER_MODELFACTORY_HPP_
 
+#include <functional>
 #include <string>
 #include <unordered_map>
 
@@ -22,6 +23,15 @@ public:
 
 	using Instance = std::unique_ptr<Model>;
 
+	using Generator = std::function<
+		Instance (
+			const std::string& id,
+			milk::graphics::Renderer& graphicsRenderer,
+			shader::PassFactory& passFactory,
+			const milk::fs::FilesystemContext& filesystemContext
+			)
+		>;
+
 	void scanSourceDirectory(
 		const milk::fs::FilesystemContext& filesystemContext,
 		const milk::fs::Path& directory
@@ -31,6 +41,10 @@ public:
 		const milk::fs::FilesystemContext& filesystemContext,
 		const milk::fs::Path& directory
 		);
+
+	bool hasGenerator(const std::string& id) const noexcept;
+
+	void registerGenerator(std::string id, Generator generator);
 
 protected:
 
@@ -47,9 +61,13 @@ private:
 
 	using ModelFiles = std::unordered_map<std::string, milk::AbsolutePath>;
 
+	using Generators = std::unordered_map<std::string, Generator>;
+
 	SourceFiles sourceFiles_;
 
 	ModelFiles modelFiles_;
+
+	Generators generators_;
 
 };
 
