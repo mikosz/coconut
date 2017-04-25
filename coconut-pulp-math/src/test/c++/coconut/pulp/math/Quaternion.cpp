@@ -48,6 +48,46 @@ BOOST_AUTO_TEST_CASE(QuaternionsAreMultipliable) {
 	BOOST_CHECK_CLOSE(m.w(), xm.w, 0.00001f);
 }
 
+BOOST_AUTO_TEST_CASE(QuaternionsAreScalarMultiplicative) {
+	const auto q = Quat(1.2f, Vec3(0.12f, 3.1f, 0.9f));
+	const auto q10 = 10.0f * q;
+	const auto q01 = q / 10.0f;
+
+	BOOST_CHECK_EQUAL(q10, Quat(12.0f, Vec3(1.2f, 31.0f, 9.0f)));
+	BOOST_CHECK_EQUAL(q01, Quat(0.12f, Vec3(0.012f, 0.31f, 0.09f)));
+}
+
+BOOST_AUTO_TEST_CASE(QuaternionConjugateReturnsConjugate) {
+	const auto q = Quat(1.2f, Vec3(0.12f, 3.1f, 0.9f));
+	const auto c = Quat(1.2f, Vec3(-0.12f, -3.1f, -0.9f));
+
+	BOOST_CHECK_EQUAL(q.conjugate(), c);
+}
+
+BOOST_AUTO_TEST_CASE(QuaternionNormReturnsNorm) {
+	const auto q = Quat(1.2f, Vec3(0.12f, 3.1f, 0.9f));
+	const auto nSq = 11.8744f;
+	const auto n = 3.44592512f;
+
+	BOOST_CHECK_CLOSE(q.normSq(), nSq, 0.00001f);
+	BOOST_CHECK_CLOSE(q.norm(), n, 0.00001f);
+}
+
+BOOST_AUTO_TEST_CASE(QuaternionInverseReturnsInverse) {
+	const auto q = Quat(1.2f, Vec3(0.12f, 3.1f, 0.9f));
+	const auto i = q.inverse();
+
+	const auto xmq = DirectX::XMFLOAT4(0.12f, 3.1f, 0.9f, 1.2f);
+	const auto xmi = DirectX::XMQuaternionInverse(DirectX::XMLoadFloat4(&xmq));
+	auto xi = DirectX::XMFLOAT4();
+	DirectX::XMStoreFloat4(&xi, xmi);
+
+	BOOST_CHECK_CLOSE(i.x(), xi.x, 0.00001f);
+	BOOST_CHECK_CLOSE(i.y(), xi.y, 0.00001f);
+	BOOST_CHECK_CLOSE(i.z(), xi.z, 0.00001f);
+	BOOST_CHECK_CLOSE(i.w(), xi.w, 0.00001f);
+}
+
 BOOST_AUTO_TEST_SUITE_END(/* PulpMathQuaternionTestSuite */);
 BOOST_AUTO_TEST_SUITE_END(/* PulpMathTestSuite */);
 BOOST_AUTO_TEST_SUITE_END(/* PulpTestSuite */);

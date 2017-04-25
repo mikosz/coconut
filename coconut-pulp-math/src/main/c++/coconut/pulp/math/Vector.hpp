@@ -112,28 +112,33 @@ public:
 
 	// --- VECTOR-SPECIFIC OPERATIONS
 
-	friend Scalar dot(const Vector& lhs, const Vector& rhs) noexcept {
-		return std::inner_product(lhs.elements_.begin(), lhs.elements_.end(), rhs.elements_.begin(), Scalar(0));
+	Scalar dot(const Vector& other) const noexcept {
+		return std::inner_product(elements_.begin(), elements_.end(), other.elements_.begin(), Scalar(0));
 	}
 
-	Vector& crossEq(const Vector& other) noexcept {
-		*this = cross(*this, other);
-		return *this;
+	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
+	constexpr std::enable_if_t<(DIMENSIONS_PARAM_ == 3), Vector> cross(const Vector& other) const noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
+		return {
+			(y() * other.z()) - (z() * other.y()),
+			(z() * other.x()) - (x() * other.z()),
+			(x() * other.y()) - (y() * other.x())
+			};
 	}
 
 	Scalar length() const noexcept {
 		using std::sqrt;
-		return sqrt(dot(*this, *this));
+		return sqrt(lengthSq());
 	}
 
 	Scalar lengthSq() const noexcept {
-		using std::sqrt;
-		return dot(*this, *this);
+		return dot(*this);
 	}
 
 	Vector& normalise() noexcept {
-		if (lengthSq() > Scalar(0)) {
-			*this /= length();
+		const auto l = length();
+		if (l > Scalar(0)) {
+			*this /= l;
 		}
 		return *this;
 	}
@@ -219,15 +224,16 @@ private:
 
 };
 
-template <class VectorType>
-constexpr std::enable_if_t<VectorType::DIMENSIONS == 3, VectorType>
-	cross(const VectorType& lhs, const VectorType& rhs) noexcept
+template <class S, size_t D, class SEF>
+S dot(const Vector<S, D, SEF>& lhs, const Vector<S, D, SEF>& rhs) noexcept {
+	return lhs.dot(rhs);
+}
+
+template <class S, size_t D, class SEF>
+constexpr std::enable_if_t<D == 3, Vector<S, D, SEF>>
+	cross(const Vector<S, D, SEF>& lhs, const Vector<S, D, SEF>& rhs) noexcept
 {
-	return VectorType{
-		(lhs.y() * rhs.z()) - (lhs.z() * rhs.y()),
-		(lhs.z() * rhs.x()) - (lhs.x() * rhs.z()),
-		(lhs.x() * rhs.y()) - (lhs.y() * rhs.x())
-	};
+	return lhs.cross(rhs);
 }
 
 using Vec2 = Vector<float, 2>;
@@ -244,6 +250,7 @@ static_assert(std::is_trivially_copyable<Vec4>::value, "Vector is not trivially 
 
 } // namespace math
 
+using math::Vector;
 using math::Vec2;
 using math::Vec3;
 using math::Vec4;

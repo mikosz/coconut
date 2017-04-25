@@ -13,8 +13,10 @@ namespace math {
 template <class ScalarType, class ScalarEqualityFunc = ScalarEqual<ScalarType>>
 class Quaternion :
 	boost::equality_comparable<Quaternion<ScalarType, ScalarEqualityFunc>,
-	boost::multipliable<Quaternion<ScalarType, ScalarEqualityFunc>
-	>>
+	boost::additive<Quaternion<ScalarType, ScalarEqualityFunc>,
+	boost::multipliable<Quaternion<ScalarType, ScalarEqualityFunc>,
+	boost::multiplicative<Quaternion<ScalarType, ScalarEqualityFunc>, ScalarType
+	>>>>
 {
 public:
 
@@ -27,82 +29,136 @@ public:
 	// --- CONSTRUCTORS AND OPERATORS
 
 	constexpr Quaternion(ScalarPart s, VectorPart v) :
-		s_(std::move(s)),
-		v_(std::move(v))
+		elements_(v.x(), v.y(), v.z(), s)
 	{
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Quaternion& q) {
-		return os << q.s_ << " + " << q.v_;
+		return os << q.s() << " + " << q.v();
 	}
 
 	friend bool operator==(const Quaternion& lhs, const Quaternion& rhs) noexcept {
-		return ScalarEqualityFunc()(lhs.s_, rhs.s_) && lhs.v_ == rhs.v_;
+		return lhs.elements_ == rhs.elements_;
 	}
 
 	Quaternion& operator*=(const Quaternion& other) noexcept {
-		const auto s = s_ * other.s_ - dot(v_, other.v_);
-		const auto v = s_ * other.v_ + other.s_ * v_ + cross(v_, other.v_);
+		const auto s1 = s();
+		const auto s2 = other.s();
+		const auto v1 = v();
+		const auto v2 = other.v();
 
-		s_ = std::move(s);
-		v_ = std::move(v);
+		const auto s = s1 * s2 - dot(v1, v2);
+		const auto v = s1 * v2 + s2 * v1 + cross(v1, v2);
+
+		*this = Quaternion(s, v);
 
 		return *this;
 	}
 
+	Quaternion& operator+=(const Quaternion& other) noexcept {
+		elements_ += other.elements_;
+		return *this;
+	}
+
+	Quaternion& operator-=(const Quaternion& other) noexcept {
+		elements_ -= other.elements_;
+		return *this;
+	}
+
+	Quaternion& operator*=(const Scalar& s) noexcept {
+		elements_ *= s;
+		return *this;
+	}
+
+	Quaternion& operator/=(const Scalar& s) noexcept {
+		elements_ /= s;
+		return *this;
+	}
+
+	// --- QUATERNION-SPECIFIC OPERATIONS
+
+	constexpr Quaternion conjugate() const noexcept {
+		return Quaternion(s(), -v());
+	}
+
+	Quaternion& normalise() noexcept {
+		const auto n = norm();
+		if (n > Scalar(0)) {
+			*this /= n;
+		}
+		return *this;
+	}
+
+	Quaternion normalised() const noexcept {
+		auto result = *this;
+		return result.normalise();
+	}
+
+	Scalar norm() const noexcept {
+		return elements_.length();
+	}
+
+	Scalar normSq() const noexcept {
+		return elements_.lengthSq();
+	}
+
+	Quaternion inverse() const noexcept {
+		const auto n = normSq();
+		assert(!ScalarEqualityFunc()(n, Scalar(0)));
+		return conjugate() / n;
+	}
+
+	// --- ACCESSORS
+
 	constexpr const ScalarPart s() const noexcept {
-		return s_;
+		return elements_.w();
 	}
 
 	ScalarPart& s() noexcept {
-		return s_;
+		return elements_.w();
 	}
 
-	constexpr const VectorPart& v() const noexcept {
-		return v_;
-	}
-
-	VectorPart& v() noexcept {
-		return v_;
+	const VectorPart v() const noexcept { // TODO: return view
+		return elements_.xyz();
 	}
 
 	const Scalar x() const noexcept {
-		return v_.x();
+		return elements_.x();
 	}
 
 	Scalar& x() noexcept {
-		return v_.x();
+		return elements_.x();
 	}
 
 	const Scalar y() const noexcept {
-		return v_.y();
+		return elements_.y();
 	}
 
 	Scalar& y() noexcept {
-		return v_.y();
+		return elements_.y();
 	}
 
 	const Scalar z() const noexcept {
-		return v_.z();
+		return elements_.z();
 	}
 
 	Scalar& z() noexcept {
-		return v_.z();
+		return elements_.z();
 	}
 
 	const Scalar w() const noexcept {
-		return s_;
+		return elements_.w();
 	}
 
 	Scalar& w() noexcept {
-		return s_;
+		return elements_.w();
 	}
 
 private:
 
-	ScalarPart s_;
+	using Elements = Vector<Scalar, 4, ScalarEqualityFunc>;
 	
-	VectorPart v_;
+	Elements elements_;
 
 };
 

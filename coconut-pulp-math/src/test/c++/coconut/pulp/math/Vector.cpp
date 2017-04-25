@@ -101,9 +101,6 @@ BOOST_AUTO_TEST_CASE(CrossProducesCrossProduct) {
 	const auto product = Vec3(22.1905f, -0.615123f, -0.0123f);
 
 	BOOST_CHECK_EQUAL(cross(lhs, rhs), product);
-	
-	lhs.crossEq(rhs);
-	BOOST_CHECK_EQUAL(lhs, product);
 }
 
 BOOST_AUTO_TEST_CASE(LengthReturnsVectorLength) {
