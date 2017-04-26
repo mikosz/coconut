@@ -52,6 +52,7 @@ public:
 
 	Transform(const Orientation& orientation) noexcept;
 
+	// TODO: what about Vec3? Need to make a Point and Vector(?) class?
 	Vec4 apply(const Vec4& vector) const noexcept {
 		// TODO: this is ineffective. Need matrix data to be stored in columns rather than rows, OR better yet,
 		// multiply by rows, like everyone in maths does (as does OpenGL).
@@ -87,6 +88,9 @@ inline Transform operator<<(const Transform& first, const Transform& second) {
 }
 
 } // namespace math
+
+using math::Transform;
+
 } // namespace pulp
 } // namespace coconut
 

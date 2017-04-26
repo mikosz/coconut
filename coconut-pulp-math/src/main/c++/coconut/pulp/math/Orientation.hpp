@@ -20,6 +20,9 @@ private:
 };
 
 } // namespace math
+
+using math::Orientation;
+
 } // namespace pulp
 } // namespace coconut
 

@@ -60,6 +60,9 @@ inline Rotation slerp(const Rotation& lhs, const Rotation& rhs, float factor) no
 }
 
 } // namespace math
+
+using math::Rotation;
+
 } // namespace pulp
 } // namespace coconut
 
