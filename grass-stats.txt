@@ -61,6 +61,18 @@ test 8 (400x400, 1 920 000 blades, ..., vs):
 test 9 (800x800, ..., vs):
 5.37 (186 FPS)
 
+BLADE IS 2 TRIANGLES (1 segment), FAKE INSTANCED + GS
+--------------------------------
+
+test 6 (100x100, 1 920 000 blades, ..., gs):
+5.98 (167 FPS)
+
+test 7 (200x200, 1 920 000 blades, ..., gs):
+5.53 (181 FPS)
+
+test 8 (400x400, 1 920 000 blades, ..., gs):
+5.80 (172 FPS)
+
 BLADE IS 8 TRIANGLES (4 segments), INSTANCED
 ---------------------------------
 
@@ -102,3 +114,15 @@ test 8 (400x400, 1 920 000 blades, ..., vs):
 
 test 9 (800x800, ..., vs):
 14.10 (71 FPS)
+
+BLADE IS 8 TRIANGLES (4 segment), FAKE INSTANCED + GS
+--------------------------------
+
+test 6 (100x100, 1 920 000 blades, ..., gs):
+21.77 (46 FPS)
+
+test 7 (200x200, 1 920 000 blades, ..., gs):
+21.68 (46 FPS)
+
+test 8 (400x400, 1 920 000 blades, ..., gs):
+21.80 (46 FPS)

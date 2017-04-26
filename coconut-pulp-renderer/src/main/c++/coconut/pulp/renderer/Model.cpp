@@ -214,10 +214,6 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 
 		passContext.material = &material;
 
-		drawCommand->setInputLayout(&pass.input().layout());
-		drawCommand->setVertexShader(&pass.vertexShader().shaderData());
-		drawCommand->setPixelShader(&pass.pixelShader().shaderData());
-
 		drawCommand->setVertexBuffer(&vertexBuffer);
 		drawCommand->setIndexBuffer(&indexBuffer);
 		drawCommand->setIndexCount(indexCount);
@@ -264,10 +260,6 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 			auto& pass = material.shaderPass();
 
 			passContext.material = &material;
-
-			drawCommand->setInputLayout(&pass.input().layout());
-			drawCommand->setVertexShader(&pass.vertexShader().shaderData());
-			drawCommand->setPixelShader(&pass.pixelShader().shaderData());
 
 			drawCommand->setVertexBuffer(&vertexBuffer);
 			drawCommand->setIndexBuffer(&indexBuffer);

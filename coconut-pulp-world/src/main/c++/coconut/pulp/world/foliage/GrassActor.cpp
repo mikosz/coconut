@@ -59,33 +59,36 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 	auto submeshes = Mesh::Submeshes();
 
 	// TODO: parametrise number of blades
-	static const auto BLADES = 800u * 800u;
+	static const auto BLADES = 400u * 400u;
 	static const auto SEGMENTS_PER_BLADE = 4u;
 	static const auto VERTICES_PER_BLADE = 2u * (SEGMENTS_PER_BLADE + 1);
 	static const auto INDICES_PER_BLADE = 6u * SEGMENTS_PER_BLADE;
 	auto indices = Submesh::Indices();
-	indices.reserve(BLADES * INDICES_PER_BLADE);
+	//indices.reserve(BLADES * INDICES_PER_BLADE);
+	indices.reserve(BLADES);
 
 	for (const auto bladeIndex : coconut_tools::range(0u, BLADES)) {
-		const auto baseIndex = VERTICES_PER_BLADE * bladeIndex;
+		//const auto baseIndex = VERTICES_PER_BLADE * bladeIndex;
 
-		for (const auto segmentIndex : coconut_tools::range(0u, SEGMENTS_PER_BLADE)) {
-			const auto baseSegmentIndex = baseIndex + (segmentIndex * 2u);
-			indices.emplace_back(baseSegmentIndex);
-			indices.emplace_back(baseSegmentIndex + 2);
-			indices.emplace_back(baseSegmentIndex + 1);
+		//for (const auto segmentIndex : coconut_tools::range(0u, SEGMENTS_PER_BLADE)) {
+		//	const auto baseSegmentIndex = baseIndex + (segmentIndex * 2u);
+		//	indices.emplace_back(baseSegmentIndex);
+		//	indices.emplace_back(baseSegmentIndex + 2);
+		//	indices.emplace_back(baseSegmentIndex + 1);
 
-			indices.emplace_back(baseSegmentIndex + 1);
-			indices.emplace_back(baseSegmentIndex + 2);
-			indices.emplace_back(baseSegmentIndex + 3);			
-		}
+		//	indices.emplace_back(baseSegmentIndex + 1);
+		//	indices.emplace_back(baseSegmentIndex + 2);
+		//	indices.emplace_back(baseSegmentIndex + 3);			
+		//}
+		indices.emplace_back(bladeIndex);
 	}
 
 	submeshes.emplace_back(
 		Submesh::Vertices(),
 		std::move(indices),
 		"blade"s,
-		milk::graphics::PrimitiveTopology::TRIANGLE_LIST
+		//milk::graphics::PrimitiveTopology::TRIANGLE_LIST
+		milk::graphics::PrimitiveTopology::POINT_LIST
 		);
 
 	auto materialConfiguration = MaterialConfiguration();
@@ -103,7 +106,8 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 
 	// TODO: shouldn't be hardcoded
 	materialConfiguration.passType() = MaterialConfiguration::PassType::OPAQUE;
-	materialConfiguration.shaderName() = "grass-fakeinst"s;
+	//materialConfiguration.shaderName() = "grass-fakeinst"s;
+	materialConfiguration.shaderName() = "grass-fakeinst-g"s;
 	materialConfiguration.renderStateConfiguration() = renderStateConfiguration;
 	materialConfiguration.addTexture(
 		MaterialConfiguration::NOISE_MAP_TEXTURE,
