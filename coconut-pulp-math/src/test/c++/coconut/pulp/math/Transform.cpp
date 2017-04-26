@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(AppliesChainOfTransforms) {
 	const auto scale = Transform::scale({ 2.0f, 1.0f, 0.5f }); // -> <4.0f, 1.5f, 0.0f>
 	const auto rotation = Transform::rotation({ 0.0f, 0.0f, 1.0f }, degrees(90.0f)); // -> <-1.5f, 4.0f, 0.0f>
 
-	const auto end = translation.then(scale).then(rotation).apply(start);
+	const auto end = (translation << scale << rotation).apply(start);
 
 	BOOST_CHECK_EQUAL(end, Vec4(-1.5f, 4.0f, 0.0f, 1.0f));
 }

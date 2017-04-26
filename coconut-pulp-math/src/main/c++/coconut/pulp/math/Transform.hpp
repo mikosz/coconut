@@ -52,11 +52,25 @@ public:
 
 	Transform(const Orientation& orientation) noexcept;
 
-	Vec4 apply(const Vec4& vector) const noexcept;
+	Vec4 apply(const Vec4& vector) const noexcept {
+		// TODO: this is ineffective. Need matrix data to be stored in columns rather than rows, OR better yet,
+		// multiply by rows, like everyone in maths does (as does OpenGL).
+		return Vec4(
+			dot(matrix_.column(0), vector),
+			dot(matrix_.column(1), vector),
+			dot(matrix_.column(2), vector),
+			dot(matrix_.column(3), vector)
+			);
+	}
 
-	Transform& append(const Transform& next) noexcept;
+	Transform& append(const Transform& next) noexcept {
+		matrix_ *= next.matrix_;
+		return *this;
+	}
 
-	Transform then(const Transform& next) const noexcept;
+	Transform then(const Transform& next) const noexcept {
+		return Transform(*this).append(next.matrix_);
+	}
 
 	const Matrix4x4& matrix() const {
 		return matrix_;
@@ -67,6 +81,10 @@ private:
 	Matrix4x4 matrix_ = Matrix4x4::IDENTITY;
 
 };
+
+inline Transform operator<<(const Transform& first, const Transform& second) {
+	return first.then(second);
+}
 
 } // namespace math
 } // namespace pulp
