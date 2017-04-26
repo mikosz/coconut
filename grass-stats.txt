@@ -1,8 +1,23 @@
-BLADE IS 2 TRIANGLES (1 segment), INSTANCED
---------------------------------
+SUMMARY
+-------
 
 Area: x in [-20.0, 20.0), z in [-20.0, 100.0)
 Blades every 0.05
+
+1 SEGMENT BEST RESULTS:
+101 FPS - instanced model 2x2 blades
+119 FPS - non instanced model 200x200 blades
+181 FPS - fake instanced gs 200x200 blades (points)
+186 FPS - fake instanced vs 800x800 blades (tris)
+
+4 SEGMENTS BEST RESULTS:
+28 FPS - non instanced model 200x200 blades
+57 FPS - instanced model 3x3 blades
+46 FPS - fake instanced gs 200x200 blades (points)
+71 FPS - fake instanced vs 800x800 blades (tris)
+
+BLADE IS 2 TRIANGLES (1 segment), INSTANCED
+--------------------------------
 
 test 1 (1x1, 1 920 000 blades, 1 920 000 draw calls with 1 blade each, vs):
 13.35 ms (75 FPS)
