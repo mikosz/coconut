@@ -92,9 +92,13 @@ BLADE IS 8 TRIANGLES (4 segments), FAKE INSTANCED
 --------------------------------
 
 test 6 (100x100, 1 920 000 blades, ..., vs):
+17.20 (58 FPS)
 
 test 7 (200x200, 1 920 000 blades, ..., vs):
+15.01 (67 FPS)
 
 test 8 (400x400, 1 920 000 blades, ..., vs):
+14.18 (71 FPS)
 
 test 9 (800x800, ..., vs):
+14.10 (71 FPS)

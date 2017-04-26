@@ -12,9 +12,9 @@ cbuffer PatchData : register(b2) {
 
 //static const float3 verts[] = {
 //	float3(-0.003f, 0.0f, 0.0f),
+//	float3(0.003f, 0.0f, 0.0f),
 //	float3(-0.003f, 0.15f, 0.0f),
 //	float3(0.003f, 0.15f, 0.0f),
-//	float3(0.003f, 0.0f, 0.0f),
 //};
 //static const uint verts_count = 4;
 
@@ -22,26 +22,17 @@ static const float y_step = 0.15f * 0.25f;
 
 static const float3 verts[] = {
 	float3(-0.003f, 0.0f, 0.0f),
+	float3(0.003f, 0.0f, 0.0f),
 	float3(-0.003f, y_step, 0.0f),
 	float3(0.003f, y_step, 0.0f),
-	float3(0.003f, 0.0f, 0.0f),
-
-	float3(-0.003f, y_step, 0.0f),
 	float3(-0.003f, 2.0f * y_step, 0.0f),
 	float3(0.003f, 2.0f * y_step, 0.0f),
-	float3(0.003f, y_step, 0.0f),
-
-	float3(-0.003f, 2.0f * y_step, 0.0f),
 	float3(-0.003f, 3.0f * y_step, 0.0f),
 	float3(0.003f, 3.0f * y_step, 0.0f),
-	float3(0.003f, 2.0f * y_step, 0.0f),
-
-	float3(-0.003f, 3.0f * y_step, 0.0f),
 	float3(-0.003f, 4.0f * y_step, 0.0f),
 	float3(0.003f, 4.0f * y_step, 0.0f),
-	float3(0.003f, 3.0f * y_step, 0.0f),
 };
-static const uint verts_count = 16;
+static const uint verts_count = 10;
 
 Texture2D noiseMap : register(t0);
 
@@ -55,7 +46,7 @@ struct VOut {
 VOut main(uint vertexId : SV_VertexID)
 {
 	static const float OFFSET = 0.05f;
-	static const uint BLADES_PER_ROW = 200;
+	static const uint BLADES_PER_ROW = 800;
 	static const float HALF_OFFSET = OFFSET * 0.5f;
 	static const uint TEXTURE_WIDTH = 800;
 	static const uint TEXTURE_HEIGHT = 600;

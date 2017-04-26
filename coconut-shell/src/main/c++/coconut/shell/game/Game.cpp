@@ -126,8 +126,8 @@ void Game::loop() {
 	auto grassModel = modelFactory.create("grass-fakeinst", *graphicsRenderer_, passFactory, fs);
 	// auto grassModel = modelFactory.create("grass", *graphicsRenderer_, passFactory, fs);
 	
-	for (float x = -20.0f; x < 20.0f; x += 10.0f) {
-		for (float z = -20.0f; z < 100.0f; z += 10.0f) {
+	for (float x = -20.0f; x < 20.0f; x += 40.0f) {
+		for (float z = -20.0f; z < 100.0f; z += 40.0f) {
 			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
 			scene.add(grassActor, grassModel);
 		}

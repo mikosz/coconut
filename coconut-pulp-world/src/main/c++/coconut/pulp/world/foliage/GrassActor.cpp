@@ -59,23 +59,26 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 	auto submeshes = Mesh::Submeshes();
 
 	// TODO: parametrise number of blades
-	static const auto BLADES = 200u * 200u;
-	// static const auto BLADES = 10u * 10u;
-	// static const auto VERTICES_PER_BLADE = 4u;
-	// static const auto INDICES_PER_BLADE = 6u;
+	static const auto BLADES = 800u * 800u;
+	static const auto SEGMENTS_PER_BLADE = 4u;
+	static const auto VERTICES_PER_BLADE = 2u * (SEGMENTS_PER_BLADE + 1);
+	static const auto INDICES_PER_BLADE = 6u * SEGMENTS_PER_BLADE;
 	auto indices = Submesh::Indices();
 	indices.reserve(BLADES * INDICES_PER_BLADE);
 
 	for (const auto bladeIndex : coconut_tools::range(0u, BLADES)) {
 		const auto baseIndex = VERTICES_PER_BLADE * bladeIndex;
 
-		indices.emplace_back(baseIndex);
-		indices.emplace_back(baseIndex + 1);
-		indices.emplace_back(baseIndex + 2);
+		for (const auto segmentIndex : coconut_tools::range(0u, SEGMENTS_PER_BLADE)) {
+			const auto baseSegmentIndex = baseIndex + (segmentIndex * 2u);
+			indices.emplace_back(baseSegmentIndex);
+			indices.emplace_back(baseSegmentIndex + 2);
+			indices.emplace_back(baseSegmentIndex + 1);
 
-		indices.emplace_back(baseIndex + 2);
-		indices.emplace_back(baseIndex + 3);
-		indices.emplace_back(baseIndex);
+			indices.emplace_back(baseSegmentIndex + 1);
+			indices.emplace_back(baseSegmentIndex + 2);
+			indices.emplace_back(baseSegmentIndex + 3);			
+		}
 	}
 
 	submeshes.emplace_back(
