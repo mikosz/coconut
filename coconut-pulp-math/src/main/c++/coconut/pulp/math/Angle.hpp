@@ -108,8 +108,6 @@ using math::PI;
 using math::Angle;
 using math::radians;
 using math::degrees;
-using math::operator ""_deg;
-using math::operator ""_rad;
 
 namespace math_literals {
 

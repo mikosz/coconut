@@ -1,5 +1,7 @@
 #include "Transform.hpp"
 
+#include <cassert>
+
 #include "ScalarEqual.hpp"
 
 using namespace coconut;
@@ -20,13 +22,13 @@ Transform Transform::orthographicProjection(
 	matrix[0][0] = 2.0f / (right - left);
 	matrix[1][1] = 2.0f / (top - bottom);
 	if (handedness == Handedness::RIGHT) {
-		matrix[2][2] = -2.0f / (far - near);
+		matrix[2][2] = -1.0f / (far - near);
 	} else {
-		matrix[2][2] = 2.0f / (far - near);
+		matrix[2][2] = 1.0f / (far - near);
 	}
-	matrix[0][3] = -(right + left) / (right - left);
-	matrix[1][3] = -(top + bottom) / (top - bottom);
-	matrix[2][3] = -(far + near) / (far - near);
+	matrix[3][0] = -(right + left) / (right - left);
+	matrix[3][1] = -(top + bottom) / (top - bottom);
+	matrix[3][2] = near / (near - far);
 	matrix[3][3] = 1.0f;
 
 	return Transform(matrix);
@@ -40,6 +42,9 @@ Transform Transform::perspectiveProjection(
 	float far
 	) noexcept
 {
+	assert(near > 0.0f);
+	assert(near < far);
+
 	const auto scale = 1.0f / std::tan(verticalFOV.radians() / 2.0f);
 
 	auto matrix = Matrix4x4();
@@ -75,8 +80,8 @@ Transform Transform::scale(const Vec3& by) noexcept {
 	return Transform(matrix);
 }
 
-Transform Transform::rotation(const Vec3& around, Angle by) noexcept {
-	assert(ScalarEqual<float>()(around.length(), 1.0f));
+Transform Transform::rotation(Vec3 around, Angle by) noexcept {
+	around.normalise();
 
 	const auto x = around.x();
 	const auto y = around.y();
@@ -106,7 +111,14 @@ Transform Transform::rotation(const Vec3& around, Angle by) noexcept {
 }
 
 Vec4 Transform::apply(const Vec4& vector) const noexcept {
-	return matrix_ * vector;
+	// TODO: this is ineffective. Need matrix data to be stored in columns rather than rows, OR better yet,
+	// multiply by rows, like everyone in maths does (as does OpenGL).
+	return Vec4(
+		dot(matrix_.column(0), vector),
+		dot(matrix_.column(1), vector),
+		dot(matrix_.column(2), vector),
+		dot(matrix_.column(3), vector)
+		);
 }
 
 Transform& Transform::append(const Transform& next) noexcept {

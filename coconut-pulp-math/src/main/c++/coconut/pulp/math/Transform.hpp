@@ -11,6 +11,10 @@ namespace math {
 class Transform {
 public:
 
+	/**
+	 * Creates a perspective projection transformation. Positions within the view frustum are mapped into
+	 * the homogeneous clip-space <[-1, 1], [-1, 1], [0, 1], 1> (DirectX style).
+	 */
 	static Transform orthographicProjection(
 		Handedness handedness,
 		float left,
@@ -21,6 +25,10 @@ public:
 		float far
 		) noexcept;
 
+	/**
+	 * Creates a perspective projection transformation. Positions within the view frustum are mapped into
+	 * the homogeneous clip-space <[-1, 1], [-1, 1], [0, 1], 1> * w (DirectX style).
+	 */
 	static Transform perspectiveProjection(
 		Handedness handedness,
 		Angle verticalFOV,
@@ -33,7 +41,7 @@ public:
 
 	static Transform scale(const Vec3& by) noexcept;
 
-	static Transform rotation(const Vec3& around, Angle by) noexcept;
+	static Transform rotation(Vec3 around, Angle by) noexcept;
 
 	Transform() noexcept = default;
 

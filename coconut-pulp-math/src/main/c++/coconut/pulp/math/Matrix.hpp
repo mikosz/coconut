@@ -219,12 +219,22 @@ public:
 
 	using Column = Vector<ScalarType, ROWS, ScalarEqualityFunc>;
 
-	using ColumnReference = Vector<ScalarType&, COLUMNS, ScalarEqualityFunc>;
-
 	// --- CONSTRUCTORS AND OPERATORS
 
-	constexpr Matrix() noexcept = default;
-	
+	template <class... CompatibleVectorType>
+	explicit constexpr Matrix(CompatibleVectorType&&... rows) noexcept :
+		elements_{ std::forward<CompatibleVectorType>(rows)... }
+	{
+		static_assert(sizeof...(rows) == ROWS, "Bad number of arguments");
+	}
+
+	template <class... CompatibleScalarType>
+	explicit constexpr Matrix(std::initializer_list<CompatibleScalarType>... rows) noexcept :
+		elements_{ rows... }
+	{
+		static_assert(sizeof...(rows) == ROWS || sizeof...(rows) == 0, "Bad number of arguments");
+	}
+
 	template <class NVT, class GEF>
 	Matrix(const MatrixView<NVT, GEF>& view) {
 		for (size_t rowIndex = 0; rowIndex < ROWS; ++rowIndex) {
@@ -233,13 +243,6 @@ public:
 			}
 		}
 	}
-
-	// TODO: figure out a better constructor (this won't work in VS2015 either way)
-	//template <class... CompatibleTypes>
-	//explicit constexpr Matrix(CompatibleTypes&&... values) noexcept {
-	//	static_assert(sizeof...(values) != ROWS * COLUMNS, "Bad number of arguments");
-	//	elements_ = { std::forward<CompatibleTypes>(values)... };
-	//}
 
 	friend std::ostream& operator<<(std::ostream& os, const Matrix& matrix) {
 		os << '<';
@@ -302,18 +305,6 @@ public:
 			return element * scalar;
 		});
 		return *this;
-	}
-
-	friend Vector<Scalar, ROWS, ScalarEqualityFunc> operator*(
-		const Matrix& matrix,
-		const Vector<Scalar, ROWS, ScalarEqualityFunc>& vector
-		) noexcept
-	{
-		auto result = Vector<Scalar, ROWS, ScalarEqualityFunc>();
-		for (auto columnIndex = 0u; columnIndex < COLUMNS; ++columnIndex) {
-			result[columnIndex] = dot(matrix.column(columnIndex), vector);
-		}
-		return result;
 	}
 
 	Matrix& operator/=(Scalar scalar) noexcept {

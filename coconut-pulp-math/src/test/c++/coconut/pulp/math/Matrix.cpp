@@ -1,7 +1,7 @@
 #define BOOST_TEST_NO_LIB
 #include <boost/test/auto_unit_test.hpp>
 
-#include <DirectXMath.h>
+#include <coconut-tools/utils/Range.hpp>
 
 #include "coconut/pulp/math/Matrix.hpp"
 
@@ -58,6 +58,48 @@ BOOST_AUTO_TEST_CASE(ViewChainingWorks) {
 	auto view = submatrix(viewMatrixTransposed(mtx), 1, 2);
 
 	BOOST_CHECK_EQUAL(view.get(0, 2), mtx[3][0]);
+}
+
+BOOST_AUTO_TEST_CASE(MatrixIsConstructibleFromVectors) {
+	auto mtx = Matrix4x4(
+		Vec4(1.0f, 2.0f, 3.0f, 4.0f),
+		Vec4(5.0f, 6.0f, 7.0f, 8.0f),
+		Vec4(9.0f, 10.0f, 11.0f, 12.0f),
+		Vec4(13.0f, 14.0f, 15.0f, 16.0f)
+		);
+
+	for (const auto rowIndex : coconut_tools::range(0, 4)) {
+		for (const auto columnIndex : coconut_tools::range(0, 4)) {
+			const auto expected = (rowIndex * 4.0f) + columnIndex + 1.0f;
+			BOOST_CHECK_EQUAL(mtx[rowIndex][columnIndex], expected);
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(MatrixIsConstructibleFromInitialiserLists) {
+	auto mtx = Matrix4x4(
+		{ 1.0f, 2.0f, 3.0f, 4.0f },
+		{ 5.0f, 6.0f, 7.0f, 8.0f },
+		{ 9.0f, 10.0f, 11.0f, 12.0f },
+		{ 13.0f, 14.0f, 15.0f, 16.0f }
+		);
+
+	for (const auto rowIndex : coconut_tools::range(0, 4)) {
+		for (const auto columnIndex : coconut_tools::range(0, 4)) {
+			const auto expected = (rowIndex * 4.0f) + columnIndex + 1.0f;
+			BOOST_CHECK_EQUAL(mtx[rowIndex][columnIndex], expected);
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(DefaultMatrixConstructorYieldsZeroes) {
+	auto mtx = Matrix4x4();
+
+	for (const auto rowIndex : coconut_tools::range(0, 4)) {
+		for (const auto columnIndex : coconut_tools::range(0, 4)) {
+			BOOST_CHECK_EQUAL(mtx[rowIndex][columnIndex], 0.0f);
+		}
+	}
 }
 
 BOOST_AUTO_TEST_CASE(MatrixElementAccessWorks) {
