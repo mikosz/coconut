@@ -74,16 +74,24 @@ void CommandList::setViewport(Viewport& viewport) {
 	deviceContext_->RSSetViewports(1, &viewport.internalViewport());
 }
 
-void CommandList::setInputLayout(InputLayout& inputLayout) {
-	deviceContext_->IASetInputLayout(&inputLayout.internalInputLayout());
+void CommandList::setInputLayout(InputLayout* inputLayout) noexcept {
+	deviceContext_->IASetInputLayout(&inputLayout->internalInputLayout());
 }
 
-void CommandList::setVertexShader(VertexShader& vertexShader) {
-	deviceContext_->VSSetShader(&vertexShader.internalShader(), nullptr, 0);
+void CommandList::setVertexShader(VertexShader* vertexShader) noexcept {
+	deviceContext_->VSSetShader(&vertexShader->internalShader(), nullptr, 0);
 }
 
-void CommandList::setPixelShader(PixelShader& pixelShader) {
-	deviceContext_->PSSetShader(&pixelShader.internalShader(), nullptr, 0);
+void CommandList::setGeometryShader(GeometryShader* geometryShader) noexcept {
+	if (geometryShader != nullptr) {
+		deviceContext_->GSSetShader(&geometryShader->internalShader(), nullptr, 0);
+	} else {
+		deviceContext_->GSSetShader(nullptr, nullptr, 0);
+	}
+}
+
+void CommandList::setPixelShader(PixelShader* pixelShader) noexcept {
+	deviceContext_->PSSetShader(&pixelShader->internalShader(), nullptr, 0);
 }
 
 void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, size_t slot) {
@@ -92,6 +100,9 @@ void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, si
 	switch (stage) {
 	case ShaderType::VERTEX:
 		deviceContext_->VSSetConstantBuffers(static_cast<UINT>(slot), 1, &buf);
+		break;
+	case ShaderType::GEOMETRY:
+		deviceContext_->GSSetConstantBuffers(static_cast<UINT>(slot), 1, &buf);
 		break;
 	case ShaderType::PIXEL:
 		deviceContext_->PSSetConstantBuffers(static_cast<UINT>(slot), 1, &buf);

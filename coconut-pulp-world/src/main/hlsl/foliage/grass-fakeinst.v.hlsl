@@ -6,17 +6,35 @@ cbuffer ProjectionTransformations : register(b1) {
 	matrix projectionMatrix;
 }
 
-static float3 verts[4] = {
-	float3(-0.03f, 0.0f, 0.0f),
-	float3(-0.03f, 0.15f, 0.0f),
-	float3(0.03f, 0.15f, 0.0f),
-	float3(0.03f, 0.0f, 0.0f),
-	};
+cbuffer PatchData : register(b2) {
+	float3 grassPatchPosition;
+};
 
-Buffer<float3> grassPatchPositions;
+//static const float3 verts[] = {
+//	float3(-0.003f, 0.0f, 0.0f),
+//	float3(0.003f, 0.0f, 0.0f),
+//	float3(-0.003f, 0.15f, 0.0f),
+//	float3(0.003f, 0.15f, 0.0f),
+//};
+//static const uint verts_count = 4;
+
+static const float y_step = 0.15f * 0.25f;
+
+static const float3 verts[] = {
+	float3(-0.003f, 0.0f, 0.0f),
+	float3(0.003f, 0.0f, 0.0f),
+	float3(-0.003f, y_step, 0.0f),
+	float3(0.003f, y_step, 0.0f),
+	float3(-0.003f, 2.0f * y_step, 0.0f),
+	float3(0.003f, 2.0f * y_step, 0.0f),
+	float3(-0.003f, 3.0f * y_step, 0.0f),
+	float3(0.003f, 3.0f * y_step, 0.0f),
+	float3(-0.003f, 4.0f * y_step, 0.0f),
+	float3(0.003f, 4.0f * y_step, 0.0f),
+};
+static const uint verts_count = 10;
 
 Texture2D noiseMap : register(t0);
-SamplerState noiseMapSamplerState : register(s0);
 
 struct VOut {
 	float4 posH : SV_POSITION;
@@ -27,15 +45,26 @@ struct VOut {
 
 VOut main(uint vertexId : SV_VertexID)
 {
+	static const float OFFSET = 0.05f;
+	static const uint BLADES_PER_ROW = 800;
+	static const float HALF_OFFSET = OFFSET * 0.5f;
+	static const uint TEXTURE_WIDTH = 800;
+	static const uint TEXTURE_HEIGHT = 600;
+
 	VOut vout;
 	
-	float3 patchPosW = grassPatchPositions[vertexId / 4];
-	float4 posW = float4(verts[vertexId % 4] + patchPosW, 1.0f);
+	const uint bladeId = vertexId / verts_count;
+	const uint columnId = bladeId % BLADES_PER_ROW;
+	const uint rowId = bladeId / BLADES_PER_ROW;
+	
+	float4 posW = float4(verts[vertexId % verts_count] + grassPatchPosition, 1.0f);
+	posW.x += (columnId) * OFFSET;
+	posW.z += (rowId) * OFFSET;
 
-	float4 noise = noiseMap.SampleLevel(noiseMapSamplerState, patchPosW.xz * 0.01f, 0);
-	//posW.x += noise.x;
-	//posW.y *= 1.0f + noise.y;
-	//posW.z += noise.z;
+	float4 noise = noiseMap[uint2(rowId % TEXTURE_WIDTH, columnId % TEXTURE_HEIGHT)];
+	posW.x += noise.x * HALF_OFFSET;
+	posW.y *= 1.0f + noise.y;
+	posW.z += noise.z * HALF_OFFSET;
 
 	vout.posH = mul(mul(posW, viewMatrix), projectionMatrix);
 	vout.posW = posW.xyz;

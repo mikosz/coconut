@@ -121,20 +121,15 @@ void Game::loop() {
 	auto& inputElementFactory = passFactory.inputFactory().inputElementFactory();
 	pulp::world::foliage::GrassActor::registerShaderInputElements(inputElementFactory);
 	pulp::world::foliage::GrassActor::registerParameters(passFactory.shaderFactory().parameterFactory());
-	pulp::world::foliage::GrassActor::registerResources(passFactory.shaderFactory().resourceFactory());
+	pulp::world::foliage::GrassActor::registerModels(modelFactory);
 
-	auto grassModel = modelFactory.create("grass"/*"grass-fakeinst"*/, *graphicsRenderer_, passFactory, fs);
+	auto grassModel = modelFactory.create("grass-fakeinst", *graphicsRenderer_, passFactory, fs);
+	// auto grassModel = modelFactory.create("grass", *graphicsRenderer_, passFactory, fs);
 	
-	bool once = false;
-	//for (float x = -20.0f; x < 20.0f; x += 0.05f) {
-	//	for (float z = -20.0f; z < 100.0f; z += 0.05f) {
-	for (float x = -4.0f; x < 3.9f; x += 1.0f) {
-		for (float z = -4.0f; z < 3.9f; z += 1.0f) {
+	for (float x = -20.0f; x < 20.0f; x += 20.0f) {
+		for (float z = -20.0f; z < 100.0f; z += 20.0f) {
 			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
-			if (!once) {
-				scene.add(grassActor, grassModel);
-				//once = true;
-			}
+			scene.add(grassActor, grassModel);
 		}
 	}
 

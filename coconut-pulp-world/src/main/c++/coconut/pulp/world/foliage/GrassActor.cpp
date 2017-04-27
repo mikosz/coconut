@@ -49,19 +49,86 @@ std::unique_ptr<renderer::shader::Parameter> createGrassPatchPositionParameter(
 			);
 }
 
-std::unique_ptr<renderer::shader::Resource> createGrassPatchPositionsResource(milk::graphics::ShaderType shaderType, size_t slot) {
-	return std::make_unique<renderer::shader::DataResource>(
-		[](const renderer::PassContext& passContext) -> const milk::graphics::Resource* {
-			return &GrassActor::grassPatchPositionsResource(*passContext.graphicsRenderer);
-		},
-		shaderType,
-		slot
+std::unique_ptr<renderer::Model> createGrassFakeinstModel(
+	const std::string& id,
+	milk::graphics::Renderer& graphicsRenderer,
+	renderer::shader::PassFactory& passFactory,
+	const milk::fs::FilesystemContext& filesystemContext
+	)
+{
+	auto submeshes = Mesh::Submeshes();
+
+	// TODO: parametrise number of blades
+	static const auto BLADES = 400u * 400u;
+	static const auto SEGMENTS_PER_BLADE = 4u;
+	static const auto VERTICES_PER_BLADE = 2u * (SEGMENTS_PER_BLADE + 1);
+	static const auto INDICES_PER_BLADE = 6u * SEGMENTS_PER_BLADE;
+	auto indices = Submesh::Indices();
+	//indices.reserve(BLADES * INDICES_PER_BLADE);
+	indices.reserve(BLADES);
+
+	for (const auto bladeIndex : coconut_tools::range(0u, BLADES)) {
+		//const auto baseIndex = VERTICES_PER_BLADE * bladeIndex;
+
+		//for (const auto segmentIndex : coconut_tools::range(0u, SEGMENTS_PER_BLADE)) {
+		//	const auto baseSegmentIndex = baseIndex + (segmentIndex * 2u);
+		//	indices.emplace_back(baseSegmentIndex);
+		//	indices.emplace_back(baseSegmentIndex + 2);
+		//	indices.emplace_back(baseSegmentIndex + 1);
+
+		//	indices.emplace_back(baseSegmentIndex + 1);
+		//	indices.emplace_back(baseSegmentIndex + 2);
+		//	indices.emplace_back(baseSegmentIndex + 3);			
+		//}
+		indices.emplace_back(bladeIndex);
+	}
+
+	submeshes.emplace_back(
+		Submesh::Vertices(),
+		std::move(indices),
+		"blade"s,
+		//milk::graphics::PrimitiveTopology::TRIANGLE_LIST
+		milk::graphics::PrimitiveTopology::POINT_LIST
+		);
+
+	auto materialConfiguration = MaterialConfiguration();
+
+	auto renderStateConfiguration = milk::graphics::RenderState::Configuration();
+	renderStateConfiguration.cullMode = milk::graphics::RenderState::CullMode::NONE;
+	renderStateConfiguration.fillMode = milk::graphics::RenderState::FillMode::SOLID;
+	renderStateConfiguration.frontCounterClockwise = false;
+
+	auto samplerConfiguration = milk::graphics::Sampler::Configuration();
+	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_POINT;
+
+	// TODO: shouldn't be hardcoded
+	materialConfiguration.passType() = MaterialConfiguration::PassType::OPAQUE;
+	//materialConfiguration.shaderName() = "grass-fakeinst"s;
+	materialConfiguration.shaderName() = "grass-fakeinst-g"s;
+	materialConfiguration.renderStateConfiguration() = renderStateConfiguration;
+	materialConfiguration.addTexture(
+		MaterialConfiguration::NOISE_MAP_TEXTURE,
+		filesystemContext.makeAbsolute("data/models/noise.tga"),
+		samplerConfiguration
+		);
+	materialConfiguration.properties().emplace(MaterialConfiguration::AMBIENT_COLOUR_PROPERTY, Colour(0.086f, 0.356f, 0.192f));
+	materialConfiguration.properties().emplace(MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY, Colour(0.086f, 0.356f, 0.192f));
+	materialConfiguration.properties().emplace(MaterialConfiguration::SPECULAR_COLOUR_PROPERTY, Colour(0.05f, 0.05f, 0.05f));
+	materialConfiguration.properties().emplace(MaterialConfiguration::SPECULAR_EXPONENT_PROPERTY, 1.5f);
+
+	return std::make_unique<renderer::Model>(
+		id,
+		Mesh(std::move(submeshes), { { "blade", std::move(materialConfiguration) } }),
+		graphicsRenderer,
+		passFactory,
+		filesystemContext
 		);
 }
 
 } // anonymous namespace
-
-std::vector<math::Vec3> GrassActor::allPatchPositions_;
 
 void GrassActor::registerShaderInputElements(renderer::shader::InputElementFactory& inputElementFactory) {
 	auto instanceDetails = renderer::shader::InputElementFactoryInstanceDetails("GRASS_PATCH_POSITION", 0);
@@ -83,44 +150,15 @@ void GrassActor::registerParameters(renderer::shader::ParameterFactory& paramete
 	}
 }
 
-void GrassActor::registerResources(renderer::shader::ResourceFactory& resourceFactory) {
-	const auto instanceDetails = "grass_patch_positions"s;
-	if (!resourceFactory.isCreatorRegistered(instanceDetails)) {
-		resourceFactory.registerCreator(
-			instanceDetails,
-			&createGrassPatchPositionsResource
-		);
+void GrassActor::registerModels(renderer::ModelFactory& modelFactory) {
+	const auto name = "grass-fakeinst";
+	if (!modelFactory.hasGenerator(name)) {
+		modelFactory.registerGenerator(name, &createGrassFakeinstModel);
 	}
-}
-
-const milk::graphics::Resource& GrassActor::grassPatchPositionsResource(milk::graphics::Renderer& graphicsRenderer) {
-	static auto initialised = false;
-	static auto buffer = milk::graphics::Buffer();
-	if (!initialised) {
-		auto configuration = milk::graphics::Buffer::Configuration();
-		configuration.size = GrassActor::allPatchPositions_.size() * sizeof(Vec3);
-		configuration.stride = sizeof(Vec3);
-		configuration.allowModifications = false;
-		configuration.allowCPURead = false;
-		configuration.allowGPUWrite = false;
-		configuration.elementFormat = milk::graphics::PixelFormat::R32G32B32_FLOAT;
-
-		buffer = milk::graphics::Buffer( // TODO: add initialise? have unified approach with Texture
-			graphicsRenderer,
-			milk::graphics::Buffer::CreationPurpose::SHADER_RESOURCE,
-			configuration,
-			GrassActor::allPatchPositions_.data()
-			);
-
-		initialised = true;
-	}
-
-	return buffer;
 }
 
 GrassActor::GrassActor(const math::Vec3& patchPosition) :
 	Actor("grass"),
 	patchPosition_(patchPosition)
 {
-	allPatchPositions_.emplace_back(patchPosition);
 }

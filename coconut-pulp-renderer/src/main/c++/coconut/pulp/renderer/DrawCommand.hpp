@@ -52,6 +52,10 @@ public:
 		vertexShader_ = vertexShader;
 	}
 
+	void setGeometryShader(milk::graphics::GeometryShader* geometryShader) {
+		geometryShader_ = geometryShader;
+	}
+
 	void setPixelShader(milk::graphics::PixelShader* pixelShader) {
 		pixelShader_ = pixelShader;
 	}
@@ -193,6 +197,8 @@ private:
 	milk::graphics::InputLayout* inputLayout_ = nullptr;
 
 	milk::graphics::VertexShader* vertexShader_ = nullptr;
+
+	milk::graphics::GeometryShader* geometryShader_ = nullptr;
 
 	milk::graphics::PixelShader* pixelShader_ = nullptr;
 

@@ -57,11 +57,13 @@ public:
 
 	void setViewport(Viewport& viewport);
 
-	void setInputLayout(InputLayout& inputLayout);
+	void setInputLayout(InputLayout* inputLayout) noexcept;
 
-	void setVertexShader(VertexShader& vertexShader);
+	void setVertexShader(VertexShader* vertexShader) noexcept;
 
-	void setPixelShader(PixelShader& pixelShader);
+	void setGeometryShader(GeometryShader* geometryShader) noexcept;
+
+	void setPixelShader(PixelShader* pixelShader) noexcept;
 
 	void setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, size_t slot);
 

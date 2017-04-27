@@ -123,7 +123,7 @@ auto detail::PassCreator::doCreate(
 	}
 
 	return std::make_unique<Pass>(
-		false, // true, // TODO: temp - need to discern between instanced and non instanced shaders
+		false, // TODO: temp - need to discern between instanced and non instanced shaders
 		inputFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
 		std::dynamic_pointer_cast<VertexShader>(
 			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),

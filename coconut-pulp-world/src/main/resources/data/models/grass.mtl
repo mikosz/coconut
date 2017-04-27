@@ -6,5 +6,5 @@ Ks 0.050000 0.050000 0.050000
 Ni 1.500000
 d 0.000000
 illum 2
-@shader grass
+@shader grass-instancing
 @noise noise.dds
