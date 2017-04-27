@@ -113,8 +113,8 @@ BOOST_AUTO_TEST_CASE(CrossProducesCrossProduct) {
 BOOST_AUTO_TEST_CASE(LengthReturnsVectorLength) {
 	const auto vec = Vec2(3.12f, 0.14f);
 
-	BOOST_CHECK_CLOSE(vec.length(), 3.12313944613f, 0.0001f);
-	BOOST_CHECK_CLOSE(vec.lengthSq(), 9.754f, 0.0001f);
+	BOOST_CHECK_CLOSE(vec.length(), 3.12313944613f, 0.01f);
+	BOOST_CHECK_CLOSE(vec.lengthSq(), 9.754f, 0.01f);
 }
 
 BOOST_AUTO_TEST_CASE(NormalisedReturnsNormalised) {
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(NormalisedReturnsNormalised) {
 	vec.normalise();
 	BOOST_CHECK_EQUAL(vec, normalised);
 
-	BOOST_CHECK_CLOSE(vec.lengthSq(), 1.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(vec.lengthSq(), 1.0f, 0.01f);
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* PulpMathVectorTestSuite */);

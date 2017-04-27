@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE(QuaternionNormReturnsNorm) {
 	const auto nSq = 11.8744f;
 	const auto n = 3.44592512f;
 
-	BOOST_CHECK_CLOSE(q.normSq(), nSq, 0.00001f);
-	BOOST_CHECK_CLOSE(q.norm(), n, 0.00001f);
+	BOOST_CHECK_CLOSE(q.normSq(), nSq, 0.01f);
+	BOOST_CHECK_CLOSE(q.norm(), n, 0.01f);
 }
 
 BOOST_AUTO_TEST_CASE(QuaternionInverseReturnsInverse) {

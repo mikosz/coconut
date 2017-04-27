@@ -17,19 +17,22 @@ BOOST_AUTO_TEST_CASE(PlaneIsConstructibleFromPointAndNormal) {
 	const auto p = Plane({ 0.0f, 1.0f, 0.0f }, { 2.0f, 2.0f, 2.0f });
 
 	BOOST_CHECK_EQUAL(p.normal(), Vec3(0.0f, 1.0f, 0.0f).normalised());
-	BOOST_CHECK_CLOSE(p.signedDistanceToOrigin(), -2.0f, 0.00001f);
+	BOOST_CHECK_CLOSE(p.signedDistanceToOrigin(), -2.0f, 0.01f);
 }
 
 BOOST_AUTO_TEST_CASE(PlaneIsConstructibleFromNormalAndDistanceFromOrigin) {
+	const auto p = Plane({ 2.0f, 1.0f, 3.0f }, 3.0f);
 
+	BOOST_CHECK_EQUAL(p.normal(), Vec3(2.0f, 1.0f, 3.0f).normalised());
+	BOOST_CHECK_CLOSE(p.signedDistanceToOrigin(), 3.0f, 0.01f);
 }
 
 BOOST_AUTO_TEST_CASE(CanTestPointPositionComparedToPlane) {
-	const auto p = Plane({ 1.0f, 1.0f, 1.0f }, { 1.0f, -1.0f, 1.0f });
+	const auto p = Plane({ 1.0f, 1.0f, 0.1f }, { -1.0f, -1.0f, 1.0f });
 
-	BOOST_CHECK(p.testPosition({ 1.0f, 0.0f, 1.0f }) == Plane::Side::FRONT);
-	BOOST_CHECK(p.testPosition({ 1.0f, -1.0f, 1.0f }) == Plane::Side::ON);
-	BOOST_CHECK(p.testPosition({ 1.0f, -2.0f, 1.0f }) == Plane::Side::BACK);
+	BOOST_CHECK_CLOSE_FRACTION(p.signedDistanceToPoint({ 1.0f, 0.0f, 1.0f }), 2.116036f, 0.01f);
+	BOOST_CHECK_CLOSE(p.signedDistanceToPoint({ -1.0f, -1.0f, 1.0f }), 0.0f, 0.01f);
+	BOOST_CHECK_CLOSE(p.signedDistanceToPoint({ -2.0f, -0.5f, 3.0f }), -0.211603f, 0.01f);
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* PulpMathPlaneTestSuite */);

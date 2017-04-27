@@ -11,15 +11,9 @@ namespace math {
 class Plane {
 public:
 
-	enum class Side {
-		FRONT,
-		BACK,
-		ON
-	};
-
-	Plane(const Vec3& normal, const Vec3& point) noexcept :
-		equation_(normal.normalised(), -normal.dot(point))
-	{
+	Plane(Vec3 normal, const Vec3& point) noexcept {
+		normal.normalise();
+		equation_ = Vec4(normal, -normal.dot(point));
 	}
 
 	Plane(const Vec3& normal, float distanceFromOrigin) noexcept :
@@ -35,15 +29,8 @@ public:
 		return equation_.w();
 	}
 
-	Side testPosition(const Vec3& point) const noexcept {
-		const auto dot = equation_.dot(Vec4(point, 1.0f));
-		if (ScalarEqual<float>()(dot, 0.0f)) {
-			return Side::ON;
-		} else if (dot > 0.0f) {
-			return Side::FRONT;
-		} else {
-			return Side::BACK;
-		}
+	const float signedDistanceToPoint(const Vec3& point) const noexcept {
+		return equation_.dot(Vec4(point, 1.0f));
 	}
 
 private:
