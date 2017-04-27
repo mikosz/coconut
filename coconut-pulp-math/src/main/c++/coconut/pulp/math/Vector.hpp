@@ -35,21 +35,40 @@ public:
 
 	static const auto DIMENSIONS = DIMENSIONS_PARAM;
 
+	using Elements = std::array<Scalar, DIMENSIONS>;
+
 	// --- CONSTRUCTORS AND OPERATORS
 
-	template <class... CompatibleTypes>
-	explicit constexpr Vector(CompatibleTypes&&... values) noexcept {
-		static_assert(sizeof...(values) <= DIMENSIONS, "Too many values");
-		elements_ = { std::forward<CompatibleTypes>(values)... };
-		std::uninitialized_fill(
-			elements_.begin() + sizeof...(values),
-			elements_.end(),
-			Scalar(0)
-			);
+	template <
+		class... CompatibleTypes,
+		class = std::enable_if_t<sizeof...(CompatibleTypes) == DIMENSIONS || sizeof...(CompatibleTypes) == 0>
+		>
+	explicit constexpr Vector(CompatibleTypes&&... values) noexcept :
+		elements_{ std::forward<CompatibleTypes>(values)... }
+	{
+		static_assert(sizeof...(values) == DIMENSIONS || sizeof...(values) == 0, "Bad number of arguments");
 	}
 
+	template <
+		class CompatibleScalarType,
+		size_t OTHER_DIMENSIONS,
+		class OtherScalarEqualityFunc,
+		class... TailTypes,
+		class = std::enable_if_t<sizeof...(TailTypes) + OTHER_DIMENSIONS == DIMENSIONS>
+		>
+	explicit constexpr Vector(
+		const Vector<CompatibleScalarType, OTHER_DIMENSIONS, OtherScalarEqualityFunc>& other,
+		TailTypes&&... tail
+		)
+	{
+		std::copy(other.elements().begin(), other.elements().end(), elements_.begin());
+		setTail_(elements_, OTHER_DIMENSIONS, std::forward<TailTypes>(tail)...);
+	}
+
+	// TODO: consider removing std::initializer_list constructor, as the number of values cannot be
+	// checked at compile-time
 	constexpr Vector(std::initializer_list<Scalar> values) noexcept {
-		assert(values.size() <= DIMENSIONS);
+		assert(values.size() == DIMENSIONS || values.size() == 0);
 		std::copy(values.begin(), values.end(), elements_.begin());
 		std::uninitialized_fill(
 			elements_.begin() + values.size(),
@@ -218,9 +237,28 @@ public:
 		return get<3>();
 	}
 
+	constexpr const Elements& elements() const noexcept {
+		return elements_;
+	}
+
 private:
 
-	std::array<Scalar, DIMENSIONS> elements_;
+	Elements elements_;
+
+	template <class HeadType, class... TailTypes>
+	static constexpr void setTail_(
+		Elements& elems,
+		size_t index,
+		HeadType&& head,
+		TailTypes&&... tailTypes
+		) noexcept
+	{
+		elems[index] = std::forward<HeadType>(head);
+		setTail_(elems, index + 1, std::forward<TailTypes>(tailTypes)...);
+	}
+
+	static constexpr void setTail_(Elements&, size_t) noexcept {
+	}
 
 };
 

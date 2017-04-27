@@ -28,14 +28,21 @@ BOOST_AUTO_TEST_CASE(VectorConstructionAndElementAccessWorks) {
 	BOOST_CHECK_EQUAL(oneTwoThenThree.y(), 4);
 }
 
-BOOST_AUTO_TEST_CASE(TrailingZerosAreAddedIfNecessary) {
+BOOST_AUTO_TEST_CASE(DefaultConstructorYieldsZeros) {
 	const auto zero = Vec2();
-	const auto oneZero = Vec2(1.0f);
-	const auto oneZeroIL = Vec2{ 1.0f };
-	
 	BOOST_CHECK_EQUAL(zero, Vec2(0.0f, 0.0f));
-	BOOST_CHECK_EQUAL(oneZero, Vec2(1.0f, 0.0f));
-	BOOST_CHECK_EQUAL(oneZeroIL, Vec2(1.0f, 0.0f));
+}
+
+BOOST_AUTO_TEST_CASE(HigherDimensionVectorsAreConstructibleFromLower) {
+	const auto oneTwoThree = Vector<std::int32_t, 3>(1, 2, 3);
+	const auto oneTwoThreeFour = Vector<std::int32_t, 4>(oneTwoThree, 4);
+	const auto oneTwoThreeFourFive = Vector<std::int64_t, 5>(oneTwoThree, 4, 5);
+
+	const auto expected1234 = Vector<std::int32_t, 4>(1, 2, 3, 4);
+	const auto expected12345 = Vector<std::int64_t, 5>(1, 2, 3, 4, 5);
+
+	BOOST_CHECK_EQUAL(oneTwoThreeFour, expected1234);
+	BOOST_CHECK_EQUAL(oneTwoThreeFourFive, expected12345);
 }
 
 BOOST_AUTO_TEST_CASE(VectorsAreEqualityComparable) {

@@ -40,9 +40,12 @@ BOOST_AUTO_TEST_CASE(ConstructsValidOrthographicProjection) {
 BOOST_AUTO_TEST_CASE(OrthographicProjectionWorks) {
 	const auto orthographic = Transform::orthographicProjection(Handedness::LEFT, -0.5f, 1.0f, 0.5f, -0.5f, -1.0f, 1.0f);
 
-	BOOST_CHECK_EQUAL(orthographic.apply({ 1.0f, -0.5f, -1.0f, 1.0f }), Vec4(1.0f, -1.0f, 0.0f, 1.0f));
-	BOOST_CHECK_EQUAL(orthographic.apply({ -0.5f, 0.5f, 0.0f, 1.0f }), Vec4(-1.0f, 1.0f, 0.5f, 1.0f));
-	BOOST_CHECK_EQUAL(orthographic.apply({ 0.0f, 0.0f, 1.0f, 1.0f }), Vec4(-0.333333f, 0.0f, 1.0f, 1.0f));
+	BOOST_CHECK_EQUAL(
+		orthographic.apply(HomogeneousCoords({ 1.0f, -0.5f, -1.0f }, HomogeneousCoords::POINT)),
+		Vec4(1.0f, -1.0f, 0.0f, 1.0f)
+		);
+	BOOST_CHECK_EQUAL(orthographic.apply(Vec4(-0.5f, 0.5f, 0.0f, 1.0f)), Vec4(-1.0f, 1.0f, 0.5f, 1.0f));
+	BOOST_CHECK_EQUAL(orthographic.apply(Vec4(0.0f, 0.0f, 1.0f, 1.0f)), Vec4(-0.333333f, 0.0f, 1.0f, 1.0f));
 }
 
 BOOST_AUTO_TEST_CASE(ConstructsExpectedPerspectiveProjectionMatrix) {
@@ -70,21 +73,21 @@ BOOST_AUTO_TEST_CASE(ConstructsExpectedPerspectiveProjectionMatrix) {
 BOOST_AUTO_TEST_CASE(PerspectiveProjectionWorks) {
 	const auto perspective = Transform::perspectiveProjection(Handedness::LEFT, 90.0_deg, 0.5f, 1.0f, 100.0f);
 
-	BOOST_CHECK_EQUAL(perspective.apply({ 0.0f, 0.0f, 1.0f, 1.0f }), Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	BOOST_CHECK_EQUAL(perspective.apply({ 0.25f, 0.5f, 1.0f, 1.0f }), Vec4(0.5f, 0.5f, 0.0f, 1.0f));
-	BOOST_CHECK_EQUAL(perspective.apply({ 0.5f, 1.0f, 1.0f, 1.0f }), Vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(0.0f, 0.0f, 1.0f, 1.0f)), Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(0.25f, 0.5f, 1.0f, 1.0f)), Vec4(0.5f, 0.5f, 0.0f, 1.0f));
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(0.5f, 1.0f, 1.0f, 1.0f)), Vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
-	BOOST_CHECK_EQUAL(perspective.apply({ 0.0f, 0.0f, 10.0f, 1.0f }), Vec4(0.0f, 0.0f, 0.909090f, 1.0f) * 10.0f);
-	BOOST_CHECK_EQUAL(perspective.apply({ 2.5f, -5.0f, 10.0f, 1.0f }), Vec4(0.5f, -0.5f, 0.909090f, 1.0f) * 10.0f);
-	BOOST_CHECK_EQUAL(perspective.apply({ 5.0f, -10.0f, 10.0f, 1.0f }), Vec4(1.0f, -1.0f, 0.909090f, 1.0f) * 10.0f);
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(0.0f, 0.0f, 10.0f, 1.0f)), Vec4(0.0f, 0.0f, 0.909090f, 1.0f) * 10.0f);
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(2.5f, -5.0f, 10.0f, 1.0f)), Vec4(0.5f, -0.5f, 0.909090f, 1.0f) * 10.0f);
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(5.0f, -10.0f, 10.0f, 1.0f)), Vec4(1.0f, -1.0f, 0.909090f, 1.0f) * 10.0f);
 
-	BOOST_CHECK_EQUAL(perspective.apply({ 0.0f, 0.0f, 90.0f, 1.0f }), Vec4(0.0f, 0.0f, 0.998877f, 1.0f) * 90.0f);
-	BOOST_CHECK_EQUAL(perspective.apply({ 22.5f, -45.0f, 90.0f, 1.0f }), Vec4(0.5f, -0.5f, 0.998877f, 1.0f) * 90.0f);
-	BOOST_CHECK_EQUAL(perspective.apply({ 45.0f, -90.0f, 90.0f, 1.0f }), Vec4(1.0f, -1.0f, 0.998877f, 1.0f) * 90.0f);
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(0.0f, 0.0f, 90.0f, 1.0f)), Vec4(0.0f, 0.0f, 0.998877f, 1.0f) * 90.0f);
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(22.5f, -45.0f, 90.0f, 1.0f)), Vec4(0.5f, -0.5f, 0.998877f, 1.0f) * 90.0f);
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(45.0f, -90.0f, 90.0f, 1.0f)), Vec4(1.0f, -1.0f, 0.998877f, 1.0f) * 90.0f);
 
-	BOOST_CHECK_EQUAL(perspective.apply({ 0.0f, 0.0f, 100.0f, 1.0f }), Vec4(0.0f, 0.0f, 1.0f, 1.0f) * 100.0f);
-	BOOST_CHECK_EQUAL(perspective.apply({ -25.0f, -50.0f, 100.0f, 1.0f }), Vec4(-0.5f, -0.5f, 1.0f, 1.0f) * 100.0f);
-	BOOST_CHECK_EQUAL(perspective.apply({ -50.0f, -100.0f, 100.0f, 1.0f }), Vec4(-1.0f, -1.0f, 1.0f, 1.0f) * 100.0f);
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(0.0f, 0.0f, 100.0f, 1.0f)), Vec4(0.0f, 0.0f, 1.0f, 1.0f) * 100.0f);
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(-25.0f, -50.0f, 100.0f, 1.0f)), Vec4(-0.5f, -0.5f, 1.0f, 1.0f) * 100.0f);
+	BOOST_CHECK_EQUAL(perspective.apply(Vec4(-50.0f, -100.0f, 100.0f, 1.0f)), Vec4(-1.0f, -1.0f, 1.0f, 1.0f) * 100.0f);
 }
 
 BOOST_AUTO_TEST_CASE(TranslationWorks) {

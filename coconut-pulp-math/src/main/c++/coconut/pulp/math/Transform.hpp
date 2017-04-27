@@ -1,8 +1,8 @@
 #ifndef _COCONUT_PULP_MATH_TRANSFORM_HPP_
 #define _COCONUT_PULP_MATH_TRANSFORM_HPP_
 
+#include "HomogeneousCoords.hpp"
 #include "Matrix.hpp"
-#include "Orientation.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -50,17 +50,14 @@ public:
 	{
 	}
 
-	Transform(const Orientation& orientation) noexcept;
-
-	// TODO: what about Vec3? Need to make a Point and Vector(?) class?
-	Vec4 apply(const Vec4& vector) const noexcept {
+	HomogeneousCoords apply(const HomogeneousCoords& coords) const noexcept {
 		// TODO: this is ineffective. Need matrix data to be stored in columns rather than rows, OR better yet,
 		// multiply by rows, like everyone in maths does (as does OpenGL).
 		return Vec4(
-			dot(matrix_.column(0), vector),
-			dot(matrix_.column(1), vector),
-			dot(matrix_.column(2), vector),
-			dot(matrix_.column(3), vector)
+			matrix_.column(0).dot(coords),
+			matrix_.column(1).dot(coords),
+			matrix_.column(2).dot(coords),
+			matrix_.column(3).dot(coords)
 			);
 	}
 

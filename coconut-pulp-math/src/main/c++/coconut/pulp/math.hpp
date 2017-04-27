@@ -3,8 +3,8 @@
 
 #include "math/Angle.hpp"
 #include "math/Handedness.hpp"
+#include "math/HomogeneousCoords.hpp"
 #include "math/Matrix.hpp"
-#include "math/Orientation.hpp"
 #include "math/Quaternion.hpp"
 #include "math/Rotation.hpp"
 #include "math/Transform.hpp"
