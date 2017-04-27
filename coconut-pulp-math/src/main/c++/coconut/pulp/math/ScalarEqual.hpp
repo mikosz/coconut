@@ -18,7 +18,7 @@ template <>
 struct ScalarEqual<float> {
 
 	constexpr bool operator()(float lhs, float rhs) const noexcept {
-		return std::abs(lhs - rhs) < (1.0f / 10000.0f);
+		return std::abs(lhs - rhs) < 1.0f / 10'000.0f;
 	}
 
 };
