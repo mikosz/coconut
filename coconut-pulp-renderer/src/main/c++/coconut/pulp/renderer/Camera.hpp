@@ -11,7 +11,7 @@ namespace renderer {
 class Camera {
 public:
 
-	virtual const Matrix4x4& viewTransformation() const = 0;
+	virtual const Matrix4x4& viewTransform() const = 0;
 
 	virtual const Vec3& position() const = 0;
 

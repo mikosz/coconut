@@ -1,5 +1,7 @@
 #include "OrthographicLens.hpp"
 
+#include "coconut/pulp/math/Transform.hpp"
+
 #include <functional>
 
 using namespace coconut;
@@ -13,7 +15,7 @@ OrthographicLens::OrthographicLens(
 	float nearZ,
 	float farZ
 	) :
-	projectionMatrix_(Matrix4x4::orthographicProjection(
+	projectionMatrix_(Transform::orthographicProjection(
 		handedness,
 		-viewWidth * 0.5f,
 		viewWidth * 0.5f, 
@@ -21,7 +23,7 @@ OrthographicLens::OrthographicLens(
 		viewHeight * 0.5f,
 		nearZ,
 		farZ
-		))
+		).matrix())
 {
 }
 

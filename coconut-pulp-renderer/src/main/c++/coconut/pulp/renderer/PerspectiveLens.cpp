@@ -1,5 +1,7 @@
 #include "PerspectiveLens.hpp"
 
+#include "coconut/pulp/math/Transform.hpp"
+
 #include <functional>
 
 using namespace coconut;
@@ -14,7 +16,7 @@ PerspectiveLens::PerspectiveLens(
 	float farZ
 	) :
 	projectionMatrix_(
-		Matrix4x4::perspectiveProjection(handedness, fov, aspectRatio, nearZ, farZ)
+		Transform::perspectiveProjection(handedness, fov, aspectRatio, nearZ, farZ).matrix()
 		)
 {
 }

@@ -25,6 +25,8 @@ public:
 		float far
 		) noexcept;
 
+	// TODO: change clipping coords to [-1, 1] uniformly
+	// TODO: use horizontalFOV
 	/**
 	 * Creates a perspective projection transformation. Positions within the view frustum are mapped into
 	 * the homogeneous clip-space <[-1, 1], [-1, 1], [0, 1], 1> * w (DirectX style).

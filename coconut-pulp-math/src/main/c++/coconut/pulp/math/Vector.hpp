@@ -288,7 +288,8 @@ static_assert(std::is_trivially_copyable<Vec4>::value, "Vector is not trivially 
 
 } // namespace math
 
-using math::Vector;
+// TODO: re-enable when primitive::Vector is removed
+// using math::Vector;
 using math::Vec2;
 using math::Vec3;
 using math::Vec4;
