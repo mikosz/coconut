@@ -4,6 +4,8 @@
 #include <array>
 
 #include "Plane.hpp"
+#include "Transform.hpp"
+#include "Vector.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -12,18 +14,22 @@ namespace math {
 class Frustum {
 public:
 
-
-
-private:
-
-	enum class PlaneIndex {
+	enum class Side {
 		NEAR,
 		FAR,
 		LEFT,
 		RIGHT,
-		TOP,
 		BOTTOM,
+		TOP
 	};
+
+	Frustum(float focalLength, float aspectRatio, float near, float far) noexcept;
+
+	Frustum(const Transform& projectionTransform) noexcept;
+
+	bool contains(const Vec3& point) const noexcept;
+
+private:
 
 	std::array<Plane, 6> planes_;
 

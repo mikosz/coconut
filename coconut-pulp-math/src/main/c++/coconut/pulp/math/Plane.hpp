@@ -11,6 +11,8 @@ namespace math {
 class Plane {
 public:
 
+	Plane() = default;
+
 	Plane(Vec3 normal, const Vec3& point) noexcept {
 		normal.normalise();
 		equation_ = Vec4(normal, -normal.dot(point));
@@ -19,6 +21,12 @@ public:
 	Plane(const Vec3& normal, float distanceFromOrigin) noexcept :
 		equation_(normal.normalised(), distanceFromOrigin)
 	{
+	}
+
+	explicit Plane(Vec4 equation) noexcept :
+		equation_(std::move(equation))
+	{
+		equation_ /= equation_.xyz().length();
 	}
 
 	const Vec3 normal() const noexcept {
