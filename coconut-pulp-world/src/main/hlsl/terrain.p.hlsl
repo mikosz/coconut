@@ -29,12 +29,18 @@ cbuffer SceneData {
 	PointLight pointLights[3];
 }
 
-cbuffer ObjectData {
-}
-
 cbuffer GroupData {
 	Material material;
 }
+
+cbuffer TerrainData {
+	float terrainCellEdgeLength;
+	float terrainWidth;
+	float terrainDepth;
+};
+
+Texture2D heightmap;
+SamplerState heightmapSampler;
 
 void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
 	ambient = mat.ambientColour * l.ambientColour;
@@ -73,7 +79,22 @@ void computePoint(Material mat, PointLight l, float3 position, float3 normal, fl
 
 float4 main(DomainOut pin) : SV_TARGET
 {
-	float3 normalW = float3(0.0f, 1.0f, 0.0f); // TODO
+	const float texelCellSpaceU = terrainCellEdgeLength / terrainWidth;
+	const float texelCellSpaceV = terrainCellEdgeLength / terrainDepth;
+
+	const float2 leftUV = pin.heightmapTexcoord + float2(-texelCellSpaceU, 0.0f);
+	const float2 rightUV = pin.heightmapTexcoord + float2(texelCellSpaceU, 0.0f);
+	const float2 bottomUV = pin.heightmapTexcoord + float2(0.0f, texelCellSpaceV);
+	const float2 topUV = pin.heightmapTexcoord + float2(0.0f, -texelCellSpaceV);
+
+	const float leftHeight = heightmap.SampleLevel(heightmapSampler, leftUV, 0).r;
+	const float rightHeight = heightmap.SampleLevel(heightmapSampler, rightUV, 0).r;
+	const float bottomHeight = heightmap.SampleLevel(heightmapSampler, bottomUV, 0).r;
+	const float topHeight = heightmap.SampleLevel(heightmapSampler, topUV, 0).r;
+
+	const float3 tangent = normalize(float3(2.0f * terrainCellEdgeLength, rightHeight - leftHeight, 0.0f));
+	const float3 bitangent = normalize(float3(0.0f, bottomHeight - topHeight, 2.0f * terrainCellEdgeLength));
+	const float3 normalW = cross(bitangent, tangent);
 
 	float3 toEye = normalize(eye - pin.posW);
 
@@ -102,7 +123,7 @@ float4 main(DomainOut pin) : SV_TARGET
 	}
 
 	float4 endColour = saturate(ambient + diffuse + specular);
-	endColour.a = 1.0f;
+	endColour.a = diffuse.a;
 
 	return endColour;
 }

@@ -79,8 +79,8 @@ renderer::ModelSharedPtr createGridModel(
 	auto materialConfiguration = MaterialConfiguration();
 
 	auto renderStateConfiguration = milk::graphics::RenderState::Configuration();
-	renderStateConfiguration.cullMode = milk::graphics::RenderState::CullMode::NONE;
-	renderStateConfiguration.fillMode = milk::graphics::RenderState::FillMode::WIREFRAME;
+	renderStateConfiguration.cullMode = milk::graphics::RenderState::CullMode::BACK;
+	renderStateConfiguration.fillMode = milk::graphics::RenderState::FillMode::SOLID;
 	renderStateConfiguration.frontCounterClockwise = false;
 
 	materialConfiguration.passType() = MaterialConfiguration::PassType::OPAQUE;
@@ -151,6 +151,45 @@ std::unique_ptr<renderer::shader::Parameter> createMaxTesselationExponentParamet
 		[](float& result, const renderer::Actor&, size_t arrayIndex) {
 			assert(arrayIndex == 0);
 			result = 6.0f;
+		},
+		instanceDetails.padding
+		);
+}
+
+std::unique_ptr<renderer::shader::Parameter> createCellEdgeLengthParameter(
+	const renderer::shader::ParameterFactoryInstanceDetails& instanceDetails)
+{
+	// TODO: actor doesn't make sense as an argument here
+	return std::make_unique<renderer::shader::CallbackParameter<renderer::Actor, float>>(
+		[](float& result, const renderer::Actor&, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = 1.0f;
+		},
+		instanceDetails.padding
+		);
+}
+
+std::unique_ptr<renderer::shader::Parameter> createWidthParameter(
+	const renderer::shader::ParameterFactoryInstanceDetails& instanceDetails)
+{
+	// TODO: actor doesn't make sense as an argument here
+	return std::make_unique<renderer::shader::CallbackParameter<renderer::Actor, float>>(
+		[](float& result, const renderer::Actor&, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = 257.0f; // TODO: HARDCODED!
+		},
+		instanceDetails.padding
+		);
+}
+
+std::unique_ptr<renderer::shader::Parameter> createDepthParameter(
+	const renderer::shader::ParameterFactoryInstanceDetails& instanceDetails)
+{
+	// TODO: actor doesn't make sense as an argument here
+	return std::make_unique<renderer::shader::CallbackParameter<renderer::Actor, float>>(
+		[](float& result, const renderer::Actor&, size_t arrayIndex) {
+			assert(arrayIndex == 0);
+			result = 257.0f; // TODO: HARDCODED!
 		},
 		instanceDetails.padding
 		);
@@ -227,6 +266,36 @@ Terrain::Terrain(
 			parameterFactory.registerCreator(
 				instanceDetails,
 				&createMinTesselationDistanceParameter
+			);
+		}
+	}
+
+	{
+		auto instanceDetails = renderer::shader::ParameterFactoryInstanceDetails("terrain_cell_edge_length");
+		if (!parameterFactory.isCreatorRegistered(instanceDetails)) {
+			parameterFactory.registerCreator(
+				instanceDetails,
+				&createCellEdgeLengthParameter
+			);
+		}
+	}
+
+	{
+		auto instanceDetails = renderer::shader::ParameterFactoryInstanceDetails("terrain_width");
+		if (!parameterFactory.isCreatorRegistered(instanceDetails)) {
+			parameterFactory.registerCreator(
+				instanceDetails,
+				&createWidthParameter
+			);
+		}
+	}
+
+	{
+		auto instanceDetails = renderer::shader::ParameterFactoryInstanceDetails("terrain_depth");
+		if (!parameterFactory.isCreatorRegistered(instanceDetails)) {
+			parameterFactory.registerCreator(
+				instanceDetails,
+				&createDepthParameter
 			);
 		}
 	}
