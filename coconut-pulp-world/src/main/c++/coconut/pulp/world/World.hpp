@@ -18,9 +18,10 @@ public:
 		milk::graphics::Renderer& graphicsRenderer,
 		renderer::Scene& scene,
 		renderer::shader::PassFactory& passFactory, // TODO: inconvenient
+		renderer::ModelFactory& modelFactory, // ,,
 		const milk::FilesystemContext& fs
 		) :
-		terrain_(graphicsRenderer, scene, passFactory, fs)
+		terrain_(graphicsRenderer, scene, passFactory, modelFactory, fs)
 	{
 	}
 

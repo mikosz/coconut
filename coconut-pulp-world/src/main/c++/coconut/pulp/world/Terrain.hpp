@@ -22,6 +22,7 @@ public:
 		milk::graphics::Renderer& graphicsRenderer,
 		renderer::Scene& scene,
 		renderer::shader::PassFactory& passFactory, // TODO: inconvenient
+		renderer::ModelFactory& modelFactory, // ,,
 		const milk::FilesystemContext& fs
 		);
 

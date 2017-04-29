@@ -1,8 +1,10 @@
 #include "Terrain.hpp"
 
+#include <coconut-tools/utils/Range.hpp>
+
 #include "coconut/pulp/renderer/shader/CallbackParameter.hpp"
 
-#include <coconut-tools/utils/Range.hpp>
+#include "foliage/GrassActor.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -80,7 +82,7 @@ renderer::ModelSharedPtr createGridModel(
 
 	auto renderStateConfiguration = milk::graphics::RenderState::Configuration();
 	renderStateConfiguration.cullMode = milk::graphics::RenderState::CullMode::BACK;
-	renderStateConfiguration.fillMode = milk::graphics::RenderState::FillMode::SOLID;
+	renderStateConfiguration.fillMode = milk::graphics::RenderState::FillMode::WIREFRAME;//SOLID;
 	renderStateConfiguration.frontCounterClockwise = false;
 
 	materialConfiguration.passType() = MaterialConfiguration::PassType::OPAQUE;
@@ -124,7 +126,7 @@ std::unique_ptr<renderer::shader::Parameter> createMaxTesselationDistanceParamet
 	return std::make_unique<renderer::shader::CallbackParameter<renderer::Actor, float>>(
 		[](float& result, const renderer::Actor&, size_t arrayIndex) {
 			assert(arrayIndex == 0);
-			result = 500.0f;
+			result = 100.0f;
 		},
 		instanceDetails.padding
 		);
@@ -222,6 +224,7 @@ Terrain::Terrain(
 	milk::graphics::Renderer& graphicsRenderer,
 	renderer::Scene& scene,
 	renderer::shader::PassFactory& passFactory,
+	renderer::ModelFactory& modelFactory,
 	const milk::FilesystemContext& fs
 	) :
 	heightmap_(graphicsRenderer, fs)
@@ -311,4 +314,16 @@ Terrain::Terrain(
 	}
 
 	scene.add(createGridActor(), createGridModel(graphicsRenderer, passFactory, fs, heightmap_));
+
+	foliage::GrassActor::registerShaderInputElements(passFactory.inputFactory().inputElementFactory());
+	foliage::GrassActor::registerParameters(parameterFactory);
+	foliage::GrassActor::registerModels(modelFactory, heightmap_);
+
+	auto grassModel = modelFactory.create("grass-fakeinst", graphicsRenderer, passFactory, fs);	
+	for (float x = -20.0f; x < 20.0f; x += 20.0f) {
+		for (float z = -20.0f; z < 100.0f; z += 20.0f) {
+			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
+//			scene.add(grassActor, grassModel);
+		}
+	}
 }

@@ -12,6 +12,9 @@
 namespace coconut {
 namespace pulp {
 namespace world {
+
+class Heightmap;
+
 namespace foliage {
 
 class GrassActor : public renderer::Actor {
@@ -21,7 +24,7 @@ public:
 
 	static void registerParameters(renderer::shader::ParameterFactory& parameterFactory);
 
-	static void registerModels(renderer::ModelFactory& modelFactory);
+	static void registerModels(renderer::ModelFactory& modelFactory, const Heightmap& heightmap);
 
 	GrassActor(const math::Vec3& patchPosition);
 
