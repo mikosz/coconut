@@ -3,19 +3,19 @@
 cbuffer Settings {
 	float terrainMinTesselationDistance;
 	float terrainMaxTesselationDistance;
-	float minTesselationExponent;
-	float maxTesselationExponent;
+	float terrainMinTesselationExponent;
+	float terrainMaxTesselationExponent;
 };
 
 cbuffer Context {
-	float3 eyePosW;
+	float3 eye;
 };
 
 float calculateTesselation(float3 controlPoint) {
-	float d = distance(controlPoint, eyePosW);
+	float d = distance(controlPoint, eye);
 	float s = saturate((d - terrainMinTesselationDistance) /
 		(terrainMaxTesselationDistance - terrainMinTesselationDistance));
-	return pow(2, lerp(maxTesselationExponent, minTesselationExponent, s));
+	return pow(2, lerp(terrainMaxTesselationExponent, terrainMinTesselationExponent, s));
 }
 
 /**

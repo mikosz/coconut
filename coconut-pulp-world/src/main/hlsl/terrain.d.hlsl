@@ -8,8 +8,8 @@ cbuffer ProjectionTransformations {
 	matrix projectionMatrix;
 }
 
-Texture2D heightMap;
-SamplerState heightMapSampler;
+Texture2D heightmap;
+SamplerState heightmapSampler;
 
 [domain("quad")]
 DomainOut main(
@@ -32,7 +32,7 @@ DomainOut main(
 		uv.y
 		);
 
-	dout.posW.y = heightMap.SampleLevel(heightMapSampler, dout.heightmapTexcoord, 0).r;
+	dout.posW.y = heightmap.SampleLevel(heightmapSampler, dout.heightmapTexcoord, 0).r;
 
 	dout.posH = mul(mul(float4(dout.posW, 1.0f), viewMatrix), projectionMatrix);
 

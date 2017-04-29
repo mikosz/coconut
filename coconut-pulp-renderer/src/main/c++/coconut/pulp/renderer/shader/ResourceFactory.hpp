@@ -74,7 +74,13 @@ using ResourceFactory =
 	coconut_tools::Factory<
 		std::string,
 		detail::ResourceCreator,
-		coconut_tools::factory::storage::Volatile,
+		// TODO: this is all broken: can't reuse resources, because we identify them by name. If
+		// we have two shaders using the same resource name at different stage/slot, it will be bound
+		// in only one way. Perhaps it would work if we divided the factory creator in two - one that
+		// creates resource and stores them and another, which returns them along with their binding info (stage
+		// and slot).
+		coconut_tools::factory::storage::None,
+		// coconut_tools::factory::storage::Volatile,
 		std::mutex
 		>;
 

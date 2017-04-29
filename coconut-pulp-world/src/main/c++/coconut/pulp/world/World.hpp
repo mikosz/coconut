@@ -1,6 +1,8 @@
 #ifndef _COCONUT_PULP_WORLD_WORLD_HPP_
 #define _COCONUT_PULP_WORLD_WORLD_HPP_
 
+#include "coconut/milk/graphics/Renderer.hpp"
+
 #include "coconut/milk/fs.hpp"
 
 #include "Terrain.hpp"
@@ -12,8 +14,13 @@ namespace world {
 class World {
 public:
 
-	World(const coconut::milk::FilesystemContext& fs) :
-		terrain_(fs)
+	World(
+		milk::graphics::Renderer& graphicsRenderer,
+		renderer::Scene& scene,
+		renderer::shader::PassFactory& passFactory, // TODO: inconvenient
+		const milk::FilesystemContext& fs
+		) :
+		terrain_(graphicsRenderer, scene, passFactory, fs)
 	{
 	}
 

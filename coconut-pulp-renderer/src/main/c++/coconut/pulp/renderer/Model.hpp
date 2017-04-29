@@ -48,6 +48,11 @@ public:
 		return id_;
 	}
 
+	// TODO: TEMP TEMP TEMP!
+	Material& material() {
+		return drawGroups_.front().material;
+	}
+
 private:
 
 	struct DrawGroup {

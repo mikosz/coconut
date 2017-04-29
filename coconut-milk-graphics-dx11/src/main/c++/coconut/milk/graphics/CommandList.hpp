@@ -63,6 +63,10 @@ public:
 
 	void setGeometryShader(GeometryShader* geometryShader) noexcept;
 
+	void setHullShader(HullShader* hullShader) noexcept;
+
+	void setDomainShader(DomainShader* domainShader) noexcept;
+
 	void setPixelShader(PixelShader* pixelShader) noexcept;
 
 	void setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, size_t slot);

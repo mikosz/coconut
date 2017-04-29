@@ -119,7 +119,7 @@ auto detail::PassCreator::doCreate(
 	}
 	if (shaderFactory_.hasShader(id + ".d")) {
 		domainShader = std::dynamic_pointer_cast<DomainShader>(
-			shaderFactory_.create(id + ".h", graphicsRenderer, filesystemContext));
+			shaderFactory_.create(id + ".d", graphicsRenderer, filesystemContext));
 	}
 
 	return std::make_unique<Pass>(

@@ -61,6 +61,8 @@ public:
 		return textures_.count(key) != 0;
 	}
 
+	void setTexture(std::string key, Texture texture);
+
 	const Texture& texture(const std::string& key) const;
 
 private:
