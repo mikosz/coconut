@@ -142,7 +142,7 @@ void Game::loop() {
 		camera->reset();
 		// camera->rotate(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
 		camera->translate(pulp::math::Vec3(0.0f, 4.0f + 0.25f * secs, 2.0f * secs));
-		camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), pulp::math::radians(0.05f * secs));
+		camera->rotate(pulp::math::Vec3(0.0f, 1.0f, 0.0f), pulp::math::radians(0.05f * secs));
 		//camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
 		//camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		

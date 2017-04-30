@@ -18,12 +18,11 @@ CCN_ENUM_VALUES(
 	(R32G32_FLOAT)(DXGI_FORMAT_R32G32_FLOAT)
 	(R32_FLOAT)(DXGI_FORMAT_R32_FLOAT)
 
+	//(A8R8G8B8_UNORM)(DXGI_FORMAT_A8R8G8B8_UNORM)
 	(R8G8B8A8_UNORM)(DXGI_FORMAT_R8G8B8A8_UNORM)
 	(B8G8R8A8_UNORM)(DXGI_FORMAT_B8G8R8A8_UNORM)
 
 	(R32_UINT)(DXGI_FORMAT_R32_UINT)
-
-	(R5G6B5A01_UNORM)(DXGI_FORMAT_BC1_UNORM)
 
 	// depth formats
 	(D32_FLOAT)(DXGI_FORMAT_D32_FLOAT)
@@ -33,32 +32,8 @@ CCN_ENUM_VALUES(
 	(I32_UINT)(DXGI_FORMAT_R32_UINT)
 );
 
-// TODO: temp
-inline size_t formatSize(PixelFormat format) {
-	switch (format) {
-	case PixelFormat::R32G32_FLOAT:
-		return 2 * 4;
-	case PixelFormat::R32G32B32_FLOAT:
-		return 3 * 4;
-	case PixelFormat::R32G32B32A32_FLOAT:
-		return 4 * 4;
-	default:
-		throw std::runtime_error("Unknown format size");
-	}
-}
-
-inline const char* const formatHLSLType(PixelFormat format) {
-	switch (format) {
-	case PixelFormat::R32G32_FLOAT:
-		return "float2";
-	case PixelFormat::R32G32B32_FLOAT:
-		return "float3";
-	case PixelFormat::R32G32B32A32_FLOAT:
-		return "float4";
-	default:
-		throw std::runtime_error("Unknown format size");
-	}
-}
+size_t formatSize(PixelFormat format);
+const char* const formatHLSLType(PixelFormat format);
 
 } // namespace graphics
 } // namespace milk

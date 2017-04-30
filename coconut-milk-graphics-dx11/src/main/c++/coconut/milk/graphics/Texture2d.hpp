@@ -25,6 +25,8 @@ public:
 
 		size_t height;
 
+		size_t arraySize;
+
 		size_t mipLevels;
 
 		PixelFormat pixelFormat;
@@ -48,6 +50,7 @@ public:
 		Configuration() {
 			std::memset(this, 0, sizeof(decltype(*this))); // TODO: TEMP TEMP TEMP
 			sampleCount = 1;
+			arraySize = 1;
 		}
 
 	};

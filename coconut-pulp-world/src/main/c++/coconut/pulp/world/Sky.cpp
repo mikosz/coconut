@@ -93,9 +93,9 @@ renderer::ModelSharedPtr createSkydomeModel(
 	auto materialConfiguration = MaterialConfiguration();
 
 	auto renderStateConfiguration = milk::graphics::RenderState::Configuration();
-	renderStateConfiguration.cullMode = milk::graphics::RenderState::CullMode::NONE; // BACK
-	renderStateConfiguration.fillMode = milk::graphics::RenderState::FillMode::WIREFRAME; // SOLID
-	renderStateConfiguration.frontCounterClockwise = false;
+	renderStateConfiguration.cullMode = milk::graphics::RenderState::CullMode::BACK;
+	renderStateConfiguration.fillMode = milk::graphics::RenderState::FillMode::SOLID;
+	renderStateConfiguration.frontCounterClockwise = true; // false; // TODO: ???
 
 	auto skydomeSamplerConfiguration = milk::graphics::Sampler::Configuration();
 	skydomeSamplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
@@ -107,7 +107,10 @@ renderer::ModelSharedPtr createSkydomeModel(
 	materialConfiguration.shaderName() = "sky"s;
 	materialConfiguration.renderStateConfiguration() = renderStateConfiguration;
 	materialConfiguration.addTexture(
-		"skydome", fs.makeAbsolute("data/terrain/grass-skydome.dds"), skydomeSamplerConfiguration);
+		"skydome",
+		fs.makeAbsolute("data/terrain/grass-skydome.dds"),
+		skydomeSamplerConfiguration
+		);
 
 	auto model = std::make_unique<renderer::Model>(
 		"skydome"s,
