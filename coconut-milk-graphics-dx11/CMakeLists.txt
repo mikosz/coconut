@@ -46,3 +46,5 @@ set(TEST_LIBRARIES
     )
 
 library_module(coconut-milk-graphics-dx11 "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" ${LIBRARY_TYPE})
+
+cotire(coconut-milk-graphics-dx11)

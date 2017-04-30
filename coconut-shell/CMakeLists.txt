@@ -17,3 +17,6 @@ executable_module(
   "${TEST_LIBRARIES}"
   "${DEPENDENCY_LIBRARIES}"
   )
+
+cotire(coconut-shell)
+  

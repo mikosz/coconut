@@ -14,3 +14,5 @@ set(TEST_LIBRARIES
     )
 
 library_module(coconut-pulp-mesh "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" ${LIBRARY_TYPE})
+
+cotire(coconut-pulp-mesh)

@@ -7,6 +7,7 @@ include("cmake.cfg")
 set(CMAKE_MODULE_PATH "${EXTENSIONS_DIR}/cmake" ${CMAKE_MODULE_PATH})
 include("executable-module")
 include("library-module")
+include("cotire")
 
 set(coconut_VERSION_MAJOR 1)
 set(coconut_VERSION_MINOR 0)

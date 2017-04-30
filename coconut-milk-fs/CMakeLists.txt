@@ -7,3 +7,5 @@ set(TEST_LIBRARIES
     )
 
 library_module(coconut-milk-fs "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" USE_GMOCK ${LIBRARY_TYPE})
+
+cotire(coconut-milk-fs)
