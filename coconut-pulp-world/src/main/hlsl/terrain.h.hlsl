@@ -15,7 +15,7 @@ float calculateTesselation(float3 controlPoint) {
 	float d = distance(controlPoint, eye);
 	float s = saturate((d - terrainMinTesselationDistance) /
 		(terrainMaxTesselationDistance - terrainMinTesselationDistance));
-	return pow(2, lerp(terrainMaxTesselationExponent, terrainMinTesselationExponent, s));
+	return pow(2.0f, lerp(terrainMaxTesselationExponent, terrainMinTesselationExponent, s));
 }
 
 /**

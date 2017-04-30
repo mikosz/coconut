@@ -27,26 +27,28 @@ struct GOut {
 Texture2D heightmap;
 SamplerState heightmapSampler;
 
-//static const float3 verts[] = {
-//	float3(-0.003f, 0.0f, 0.0f),
-//	float3(0.003f, 0.0f, 0.0f),
-//	float3(-0.003f, 0.15f, 0.0f),
-//	float3(0.003f, 0.15f, 0.0f),
-//};
-
-static const float y_step = 0.15f * 0.25f;
 static const float3 verts[] = {
 	float3(-0.003f, 0.0f, 0.0f),
 	float3(0.003f, 0.0f, 0.0f),
-	float3(-0.003f, y_step, 0.0f),
-	float3(0.003f, y_step, 0.0f),
-	float3(-0.003f, 2.0f * y_step, 0.0f),
-	float3(0.003f, 2.0f * y_step, 0.0f),
-	float3(-0.003f, 3.0f * y_step, 0.0f),
-	float3(0.003f, 3.0f * y_step, 0.0f),
-	float3(-0.003f, 4.0f * y_step, 0.0f),
-	float3(0.003f, 4.0f * y_step, 0.0f),
+	float3(-0.003f, 0.15f, 0.0f),
+	float3(0.003f, 0.15f, 0.0f),
 };
+
+//static const float y_step = 0.15f * 0.25f;
+//static const float3 verts[] = {
+//	float3(-0.003f, 0.0f, 0.0f),
+//	float3(0.003f, 0.0f, 0.0f),
+//	float3(-0.003f, y_step, 0.0f),
+//	float3(0.003f, y_step, 0.0f),
+//	float3(-0.003f, 2.0f * y_step, 0.0f),
+//	float3(0.003f, 2.0f * y_step, 0.0f),
+//	float3(-0.003f, 3.0f * y_step, 0.0f),
+//	float3(0.003f, 3.0f * y_step, 0.0f),
+//	float3(-0.003f, 4.0f * y_step, 0.0f),
+//	float3(0.003f, 4.0f * y_step, 0.0f),
+//};
+
+static const uint SEGMENTS = 1;
 
 void emit(GIn gin, inout GOut gout, inout TriangleStream<GOut> triStream, uint index, float terrainHeight) {
 	gout.posW = gin.posW + verts[index];
@@ -56,7 +58,7 @@ void emit(GIn gin, inout GOut gout, inout TriangleStream<GOut> triStream, uint i
 	triStream.Append(gout);
 }
 
-[maxvertexcount(24)]
+[maxvertexcount(6 * SEGMENTS)]
 void main(point GIn gin[1], inout TriangleStream<GOut> triStream) {
 	GOut gout;
 	gout.normalW = float3(0.0f, 0.0f, -1.0f);
@@ -72,7 +74,7 @@ void main(point GIn gin[1], inout TriangleStream<GOut> triStream) {
 	float terrainHeight = heightmap.SampleLevel(heightmapSampler, heightmapTexcoord, 0).r;
 
 	[unroll]
-	for (uint segment = 0; segment < 4; ++segment) {
+	for (uint segment = 0; segment < SEGMENTS; ++segment) {
 		uint base = segment * 2;
 		emit(gin, gout, triStream, base + 0, terrainHeight);
 		emit(gin, gout, triStream, base + 2, terrainHeight);

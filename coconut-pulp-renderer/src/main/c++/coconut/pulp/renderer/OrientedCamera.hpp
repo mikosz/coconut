@@ -18,7 +18,7 @@ public:
 	OrientedCamera() :
 		transformation_(Matrix4x4::IDENTITY),
 		position_([this](Vec3& position) {
-				position = transformation_.inverse().transpose()[3].xyz();
+				position = transformation_.inverse()[3].xyz();
 			}) // TODO: could be done with fewer temporaries
 	{
 	}
