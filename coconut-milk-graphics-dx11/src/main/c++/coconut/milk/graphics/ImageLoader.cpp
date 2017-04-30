@@ -47,11 +47,11 @@ Image ImageLoader::load(const FilesystemContext& filesystemContext, const Path& 
 		auto metadata = DirectX::TexMetadata();
 		auto scratchImage = DirectX::ScratchImage();
 
-		if (extension == ".tga") {
+		if (extension == ".tga") { // TODO: refactor?
 			system::checkWindowsCall(
 				DirectX::LoadFromTGAMemory(imageData->data(), imageData->size(), &metadata, scratchImage),
 				"Failed to load a targa file"
-				);
+			);
 		} else if (extension == ".dds") {
 			system::checkWindowsCall(
 				DirectX::LoadFromDDSMemory(
@@ -61,7 +61,18 @@ Image ImageLoader::load(const FilesystemContext& filesystemContext, const Path& 
 					&metadata,
 					scratchImage
 					),
-				"Failed to load a targa file"
+				"Failed to load a dds file"
+				);
+		} else if (extension == ".bmp") {
+			system::checkWindowsCall(
+				DirectX::LoadFromWICMemory( // TODO: definitely refactor
+					imageData->data(),
+					imageData->size(),
+					DirectX::WIC_CODEC_BMP,
+					&metadata,
+					scratchImage
+					),
+				"Failed to load a bmp file"
 				);
 		}
 
@@ -84,6 +95,6 @@ Image ImageLoader::load(const FilesystemContext& filesystemContext, const Path& 
 			static_cast<PixelFormat>(metadata.format)
 			);
 	} catch (const std::exception& e) {
-		throw ImageLoadingError(path, e);
+		throw ImageLoadingError(filesystemContext.makeAbsolute(path), e);
 	}
 }

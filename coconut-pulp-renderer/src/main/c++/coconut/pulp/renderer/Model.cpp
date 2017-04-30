@@ -4,10 +4,6 @@
 #include <iterator>
 #include <numeric>
 
-#include "coconut/milk/graphics/Texture2d.hpp"
-#include "coconut/milk/graphics/Sampler.hpp"
-#include "coconut/milk/graphics/ImageLoader.hpp"
-
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;

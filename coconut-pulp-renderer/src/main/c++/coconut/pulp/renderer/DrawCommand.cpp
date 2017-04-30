@@ -44,6 +44,8 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	commandList.setInputLayout(inputLayout_);
 	commandList.setVertexShader(vertexShader_);
 	commandList.setGeometryShader(geometryShader_);
+	commandList.setHullShader(hullShader_);
+	commandList.setDomainShader(domainShader_);
 	commandList.setPixelShader(pixelShader_);
 
 	commandList.setRenderTarget(*renderTarget_, *depthStencil_); // TODO: needs to work with null

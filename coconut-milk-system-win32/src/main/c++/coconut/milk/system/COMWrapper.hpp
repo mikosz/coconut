@@ -39,7 +39,8 @@ public:
 		reset();
 	}
 
-	COMWrapper& operator =(const COMWrapper& other) {
+	// TODO: use idiom
+	COMWrapper& operator=(const COMWrapper& other) {
 		if (&other != this) {
 			reset();
 			comObject_ = other.comObject_;
@@ -51,7 +52,7 @@ public:
 		return *this;
 	}
 
-	COMWrapper& operator =(COMWrapper&& other) {
+	COMWrapper& operator=(COMWrapper&& other) {
 		if (&other != this) {
 			reset();
 			comObject_ = other.comObject_;
@@ -61,12 +62,12 @@ public:
 		return *this;
 	}
 
-	T* operator ->() const {
+	T* operator->() const {
 		assert(comObject_ != nullptr);
 		return comObject_;
 	}
 
-	T& operator *() const {
+	T& operator*() const {
 		assert(comObject_ != nullptr);
 		return *comObject_;
 	}
@@ -87,7 +88,7 @@ public:
 		comObject_ = comObject;
 	}
 
-	T*& get() {
+	T*& get() { // TODO: WTF? Texture2D::initialise crashes when doing &get()
 		return comObject_;
 	}
 

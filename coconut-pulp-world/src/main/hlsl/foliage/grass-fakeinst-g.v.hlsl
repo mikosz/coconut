@@ -6,7 +6,7 @@ Texture2D noiseMap : register(t0);
 
 struct VOut {
 	float3 posW : POSITION;
-	float height : BLADE_HEIGHT;
+	float yScale : BLADE_HEIGHT_SCALE;
 };
 
 VOut main(uint bladeId : SV_VertexID)
@@ -28,10 +28,12 @@ VOut main(uint bladeId : SV_VertexID)
 	vout.posW.x += (columnId) * OFFSET;
 	vout.posW.z += (rowId) * OFFSET;
 
-	vout.posW.x += noise.x * HALF_OFFSET;
-	vout.posW.z += noise.z * HALF_OFFSET;
+	//vout.posW.x += noise.x * HALF_OFFSET;
+	//vout.posW.z += noise.z * HALF_OFFSET;
+	vout.posW.x += noise.x * OFFSET;
+	vout.posW.z += noise.z * OFFSET;
 
-	vout.height = 0.15f + noise.y;
+	vout.yScale = 1.0f + noise.y;
 
 	return vout;
 }

@@ -90,6 +90,24 @@ void CommandList::setGeometryShader(GeometryShader* geometryShader) noexcept {
 	}
 }
 
+void CommandList::setHullShader(HullShader* hullShader) noexcept {
+	if (hullShader != nullptr) {
+		deviceContext_->HSSetShader(&hullShader->internalShader(), nullptr, 0);
+	}
+	else {
+		deviceContext_->HSSetShader(nullptr, nullptr, 0);
+	}
+}
+
+void CommandList::setDomainShader(DomainShader* domainShader) noexcept {
+	if (domainShader != nullptr) {
+		deviceContext_->DSSetShader(&domainShader->internalShader(), nullptr, 0);
+	}
+	else {
+		deviceContext_->DSSetShader(nullptr, nullptr, 0);
+	}
+}
+
 void CommandList::setPixelShader(PixelShader* pixelShader) noexcept {
 	deviceContext_->PSSetShader(&pixelShader->internalShader(), nullptr, 0);
 }
@@ -103,6 +121,12 @@ void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, si
 		break;
 	case ShaderType::GEOMETRY:
 		deviceContext_->GSSetConstantBuffers(static_cast<UINT>(slot), 1, &buf);
+		break;
+	case ShaderType::HULL:
+		deviceContext_->HSSetConstantBuffers(static_cast<UINT>(slot), 1, &buf);
+		break;
+	case ShaderType::DOMAIN:
+		deviceContext_->DSSetConstantBuffers(static_cast<UINT>(slot), 1, &buf);
 		break;
 	case ShaderType::PIXEL:
 		deviceContext_->PSSetConstantBuffers(static_cast<UINT>(slot), 1, &buf);
@@ -141,6 +165,15 @@ void CommandList::setResource(const Resource& resource, ShaderType stage, size_t
 	case ShaderType::VERTEX:
 		deviceContext_->VSSetShaderResources(static_cast<UINT>(slot), 1, &srv);
 		break;
+	case ShaderType::GEOMETRY:
+		deviceContext_->GSSetShaderResources(static_cast<UINT>(slot), 1, &srv);
+		break;
+	case ShaderType::HULL:
+		deviceContext_->HSSetShaderResources(static_cast<UINT>(slot), 1, &srv);
+		break;
+	case ShaderType::DOMAIN:
+		deviceContext_->DSSetShaderResources(static_cast<UINT>(slot), 1, &srv);
+		break;
 	case ShaderType::PIXEL:
 		deviceContext_->PSSetShaderResources(static_cast<UINT>(slot), 1, &srv);
 		break;
@@ -155,6 +188,15 @@ void CommandList::setSampler(Sampler& sampler, ShaderType stage, size_t slot) {
 	switch (stage) {
 	case ShaderType::VERTEX:
 		deviceContext_->VSSetSamplers(static_cast<UINT>(slot), 1, &ss);
+		break;
+	case ShaderType::GEOMETRY:
+		deviceContext_->GSSetSamplers(static_cast<UINT>(slot), 1, &ss);
+		break;
+	case ShaderType::HULL:
+		deviceContext_->HSSetSamplers(static_cast<UINT>(slot), 1, &ss);
+		break;
+	case ShaderType::DOMAIN:
+		deviceContext_->DSSetSamplers(static_cast<UINT>(slot), 1, &ss);
 		break;
 	case ShaderType::PIXEL:
 		deviceContext_->PSSetSamplers(static_cast<UINT>(slot), 1, &ss);

@@ -20,6 +20,8 @@ Texture2d::Texture2d(Renderer& renderer, const Image& image) {
 	config.height = image.size().second;
 	// TODO: get following as param
 	config.mipLevels = 1;
+	config.sampleCount = 1;
+	config.sampleQuality = 0;
 	config.pixelFormat = image.pixelFormat();
 	config.allowModifications = false;
 	config.allowCPURead = false;
@@ -80,10 +82,12 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 		subresourceDataPtr = &subresourceData;
 	}
 
+	ID3D11Texture2D* texture;
 	checkDirectXCall(
-		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture_.get()),
+		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture),
 		"Failed to create a 2D texture"
 		);
+	texture_.reset(texture); // TODO: wtf???!!! getting a crash when using &texture_.get()
 
 	Texture::initialise(renderer, configuration.purposeFlags);
 }
