@@ -119,21 +119,6 @@ void Game::loop() {
 	modelFactory.scanSourceDirectory(fs, "data/models");
 	modelFactory.scanModelDirectory(fs, "data/models");
 
-	//auto& inputElementFactory = passFactory.inputFactory().inputElementFactory();
-	//pulp::world::foliage::GrassActor::registerShaderInputElements(inputElementFactory);
-	//pulp::world::foliage::GrassActor::registerParameters(passFactory.shaderFactory().parameterFactory());
-	//pulp::world::foliage::GrassActor::registerModels(modelFactory);
-
-	//auto grassModel = modelFactory.create("grass-fakeinst", *graphicsRenderer_, passFactory, fs);
-	//// auto grassModel = modelFactory.create("grass", *graphicsRenderer_, passFactory, fs);
-	//
-	//for (float x = -20.0f; x < 20.0f; x += 20.0f) {
-	//	for (float z = -20.0f; z < 100.0f; z += 20.0f) {
-	//		auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
-	//		scene.add(grassActor, grassModel);
-	//	}
-	//}
-
 	auto world = pulp::world::World(*graphicsRenderer_, scene, passFactory, modelFactory, fs);
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
@@ -157,7 +142,7 @@ void Game::loop() {
 		camera->reset();
 		// camera->rotate(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
 		camera->translate(pulp::math::Vec3(0.0f, 4.0f + 0.25f * secs, 2.0f * secs));
-		camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), pulp::math::radians(0.05f * secs));
+		camera->rotate(pulp::math::Vec3(0.0f, 1.0f, 0.0f), pulp::math::radians(0.05f * secs));
 		//camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
 		//camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		

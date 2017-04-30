@@ -30,16 +30,33 @@ public:
 		return rowPitch_;
 	}
 
+	size_t arraySize() const noexcept {
+		return arraySize_;
+	}
+
+	size_t mipLevels() const noexcept {
+		return mipLevels_;
+	}
+
 	PixelFormat pixelFormat() const {
 		return pixelFormat_;
 	}
 
 private:
 
-	Image(std::vector<std::uint8_t> pixels, Dimensions size, size_t rowPitch, PixelFormat pixelFormat) :
+	Image(
+		std::vector<std::uint8_t> pixels,
+		Dimensions size,
+		size_t rowPitch,
+		size_t arraySize,
+		size_t mipLevels,
+		PixelFormat pixelFormat
+		) :
 		pixels_(std::move(pixels)),
 		size_(size),
 		rowPitch_(rowPitch),
+		arraySize_(arraySize),
+		mipLevels_(mipLevels),
 		pixelFormat_(pixelFormat)
 	{
 	}
@@ -49,6 +66,10 @@ private:
 	Dimensions size_;
 
 	size_t rowPitch_;
+
+	size_t arraySize_;
+
+	size_t mipLevels_;
 
 	PixelFormat pixelFormat_;
 

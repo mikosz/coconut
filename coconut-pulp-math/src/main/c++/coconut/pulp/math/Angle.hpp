@@ -104,6 +104,7 @@ inline const Angle operator""_deg(long double d) noexcept {
 
 } // namespace math
 
+using math::PI;
 using math::Angle;
 using math::radians;
 using math::degrees;

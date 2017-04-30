@@ -4,7 +4,7 @@
 namespace coconut {
 namespace shell {
 
-#if defined(_NDEBUG)
+#if defined(NDEBUG)
 const bool DEBUG = false;
 #else
 const bool DEBUG = true;
