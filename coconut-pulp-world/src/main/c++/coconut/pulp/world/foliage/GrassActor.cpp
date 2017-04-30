@@ -6,6 +6,7 @@
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
 #include "coconut/pulp/renderer/PassContext.hpp"
 #include "coconut/pulp/mesh/Mesh.hpp"
+#include "coconut/pulp/world/Heightmap.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -53,7 +54,8 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
 	renderer::shader::PassFactory& passFactory,
-	const milk::fs::FilesystemContext& filesystemContext
+	const milk::fs::FilesystemContext& filesystemContext,
+	const Heightmap& heightmap
 	)
 {
 	auto submeshes = Mesh::Submeshes();
@@ -119,13 +121,17 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 	materialConfiguration.properties().emplace(MaterialConfiguration::SPECULAR_COLOUR_PROPERTY, Colour(0.05f, 0.05f, 0.05f));
 	materialConfiguration.properties().emplace(MaterialConfiguration::SPECULAR_EXPONENT_PROPERTY, 1.5f);
 
-	return std::make_unique<renderer::Model>(
+	auto model = std::make_unique<renderer::Model>(
 		id,
 		Mesh(std::move(submeshes), { { "blade", std::move(materialConfiguration) } }),
 		graphicsRenderer,
 		passFactory,
 		filesystemContext
 		);
+
+	model->material().setTexture("heightmap"s, std::make_tuple(heightmap.texture(), heightmap.sampler()));
+
+	return std::move(model);
 }
 
 } // anonymous namespace
@@ -150,10 +156,21 @@ void GrassActor::registerParameters(renderer::shader::ParameterFactory& paramete
 	}
 }
 
-void GrassActor::registerModels(renderer::ModelFactory& modelFactory) {
+void GrassActor::registerModels(renderer::ModelFactory& modelFactory, const Heightmap& heightmap) {
 	const auto name = "grass-fakeinst";
 	if (!modelFactory.hasGenerator(name)) {
-		modelFactory.registerGenerator(name, &createGrassFakeinstModel);
+		modelFactory.registerGenerator(
+			name,
+			[&heightmap]( // TODO: this is obviously super-temp
+				const std::string& id,
+				milk::graphics::Renderer& graphicsRenderer,
+				renderer::shader::PassFactory& passFactory,
+				const milk::fs::FilesystemContext& filesystemContext
+				)
+			{
+				return createGrassFakeinstModel(id, graphicsRenderer, passFactory, filesystemContext, heightmap);
+			}
+			);
 	}
 }
 

@@ -200,6 +200,7 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	depthStencilConfig.allowCPURead = false;
 	depthStencilConfig.allowModifications = false;
 	depthStencilConfig.mipLevels = 1;
+	depthStencilConfig.arraySize = 1;
 	depthStencilConfig.pixelFormat = PixelFormat::D32_FLOAT;
 	depthStencilConfig.purposeFlags = static_cast<std::underlying_type_t<Texture2d::CreationPurpose>>(Texture2d::CreationPurpose::DEPTH_STENCIL);
 

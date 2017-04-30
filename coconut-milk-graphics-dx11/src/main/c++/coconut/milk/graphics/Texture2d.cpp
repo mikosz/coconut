@@ -2,6 +2,8 @@
 
 #include <cstring>
 
+#include <coconut-tools/utils/Range.hpp>
+
 #include "Renderer.hpp"
 #include "DirectXError.hpp"
 #include "ImageLoader.hpp" // TODO: will only need Image when it gets extracted
@@ -18,8 +20,10 @@ Texture2d::Texture2d(Renderer& renderer, const Image& image) {
 	Configuration config;
 	config.width = image.size().first;
 	config.height = image.size().second;
-	// TODO: get following as param
-	config.mipLevels = 1;
+	config.arraySize = image.arraySize();
+	config.mipLevels = image.mipLevels();
+	config.sampleCount = 1;
+	config.sampleQuality = 0;
 	config.pixelFormat = image.pixelFormat();
 	config.allowModifications = false;
 	config.allowCPURead = false;
@@ -41,11 +45,12 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 	desc.Width = static_cast<UINT>(configuration.width);
 	desc.Height = static_cast<UINT>(configuration.height);
 	desc.MipLevels = static_cast<UINT>(configuration.mipLevels);
-	desc.ArraySize = 1;
+	desc.ArraySize = static_cast<UINT>(configuration.arraySize);
 	desc.Format = static_cast<DXGI_FORMAT>(configuration.pixelFormat);
 	desc.SampleDesc.Count = static_cast<UINT>(configuration.sampleCount);
 	desc.SampleDesc.Quality = static_cast<UINT>(configuration.sampleQuality);
 	desc.BindFlags = static_cast<UINT>(configuration.purposeFlags);
+	desc.MiscFlags = configuration.arraySize == 6 ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0u; // TODO
 
 	if (configuration.allowModifications) {
 		if (configuration.allowCPURead) {
@@ -68,22 +73,41 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 		}
 	}
 
-	D3D11_SUBRESOURCE_DATA subresourceData;
+	std::vector<D3D11_SUBRESOURCE_DATA> subresourceData;
 	D3D11_SUBRESOURCE_DATA* subresourceDataPtr = nullptr;
 
 	if (configuration.initialData) {
-		std::memset(&subresourceData, 0, sizeof(subresourceData));
+		subresourceData.resize(configuration.arraySize * configuration.mipLevels);
+		std::memset(subresourceData.data(), 0, subresourceData.size() * sizeof(D3D11_SUBRESOURCE_DATA));
 
-		subresourceData.pSysMem = configuration.initialData;
-		subresourceData.SysMemPitch = static_cast<UINT>(configuration.dataRowPitch);
+		const auto pixelSize = formatSize(configuration.pixelFormat);
+		const auto* data = reinterpret_cast<const std::uint8_t*>(configuration.initialData);
 
-		subresourceDataPtr = &subresourceData;
+		for (const auto textureIndex : coconut_tools::range(size_t(0), configuration.arraySize)) {
+			for (const auto mipIndex : coconut_tools::range(size_t(0), configuration.mipLevels)) {
+				const auto subresourceIndex = textureIndex * configuration.mipLevels + mipIndex;
+				const auto textureWidth = configuration.width >> mipIndex;
+				const auto textureHeight = configuration.height >> mipIndex;
+
+				subresourceData[subresourceIndex].pSysMem = data;
+				// TODO: this will not work for compressed formats
+				subresourceData[subresourceIndex].SysMemPitch = pixelSize * textureWidth;
+				subresourceData[subresourceIndex].SysMemSlicePitch =
+					subresourceData[mipIndex].SysMemPitch * textureHeight;
+
+				data += textureWidth * textureHeight * pixelSize;
+			}
+		}
+
+		subresourceDataPtr = subresourceData.data();
 	}
 
+	ID3D11Texture2D* texture;
 	checkDirectXCall(
-		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture_.get()),
+		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture),
 		"Failed to create a 2D texture"
 		);
+	texture_.reset(texture); // TODO: wtf???!!! getting a crash when using &texture_.get()
 
 	Texture::initialise(renderer, configuration.purposeFlags);
 }

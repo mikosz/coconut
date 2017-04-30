@@ -18,10 +18,12 @@ void Pass::bind(DrawCommand& drawCommand, const PassContext& passContext) const 
 	}
 
 	if (hullShader_) {
+		drawCommand.setHullShader(&hullShader_->shaderData());
 		hullShader_->bind(drawCommand, passContext);
 	}
 
 	if (domainShader_) {
+		drawCommand.setDomainShader(&domainShader_->shaderData());
 		domainShader_->bind(drawCommand, passContext);
 	}
 

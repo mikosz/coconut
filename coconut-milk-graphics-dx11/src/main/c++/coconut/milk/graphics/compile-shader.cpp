@@ -30,7 +30,7 @@ std::string featureLevel(ShaderType shaderType) {
 	case ShaderType::PIXEL:
 		return "ps_5_0"s;
 	default:
-		assert(!"Unsupported shader type");
+		assert(!"Unsupported shader type"); // TODO: should throw
 		return ""s;
 	}
 }

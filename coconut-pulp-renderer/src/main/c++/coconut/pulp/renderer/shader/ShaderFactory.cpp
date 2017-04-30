@@ -162,6 +162,18 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 		return std::make_unique<GeometryShader>(
 			std::move(gs), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
 	}
+	case milk::graphics::ShaderType::HULL:
+	{
+		milk::graphics::HullShader hs(graphicsRenderer, shaderData.data(), shaderData.size());
+		return std::make_unique<HullShader>(
+			std::move(hs), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+	}
+	case milk::graphics::ShaderType::DOMAIN:
+	{
+		milk::graphics::DomainShader ds(graphicsRenderer, shaderData.data(), shaderData.size());
+		return std::make_unique<DomainShader>(
+			std::move(ds), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+	}
 	case milk::graphics::ShaderType::PIXEL:
 	{
 		milk::graphics::PixelShader ps(graphicsRenderer, shaderData.data(), shaderData.size());

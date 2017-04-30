@@ -60,6 +60,10 @@ const Primitive& Material::property(const std::string& key) const {
 	}
 }
 
+void Material::setTexture(std::string key, Texture texture) {
+	textures_.emplace(std::move(key), std::move(texture));
+}
+
 auto Material::texture(const std::string& key) const -> const Texture& {
 	auto it = textures_.find(key);
 	if (it == textures_.end()) {

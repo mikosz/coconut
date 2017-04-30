@@ -32,6 +32,7 @@ public:
 		(VECTOR3D)
 		(VECTOR4D)
 		(UINT32)
+		(FLOAT)
 
 		(OBJECT)
 	);
@@ -98,11 +99,22 @@ public:
 	template <>
 	struct DeducedOperandType<std::uint32_t> {
 		static const auto type = OperandType::UINT32;
-		static const auto size = 4;
+		static const auto size = sizeof(std::uint32_t);
 
 		static void store(void* buffer, std::uint32_t ui) {
 			auto* stored = reinterpret_cast<std::uint32_t*>(buffer); // TODO: messy
 			*stored = ui;
+		}
+	};
+
+	template <>
+	struct DeducedOperandType<float> {
+		static const auto type = OperandType::FLOAT;
+		static const auto size = sizeof(float);
+
+		static void store(void* buffer, float f) {
+			auto* stored = reinterpret_cast<float*>(buffer);
+			*stored = f;
 		}
 	};
 

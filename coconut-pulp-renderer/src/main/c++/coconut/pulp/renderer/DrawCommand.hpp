@@ -56,6 +56,14 @@ public:
 		geometryShader_ = geometryShader;
 	}
 
+	void setHullShader(milk::graphics::HullShader* hullShader) {
+		hullShader_ = hullShader;
+	}
+
+	void setDomainShader(milk::graphics::DomainShader* domainShader) {
+		domainShader_ = domainShader;
+	}
+
 	void setPixelShader(milk::graphics::PixelShader* pixelShader) {
 		pixelShader_ = pixelShader;
 	}
@@ -199,6 +207,10 @@ private:
 	milk::graphics::VertexShader* vertexShader_ = nullptr;
 
 	milk::graphics::GeometryShader* geometryShader_ = nullptr;
+
+	milk::graphics::HullShader* hullShader_ = nullptr;
+
+	milk::graphics::DomainShader* domainShader_ = nullptr;
 
 	milk::graphics::PixelShader* pixelShader_ = nullptr;
 
