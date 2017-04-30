@@ -44,8 +44,8 @@ float smoothAt(
 	auto sum = 0.0f;
 	auto count = 0.0f;
 
-	for (const auto sampleRowIndex : coconut_tools::range(rowIndex - 1, rowIndex + 1)) {
-		for (const auto sampleColumnIndex : coconut_tools::range(columnIndex - 1, columnIndex + 1)) {
+	for (const auto sampleRowIndex : coconut_tools::range(rowIndex - 1, rowIndex + 2)) {
+		for (const auto sampleColumnIndex : coconut_tools::range(columnIndex - 1, columnIndex + 2)) {
 			auto height = 0.0f;
 			auto presence = 0.0f;
 			std::tie(height, presence) = sampleAt(cellHeights, columnCount, sampleRowIndex, sampleColumnIndex);

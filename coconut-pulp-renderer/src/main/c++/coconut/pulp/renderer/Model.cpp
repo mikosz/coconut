@@ -130,7 +130,7 @@ Model::Model(
 		auto end = mesh::Mesh::Submeshes::iterator();
 		std::tie(it, end) = std::equal_range(it, submeshes.end(), *it, submeshMaterialComparator);
 		if (it != submeshes.end()) {
-			drawGroups_.emplace_back(
+			auto drawGroup = DrawGroup(
 				graphicsRenderer,
 				passFactory,
 				filesystemContext,
@@ -138,6 +138,16 @@ Model::Model(
 				end,
 				mesh.materials()[it->materialId()]
 				);
+			drawGroups_.emplace_back(std::move(drawGroup));
+			// TODO: find out a way to use this without VS getting lost in case of exceptions
+			//drawGroups_.emplace_back(
+			//	graphicsRenderer,
+			//	passFactory,
+			//	filesystemContext,
+			//	it,
+			//	end,
+			//	mesh.materials()[it->materialId()]
+			//	);
 			it = end;
 		}
 	}
