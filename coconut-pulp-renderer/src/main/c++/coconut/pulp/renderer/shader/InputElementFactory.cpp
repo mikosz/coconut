@@ -8,6 +8,7 @@ using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
+using namespace coconut::pulp::renderer::shader::detail;
 
 namespace /* anonymous */ {
 
@@ -81,11 +82,11 @@ std::ostream& coconut::pulp::renderer::shader::operator<<(
 		<< ':' << instanceDetails.semanticIndex;
 }
 
-detail::InputElementCreator::InputElementCreator() {
+InputElementCreator::InputElementCreator() {
 	registerBuiltins();
 }
 
-void detail::InputElementCreator::registerBuiltins() {
+void InputElementCreator::registerBuiltins() {
 	using milk::graphics::PixelFormat;
 	using InstanceDetails = InputElementFactoryInstanceDetails;
 

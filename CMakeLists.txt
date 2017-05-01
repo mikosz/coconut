@@ -71,6 +71,11 @@ include_directories(${CoconutTools_INCLUDE_DIR})
 
 find_package(Threads REQUIRED)
 
+# cotire setup
+set_directory_properties(PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+set_directory_properties(PROPERTIES COTIRE_PREFIX_HEADER_IGNORE_PATH
+    "${WINDOWS_KITS_DIR};${PROJECT_SOURCE_DIR};${DirectXTex_ROOT}")
+
 set(MODULES
     "coconut-milk-fs"
     "coconut-milk-graphics-${MODULE_RENDERER}"
