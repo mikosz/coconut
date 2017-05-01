@@ -11,6 +11,7 @@
 #include "coconut/pulp/mesh/MaterialConfiguration.hpp"
 
 #include "shader/Pass.hpp"
+#include "shader/Property.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -46,6 +47,9 @@ public:
 	std::string shader;
 
 	mesh::MaterialConfiguration::PassType passType; // TODO: I don't like this
+
+	// TODO: cleanup!
+	shader::Properties properties;
 
 	void reset() {
 		graphicsRenderer = nullptr;

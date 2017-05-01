@@ -9,7 +9,7 @@
 #include "coconut/milk/graphics/compile-shader.hpp"
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 
-#include "StructuredParameter.hpp"
+#include "Property.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -22,55 +22,37 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.SHADER_FACTORY");
 
 using milk::graphics::ShaderReflection;
 
-std::shared_ptr<Parameter> createParameter(
-	ParameterFactory& parameterFactory,
+std::vector<Parameter> createParameters(
 	const std::string& name,
 	const ShaderReflection::Type& type,
 	size_t offset,
-	const std::string& parentType = std::string()
+	std::vector<PropertyDescriptor::Object> prefix
 	)
 {
 	CT_LOG_DEBUG << "Creating parameter for variable " << name;
 
-	std::shared_ptr<Parameter> result;
+	const auto offset = offset + type.offset;
 
-	ParameterFactoryInstanceDetails instanceDetails(name);
+	auto parameters = std::vector<Parameter>();
 
-	instanceDetails.padding = offset + type.offset;
-	instanceDetails.arraySize = type.elements;
-	instanceDetails.arrayElementOffset = type.elementOffset; // TODO: nope
-	instanceDetails.parentType = parentType;
-
-	auto parameter = parameterFactory.create(instanceDetails);
-
-	if (parameter->outputType() == Parameter::OperandType::OBJECT) {
-		if (type.klass != ShaderReflection::Type::Class::STRUCT) {
-#pragma message("!!! TODO: exception + want a common superclass for shader factory exceptions")
-			throw "";
-		}
-
-		auto& structuredParameter = dynamic_cast<StructuredParameter&>(*parameter);
-
+	if (!type.members.empty()) {
+		prefix.emplace_back(name, 0u); // TODO: temp, arrays!
 		for (const auto& member : type.members) {
-			std::string memberName;
-			ShaderReflection::Type memberType;
+			auto memberName = std::string();
+			auto memberType = ShaderReflection::Type();
 			std::tie(memberName, memberType) = member;
 
-			structuredParameter.addSubparameter(
-				createParameter(parameterFactory, memberName, memberType, type.offset, type.name)
-				);
+			parameters = createParameters(memberName, memberType, type.offset, prefix);
 		}
-	} else if (parameter->outputType() == Parameter::OperandType::MATRIX) {
-		if (type.klass == ShaderReflection::Type::Class::MATRIX_COLUMN_MAJOR) {
-			ParameterFactoryInstanceDetails instanceDetails("transpose"); // TODO: not elegant really
-			parameter->setNext(parameterFactory.create(instanceDetails));
-			// TODO: remove last if last is transpose
-		}
+	} else {
+		parameters.emplace_back(
+			PropertyDescriptor(std::move(prefix), name),
+			Property::DataType(type.klass, type.scalarType),
+			offset
+			);
 	}
 
-#pragma message("!!! TODO: verify size and output type before returning") // TODO
-
-	return parameter;
+	return parameters;
 }
 
 std::shared_ptr<Resource> createResource(
@@ -80,18 +62,17 @@ std::shared_ptr<Resource> createResource(
 	)
 {
 	switch (resourceInfo.type) {
-		case ShaderReflection::ResourceInfo::Type::TEXTURE: // fallthrough
-		case ShaderReflection::ResourceInfo::Type::SAMPLER:
-			return resourceFactory.create(resourceInfo.name, shaderType, resourceInfo.slot);
-		default:
-			throw "";
+	case ShaderReflection::ResourceInfo::Type::TEXTURE: // fallthrough
+	case ShaderReflection::ResourceInfo::Type::SAMPLER:
+		return resourceFactory.create(resourceInfo.name, shaderType, resourceInfo.slot);
+	default:
+		throw "";
 #pragma message("!!! TODO: exception") // TODO
 	}
 }
 
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	milk::graphics::Renderer& graphicsRenderer,
-	ParameterFactory& parameterFactory,
 	ResourceFactory& resourceFactory,
 	std::vector<std::uint8_t> shaderData,
 	milk::graphics::ShaderType shaderType
@@ -99,52 +80,17 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 {
 	using milk::graphics::ShaderReflection;
 
-	ShaderReflection reflection(shaderData.data(), shaderData.size());
+	const auto reflection = ShaderReflection(shaderData.data(), shaderData.size());
 
-	UnknownShader::SceneData sceneData;
-	UnknownShader::ActorData actorData;
-	UnknownShader::MaterialData materialData;
-	UnknownShader::Resources resources;
-
+	auto parameters = std::vector<Parameter>();
 	for (const auto& constantBuffer : reflection.constantBuffers()) {
-		std::vector<ParameterSharedPtr> parameters;
-		parameters.reserve(constantBuffer.variables.size());
-
 		for (const auto& variable : constantBuffer.variables) {
-			auto parameter = createParameter(parameterFactory, variable.name, variable.type, variable.offset);
-
-			if (!parameters.empty() && parameters.back()->inputType() != parameter->inputType()) {
-#pragma message("!!! TODO: exception") // TODO
-				throw "";
-			}
-
-			parameters.emplace_back(parameter);
-		}
-
-		if (!parameters.empty()) {
-			switch (parameters.back()->inputType()) {
-			case Parameter::OperandType::SCENE:
-				sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(
-					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
-					));
-				break;
-			case Parameter::OperandType::ACTOR:
-				actorData.emplace_back(std::make_unique<ConstantBuffer<Actor>>(
-					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
-					));
-				break;
-			case Parameter::OperandType::MATERIAL:
-				materialData.emplace_back(std::make_unique<ConstantBuffer<Material>>(
-					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
-					));
-				break;
-			default:
-				throw "";
-#pragma message("!!! TODO: exception") // TODO
-			}
+			auto parameters = createParameters(variable.name, variable.type, variable.offset, {});
+			std::move(parameters.begin(), parameters.end(), std::back_inserter(parameters));
 		}
 	}
 
+	auto resources = UnknownShader::Resources();
 	for (const auto& resource : reflection.resources()) {
 		resources.emplace_back(createResource(resourceFactory, resource, shaderType));
 	}
@@ -153,32 +99,27 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	case milk::graphics::ShaderType::VERTEX:
 	{
 		milk::graphics::VertexShader vs(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<VertexShader>(
-			std::move(vs), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<VertexShader>(std::move(vs), std::move(parameters), std::move(resources));
 	}
 	case milk::graphics::ShaderType::GEOMETRY:
 	{
 		milk::graphics::GeometryShader gs(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<GeometryShader>(
-			std::move(gs), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<GeometryShader>(std::move(gs), std::move(parameters), std::move(resources));
 	}
 	case milk::graphics::ShaderType::HULL:
 	{
 		milk::graphics::HullShader hs(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<HullShader>(
-			std::move(hs), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<HullShader>(std::move(hs), std::move(parameters), std::move(resources));
 	}
 	case milk::graphics::ShaderType::DOMAIN:
 	{
 		milk::graphics::DomainShader ds(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<DomainShader>(
-			std::move(ds), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<DomainShader>(std::move(ds), std::move(parameters), std::move(resources));
 	}
 	case milk::graphics::ShaderType::PIXEL:
 	{
 		milk::graphics::PixelShader ps(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<PixelShader>(
-			std::move(ps), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<PixelShader>(std::move(ps), std::move(parameters), std::move(resources));
 	}
 	}
 
@@ -188,14 +129,12 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::FilesystemContext& filesystemContext,
-	ParameterFactory& parameterFactory,
 	ResourceFactory& resourceFactory,
 	const detail::ShaderCreator::CompiledShaderInfo& compiledShaderInfo
 	)
 {
 	return createShaderFromCompiledShader(
 		graphicsRenderer,
-		parameterFactory,
 		resourceFactory,
 		*filesystemContext.load(compiledShaderInfo.compiledShaderPath),
 		compiledShaderInfo.shaderType
@@ -205,7 +144,6 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::FilesystemContext& filesystemContext,
-	ParameterFactory& parameterFactory,
 	ResourceFactory& resourceFactory,
 	const detail::ShaderCreator::ShaderCodeInfo& shaderCodeInfo
 	)
@@ -218,7 +156,6 @@ std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 
 	return createShaderFromCompiledShader(
 		graphicsRenderer,
-		parameterFactory,
 		resourceFactory,
 		shaderData,
 		shaderCodeInfo.shaderType
@@ -240,7 +177,6 @@ auto detail::ShaderCreator::doCreate(
 		return createShaderFromShaderCode(
 			graphicsRenderer,
 			filesystemContext,
-			parameterFactory_,
 			resourceFactory_,
 			shaderCodeInfos_[id]
 			);
@@ -249,7 +185,6 @@ auto detail::ShaderCreator::doCreate(
 		return createShaderFromCompiledShader(
 			graphicsRenderer,
 			filesystemContext,
-			parameterFactory_,
 			resourceFactory_,
 			compiledShaderInfos_[id]
 			);
