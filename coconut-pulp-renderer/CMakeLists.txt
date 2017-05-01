@@ -14,3 +14,6 @@ set(TEST_LIBRARIES
   )
 
 library_module(coconut-pulp-renderer "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" USE_GMOCK ${LIBRARY_TYPE})
+
+cotire(coconut-pulp-renderer)
+cotire(coconut-pulp-renderer_unit-test)

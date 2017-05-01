@@ -6,9 +6,10 @@ using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
+using namespace coconut::pulp::renderer::shader::detail;
 
 template <class GraphicsShaderType>
-detail::Shader<GraphicsShaderType>::Shader(
+Shader<GraphicsShaderType>::Shader(
 	GraphicsShaderType shaderData,
 	SceneData sceneData,
 	ActorData actorData,
@@ -24,7 +25,7 @@ detail::Shader<GraphicsShaderType>::Shader(
 }
 
 template <class GraphicsShaderType>
-void detail::Shader<GraphicsShaderType>::bind(DrawCommand& drawCommand, const PassContext& passContext) const {
+void Shader<GraphicsShaderType>::bind(DrawCommand& drawCommand, const PassContext& passContext) const {
 	for (auto buffer : sceneData_) {
 		buffer->bind(drawCommand, *passContext.scene); // TODO: update conditionally (if changed since last update)
 	}
@@ -42,8 +43,8 @@ void detail::Shader<GraphicsShaderType>::bind(DrawCommand& drawCommand, const Pa
 	}
 }
 
-template class detail::Shader<milk::graphics::VertexShader>;
-template class detail::Shader<milk::graphics::GeometryShader>;
-template class detail::Shader<milk::graphics::HullShader>;
-template class detail::Shader<milk::graphics::DomainShader>;
-template class detail::Shader<milk::graphics::PixelShader>;
+template class Shader<milk::graphics::VertexShader>;
+template class Shader<milk::graphics::GeometryShader>;
+template class Shader<milk::graphics::HullShader>;
+template class Shader<milk::graphics::DomainShader>;
+template class Shader<milk::graphics::PixelShader>;
