@@ -21,22 +21,30 @@ struct PointLight {
 	float4 specularColour;
 };
 
-cbuffer SceneData {
-	float3 eye;
+struct SceneData {
+	float3 cameraPosition;
 	uint directionalLightsCount;
 	DirectionalLight directionalLights[3];
-	uint pointLightsCount;
-	PointLight pointLights[3];
+	//uint pointLightsCount;
+	//PointLight pointLights[3];
+};
+
+cbuffer scene_ {
+	SceneData scene;
 }
 
-cbuffer GroupData {
+cbuffer actor_ {
 	Material material;
 }
 
-cbuffer TerrainData {
-	float terrainCellEdgeLength;
-	float terrainWidth;
-	float terrainDepth;
+struct TerrainData {
+	float cellEdgeLength;
+	float width;
+	float depth;
+};
+
+cbuffer terrain_ {
+	TerrainData terrain;
 };
 
 Texture2D heightmap;
@@ -79,8 +87,8 @@ void computePoint(Material mat, PointLight l, float3 position, float3 normal, fl
 
 float4 main(DomainOut pin) : SV_TARGET
 {
-	const float texelCellSpaceU = terrainCellEdgeLength / terrainWidth;
-	const float texelCellSpaceV = terrainCellEdgeLength / terrainDepth;
+	const float texelCellSpaceU = terrain.cellEdgeLength / terrain.width;
+	const float texelCellSpaceV = terrain.cellEdgeLength / terrain.depth;
 
 	const float2 leftUV = pin.heightmapTexcoord + float2(-texelCellSpaceU, 0.0f);
 	const float2 rightUV = pin.heightmapTexcoord + float2(texelCellSpaceU, 0.0f);
@@ -92,35 +100,35 @@ float4 main(DomainOut pin) : SV_TARGET
 	const float bottomHeight = heightmap.SampleLevel(heightmapSampler, bottomUV, 0).r;
 	const float topHeight = heightmap.SampleLevel(heightmapSampler, topUV, 0).r;
 
-	const float3 tangent = normalize(float3(2.0f * terrainCellEdgeLength, rightHeight - leftHeight, 0.0f));
-	const float3 bitangent = normalize(float3(0.0f, bottomHeight - topHeight, 2.0f * terrainCellEdgeLength));
+	const float3 tangent = normalize(float3(2.0f * terrain.cellEdgeLength, rightHeight - leftHeight, 0.0f));
+	const float3 bitangent = normalize(float3(0.0f, bottomHeight - topHeight, 2.0f * terrain.cellEdgeLength));
 	const float3 normalW = cross(bitangent, tangent);
 
-	float3 toEye = normalize(eye - pin.posW);
+	float3 toEye = normalize(scene.cameraPosition - pin.posW);
 
 	float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	[unroll]
-	for (uint di = 0; di < directionalLightsCount; ++di) {
+	for (uint di = 0; di < scene.directionalLightsCount; ++di) {
 		float4 ambientComp, diffuseComp, specularComp;
-		computeDirectional(material, directionalLights[di], normalW, toEye, ambientComp, diffuseComp, specularComp);
+		computeDirectional(material, scene.directionalLights[di], normalW, toEye, ambientComp, diffuseComp, specularComp);
 
 		ambient += ambientComp;
 		diffuse += diffuseComp;
 		specular += specularComp;
 	}
 
-	[unroll]
-	for (uint pi = 0; pi < pointLightsCount; ++pi) {
-		float4 ambientComp, diffuseComp, specularComp;
-		computePoint(material, pointLights[pi], pin.posW, normalW, toEye, ambientComp, diffuseComp, specularComp);
+	//[unroll]
+	//for (uint pi = 0; pi < pointLightsCount; ++pi) {
+	//	float4 ambientComp, diffuseComp, specularComp;
+	//	computePoint(material, pointLights[pi], pin.posW, normalW, toEye, ambientComp, diffuseComp, specularComp);
 
-		ambient += ambientComp;
-		diffuse += diffuseComp;
-		specular += specularComp;
-	}
+	//	ambient += ambientComp;
+	//	diffuse += diffuseComp;
+	//	specular += specularComp;
+	//}
 
 	float4 endColour = saturate(ambient + diffuse + specular);
 	endColour.a = diffuse.a;

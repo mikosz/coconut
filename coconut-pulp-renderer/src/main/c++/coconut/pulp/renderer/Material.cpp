@@ -46,19 +46,22 @@ Material::Material(
 	passType_(materialConfiguration.passType()),
 	pass_(passFactory.create(materialConfiguration.shaderName(), graphicsRenderer, filesystemContext)),
 	renderState_(graphicsRenderer, materialConfiguration.renderStateConfiguration()),
-	properties_(std::move(materialConfiguration.properties())),
 	textures_(loadTextures(graphicsRenderer, filesystemContext, materialConfiguration))
 {
-}
-
-const Primitive& Material::property(const std::string& key) const {
-	auto it = properties_.find(key);
-	if (it == properties_.end()) {
-		throw NoSuchProperty(key);
-	} else {
-		return it->second;
+	for (const auto entry : materialConfiguration.properties()) {
+		shaderProperties_.bind(std::move(entry.first), std::move(entry.second));
 	}
 }
+
+// TODO: unused
+//const Primitive& Material::property(const std::string& key) const {
+//	auto it = properties_.find(key);
+//	if (it == properties_.end()) {
+//		throw NoSuchProperty(key);
+//	} else {
+//		return it->second;
+//	}
+//}
 
 void Material::setTexture(std::string key, Texture texture) {
 	textures_.emplace(std::move(key), std::move(texture));

@@ -11,7 +11,9 @@
 
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/PixelFormat.hpp"
+#include "coconut/pulp/primitive/Primitive.hpp"
 #include "coconut/pulp/math/Vector.hpp"
+#include "coconut/pulp/math/Matrix.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -165,9 +167,9 @@ private:
 
 	};
 
-	static const auto STORAGE_SIZE = sizeof(Model<float>);
+	static const auto STORAGE_SIZE = sizeof(Model<math::Matrix4x4>);
 
-	static const auto STORAGE_ALIGNMENT = alignof(Model<float>);
+	static const auto STORAGE_ALIGNMENT = alignof(Model<math::Matrix4x4>);
 
 	std::aligned_storage<STORAGE_SIZE, STORAGE_ALIGNMENT>::type self_;
 
@@ -182,6 +184,46 @@ public:
 	}
 
 };
+
+class Properties {
+public:
+
+	const Property get(const std::string& id) const {
+		return properties_.at(id); // TODO: use custom exception instead of at() everywhere here
+	}
+
+	void* write(PropertyId id, void* buffer, Property::DataType format) const {
+		if (!id.hasObject()) {
+			return properties_.at(id.member()).write(id, buffer, format);
+		} else {
+			const auto& object = id.object();
+			// TODO: handle array!
+			return properties_.at(std::get<std::string>(object)).write(id.child(), buffer, format);
+		}
+	}
+
+	void bind(std::string id, Property property) {
+		auto result = properties_.emplace(std::move(id), std::move(property));
+		if (!result.second) {
+			throw coconut_tools::exceptions::LogicError("Property " + id + " is already bound");
+		}
+	}
+
+private:
+
+	std::unordered_map<std::string, Property> properties_;
+
+};
+
+inline void* writeProperty(
+	const Properties& properties,
+	const PropertyId& id,
+	void* buffer,
+	Property::DataType format
+	)
+{
+	return properties.write(id, buffer, format);
+}
 
 template <class I>
 inline std::enable_if_t<std::is_integral_v<I>, void*> writeProperty(
@@ -234,41 +276,37 @@ inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeProperty(
 }
 
 void* writeProperty(
-	const pulp::math::Vec3& vec3,
+	const math::Vec3& vec3,
 	const PropertyId& id,
 	void* buffer,
 	Property::DataType format
 	);
 
-class Properties {
-public:
+// TODO: merge for all vectors of floats
+void* writeProperty(
+	const math::Vec4& vec4,
+	const PropertyId& id,
+	void* buffer,
+	Property::DataType format
+	);
 
-	const Property get(const std::string& id) const {
-		return properties_.at(id); // TODO: use custom exception instead of at() everywhere here
-	}
+void* writeProperty(
+	const math::Matrix4x4& matrix,
+	const PropertyId& id,
+	void* buffer,
+	Property::DataType format
+	);
 
-	void* write(PropertyId id, void* buffer, Property::DataType format) const {
-		if (!id.hasObject()) {
-			return properties_.at(id.member()).write(id, buffer, format);
-		} else {
-			const auto& object = id.object();
-			// TODO: handle array!
-			return properties_.at(std::get<std::string>(object)).write(id.child(), buffer, format);
-		}
-	}
-
-	void bind(std::string id, Property property) {
-		auto result = properties_.emplace(std::move(id), std::move(property));
-		if (!result.second) {
-			throw coconut_tools::exceptions::LogicError("Property " + id + " is already bound");
-		}
-	}
-
-private:
-
-	std::unordered_map<std::string, Property> properties_;
-
-};
+inline void* writeProperty(
+	const Primitive& primitive,
+	const PropertyId& /* id */,
+	void* buffer,
+	Property::DataType format
+	) {
+#pragma message("REALLY TEMP")
+	primitive.storeAs(buffer, milk::graphics::PixelFormat::R32G32B32_FLOAT); // TODO: TEMP TEMP TEEEEMP!
+	return buffer; // TODO: temp! have primitive return end address
+}
 
 } // namespace shader
 } // namespace renderer

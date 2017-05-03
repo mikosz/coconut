@@ -6,6 +6,7 @@
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
+#include "shader/ReflectiveObject.hpp"
 #include "shader/Pass.hpp"
 #include "lighting/DirectionalLight.hpp"
 #include "lighting/PointLight.hpp"
@@ -86,6 +87,8 @@ private:
 	milk::graphics::Texture2d* depthStencil_; // TODO
 
 	milk::graphics::Viewport viewport_; // TODO
+
+	friend class renderer::shader::ReflectiveInterface<Scene>;
 
 };
 

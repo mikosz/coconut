@@ -138,7 +138,7 @@ public:
 		emplaceField("minTesselationDistance", 100.0f);
 		emplaceField("maxTesselationDistance", 500.0f);
 		emplaceField("minTesselationExponent", 1.0f);
-		emplaceField("maxTesselationExponent", 1.0f);
+		emplaceField("maxTesselationExponent", 6.0f);
 
 		emplaceMethod("cellEdgeLength", [](const Terrain& terrain) { return terrain.heightmap_.cellEdgeLength(); });
 		emplaceMethod("width", [](const Terrain& terrain) { return terrain.heightmap_.width(); });
@@ -175,7 +175,7 @@ Terrain::Terrain(
 	for (float x = -20.0f; x < 20.0f; x += 20.0f) {
 		for (float z = -20.0f; z < 100.0f; z += 20.0f) {
 			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
-			scene.add(grassActor, grassModel);
+			// scene.add(grassActor, grassModel);
 		}
 	}
 }

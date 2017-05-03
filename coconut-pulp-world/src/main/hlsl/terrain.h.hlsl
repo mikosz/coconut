@@ -11,16 +11,16 @@ cbuffer Settings {
 	TerrainData terrain;
 };
 
-struct CameraData {
-	float3 position;
+struct SceneData {
+	float3 cameraPosition;
 };
 
 cbuffer Context {
-	CameraData camera;
+	SceneData scene;
 };
 
 float calculateTesselation(float3 controlPoint) {
-	float d = distance(controlPoint, camera.position);
+	float d = distance(controlPoint, scene.cameraPosition);
 	float s = saturate((d - terrain.minTesselationDistance) /
 		(terrain.maxTesselationDistance - terrain.minTesselationDistance));
 	return pow(2.0f, lerp(terrain.maxTesselationExponent, terrain.minTesselationExponent, s));

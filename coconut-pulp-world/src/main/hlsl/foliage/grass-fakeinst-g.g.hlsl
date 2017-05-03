@@ -1,10 +1,11 @@
-cbuffer ViewTransformations {
-	matrix viewMatrix;
-}
+struct SceneData {
+	matrix view;
+	matrix projection;
+};
 
-cbuffer ProjectionTransformations {
-	matrix projectionMatrix;
-}
+cbuffer SceneBuffer {
+	SceneData scene;
+};
 
 cbuffer TerrainData {
 	float terrainCellEdgeLength;
@@ -54,7 +55,7 @@ void emit(GIn gin, inout GOut gout, inout TriangleStream<GOut> triStream, uint i
 	gout.posW = gin.posW + verts[index];
 	gout.posW.y *= gin.yScale;
 	gout.posW.y += terrainHeight;
-	gout.posH = mul(mul(float4(gout.posW, 1.0f), viewMatrix), projectionMatrix);
+	gout.posH = mul(mul(float4(gout.posW, 1.0f), scene.view), scene.projection);
 	triStream.Append(gout);
 }
 

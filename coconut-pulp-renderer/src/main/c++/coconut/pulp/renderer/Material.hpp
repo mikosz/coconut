@@ -12,9 +12,8 @@
 #include "coconut/milk/graphics/RenderState.hpp"
 #include "coconut/milk/graphics/Texture.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
-
 #include "coconut/pulp/mesh/MaterialConfiguration.hpp"
-
+#include "shader/Property.hpp"
 #include "shader/PassFactory.hpp"
 
 namespace coconut {
@@ -26,6 +25,7 @@ public:
 
 	using Texture = std::tuple<milk::graphics::Texture2d, milk::graphics::Sampler>;
 
+	// TODO: remove when textures moved to properties
 	class NoSuchProperty : public coconut_tools::exceptions::RuntimeError {
 	public:
 	
@@ -51,11 +51,12 @@ public:
 		return renderState_;
 	}
 
-	const bool hasProperty(const std::string& key) const {
-		return properties_.count(key) != 0;
-	}
+	// TODO: unused?
+	//const bool hasProperty(const std::string& key) const {
+	//	return properties_.count(key) != 0;
+	//}
 
-	const Primitive& property(const std::string& key) const;
+	//const Primitive& property(const std::string& key) const;
 
 	const bool hasTexture(const std::string& key) const {
 		return textures_.count(key) != 0;
@@ -64,6 +65,10 @@ public:
 	void setTexture(std::string key, Texture texture);
 
 	const Texture& texture(const std::string& key) const;
+
+	const shader::Properties& shaderProperties() const {
+		return shaderProperties_;
+	}
 
 private:
 
@@ -75,7 +80,7 @@ private:
 
 	milk::graphics::RenderState renderState_;
 
-	mesh::MaterialConfiguration::Properties properties_;
+	shader::Properties shaderProperties_;
 
 	Textures textures_;
 

@@ -44,6 +44,8 @@ public:
 		}
 	}
 
+	// TODO: field should be discerned from static field - a field should be an address of
+	// an object's member and resolved when used!
 	template <class... Args>
 	void emplaceField(std::string id, Args&&... args) {
 		fields_.emplace(std::move(id), std::forward<Args>(args)...);
@@ -53,7 +55,7 @@ public:
 		methods_.emplace(std::move(id), std::move(method));
 	}
 
-	Property get(const T& object, const std::string& id) const {
+	const Property get(const T& object, const std::string& id) const {
 		if (methods_.count(id)) {
 			return methods_.at(id)(object);
 		} else {
@@ -86,7 +88,7 @@ public:
 	{
 	}
 
-	Property get(const std::string& id) const {
+	const Property get(const std::string& id) const {
 		const auto& iface = ReflectiveInterface<T>(); // TODO: singleton
 		return iface.get(object_, id);
 	}
@@ -103,7 +105,7 @@ ReflectiveObject<T> makeReflectiveObject(const T& object) {
 }
 
 template <class T>
-void* writeProperty(const ReflectiveObject<T> object, PropertyId id, void* buffer, Property::DataType format) {
+void* writeProperty(const ReflectiveObject<T>& object, PropertyId id, void* buffer, Property::DataType format) {
 	if (!id.hasObject()) {
 		return object.get(id.member()).write(id, buffer, format);
 	} else {

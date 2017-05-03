@@ -211,6 +211,8 @@ Model::DrawGroup::DrawGroup(
 }
 
 void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
+	passContext.properties.bind("material", &material.shaderProperties());
+
 	if (material.shaderPass().isInstanced() && passContext.actors->size() > 1) { // TODO this and next lines
 		auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
 

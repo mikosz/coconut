@@ -119,7 +119,6 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 
 } // anonymous namespace
 
-
 template <>
 class renderer::shader::ReflectiveInterface<GrassActor> :
 	public renderer::shader::ReflectiveInterfaceBase<GrassActor>

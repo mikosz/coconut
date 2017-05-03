@@ -25,6 +25,22 @@ milk::graphics::Viewport::Configuration viewportConfiguration() {
 
 } // anonymous namespace
 
+template <>
+class renderer::shader::ReflectiveInterface<Scene> :
+	public renderer::shader::ReflectiveInterfaceBase<Scene>
+{
+public:
+
+	ReflectiveInterface() {
+		emplaceMethod("cameraPosition", [](const Scene& scene) { return &scene.camera_->position(); });
+		emplaceMethod("view", [](const Scene& scene) { return &scene.camera_->viewTransformation(); });
+		emplaceMethod("projection", [](const Scene& scene) { return &scene.lens_->projectionTransformation(); });
+		emplaceMethod("directionalLightsCount", [](const Scene& scene) { return scene.directionalLights_.size(); });
+		emplaceMethod("directionalLights", [](const Scene& scene) { return shader::makeReflectiveObject(scene.directionalLights_[0]); }); // TODO
+	}
+
+};
+
 Scene::Scene(milk::graphics::Renderer& graphicsRenderer) :
 	renderTarget_(&graphicsRenderer.backBuffer()), // TODO
 	depthStencil_(&graphicsRenderer.depthStencil()), // TODO
@@ -60,16 +76,16 @@ void Scene::render(PassContext passContext, CommandBuffer& commandBuffer) {
 	passContext.screenDepthStencil = depthStencil_;
 	passContext.scene = this;
 
+	passContext.properties.bind("scene", renderer::shader::makeReflectiveObject(*this));
+
 	passContext.passType = mesh::MaterialConfiguration::PassType::OPAQUE;
 
 	for (const auto& instanceEntry : instances_) { // TODO: this is obviously temp
 		const auto& instance = instanceEntry.second;
-		passContext.model = instance.model.get();
 		passContext.actors = &instance.actors;
 
 		assert(instance.actors.size() == 1); // ... because instancing is now broken
-		auto properties = shader::Properties();
-		instance.actors[0]->bindShaderProperties(properties, "actor");
+		instance.actors[0]->bindShaderProperties(passContext.properties, "actor");
 
 		instance.model->render(commandBuffer, passContext);
 	}

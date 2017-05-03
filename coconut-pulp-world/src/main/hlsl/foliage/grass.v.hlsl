@@ -1,12 +1,13 @@
-cbuffer ViewTransformations : register(b0) {
-	matrix viewMatrix;
-}
+struct SceneData {
+	matrix view;
+	matrix projection;
+};
 
-cbuffer ProjectionTransformations : register(b1) {
-	matrix projectionMatrix;
-}
+cbuffer SceneBuffer {
+	SceneData scene;
+};
 
-cbuffer ObjectData : register(b2) {
+cbuffer ObjectData {
 	float3 grassPatchPosition;
 }
 
@@ -41,7 +42,7 @@ VOut main(VIn vin)
 	posW.y *= 1.0f + noise.y;
 	posW.z += noise.z;
 
-	vout.posH = mul(mul(posW, viewMatrix), projectionMatrix);
+	vout.posH = mul(mul(posW, scene.view), scene.projection);
 	vout.tex = vin.tex;
 	vout.posW = posW.xyz;
 	vout.normalW = vin.normalL;

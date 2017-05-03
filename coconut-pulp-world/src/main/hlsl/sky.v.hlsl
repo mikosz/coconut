@@ -1,24 +1,25 @@
 #include "sky.hlsl"
 
-cbuffer ViewTransformations {
-	matrix viewMatrix;
-}
+struct SceneData {
+	matrix view;
+	matrix projection;
+};
 
-cbuffer ProjectionTransformations {
-	matrix projectionMatrix;
-}
+cbuffer SceneBuffer {
+	SceneData scene;
+};
 
 struct VertexIn {
 	float3 posL : POSITION;
 };
 
 VertexOut main(VertexIn vin) {
-	matrix viewNoTranslation = viewMatrix; // TODO
+	matrix viewNoTranslation = scene.view; // TODO
 	viewNoTranslation[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	VertexOut vout;
 	// TODO: deLuna does .xyww, but it doesn't work?
-	vout.posH = mul(mul(float4(vin.posL, 1.0f), viewNoTranslation), projectionMatrix);// .xyww;
+	vout.posH = mul(mul(float4(vin.posL, 1.0f), viewNoTranslation), scene.projection);// .xyww;
 	vout.posL = vin.posL;
 
 	return vout;
