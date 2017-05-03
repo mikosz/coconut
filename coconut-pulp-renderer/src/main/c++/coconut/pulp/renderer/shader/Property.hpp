@@ -4,11 +4,14 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include <iosfwd>
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
+#include <coconut-tools/exceptions/LogicError.hpp>
 
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/PixelFormat.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -44,6 +47,19 @@ private:
 
 };
 
+inline std::ostream& operator<<(std::ostream& os, const PropertyDescriptor::Object& object) {
+	return os << std::get<std::string>(object) << "[" << std::get<size_t>(object) << "]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const PropertyDescriptor& propertyDescriptor) {
+	for (const auto& object : propertyDescriptor.objects()) {
+		os << object << ".";
+	}
+	return os << propertyDescriptor.member();
+}
+
+// PropertyDescriptor and Id, as well as Properties could be moved to ReflectiveObject,
+// or other place. The Id could be a template parameter in Property.
 class PropertyId {
 public:
 
@@ -105,8 +121,8 @@ public:
 		new(&self_) Model<T>(std::move(model));
 	}
 
-	void* write(const PropertyId& key, void* address, DataType format) const {
-		return reinterpret_cast<const Concept*>(&self_)->write(key, address, format);
+	void* write(const PropertyId& id, void* buffer, DataType format) const {
+		return reinterpret_cast<const Concept*>(&self_)->write(id, buffer, format);
 	}
 
 private:
@@ -116,7 +132,7 @@ private:
 
 		virtual ~Concept() = default;
 
-		virtual void* write(const PropertyId& key, void* address, DataType format) const = 0;
+		virtual void* write(const PropertyId& id, void* buffer, DataType format) const = 0;
 
 	};
 
@@ -127,12 +143,10 @@ private:
 		Model(T object) :
 			object_(std::move(object))
 		{
-			static_assert(std::is_pointer_v<T> || std::is_arithmetic_v<T>,
-				"Properties should only be used as pointers or arithmetic types");
 		}
 
-		void* write(const PropertyId& key, void* address, DataType format) const override {
-			writeProperty(dereference(object_), key, address, format);
+		void* write(const PropertyId& id, void* buffer, DataType format) const override {
+			return writeProperty(dereference(object_), id, buffer, format);
 		}
 
 	private:
@@ -169,8 +183,14 @@ public:
 
 };
 
-template <class I, class = std::enable_if_t<std::is_integral_v<I>>>
-inline void* writeProperty(I i, const PropertyId& id, void* address, Property::DataType format) {
+template <class I>
+inline std::enable_if_t<std::is_integral_v<I>, void*> writeProperty(
+	I i,
+	const PropertyId& id,
+	void* buffer,
+	Property::DataType format
+	)
+{
 	assert(!id.hasObject());
 
 	if (format.klass != Property::DataType::Class::SCALAR) {
@@ -184,14 +204,20 @@ inline void* writeProperty(I i, const PropertyId& id, void* address, Property::D
 	}
 
 	// TODO: add assertion checking if cast doesn't result in a different value
-	auto* buffer = reinterpret_cast<std::int32_t*>(address);
+	auto* target = reinterpret_cast<std::int32_t*>(buffer);
 	// TODO: is this cast valid?
-	*buffer = static_cast<std::int32_t>(i);
-	return buffer + 1;
+	*target = static_cast<std::int32_t>(i);
+	return target + 1;
 }
 
-template <class F, class = std::enable_if_t<std::is_floating_point_v<F>>>
-inline void* writeProperty(F f, const PropertyId& id, void* address, Property::DataType format) {
+template <class F>
+inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeProperty(
+	F f,
+	const PropertyId& id,
+	void* buffer,
+	Property::DataType format
+	)
+{
 	assert(!id.hasObject());
 
 	if (format.klass != Property::DataType::Class::SCALAR) {
@@ -202,31 +228,40 @@ inline void* writeProperty(F f, const PropertyId& id, void* address, Property::D
 		throw IncompatibleDataType("Floats are not writeable to scalar type " + toString(format.scalarType));
 	}
 
-	auto* buffer = reinterpret_cast<float*>(address);
-	*buffer = static_cast<float>(i);
-	return buffer + 1;
+	auto* target = reinterpret_cast<float*>(buffer);
+	*target = static_cast<float>(f);
+	return target + 1;
 }
+
+void* writeProperty(
+	const pulp::math::Vec3& vec3,
+	const PropertyId& id,
+	void* buffer,
+	Property::DataType format
+	);
 
 class Properties {
 public:
 
 	const Property get(const std::string& id) const {
-		return properties_.at(id);
+		return properties_.at(id); // TODO: use custom exception instead of at() everywhere here
 	}
 
-	void write(PropertyId id, void* address, Property::DataType format) const {
+	void* write(PropertyId id, void* buffer, Property::DataType format) const {
 		if (!id.hasObject()) {
-			properties_.at(id.member()).write(id, address, format);
-		}
-		else {
+			return properties_.at(id.member()).write(id, buffer, format);
+		} else {
 			const auto& object = id.object();
-			properties_.at(object).write(id.child(), address, format);
+			// TODO: handle array!
+			return properties_.at(std::get<std::string>(object)).write(id.child(), buffer, format);
 		}
 	}
 
-	template <class... Args>
-	void emplace(std::string id, Args&&... args) {
-		properties_.emplace(std::move(id), std::forward<Args>(args)...);
+	void bind(std::string id, Property property) {
+		auto result = properties_.emplace(std::move(id), std::move(property));
+		if (!result.second) {
+			throw coconut_tools::exceptions::LogicError("Property " + id + " is already bound");
+		}
 	}
 
 private:
@@ -234,59 +269,6 @@ private:
 	std::unordered_map<std::string, Property> properties_;
 
 };
-
-template <class Sub>
-class PropertyHolder {
-public:
-
-	using Method = std::function<Property(const Sub&)>;
-
-	template <class... Args>
-	static void emplaceProperty(std::string id, Args&&... args) {
-		properties_.emplace(std::move(id), std::forward<Args>(args)...);
-	}
-
-	static void emplaceMethod(std::string id, Method method) {
-		methods.emplace(std::move(id), std::move(method));
-	}
-
-	const PropertyHolder<Sub>& properties() const noexcept {
-		return *this;
-	}
-
-	const Property get(const std::string& id) const {
-		if (methods.count(id)) {
-			const auto& sub = static_cast<const Sub&>(*this);
-			return methods.at(id)(sub);
-		}
-		else {
-			return properties_.get(id);
-		}
-	}
-
-private:
-
-	static Properties properties_;
-
-	static std::unordered_map<std::string, Method> methods;
-
-};
-
-template <class Sub>
-Properties PropertyHolder<Sub>::properties_;
-
-template <class Sub>
-std::unordered_map<std::string, typename PropertyHolder<Sub>::Method> PropertyHolder<Sub>::methods;
-
-template <class T>
-inline void writeProperty(const PropertyHolder<T>& holder, PropertyId id, void* address, DataType format) {
-	if (!id.hasObject()) {
-		holder.get(id.member()).write(id, address, format);
-	} else {
-		const auto& object = id.object();
-		holder.get(object).write(id.child(), address, format);
-	}
-}
 
 } // namespace shader
 } // namespace renderer

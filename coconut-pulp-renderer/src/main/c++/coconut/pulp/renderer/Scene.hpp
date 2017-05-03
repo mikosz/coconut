@@ -4,14 +4,12 @@
 #include <vector>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
-
 #include "shader/Pass.hpp"
 #include "lighting/DirectionalLight.hpp"
 #include "lighting/PointLight.hpp"
-
+#include "PassContext.hpp"
 #include "Actor.hpp"
 #include "Model.hpp"
 #include "Camera.hpp"
@@ -38,7 +36,7 @@ public:
 
 	void setLens(LensSharedPtr lens);
 
-	void render(milk::graphics::Renderer& graphicsRenderer, CommandBuffer& commandBuffer);
+	void render(PassContext passContext, CommandBuffer& commandBuffer);
 
 	const Camera& camera() const {
 		return *camera_;

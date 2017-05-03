@@ -146,7 +146,11 @@ void Game::loop() {
 		//camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
 		//camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
-		scene.render(*graphicsRenderer_, commandBuffer);
+		auto passContext = pulp::renderer::PassContext();
+		passContext.graphicsRenderer = graphicsRenderer_.get();
+		world.bindShaderProperties(passContext.properties);
+
+		scene.render(std::move(passContext), commandBuffer);
 
 		commandBuffer.submit(commandList);
 		graphicsRenderer_->submit(commandList);

@@ -6,7 +6,7 @@
 #include <vector>
 #include <numeric>
 
-#include <coconut-tools/exceptions/RuntimeError.hpp>
+#include <coconut-tools/exceptions/LogicError.hpp>
 
 #include "coconut/milk/graphics/ConstantBuffer.hpp"
 
@@ -18,11 +18,10 @@ namespace pulp {
 namespace renderer {
 namespace shader {
 
-template <class UpdateArgument>
 class ConstantBuffer {
 public:
 
-	using Parameters = std::vector<ParameterSharedPtr>;
+	using Parameters = std::vector<Parameter>;
 
 	ConstantBuffer(
 		milk::graphics::Renderer& renderer,
@@ -46,30 +45,17 @@ public:
 		data_(size),
 		parameters_(std::move(parameters))
 	{
-		for (const auto& parameter : parameters) {
-			const auto inputType = parameter->inputType();
-			const auto updateArgumentType = Parameter::DeducedOperandType<UpdateArgument>::type;
+	}
 
-			if (updateArgumentType != inputType) {
-				throw IncompatibleParameterAndConstantBufferTypes(updateArgumentType, inputType);
+	void bind(DrawCommand& drawCommand, const Properties& properties) {
+		for (const auto parameter : parameters_) {
+			auto* endPtr = parameter.write(data_.data(), properties);
+			if (endPtr > (&data_.back() + 1)) {
+				throw coconut_tools::exceptions::LogicError("Data written past end of buffer");
 			}
 		}
 
-		const auto totalParameterSize = std::accumulate(
-			parameters_.begin(),
-			parameters_.end(),
-			static_cast<size_t>(0),
-			[](size_t total, ParameterSharedPtr parameter) { return total + parameter->size(); }
-			);
-
-		assert (totalParameterSize <= size);
-	}
-
-	void bind(DrawCommand& drawCommand, const UpdateArgument& updateArgument) {
-		for (const auto parameter : parameters_) {
-			parameter->update(data_.data(), &updateArgument);
-		}
-
+		// TODO: unnecessarily keeping data in data_ AND in DrawCommand
 		drawCommand.addConstantBufferData(&buffer_, data_.data(), data_.size(), stage_, slot_);
 	}
 
@@ -84,23 +70,6 @@ private:
 	std::vector<std::uint8_t> data_;
 
 	Parameters parameters_;
-
-};
-
-template <class... UpdateArguments>
-using ConstantBufferUniquePtr = std::unique_ptr<ConstantBuffer<UpdateArguments...>>;
-
-template <class... UpdateArguments>
-using ConstantBufferSharedPtr = std::shared_ptr<ConstantBuffer<UpdateArguments...>>;
-
-class IncompatibleParameterAndConstantBufferTypes : public coconut_tools::exceptions::RuntimeError {
-public:
-
-	IncompatibleParameterAndConstantBufferTypes(Parameter::OperandType constantBufferType, Parameter::OperandType parameterType) :
-		coconut_tools::exceptions::RuntimeError(
-			"Incompatible constant buffer and parameter types provided: " + toString(constantBufferType) + " and " + toString(parameterType))
-	{
-	}
 
 };
 

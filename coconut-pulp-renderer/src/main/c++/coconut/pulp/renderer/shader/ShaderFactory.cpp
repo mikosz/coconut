@@ -22,7 +22,7 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.SHADER_FACTORY");
 
 using milk::graphics::ShaderReflection;
 
-std::vector<Parameter> createParameters(
+ConstantBuffer::Parameters createParameters(
 	const std::string& name,
 	const ShaderReflection::Type& type,
 	size_t offset,
@@ -31,9 +31,7 @@ std::vector<Parameter> createParameters(
 {
 	CT_LOG_DEBUG << "Creating parameter for variable " << name;
 
-	const auto offset = offset + type.offset;
-
-	auto parameters = std::vector<Parameter>();
+	auto parameters = ConstantBuffer::Parameters();
 
 	if (!type.members.empty()) {
 		prefix.emplace_back(name, 0u); // TODO: temp, arrays!
@@ -42,13 +40,18 @@ std::vector<Parameter> createParameters(
 			auto memberType = ShaderReflection::Type();
 			std::tie(memberName, memberType) = member;
 
-			parameters = createParameters(memberName, memberType, type.offset, prefix);
+			const auto memberParameters = createParameters(memberName, memberType, type.offset + offset, prefix);
+			parameters.reserve(parameters.size() + memberParameters.size());
+			std::move(memberParameters.begin(), memberParameters.end(), std::back_inserter(parameters));
 		}
 	} else {
+		CT_LOG_DEBUG << "Creating parameter at offset " << (type.offset + offset)
+			<< " reading property " << PropertyDescriptor(prefix, name);
+
 		parameters.emplace_back(
 			PropertyDescriptor(std::move(prefix), name),
 			Property::DataType(type.klass, type.scalarType),
-			offset
+			type.offset + offset
 			);
 	}
 
@@ -82,12 +85,26 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 
 	const auto reflection = ShaderReflection(shaderData.data(), shaderData.size());
 
-	auto parameters = std::vector<Parameter>();
+	auto constantBuffers = UnknownShader::ConstantBuffers();
 	for (const auto& constantBuffer : reflection.constantBuffers()) {
+		auto bufferParameters = ConstantBuffer::Parameters();
+
 		for (const auto& variable : constantBuffer.variables) {
-			auto parameters = createParameters(variable.name, variable.type, variable.offset, {});
-			std::move(parameters.begin(), parameters.end(), std::back_inserter(parameters));
+			auto variableParameters = createParameters(variable.name, variable.type, variable.offset, {});
+			std::move(
+				variableParameters.begin(),
+				variableParameters.end(),
+				std::back_inserter(bufferParameters)
+				);
 		}
+
+		constantBuffers.emplace_back(
+			graphicsRenderer,
+			shaderType,
+			constantBuffer.size,
+			constantBuffer.slot,
+			std::move(bufferParameters)
+			);
 	}
 
 	auto resources = UnknownShader::Resources();
@@ -99,27 +116,27 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	case milk::graphics::ShaderType::VERTEX:
 	{
 		milk::graphics::VertexShader vs(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<VertexShader>(std::move(vs), std::move(parameters), std::move(resources));
+		return std::make_unique<VertexShader>(std::move(vs), std::move(constantBuffers), std::move(resources));
 	}
 	case milk::graphics::ShaderType::GEOMETRY:
 	{
 		milk::graphics::GeometryShader gs(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<GeometryShader>(std::move(gs), std::move(parameters), std::move(resources));
+		return std::make_unique<GeometryShader>(std::move(gs), std::move(constantBuffers), std::move(resources));
 	}
 	case milk::graphics::ShaderType::HULL:
 	{
 		milk::graphics::HullShader hs(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<HullShader>(std::move(hs), std::move(parameters), std::move(resources));
+		return std::make_unique<HullShader>(std::move(hs), std::move(constantBuffers), std::move(resources));
 	}
 	case milk::graphics::ShaderType::DOMAIN:
 	{
 		milk::graphics::DomainShader ds(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<DomainShader>(std::move(ds), std::move(parameters), std::move(resources));
+		return std::make_unique<DomainShader>(std::move(ds), std::move(constantBuffers), std::move(resources));
 	}
 	case milk::graphics::ShaderType::PIXEL:
 	{
 		milk::graphics::PixelShader ps(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<PixelShader>(std::move(ps), std::move(parameters), std::move(resources));
+		return std::make_unique<PixelShader>(std::move(ps), std::move(constantBuffers), std::move(resources));
 	}
 	}
 

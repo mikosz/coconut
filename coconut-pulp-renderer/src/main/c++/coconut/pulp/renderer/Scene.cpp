@@ -54,21 +54,23 @@ void Scene::setLens(LensSharedPtr lens) {
 	lens_ = std::move(lens);
 }
 
-void Scene::render(milk::graphics::Renderer& graphicsRenderer, CommandBuffer& commandBuffer) {
-	PassContext context;
-	context.graphicsRenderer = &graphicsRenderer;
-	context.viewport = &viewport_;
-	context.backBuffer = renderTarget_;
-	context.screenDepthStencil = depthStencil_;
-	context.scene = this;
+void Scene::render(PassContext passContext, CommandBuffer& commandBuffer) {
+	passContext.viewport = &viewport_;
+	passContext.backBuffer = renderTarget_;
+	passContext.screenDepthStencil = depthStencil_;
+	passContext.scene = this;
 
-	context.passType = mesh::MaterialConfiguration::PassType::OPAQUE;
+	passContext.passType = mesh::MaterialConfiguration::PassType::OPAQUE;
 
 	for (const auto& instanceEntry : instances_) { // TODO: this is obviously temp
 		const auto& instance = instanceEntry.second;
-		context.model = instance.model.get();
-		context.actors = &instance.actors;
+		passContext.model = instance.model.get();
+		passContext.actors = &instance.actors;
 
-		instance.model->render(commandBuffer, context);
+		assert(instance.actors.size() == 1); // ... because instancing is now broken
+		auto properties = shader::Properties();
+		instance.actors[0]->bindShaderProperties(properties, "actor");
+
+		instance.model->render(commandBuffer, passContext);
 	}
 }

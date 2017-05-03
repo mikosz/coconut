@@ -1,21 +1,29 @@
 #include "terrain.hlsl"
 
+struct TerrainData {
+	float minTesselationDistance;
+	float maxTesselationDistance;
+	float minTesselationExponent;
+	float maxTesselationExponent;
+};
+
 cbuffer Settings {
-	float terrainMinTesselationDistance;
-	float terrainMaxTesselationDistance;
-	float terrainMinTesselationExponent;
-	float terrainMaxTesselationExponent;
+	TerrainData terrain;
+};
+
+struct CameraData {
+	float3 position;
 };
 
 cbuffer Context {
-	float3 eye;
+	CameraData camera;
 };
 
 float calculateTesselation(float3 controlPoint) {
-	float d = distance(controlPoint, eye);
-	float s = saturate((d - terrainMinTesselationDistance) /
-		(terrainMaxTesselationDistance - terrainMinTesselationDistance));
-	return pow(2.0f, lerp(terrainMaxTesselationExponent, terrainMinTesselationExponent, s));
+	float d = distance(controlPoint, camera.position);
+	float s = saturate((d - terrain.minTesselationDistance) /
+		(terrain.maxTesselationDistance - terrain.minTesselationDistance));
+	return pow(2.0f, lerp(terrain.maxTesselationExponent, terrain.minTesselationExponent, s));
 }
 
 /**

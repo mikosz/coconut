@@ -15,11 +15,19 @@ public:
 		PropertyDescriptor propertyDescriptor,
 		Property::DataType dataType,
 		size_t offset
-		) :
+		) noexcept :
 		propertyDescriptor_(std::move(propertyDescriptor)),
 		dataType_(dataType),
 		offset_(offset)
 	{
+	}
+
+	void* write(void* buffer, const Properties& properties) const {
+		return properties.write(
+			propertyDescriptor_,
+			reinterpret_cast<std::uint8_t*>(buffer) + offset_,
+			dataType_
+			);
 	}
 
 private:

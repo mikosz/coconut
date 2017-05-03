@@ -1,5 +1,5 @@
 <root-logger>
-  <level>info</level>
+  <level>debug</level>
   <appenders>
 	<appender>debug-window</appender>
   </appenders>

@@ -2,7 +2,7 @@
 
 #include <coconut-tools/utils/Range.hpp>
 
-#include "coconut/pulp/renderer/shader/CallbackParameter.hpp"
+#include "coconut/pulp/renderer/shader/ReflectiveObject.hpp"
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
 #include "coconut/pulp/renderer/PassContext.hpp"
 #include "coconut/pulp/mesh/Mesh.hpp"
@@ -31,23 +31,6 @@ std::unique_ptr<renderer::shader::Input::Element> createGrassPatchPositionInputE
 			std::memcpy(buffer, &actor.patchPosition(), sizeof(Vec3));
 		}
 		);
-}
-
-std::unique_ptr<renderer::shader::Parameter> createGrassPatchPositionParameter(
-	const renderer::shader::ParameterFactoryInstanceDetails& instanceDetails)
-{
-	if (instanceDetails.arraySize > 0) {
-		throw std::runtime_error("grass_patch_position can't be an array");
-	}
-
-	return std::make_unique<renderer::shader::CallbackParameter<renderer::Actor, Vec3>>(
-		[](Vec3& result, const renderer::Actor& actor, size_t arrayIndex) {
-				assert(arrayIndex == 0);
-				const auto& grassActor = dynamic_cast<const GrassActor&>(actor);
-				result = grassActor.patchPosition();
-			},
-			instanceDetails.padding
-			);
 }
 
 std::unique_ptr<renderer::Model> createGrassFakeinstModel(
@@ -136,6 +119,21 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 
 } // anonymous namespace
 
+
+template <>
+class renderer::shader::ReflectiveInterface<GrassActor> :
+	public renderer::shader::ReflectiveInterfaceBase<GrassActor>
+{
+public:
+
+	ReflectiveInterface() {
+		// TODO: don't like taking address of returned value here. Maybe extend size of Property?
+		// TODO: OR make ReflectiveInterface GrassActor's friend and return address of field?
+		emplaceMethod("grassPatchPosition", [](const GrassActor& grassActor) { return &grassActor.patchPosition(); });
+	}
+
+};
+
 void GrassActor::registerShaderInputElements(renderer::shader::InputElementFactory& inputElementFactory) {
 	auto instanceDetails = renderer::shader::InputElementFactoryInstanceDetails("GRASS_PATCH_POSITION", 0);
 	if (!inputElementFactory.isCreatorRegistered(instanceDetails)) {
@@ -143,16 +141,6 @@ void GrassActor::registerShaderInputElements(renderer::shader::InputElementFacto
 			instanceDetails,
 			&createGrassPatchPositionInputElement
 			);
-	}
-}
-
-void GrassActor::registerParameters(renderer::shader::ParameterFactory& parameterFactory) {
-	auto instanceDetails = renderer::shader::ParameterFactoryInstanceDetails("grass_patch_position");
-	if (!parameterFactory.isCreatorRegistered(instanceDetails)) {
-		parameterFactory.registerCreator(
-			instanceDetails,
-			&createGrassPatchPositionParameter
-		);
 	}
 }
 
@@ -172,6 +160,14 @@ void GrassActor::registerModels(renderer::ModelFactory& modelFactory, const Heig
 			}
 			);
 	}
+}
+
+void GrassActor::bindShaderProperties(
+	renderer::shader::Properties& properties,
+	std::string objectId
+	) const
+{
+	properties.bind(std::move(objectId), renderer::shader::makeReflectiveObject(*this));
 }
 
 GrassActor::GrassActor(const math::Vec3& patchPosition) :
