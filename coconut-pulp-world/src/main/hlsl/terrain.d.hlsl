@@ -1,12 +1,8 @@
 #include "terrain.hlsl"
 
-struct SceneData {
+cbuffer scene {
 	matrix view;
 	matrix projection;
-};
-
-cbuffer SceneBuffer {
-	SceneData scene;
 };
 
 Texture2D heightmap;
@@ -35,7 +31,7 @@ DomainOut main(
 
 	dout.posW.y = heightmap.SampleLevel(heightmapSampler, dout.heightmapTexcoord, 0).r;
 
-	dout.posH = mul(mul(float4(dout.posW, 1.0f), scene.view), scene.projection);
+	dout.posH = mul(mul(float4(dout.posW, 1.0f), view), projection);
 
 	return dout;
 }

@@ -8,6 +8,7 @@ namespace coconut {
 namespace milk {
 namespace utils {
 
+// TODO: remove after fixing ResourceFactory
 template <template<class...> class ResultType>
 ResultType<std::string> sliceIdentifier(const std::string& id) {
 	ResultType<std::string> result;

@@ -20,6 +20,14 @@ public:
 		std::string name;
 		size_t arraySize;
 		size_t arrayElementOffset;
+
+		Object(std::string name, size_t arraySize = 0, size_t arrayElementOffset = 0) :
+			name(std::move(name)),
+			arraySize(arraySize),
+			arrayElementOffset(arrayElementOffset)
+		{
+		}
+
 	};
 
 	using Objects = std::vector<Object>;

@@ -105,6 +105,8 @@ public:
 
 		using Variables = std::vector<Variable>;
 
+		std::string name;
+
 		size_t size;
 
 		size_t slot;

@@ -2,6 +2,9 @@
 
 #include <vector>
 #include <algorithm>
+#include <iterator>
+
+#include <boost/tokenizer.hpp>
 
 #include <coconut-tools/logger.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
@@ -22,6 +25,22 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.SHADER_FACTORY");
 
 using milk::graphics::ShaderReflection;
 
+std::vector<PropertyDescriptor::Object> interpretIdentifier(std::string name) {
+	auto result = std::vector<PropertyDescriptor::Object>();
+
+	const auto lastUnderscore = name.find_last_of('_');
+	if (lastUnderscore != std::string::npos) {
+		name.erase(lastUnderscore);
+	}
+
+	auto separator = boost::char_separator<char>("_");
+	auto tokenizer = boost::tokenizer<decltype(separator)>(name, separator);
+
+	std::move(tokenizer.begin(), tokenizer.end(), std::back_inserter(result));
+
+	return result;
+}
+
 ConstantBuffer::Parameters createParameters(
 	const std::string& name,
 	const ShaderReflection::Type& type,
@@ -29,16 +48,20 @@ ConstantBuffer::Parameters createParameters(
 	std::vector<PropertyDescriptor::Object> descriptor
 	)
 {
-	CT_LOG_DEBUG << "Creating parameter for variable " << name;
-
 	auto parameters = ConstantBuffer::Parameters();
 
 	{
-		auto descriptorObject = PropertyDescriptor::Object();
-		descriptorObject.name = name;
-		descriptorObject.arraySize = type.elements;
-		descriptorObject.arrayElementOffset = type.elementOffset;
-		descriptor.emplace_back(std::move(descriptorObject));
+		auto descriptorTail = interpretIdentifier(name);
+
+		if (descriptorTail.empty()) {
+			// TODO: exception
+			throw coconut_tools::exceptions::RuntimeError("Invalid identifier " + name);
+		}
+
+		descriptor.insert(descriptor.end(), descriptorTail.begin(), descriptorTail.end());
+
+		descriptor.back().arraySize = type.elements;
+		descriptor.back().arrayElementOffset = type.elementOffset;
 	}
 
 	if (!type.members.empty()) {
@@ -96,10 +119,17 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 
 	auto constantBuffers = UnknownShader::ConstantBuffers();
 	for (const auto& constantBuffer : reflection.constantBuffers()) {
+		CT_LOG_DEBUG << "Building parameters for cbuffer " << constantBuffer.name;
+
 		auto bufferParameters = ConstantBuffer::Parameters();
 
 		for (const auto& variable : constantBuffer.variables) {
-			auto variableParameters = createParameters(variable.name, variable.type, variable.offset, {});
+			auto variableParameters = createParameters(
+				variable.name,
+				variable.type,
+				variable.offset,
+				interpretIdentifier(constantBuffer.name)
+				);
 			std::move(
 				variableParameters.begin(),
 				variableParameters.end(),
