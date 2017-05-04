@@ -27,14 +27,18 @@ public:
 		using Class = milk::graphics::ShaderReflection::Type::Class;
 		using ScalarType = milk::graphics::ShaderReflection::Type::ScalarType;
 
-		DataType(Class klass, ScalarType scalarType) :
+		DataType(Class klass, ScalarType scalarType, size_t columns, size_t rows) :
 			klass(klass),
-			scalarType(scalarType)
+			scalarType(scalarType),
+			columns(columns),
+			rows(rows)
 		{
 		}
 
 		Class klass;
 		ScalarType scalarType;
+		size_t columns;
+		size_t rows;
 	};
 
 	template <class T>
@@ -50,7 +54,7 @@ public:
 		//new(&self_) Model<T>(std::move(model));
 	}
 
-	void* write(const PropertyId& id, void* buffer, DataType format) const {
+	void* write(const PropertyId& id, void* buffer, const DataType& format) const {
 		// return reinterpret_cast<const Concept*>(&self_)->write(id, buffer, format);
 		return self_->write(id, buffer, format);
 	}
@@ -62,7 +66,7 @@ private:
 
 		virtual ~Concept() = default;
 
-		virtual void* write(const PropertyId& id, void* buffer, DataType format) const = 0;
+		virtual void* write(const PropertyId& id, void* buffer, const DataType& format) const = 0;
 
 	};
 
@@ -78,7 +82,7 @@ private:
 		{
 		}
 
-		void* write(const PropertyId& id, void* buffer, DataType format) const override {
+		void* write(const PropertyId& id, void* buffer, const DataType& format) const override {
 			return writeProperty(dereference(object_), id, buffer, format);
 		}
 
@@ -125,7 +129,7 @@ public:
 		return properties_.at(id); // TODO: use custom exception instead of at() everywhere here
 	}
 
-	void* write(const PropertyId& id, void* buffer, Property::DataType format) const {
+	void* write(const PropertyId& id, void* buffer, const Property::DataType& format) const {
 		// TODO: replace at()
 		return properties_.at(id.head().name).write(id, buffer, format);
 	}
@@ -147,7 +151,7 @@ inline void* writeProperty(
 	const Properties& properties,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	)
 {
 	return properties.write(id.tail(), buffer, format);
@@ -158,7 +162,7 @@ inline std::enable_if_t<std::is_integral_v<I>, void*> writeProperty(
 	I i,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	)
 {
 	if (format.klass != Property::DataType::Class::SCALAR) {
@@ -183,7 +187,7 @@ inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeProperty(
 	F f,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	)
 {
 	if (format.klass != Property::DataType::Class::SCALAR) {
@@ -203,7 +207,7 @@ void* writeProperty(
 	const math::Vec3& vec3,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	);
 
 // TODO: merge for all vectors of floats
@@ -211,26 +215,22 @@ void* writeProperty(
 	const math::Vec4& vec4,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	);
 
 void* writeProperty(
 	const math::Matrix4x4& matrix,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	);
 
-inline void* writeProperty(
+void* writeProperty(
 	const Primitive& primitive,
 	const PropertyId& /* id */,
 	void* buffer,
-	Property::DataType format
-	) {
-#pragma message("REALLY TEMP")
-	primitive.storeAs(buffer, milk::graphics::PixelFormat::R32G32B32_FLOAT); // TODO: TEMP TEMP TEEEEMP!
-	return buffer; // TODO: temp! have primitive return end address
-}
+	const Property::DataType& format
+	);
 
 } // namespace shader
 } // namespace renderer

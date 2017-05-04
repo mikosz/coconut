@@ -113,7 +113,7 @@ void* writeProperty(
 	const ReflectiveObject<T>& object,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	)
 {
 	// TODO: replace at()
@@ -129,7 +129,7 @@ void* writeProperty(
 	const ReflectiveObject<std::vector<T>>& vectorObject,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	)
 {
 	if (id.head().arraySize == 0) {

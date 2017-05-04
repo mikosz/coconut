@@ -69,12 +69,12 @@ ShaderReflection::Type buildTypeInfo(ID3D11ShaderReflectionType& typeInfo, size_
 
 	ShaderReflection::Type type;
 	type.name = (desc.Name ? desc.Name : "");
-	type.offset = desc.Offset;
 	fromIntegral(type.klass, milk::utils::integralValue(desc.Class));
 	fromIntegral(type.scalarType, milk::utils::integralValue(desc.Type));
+	type.columns = desc.Columns;
+	type.rows = desc.Rows;
+	type.offset = desc.Offset;
 	type.elements = desc.Elements;
-	//type.columns = desc.Columns;
-	//type.rows = desc.Rows;
 
 	const auto elementSize = size / std::max<size_t>(type.elements, 1);
 	type.elementOffset = milk::utils::roundUpToMultipleOf(elementSize, 16);

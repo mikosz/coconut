@@ -77,6 +77,10 @@ public:
 
 		ScalarType scalarType;
 
+		size_t columns;
+
+		size_t rows;
+
 		size_t elements;
 
 		size_t elementOffset;

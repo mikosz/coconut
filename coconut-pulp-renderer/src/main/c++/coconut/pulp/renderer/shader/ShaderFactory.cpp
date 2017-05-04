@@ -59,7 +59,7 @@ ConstantBuffer::Parameters createParameters(
 
 		parameters.emplace_back(
 			PropertyDescriptor(std::move(descriptor)),
-			Property::DataType(type.klass, type.scalarType),
+			Property::DataType(type.klass, type.scalarType, type.columns, type.rows),
 			type.offset + offset
 			);
 	}

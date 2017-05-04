@@ -11,7 +11,7 @@ void* shader::writeProperty(
 	const math::Vec3& vec3,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	)
 {
 	static_assert(std::is_trivially_copyable_v<pulp::math::Vec3>, "Vec3 is not trivially copyable");
@@ -24,18 +24,19 @@ void* shader::writeProperty(
 		throw IncompatibleDataType("Vec3s are not writeable to scalar type " + toString(format.scalarType));
 	}
 
-	// TODO: check vector dimensions!
+	// TODO: check if columns <= 3?
+	// TODO: merge with Vec4
 
-	std::memcpy(buffer, &vec3, sizeof(vec3));
-
-	return reinterpret_cast<pulp::math::Vec3*>(buffer) + 1;
+	const auto size = sizeof(float) * format.columns;
+	std::memcpy(buffer, &vec3, size);
+	return reinterpret_cast<std::uint8_t*>(buffer) + size;
 }
 
 void* shader::writeProperty(
 	const math::Vec4& vec4,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	)
 {
 	static_assert(std::is_trivially_copyable_v<pulp::math::Vec4>, "Vec4 is not trivially copyable");
@@ -48,21 +49,19 @@ void* shader::writeProperty(
 		throw IncompatibleDataType("Vec4s are not writeable to scalar type " + toString(format.scalarType));
 	}
 
-	// TODO: check vector dimensions!
-
-	std::memcpy(buffer, &vec4, sizeof(vec4));
-
-	return reinterpret_cast<pulp::math::Vec4*>(buffer) + 1;
+	const auto size = sizeof(float) * format.columns;
+	std::memcpy(buffer, &vec4, size);
+	return reinterpret_cast<std::uint8_t*>(buffer) + size;
 }
 
 void* shader::writeProperty(
 	const math::Matrix4x4& matrix,
 	const PropertyId& id,
 	void* buffer,
-	Property::DataType format
+	const Property::DataType& format
 	)
 {
-	static_assert(std::is_trivially_copyable_v<pulp::math::Matrix4x4>, "Vec3 is not trivially copyable");
+	static_assert(std::is_trivially_copyable_v<pulp::math::Matrix4x4>, "Matrix is not trivially copyable");
 
 	// TODO: handle row-major matrices
 	if (format.klass != Property::DataType::Class::MATRIX_COLUMN_MAJOR) {
@@ -74,8 +73,40 @@ void* shader::writeProperty(
 	}
 
 	auto* target = reinterpret_cast<pulp::math::Matrix4x4*>(buffer);
-	// TODO: don't transpose is same majority
+	// TODO: don't transpose if same majority
 	*target = matrix.transpose();
 
 	return target + 1;
+}
+
+void* shader::writeProperty(
+	const Primitive& primitive,
+	const PropertyId& /* id */,
+	void* buffer,
+	const Property::DataType& format
+	)
+{
+	// TODO: temp, do something with Primitive
+
+	if (format.klass != Property::DataType::Class::VECTOR) {
+		throw IncompatibleDataType("Vec4s are not writeable to class " + toString(format.klass));
+	}
+
+	if (format.scalarType != Property::DataType::ScalarType::FLOAT) {
+		throw IncompatibleDataType("Vec4s are not writeable to scalar type " + toString(format.scalarType));
+	}
+
+	switch (format.columns) {
+	case 2:
+		primitive.storeAs(buffer, milk::graphics::PixelFormat::R32G32_FLOAT);
+		break;
+	case 3:
+		primitive.storeAs(buffer, milk::graphics::PixelFormat::R32G32B32_FLOAT);
+		break;
+	case 4:
+		primitive.storeAs(buffer, milk::graphics::PixelFormat::R32G32B32A32_FLOAT);
+		break;
+	}
+
+	return reinterpret_cast<std::uint8_t*>(buffer) + sizeof(float) * format.columns;
 }
