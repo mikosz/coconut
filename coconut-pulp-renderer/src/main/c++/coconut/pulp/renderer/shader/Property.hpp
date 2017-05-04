@@ -3,8 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <tuple>
-#include <iosfwd>
+#include <unordered_map>
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 #include <coconut-tools/exceptions/LogicError.hpp>
@@ -14,90 +13,12 @@
 #include "coconut/pulp/primitive/Primitive.hpp"
 #include "coconut/pulp/math/Vector.hpp"
 #include "coconut/pulp/math/Matrix.hpp"
+#include "PropertyId.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
 namespace shader {
-
-class PropertyDescriptor {
-public:
-
-	using Object = std::tuple<std::string, size_t>;
-
-	using Objects = std::vector<Object>;
-
-	PropertyDescriptor(Objects objects, std::string member) noexcept :
-		objects_(std::move(objects)),
-		member_(std::move(member))
-	{
-	}
-
-	const Objects& objects() const noexcept {
-		return objects_;
-	}
-
-	const std::string& member() const noexcept {
-		return member_;
-	}
-
-private:
-
-	Objects objects_;
-
-	std::string member_;
-
-};
-
-inline std::ostream& operator<<(std::ostream& os, const PropertyDescriptor::Object& object) {
-	return os << std::get<std::string>(object) << "[" << std::get<size_t>(object) << "]";
-}
-
-inline std::ostream& operator<<(std::ostream& os, const PropertyDescriptor& propertyDescriptor) {
-	for (const auto& object : propertyDescriptor.objects()) {
-		os << object << ".";
-	}
-	return os << propertyDescriptor.member();
-}
-
-// PropertyDescriptor and Id, as well as Properties could be moved to ReflectiveObject,
-// or other place. The Id could be a template parameter in Property.
-class PropertyId {
-public:
-
-	PropertyId(const PropertyDescriptor& descriptor) noexcept :
-		objectsIt_(descriptor.objects().begin()),
-		objectsEnd_(descriptor.objects().end()),
-		member_(descriptor.member())
-	{
-	}
-
-	PropertyId& child() noexcept {
-		++objectsIt_;
-		return *this;
-	}
-
-	bool hasObject() const noexcept {
-		return objectsIt_ != objectsEnd_;
-	}
-
-	const PropertyDescriptor::Object& object() const noexcept {
-		return *objectsIt_;
-	}
-
-	const std::string& member() const noexcept {
-		return member_;
-	}
-
-private:
-
-	PropertyDescriptor::Objects::const_iterator objectsIt_;
-
-	PropertyDescriptor::Objects::const_iterator objectsEnd_;
-
-	const std::string& member_;
-
-};
 
 class Property {
 public:
@@ -117,14 +38,21 @@ public:
 	};
 
 	template <class T>
-	Property(T model) {
-		static_assert(sizeof(Model<T>) <= STORAGE_SIZE, "STORAGE_SIZE too small for this type");
-		static_assert(alignof(Model<T>) <= STORAGE_ALIGNMENT, "STORAGE_ALIGNMENT too small for this type");
-		new(&self_) Model<T>(std::move(model));
+	Property(T model) :
+		self_(std::make_unique<Model<T>>(std::move(model)))
+	{
+		// TODO: get rid of Primitive or stay with shared_ptrs, as it's not trivially_copyable
+		// TOOD: OR figure out copying
+
+		//static_assert(std::is_trivially_copyable_v<T>, "Type needs to be trivially copyable for use as property");
+		//static_assert(sizeof(Model<T>) <= STORAGE_SIZE, "STORAGE_SIZE too small for this type");
+		//static_assert(alignof(Model<T>) <= STORAGE_ALIGNMENT, "STORAGE_ALIGNMENT too small for this type");
+		//new(&self_) Model<T>(std::move(model));
 	}
 
 	void* write(const PropertyId& id, void* buffer, DataType format) const {
-		return reinterpret_cast<const Concept*>(&self_)->write(id, buffer, format);
+		// return reinterpret_cast<const Concept*>(&self_)->write(id, buffer, format);
+		return self_->write(id, buffer, format);
 	}
 
 private:
@@ -141,6 +69,9 @@ private:
 	template <class T>
 	class Model : public Concept {
 	public:
+
+		// TODO: verify that construction / copying / descrucion of T is done correctly, as
+		// I'm not sure.
 
 		Model(T object) :
 			object_(std::move(object))
@@ -167,11 +98,13 @@ private:
 
 	};
 
-	static const auto STORAGE_SIZE = sizeof(Model<math::Matrix4x4>);
+	std::shared_ptr<const Concept> self_;
 
-	static const auto STORAGE_ALIGNMENT = alignof(Model<math::Matrix4x4>);
+	//static const auto STORAGE_SIZE = sizeof(Model<math::Matrix4x4>);
 
-	std::aligned_storage<STORAGE_SIZE, STORAGE_ALIGNMENT>::type self_;
+	//static const auto STORAGE_ALIGNMENT = alignof(Model<math::Matrix4x4>);
+
+	//std::aligned_storage<STORAGE_SIZE, STORAGE_ALIGNMENT>::type self_;
 
 };
 
@@ -192,14 +125,9 @@ public:
 		return properties_.at(id); // TODO: use custom exception instead of at() everywhere here
 	}
 
-	void* write(PropertyId id, void* buffer, Property::DataType format) const {
-		if (!id.hasObject()) {
-			return properties_.at(id.member()).write(id, buffer, format);
-		} else {
-			const auto& object = id.object();
-			// TODO: handle array!
-			return properties_.at(std::get<std::string>(object)).write(id.child(), buffer, format);
-		}
+	void* write(const PropertyId& id, void* buffer, Property::DataType format) const {
+		// TODO: replace at()
+		return properties_.at(id.head().name).write(id, buffer, format);
 	}
 
 	void bind(std::string id, Property property) {
@@ -222,7 +150,7 @@ inline void* writeProperty(
 	Property::DataType format
 	)
 {
-	return properties.write(id, buffer, format);
+	return properties.write(id.tail(), buffer, format);
 }
 
 template <class I>
@@ -233,8 +161,6 @@ inline std::enable_if_t<std::is_integral_v<I>, void*> writeProperty(
 	Property::DataType format
 	)
 {
-	assert(!id.hasObject());
-
 	if (format.klass != Property::DataType::Class::SCALAR) {
 		throw IncompatibleDataType("Integers are not writeable to class " + toString(format.klass));
 	}
@@ -260,8 +186,6 @@ inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeProperty(
 	Property::DataType format
 	)
 {
-	assert(!id.hasObject());
-
 	if (format.klass != Property::DataType::Class::SCALAR) {
 		throw IncompatibleDataType("Floats are not writeable to class " + toString(format.klass));
 	}

@@ -26,30 +26,39 @@ ConstantBuffer::Parameters createParameters(
 	const std::string& name,
 	const ShaderReflection::Type& type,
 	size_t offset,
-	std::vector<PropertyDescriptor::Object> prefix
+	std::vector<PropertyDescriptor::Object> descriptor
 	)
 {
 	CT_LOG_DEBUG << "Creating parameter for variable " << name;
 
 	auto parameters = ConstantBuffer::Parameters();
 
+	{
+		auto descriptorObject = PropertyDescriptor::Object();
+		descriptorObject.name = name;
+		descriptorObject.arraySize = 0u; // TODO
+		descriptorObject.arrayElementOffset = 0u; // TODO
+		descriptor.emplace_back(std::move(descriptorObject));
+	}
+
 	if (!type.members.empty()) {
-		prefix.emplace_back(name, 0u); // TODO: temp, arrays!
+
 		for (const auto& member : type.members) {
 			auto memberName = std::string();
 			auto memberType = ShaderReflection::Type();
 			std::tie(memberName, memberType) = member;
 
-			const auto memberParameters = createParameters(memberName, memberType, type.offset + offset, prefix);
+			const auto memberParameters =
+				createParameters(memberName, memberType, type.offset + offset, descriptor);
 			parameters.reserve(parameters.size() + memberParameters.size());
 			std::move(memberParameters.begin(), memberParameters.end(), std::back_inserter(parameters));
 		}
 	} else {
 		CT_LOG_DEBUG << "Creating parameter at offset " << (type.offset + offset)
-			<< " reading property " << PropertyDescriptor(prefix, name);
+			<< " reading property " << PropertyDescriptor(descriptor);
 
 		parameters.emplace_back(
-			PropertyDescriptor(std::move(prefix), name),
+			PropertyDescriptor(std::move(descriptor)),
 			Property::DataType(type.klass, type.scalarType),
 			type.offset + offset
 			);

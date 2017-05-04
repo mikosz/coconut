@@ -105,14 +105,10 @@ ReflectiveObject<T> makeReflectiveObject(const T& object) {
 }
 
 template <class T>
-void* writeProperty(const ReflectiveObject<T>& object, PropertyId id, void* buffer, Property::DataType format) {
-	if (!id.hasObject()) {
-		return object.get(id.member()).write(id, buffer, format);
-	} else {
-		const auto& objectId = id.object();
-		// TODO: handle array!
-		return object.get(std::get<std::string>(objectId)).write(id.child(), buffer, format);
-	}
+void* writeProperty(const ReflectiveObject<T>& object, const PropertyId& id, void* buffer, Property::DataType format) {
+	// TODO: replace at()
+	const auto referencedId = id.tail();
+	return object.get(referencedId.head().name).write(referencedId, buffer, format);
 }
 
 } // namespace shader
