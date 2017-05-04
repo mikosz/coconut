@@ -4,11 +4,13 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <sstream>
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 #include <coconut-tools/exceptions/LogicError.hpp>
 
 #include "coconut/milk/graphics/ShaderReflection.hpp"
+#include "coconut/milk/graphics/ShaderType.hpp"
 #include "coconut/milk/graphics/PixelFormat.hpp"
 #include "coconut/pulp/primitive/Primitive.hpp"
 #include "coconut/pulp/math/Vector.hpp"
@@ -18,6 +20,9 @@
 namespace coconut {
 namespace pulp {
 namespace renderer {
+
+class DrawCommand;
+
 namespace shader {
 
 class Property {
@@ -54,9 +59,20 @@ public:
 		//new(&self_) Model<T>(std::move(model));
 	}
 
-	void* write(const PropertyId& id, void* buffer, const DataType& format) const {
+	void* writeData(void* buffer, const PropertyId& id, const DataType& format) const {
 		// return reinterpret_cast<const Concept*>(&self_)->write(id, buffer, format);
-		return self_->write(id, buffer, format);
+		return self_->writeData(buffer, id, format);
+	}
+
+	void bindResource(
+		DrawCommand& drawCommand,
+		const PropertyId& id,
+		milk::graphics::ShaderReflection::ResourceInfo::Type type,
+		milk::graphics::ShaderType stage,
+		size_t slot
+		) const
+	{
+		return self_->bindResource(drawCommand, id, type, stage, slot);
 	}
 
 private:
@@ -66,8 +82,15 @@ private:
 
 		virtual ~Concept() = default;
 
-		virtual void* write(const PropertyId& id, void* buffer, const DataType& format) const = 0;
+		virtual void* writeData(void* buffer, const PropertyId& id, const DataType& format) const = 0;
 
+		virtual void bindResource(
+			DrawCommand& drawCommand,
+			const PropertyId& id,
+			milk::graphics::ShaderReflection::ResourceInfo::Type type,
+			milk::graphics::ShaderType stage,
+			size_t slot
+			) const = 0;
 	};
 
 	template <class T>
@@ -82,8 +105,19 @@ private:
 		{
 		}
 
-		void* write(const PropertyId& id, void* buffer, const DataType& format) const override {
-			return writeProperty(dereference(object_), id, buffer, format);
+		void* writeData(void* buffer, const PropertyId& id, const DataType& format) const override {
+			return writeDataProperty(buffer, dereference(object_), id, format);
+		}
+
+		void bindResource(
+			DrawCommand& drawCommand,
+			const PropertyId& id,
+			milk::graphics::ShaderReflection::ResourceInfo::Type type,
+			milk::graphics::ShaderType stage,
+			size_t slot
+			) const override
+		{
+			return bindResourceProperty(drawCommand, dereference(object_), id, type, stage, slot);
 		}
 
 	private:
@@ -129,9 +163,20 @@ public:
 		return properties_.at(id); // TODO: use custom exception instead of at() everywhere here
 	}
 
-	void* write(const PropertyId& id, void* buffer, const Property::DataType& format) const {
+	void* writeData(void* buffer, const PropertyId& id, const Property::DataType& format) const {
 		// TODO: replace at()
-		return properties_.at(id.head().name).write(id, buffer, format);
+		return properties_.at(id.head().name).writeData(buffer, id, format);
+	}
+
+	void bindResource(
+		DrawCommand& drawCommand, 
+		const PropertyId& id,
+		milk::graphics::ShaderReflection::ResourceInfo::Type type,
+		milk::graphics::ShaderType stage,
+		size_t slot
+		) const
+	{
+		properties_.at(id.head().name).bindResource(drawCommand, id, type, stage, slot);
 	}
 
 	void bind(std::string id, Property property) {
@@ -147,21 +192,40 @@ private:
 
 };
 
-inline void* writeProperty(
+template <class T>
+inline void bindResourceProperty(
+	DrawCommand& drawCommand,
+	const T& property,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	)
+{
+	auto oss = std::ostringstream();
+	oss
+		<< id
+		<< " of type "
+		<< typeid(property).name()
+		<< " cannot be bound as a shader resource";
+	throw coconut_tools::exceptions::RuntimeError(oss.str());
+}
+
+inline void* writeDataProperty(
+	void* buffer,
 	const Properties& properties,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	)
 {
-	return properties.write(id.tail(), buffer, format);
+	return properties.writeData(buffer, id.tail(), format);
 }
 
 template <class I>
-inline std::enable_if_t<std::is_integral_v<I>, void*> writeProperty(
+inline std::enable_if_t<std::is_integral_v<I>, void*> writeDataProperty(
+	void* buffer,
 	I i,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	)
 {
@@ -183,10 +247,10 @@ inline std::enable_if_t<std::is_integral_v<I>, void*> writeProperty(
 }
 
 template <class F>
-inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeProperty(
+inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeDataProperty(
+	void* buffer,
 	F f,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	)
 {
@@ -203,32 +267,32 @@ inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeProperty(
 	return target + 1;
 }
 
-void* writeProperty(
+void* writeDataProperty(
+	void* buffer,
 	const math::Vec3& vec3,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	);
 
 // TODO: merge for all vectors of floats
-void* writeProperty(
+void* writeDataProperty(
+	void* buffer,
 	const math::Vec4& vec4,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	);
 
-void* writeProperty(
+void* writeDataProperty(
+	void* buffer,
 	const math::Matrix4x4& matrix,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	);
 
-void* writeProperty(
+void* writeDataProperty(
+	void* buffer,
 	const Primitive& primitive,
 	const PropertyId& /* id */,
-	void* buffer,
 	const Property::DataType& format
 	);
 

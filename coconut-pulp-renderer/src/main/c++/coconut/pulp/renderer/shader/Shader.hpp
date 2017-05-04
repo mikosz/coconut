@@ -29,7 +29,7 @@ public:
 
 	using ConstantBuffers = std::vector<ConstantBuffer>;
 
-	using Resources = std::vector<ResourceSharedPtr>;
+	using Resources = std::vector<Resource>;
 
 	virtual ~UnknownShader() = default;
 
@@ -52,13 +52,13 @@ public:
 	{
 	}
 
-	void bind(DrawCommand& drawCommand, const PassContext& passContext) {
+	void bind(DrawCommand& drawCommand, const Properties& properties) {
 		for (auto& buffer : constantBuffers_) {
-			buffer.bind(drawCommand, passContext.properties);
+			buffer.bind(drawCommand, properties);
 		}
 
 		for (auto resource : resources_) {
-			resource->bind(drawCommand, passContext);
+			resource.bind(drawCommand, properties);
 		}
 	}
 

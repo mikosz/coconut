@@ -34,7 +34,7 @@ public:
 	{
 	}
 
-	void bind(DrawCommand& drawCommand, const PassContext& passContext) const;
+	void bind(DrawCommand& drawCommand, const Properties& properties) const;
 
 	const Input& input() const noexcept {
 		return *input_;

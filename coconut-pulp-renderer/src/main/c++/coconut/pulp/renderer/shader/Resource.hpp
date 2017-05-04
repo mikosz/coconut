@@ -1,97 +1,41 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_RESOURCE_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_RESOURCE_HPP_
 
-#include <functional>
-
-#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-
-#include "coconut/milk/graphics/Resource.hpp"
-
-#include "../DrawCommand.hpp"
+#include "coconut/milk/graphics/ShaderType.hpp"
+#include "Property.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace renderer {
-
-class PassContext;
-
 namespace shader {
 
 class Resource {
 public:
 
-	virtual ~Resource() = default;
-
-	virtual void bind(DrawCommand& drawCommand, const PassContext& context) = 0;
-
-};
-
-CCN_MAKE_POINTER_DEFINITIONS(Resource);
-
-// TODO: should sampler be a resource? thanks to this we have this weird ResourceResource class
-class DataResource : public Resource {
-public:
-
-	// TODO: pointer?
-	using DataCallback = std::function<const milk::graphics::Resource* (const PassContext&)>;
-
-	DataResource(
-		DataCallback callback,
-		milk::graphics::ShaderType shaderType,
+	Resource(
+		PropertyDescriptor propertyDescriptor,
+		milk::graphics::ShaderReflection::ResourceInfo::Type type,
+		milk::graphics::ShaderType stage,
 		size_t slot
-		) :
-		callback_(callback),
-		stage_(shaderType),
+		) noexcept :
+		propertyDescriptor_(std::move(propertyDescriptor)),
+		type_(type),
+		stage_(stage),
 		slot_(slot)
 	{
 	}
 
-	void bind(DrawCommand& drawCommand, const PassContext& context) override {
-		auto* resource = callback_(context);
-		if (resource) {
-			drawCommand.addResource(resource, stage_, slot_);
-		}
+	void bind(DrawCommand& drawCommand, const Properties& properties) const {
+		properties.bindResource(drawCommand, propertyDescriptor_, type_, stage_, slot_);
 	}
-	
+
 private:
 
-	DataCallback callback_;
+	PropertyDescriptor propertyDescriptor_;
 
 	milk::graphics::ShaderType stage_;
 
-	size_t slot_;
-
-};
-
-class SamplerResource : public Resource {
-public:
-
-	// TODO: pointer?
-	using SamplerCallback = std::function<const milk::graphics::Sampler* (const PassContext&)>;
-
-	SamplerResource(
-		SamplerCallback callback,
-		milk::graphics::ShaderType shaderType,
-		size_t slot
-		) :
-		callback_(callback),
-		stage_(shaderType),
-		slot_(slot)
-	{
-	}
-
-	void bind(DrawCommand& drawCommand, const PassContext& context) override {
-		auto* sampler = callback_(context);
-		if (sampler) {
-			drawCommand.addSampler(*sampler, stage_, slot_);
-		}
-	}
-	
-private:
-
-	SamplerCallback callback_;
-
-	milk::graphics::ShaderType stage_;
+	milk::graphics::ShaderReflection::ResourceInfo::Type type_;
 
 	size_t slot_;
 

@@ -109,10 +109,10 @@ ReflectiveObject<T> makeReflectiveObject(const T& object) {
 }
 
 template <class T>
-void* writeProperty(
+void* writeDataProperty(
+	void* buffer,
 	const ReflectiveObject<T>& object,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	)
 {
@@ -121,14 +121,14 @@ void* writeProperty(
 
 	const auto& iface = ReflectiveInterface<T>(); // TODO: singleton
 	const auto& referencedProperty = iface.get(object.object(), referencedId.head().name);
-	return referencedProperty.write(referencedId, buffer, format);
+	return referencedProperty.writeData(buffer, referencedId, format);
 }
 
 template <class T>
-void* writeProperty(
+void* writeDataProperty(
+	void* buffer,
 	const ReflectiveObject<std::vector<T>>& vectorObject,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	)
 {
@@ -146,7 +146,7 @@ void* writeProperty(
 		// TODO: array element offset doesn't work - either shader reflection info is wrong, or we're
 		// interpretting it in a wrong way
 		auto* elementPtr = reinterpret_cast<std::uint8_t*>(buffer) + id.head().arrayElementOffset * index;
-		lastWriteEnd = writeProperty(makeReflectiveObject(vector[index]), id, elementPtr, format);
+		lastWriteEnd = writeDataProperty(elementPtr, makeReflectiveObject(vector[index]), id, format);
 	}
 
 	return lastWriteEnd;

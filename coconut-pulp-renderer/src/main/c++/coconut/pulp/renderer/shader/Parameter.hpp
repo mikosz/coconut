@@ -23,9 +23,9 @@ public:
 	}
 
 	void* write(void* buffer, const Properties& properties) const {
-		return properties.write(
-			propertyDescriptor_,
+		return properties.writeData(
 			reinterpret_cast<std::uint8_t*>(buffer) + offset_,
+			propertyDescriptor_,
 			dataType_
 			);
 	}

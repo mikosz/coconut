@@ -10,10 +10,7 @@
 
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
-
 #include "coconut/milk/fs.hpp"
-
-#include "ResourceFactory.hpp"
 #include "Shader.hpp"
 
 namespace coconut {
@@ -45,10 +42,6 @@ public:
 
 	void registerCompiledShader(std::string id, const CompiledShaderInfo& compiledShaderInfo);
 
-	ResourceFactory& resourceFactory() noexcept {
-		return resourceFactory_;
-	}
-
 protected:
 
 	Instance doCreate(
@@ -66,8 +59,6 @@ private:
 	ShaderCodeInfos shaderCodeInfos_;
 
 	CompiledShaderInfos compiledShaderInfos_;
-
-	ResourceFactory resourceFactory_;
 
 };
 

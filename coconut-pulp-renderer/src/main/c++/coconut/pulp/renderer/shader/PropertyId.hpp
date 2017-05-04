@@ -75,13 +75,17 @@ public:
 	{
 	}
 
+	bool empty() const noexcept {
+		return objectsIt_ == objectsEnd_;
+	}
+
 	const PropertyDescriptor::Object& head() const noexcept {
-		assert(objectsIt_ != objectsEnd_);
+		assert(!empty());
 		return *objectsIt_;
 	}
 
 	PropertyId tail() const noexcept {
-		assert(objectsIt_ != objectsEnd_);
+		assert(!empty());
 		return PropertyId(objectsIt_ + 1, objectsEnd_);
 	}
 
@@ -98,6 +102,15 @@ private:
 		objectsIt_(std::move(objectsIt)),
 		objectsEnd_(std::move(objectsEnd))
 	{
+	}
+
+	friend inline std::ostream& operator<<(std::ostream& os, PropertyId propertyId) {
+		std::copy(
+			propertyId.objectsIt_,
+			propertyId.objectsEnd_,
+			coconut_tools::InfixOstreamIterator<PropertyDescriptor::Object>(os, ".")
+			);
+		return os;
 	}
 
 };

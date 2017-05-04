@@ -90,25 +90,24 @@ ConstantBuffer::Parameters createParameters(
 	return parameters;
 }
 
-std::shared_ptr<Resource> createResource(
-	ResourceFactory& resourceFactory,
+Resource createResource(
 	const ShaderReflection::ResourceInfo& resourceInfo,
 	milk::graphics::ShaderType shaderType
 	)
 {
-	switch (resourceInfo.type) {
-	case ShaderReflection::ResourceInfo::Type::TEXTURE: // fallthrough
-	case ShaderReflection::ResourceInfo::Type::SAMPLER:
-		return resourceFactory.create(resourceInfo.name, shaderType, resourceInfo.slot);
-	default:
-		throw "";
-#pragma message("!!! TODO: exception") // TODO
-	}
+	auto descriptor = interpretIdentifier(resourceInfo.name);
+
+	CT_LOG_DEBUG
+		<< "Creating resource of type " << resourceInfo.type
+		<< " for shader type " << shaderType
+		<< " at slot " << resourceInfo.slot
+		<< " reading property " << PropertyDescriptor(descriptor);
+
+	return Resource(std::move(descriptor), resourceInfo.type, shaderType, resourceInfo.slot);
 }
 
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	milk::graphics::Renderer& graphicsRenderer,
-	ResourceFactory& resourceFactory,
 	std::vector<std::uint8_t> shaderData,
 	milk::graphics::ShaderType shaderType
 	)
@@ -148,7 +147,7 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 
 	auto resources = UnknownShader::Resources();
 	for (const auto& resource : reflection.resources()) {
-		resources.emplace_back(createResource(resourceFactory, resource, shaderType));
+		resources.emplace_back(createResource(resource, shaderType));
 	}
 
 	switch (shaderType) {
@@ -185,13 +184,11 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::FilesystemContext& filesystemContext,
-	ResourceFactory& resourceFactory,
 	const detail::ShaderCreator::CompiledShaderInfo& compiledShaderInfo
 	)
 {
 	return createShaderFromCompiledShader(
 		graphicsRenderer,
-		resourceFactory,
 		*filesystemContext.load(compiledShaderInfo.compiledShaderPath),
 		compiledShaderInfo.shaderType
 		);
@@ -200,7 +197,6 @@ std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::FilesystemContext& filesystemContext,
-	ResourceFactory& resourceFactory,
 	const detail::ShaderCreator::ShaderCodeInfo& shaderCodeInfo
 	)
 {
@@ -212,7 +208,6 @@ std::unique_ptr<UnknownShader> createShaderFromShaderCode(
 
 	return createShaderFromCompiledShader(
 		graphicsRenderer,
-		resourceFactory,
 		shaderData,
 		shaderCodeInfo.shaderType
 		);
@@ -233,7 +228,6 @@ auto detail::ShaderCreator::doCreate(
 		return createShaderFromShaderCode(
 			graphicsRenderer,
 			filesystemContext,
-			resourceFactory_,
 			shaderCodeInfos_[id]
 			);
 	} else if (compiledShaderInfos_.count(id) != 0) {
@@ -241,7 +235,6 @@ auto detail::ShaderCreator::doCreate(
 		return createShaderFromCompiledShader(
 			graphicsRenderer,
 			filesystemContext,
-			resourceFactory_,
 			compiledShaderInfos_[id]
 			);
 	} else {

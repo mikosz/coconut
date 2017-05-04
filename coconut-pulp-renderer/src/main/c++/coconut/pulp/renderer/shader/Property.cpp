@@ -7,10 +7,10 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
-void* shader::writeProperty(
+void* shader::writeDataProperty(
+	void* buffer,
 	const math::Vec3& vec3,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	)
 {
@@ -32,10 +32,10 @@ void* shader::writeProperty(
 	return reinterpret_cast<std::uint8_t*>(buffer) + size;
 }
 
-void* shader::writeProperty(
+void* shader::writeDataProperty(
+	void* buffer,
 	const math::Vec4& vec4,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	)
 {
@@ -54,10 +54,10 @@ void* shader::writeProperty(
 	return reinterpret_cast<std::uint8_t*>(buffer) + size;
 }
 
-void* shader::writeProperty(
+void* shader::writeDataProperty(
+	void* buffer,
 	const math::Matrix4x4& matrix,
 	const PropertyId& id,
-	void* buffer,
 	const Property::DataType& format
 	)
 {
@@ -79,10 +79,10 @@ void* shader::writeProperty(
 	return target + 1;
 }
 
-void* shader::writeProperty(
+void* shader::writeDataProperty(
+	void* buffer,
 	const Primitive& primitive,
 	const PropertyId& /* id */,
-	void* buffer,
 	const Property::DataType& format
 	)
 {

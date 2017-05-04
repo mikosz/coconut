@@ -104,27 +104,6 @@ renderer::ModelSharedPtr createGridModel(
 	return model;
 }
 
-std::unique_ptr<renderer::shader::Resource> createHeightmapResource(milk::graphics::ShaderType shaderType, size_t slot) {
-	return std::make_unique<renderer::shader::DataResource>(
-		[](const renderer::PassContext& passContext) -> const milk::graphics::Texture* {
-			return &std::get<milk::graphics::Texture2d>(passContext.material->texture("heightmap"));
-		},
-		shaderType,
-		slot
-		);
-}
-
-// TODO: duplicated code, generate these using property keys
-std::unique_ptr<renderer::shader::Resource> createHeightmapSamplerResource(milk::graphics::ShaderType shaderType, size_t slot) {
-	return std::make_unique<renderer::shader::SamplerResource>(
-		[](const renderer::PassContext& passContext) -> const milk::graphics::Sampler* {
-			return &std::get<milk::graphics::Sampler>(passContext.material->texture("heightmap"));
-		},
-		shaderType,
-		slot
-		);
-}
-
 } // anonymous namespace
 
 template <>
@@ -156,16 +135,6 @@ Terrain::Terrain(
 	) :
 	heightmap_(graphicsRenderer, fs)
 {
-	auto& resourceFactory = passFactory.shaderFactory().resourceFactory();
-
-	if (!resourceFactory.isCreatorRegistered("heightmap")) {
-		resourceFactory.registerCreator("heightmap", &createHeightmapResource);
-	}
-
-	if (!resourceFactory.isCreatorRegistered("heightmap_sampler")) {
-		resourceFactory.registerCreator("heightmap_sampler", &createHeightmapSamplerResource);
-	}
-
 	scene.add(createGridActor(), createGridModel(graphicsRenderer, passFactory, fs, heightmap_));
 
 	foliage::GrassActor::registerShaderInputElements(passFactory.inputFactory().inputElementFactory());

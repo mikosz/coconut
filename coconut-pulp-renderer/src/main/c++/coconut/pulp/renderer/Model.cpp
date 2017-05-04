@@ -249,7 +249,7 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 				);
 		}
 
-		pass.bind(*drawCommand, passContext);
+		pass.bind(*drawCommand, passContext.properties);
 
 		drawCommand->setInstanceDataBuffer(&instanceDataBuffer);
 		drawCommand->setInstanceCount(passContext.actors->size());
@@ -275,7 +275,7 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 			drawCommand->setPrimitiveTopology(primitiveTopology);
 
 			passContext.actor = actor.get();
-			pass.bind(*drawCommand, passContext);
+			pass.bind(*drawCommand, passContext.properties);
 
 			drawCommand->setRenderTarget(passContext.backBuffer); // TODO
 			drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
