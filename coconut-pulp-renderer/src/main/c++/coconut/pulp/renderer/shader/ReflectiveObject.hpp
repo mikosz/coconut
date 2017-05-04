@@ -2,7 +2,12 @@
 #define _COCONUT_PULP_RENDERER_SHADER_REFLECTIVEOBJECT_HPP_
 
 #include <unordered_map>
+#include <vector>
 #include <functional>
+#include <algorithm>
+
+#include <coconut-tools/utils/Range.hpp>
+#include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "Property.hpp"
 
@@ -88,9 +93,8 @@ public:
 	{
 	}
 
-	const Property get(const std::string& id) const {
-		const auto& iface = ReflectiveInterface<T>(); // TODO: singleton
-		return iface.get(object_, id);
+	const T& object() const {
+		return object_;
 	}
 
 private:
@@ -105,10 +109,47 @@ ReflectiveObject<T> makeReflectiveObject(const T& object) {
 }
 
 template <class T>
-void* writeProperty(const ReflectiveObject<T>& object, const PropertyId& id, void* buffer, Property::DataType format) {
+void* writeProperty(
+	const ReflectiveObject<T>& object,
+	const PropertyId& id,
+	void* buffer,
+	Property::DataType format
+	)
+{
 	// TODO: replace at()
 	const auto referencedId = id.tail();
-	return object.get(referencedId.head().name).write(referencedId, buffer, format);
+
+	const auto& iface = ReflectiveInterface<T>(); // TODO: singleton
+	const auto& referencedProperty = iface.get(object.object(), referencedId.head().name);
+	return referencedProperty.write(referencedId, buffer, format);
+}
+
+template <class T>
+void* writeProperty(
+	const ReflectiveObject<std::vector<T>>& vectorObject,
+	const PropertyId& id,
+	void* buffer,
+	Property::DataType format
+	)
+{
+	if (id.head().arraySize == 0) {
+		// TODO: use some ShaderDefinitionError exception throughought this code
+		throw coconut_tools::exceptions::RuntimeError(id.head().name + " is not used as an array");
+	}
+
+	const auto& vector = vectorObject.object();
+
+	auto* lastWriteEnd = buffer;
+	for (const auto index :
+		coconut_tools::range(size_t(0), std::min(id.head().arraySize, vector.size())))
+	{
+		// TODO: array element offset doesn't work - either shader reflection info is wrong, or we're
+		// interpretting it in a wrong way
+		auto* elementPtr = reinterpret_cast<std::uint8_t*>(buffer) + id.head().arrayElementOffset * index;
+		lastWriteEnd = writeProperty(makeReflectiveObject(vector[index]), id, elementPtr, format);
+	}
+
+	return lastWriteEnd;
 }
 
 } // namespace shader

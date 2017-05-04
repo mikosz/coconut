@@ -36,8 +36,8 @@ ConstantBuffer::Parameters createParameters(
 	{
 		auto descriptorObject = PropertyDescriptor::Object();
 		descriptorObject.name = name;
-		descriptorObject.arraySize = 0u; // TODO
-		descriptorObject.arrayElementOffset = 0u; // TODO
+		descriptorObject.arraySize = type.elements;
+		descriptorObject.arrayElementOffset = type.elementOffset;
 		descriptor.emplace_back(std::move(descriptorObject));
 	}
 

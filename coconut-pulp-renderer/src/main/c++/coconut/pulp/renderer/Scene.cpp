@@ -36,7 +36,7 @@ public:
 		emplaceMethod("view", [](const Scene& scene) { return &scene.camera_->viewTransformation(); });
 		emplaceMethod("projection", [](const Scene& scene) { return &scene.lens_->projectionTransformation(); });
 		emplaceMethod("directionalLightsCount", [](const Scene& scene) { return scene.directionalLights_.size(); });
-		emplaceMethod("directionalLights", [](const Scene& scene) { return shader::makeReflectiveObject(scene.directionalLights_[0]); }); // TODO
+		emplaceMethod("directionalLights", [](const Scene& scene) { return shader::makeReflectiveObject(scene.directionalLights_); });
 	}
 
 };
