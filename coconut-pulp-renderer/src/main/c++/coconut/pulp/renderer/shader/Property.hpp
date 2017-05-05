@@ -12,6 +12,8 @@
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
 #include "coconut/milk/graphics/PixelFormat.hpp"
+#include "coconut/milk/graphics/Texture2d.hpp"
+#include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/pulp/primitive/Primitive.hpp"
 #include "coconut/pulp/math/Vector.hpp"
 #include "coconut/pulp/math/Matrix.hpp"
@@ -125,7 +127,7 @@ private:
 		T object_;
 
 		template <class V>
-		static const V dereference(V object) {
+		static const V& dereference(const V& object) {
 			return std::move(object);
 		}
 
@@ -155,6 +157,42 @@ public:
 	}
 
 };
+
+template <class T>
+inline std::enable_if_t<!std::is_arithmetic_v<T>, void*> writeDataProperty(
+	void* buffer,
+	const T& property,
+	const PropertyId& id,
+	const Property::DataType& format
+	)
+{
+	auto oss = std::ostringstream();
+	oss
+		<< id
+		<< " of type "
+		<< typeid(property).name()
+		<< " cannot be written as shader data";
+	throw coconut_tools::exceptions::RuntimeError(oss.str());
+}
+
+template <class T>
+inline void bindResourceProperty(
+	DrawCommand& drawCommand,
+	const T& property,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	)
+{
+	auto oss = std::ostringstream();
+	oss
+		<< id
+		<< " of type "
+		<< typeid(property).name()
+		<< " cannot be bound as a shader resource";
+	throw coconut_tools::exceptions::RuntimeError(oss.str());
+}
 
 class Properties {
 public:
@@ -192,25 +230,6 @@ private:
 
 };
 
-template <class T>
-inline void bindResourceProperty(
-	DrawCommand& drawCommand,
-	const T& property,
-	const PropertyId& id,
-	milk::graphics::ShaderReflection::ResourceInfo::Type type,
-	milk::graphics::ShaderType stage,
-	size_t slot
-	)
-{
-	auto oss = std::ostringstream();
-	oss
-		<< id
-		<< " of type "
-		<< typeid(property).name()
-		<< " cannot be bound as a shader resource";
-	throw coconut_tools::exceptions::RuntimeError(oss.str());
-}
-
 inline void* writeDataProperty(
 	void* buffer,
 	const Properties& properties,
@@ -219,6 +238,18 @@ inline void* writeDataProperty(
 	)
 {
 	return properties.writeData(buffer, id.tail(), format);
+}
+
+inline void bindResourceProperty(
+	DrawCommand& drawCommand,
+	const Properties& properties,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	)
+{
+	properties.bindResource(drawCommand, id.tail(), type, stage, slot);
 }
 
 template <class I>
@@ -294,6 +325,24 @@ void* writeDataProperty(
 	const Primitive& primitive,
 	const PropertyId& /* id */,
 	const Property::DataType& format
+	);
+
+void bindResourceProperty(
+	DrawCommand& drawCommand,
+	const milk::graphics::Texture2d& texture,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	);
+
+void bindResourceProperty(
+	DrawCommand& drawCommand,
+	const milk::graphics::Sampler& sampler,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
 	);
 
 } // namespace shader

@@ -25,21 +25,13 @@ milk::graphics::Viewport::Configuration viewportConfiguration() {
 
 } // anonymous namespace
 
-template <>
-class renderer::shader::ReflectiveInterface<Scene> :
-	public renderer::shader::ReflectiveInterfaceBase<Scene>
-{
-public:
-
-	ReflectiveInterface() {
-		emplaceMethod("cameraPosition", [](const Scene& scene) { return &scene.camera_->position(); });
-		emplaceMethod("view", [](const Scene& scene) { return &scene.camera_->viewTransformation(); });
-		emplaceMethod("projection", [](const Scene& scene) { return &scene.lens_->projectionTransformation(); });
-		emplaceMethod("directionalLightsCount", [](const Scene& scene) { return scene.directionalLights_.size(); });
-		emplaceMethod("directionalLights", [](const Scene& scene) { return shader::makeReflectiveObject(scene.directionalLights_); });
-	}
-
-};
+shader::ReflectiveInterface<Scene>::ReflectiveInterface() {
+	emplaceMethod("cameraPosition", [](const Scene& scene) { return &scene.camera_->position(); });
+	emplaceMethod("view", [](const Scene& scene) { return &scene.camera_->viewTransformation(); });
+	emplaceMethod("projection", [](const Scene& scene) { return &scene.lens_->projectionTransformation(); });
+	emplaceMethod("directionalLightsCount", [](const Scene& scene) { return scene.directionalLights_.size(); });
+	emplaceMethod("directionalLights", [](const Scene& scene) { return shader::makeReflectiveObject(scene.directionalLights_); });
+}
 
 Scene::Scene(milk::graphics::Renderer& graphicsRenderer) :
 	renderTarget_(&graphicsRenderer.backBuffer()), // TODO

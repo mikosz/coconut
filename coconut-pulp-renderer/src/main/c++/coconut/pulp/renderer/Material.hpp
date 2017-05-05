@@ -23,19 +23,6 @@ namespace renderer {
 class Material {
 public:
 
-	using Texture = std::tuple<milk::graphics::Texture2d, milk::graphics::Sampler>;
-
-	// TODO: remove when textures moved to properties
-	class NoSuchProperty : public coconut_tools::exceptions::RuntimeError {
-	public:
-	
-		NoSuchProperty(const std::string& key) :
-			coconut_tools::exceptions::RuntimeError("Material doesn't have property " + key)
-		{
-		}
-	
-	};
-
 	Material(
 		milk::graphics::Renderer graphicsRenderer,
 		shader::PassFactory& passFactory,
@@ -51,28 +38,11 @@ public:
 		return renderState_;
 	}
 
-	// TODO: unused?
-	//const bool hasProperty(const std::string& key) const {
-	//	return properties_.count(key) != 0;
-	//}
-
-	//const Primitive& property(const std::string& key) const;
-
-	const bool hasTexture(const std::string& key) const {
-		return textures_.count(key) != 0;
-	}
-
-	void setTexture(std::string key, Texture texture);
-
-	const Texture& texture(const std::string& key) const;
-
 	const shader::Properties& shaderProperties() const {
 		return shaderProperties_;
 	}
 
 private:
-
-	using Textures = std::unordered_map<std::string, Texture>;
 
 	mesh::MaterialConfiguration::PassType passType_;
 
@@ -81,8 +51,6 @@ private:
 	milk::graphics::RenderState renderState_;
 
 	shader::Properties shaderProperties_;
-
-	Textures textures_;
 
 };
 

@@ -1,8 +1,8 @@
 #include "sky.hlsl"
 
-TextureCube skydome;
-SamplerState skydomeSampler;
+TextureCube material_skydome;
+SamplerState material_skydomeSampler;
 
 float4 main(VertexOut pin) : SV_TARGET {
-	return skydome.Sample(skydomeSampler, pin.posL);
+	return material_skydome.Sample(material_skydomeSampler, pin.posL);
 }

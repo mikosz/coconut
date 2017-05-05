@@ -99,32 +99,25 @@ renderer::ModelSharedPtr createGridModel(
 		fs
 		);
 
-	model->material().setTexture("heightmap"s, std::make_tuple(heightmap.texture(), heightmap.sampler()));
-
 	return model;
 }
 
 } // anonymous namespace
 
-template <>
-class renderer::shader::ReflectiveInterface<Terrain> :
-	public renderer::shader::ReflectiveInterfaceBase<Terrain>
-{
-public:
+renderer::shader::ReflectiveInterface<Terrain>::ReflectiveInterface() {
+	// TODO: hard-coded
+	emplaceField("minTesselationDistance", 100.0f);
+	emplaceField("maxTesselationDistance", 500.0f);
+	emplaceField("minTesselationExponent", 1.0f);
+	emplaceField("maxTesselationExponent", 6.0f);
 
-	ReflectiveInterface() {
-		// TODO: hard-coded
-		emplaceField("minTesselationDistance", 100.0f);
-		emplaceField("maxTesselationDistance", 500.0f);
-		emplaceField("minTesselationExponent", 1.0f);
-		emplaceField("maxTesselationExponent", 6.0f);
+	emplaceMethod("cellEdgeLength", [](const Terrain& terrain) { return terrain.heightmap_.cellEdgeLength(); });
+	emplaceMethod("width", [](const Terrain& terrain) { return terrain.heightmap_.width(); });
+	emplaceMethod("depth", [](const Terrain& terrain) { return terrain.heightmap_.width(); });
 
-		emplaceMethod("cellEdgeLength", [](const Terrain& terrain) { return terrain.heightmap_.cellEdgeLength(); });
-		emplaceMethod("width", [](const Terrain& terrain) { return terrain.heightmap_.width(); });
-		emplaceMethod("depth", [](const Terrain& terrain) { return terrain.heightmap_.width(); });
-	}
-
-};
+	emplaceMethod("heightmap", [](const Terrain& terrain) { return terrain.heightmap_.texture(); });
+	emplaceMethod("heightmapSampler", [](const Terrain& terrain) { return terrain.heightmap_.sampler(); });
+}
 
 Terrain::Terrain(
 	milk::graphics::Renderer& graphicsRenderer,

@@ -56,22 +56,6 @@ private:
 };
 
 } // namespace lighting
-
-namespace shader {
-
-template <> // TODO: can avoid declaring this in .hpp by creating a generic template with
-// undefined default constructor and only defining it in .cpp
-class ReflectiveInterface<lighting::DirectionalLight> :
-	public ReflectiveInterfaceBase<lighting::DirectionalLight>
-{
-public:
-
-	ReflectiveInterface();
-
-};
-
-} // namespace shader
-
 } // namespace renderer
 } // namespace pulp
 } // namespace coconut

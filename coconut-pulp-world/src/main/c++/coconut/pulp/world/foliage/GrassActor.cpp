@@ -112,26 +112,16 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 		filesystemContext
 		);
 
-	model->material().setTexture("heightmap"s, std::make_tuple(heightmap.texture(), heightmap.sampler()));
-
 	return std::move(model);
 }
 
 } // anonymous namespace
 
-template <>
-class renderer::shader::ReflectiveInterface<GrassActor> :
-	public renderer::shader::ReflectiveInterfaceBase<GrassActor>
-{
-public:
-
-	ReflectiveInterface() {
-		// TODO: don't like taking address of returned value here. Maybe extend size of Property?
-		// TODO: OR make ReflectiveInterface GrassActor's friend and return address of field?
-		emplaceMethod("grassPatchPosition", [](const GrassActor& grassActor) { return &grassActor.patchPosition(); });
-	}
-
-};
+renderer::shader::ReflectiveInterface<GrassActor>::ReflectiveInterface() {
+	// TODO: don't like taking address of returned value here. Maybe extend size of Property?
+	// TODO: OR make ReflectiveInterface GrassActor's friend and return address of field?
+	emplaceMethod("grassPatchPosition", [](const GrassActor& grassActor) { return &grassActor.patchPosition(); });
+}
 
 void GrassActor::registerShaderInputElements(renderer::shader::InputElementFactory& inputElementFactory) {
 	auto instanceDetails = renderer::shader::InputElementFactoryInstanceDetails("GRASS_PATCH_POSITION", 0);

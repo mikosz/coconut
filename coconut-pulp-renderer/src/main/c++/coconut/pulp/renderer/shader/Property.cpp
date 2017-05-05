@@ -2,6 +2,8 @@
 
 #include <cstring>
 
+#include "coconut/pulp/renderer/DrawCommand.hpp"
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
@@ -109,4 +111,28 @@ void* shader::writeDataProperty(
 	}
 
 	return reinterpret_cast<std::uint8_t*>(buffer) + sizeof(float) * format.columns;
+}
+
+void shader::bindResourceProperty(
+	DrawCommand& drawCommand,
+	const milk::graphics::Texture2d& texture,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	)
+{
+	drawCommand.addTexture(texture, stage, slot);
+}
+
+void shader::bindResourceProperty(
+	DrawCommand& drawCommand,
+	const milk::graphics::Sampler& sampler,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	)
+{
+	drawCommand.addSampler(sampler, stage, slot);
 }

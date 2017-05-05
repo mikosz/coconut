@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include <cctype>
 
 #include <boost/tokenizer.hpp>
 
@@ -25,18 +26,20 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.SHADER_FACTORY");
 
 using milk::graphics::ShaderReflection;
 
-std::vector<PropertyDescriptor::Object> interpretIdentifier(std::string name) {
+std::vector<PropertyDescriptor::Object> interpretIdentifier(const std::string& name) {
 	auto result = std::vector<PropertyDescriptor::Object>();
-
-	const auto lastUnderscore = name.find_last_of('_');
-	if (lastUnderscore != std::string::npos) {
-		name.erase(lastUnderscore);
-	}
 
 	auto separator = boost::char_separator<char>("_");
 	auto tokenizer = boost::tokenizer<decltype(separator)>(name, separator);
 
-	std::move(tokenizer.begin(), tokenizer.end(), std::back_inserter(result));
+	std::copy_if(
+		std::make_move_iterator(tokenizer.begin()),
+		std::make_move_iterator(tokenizer.end()),
+		std::back_inserter(result),
+		[](const auto& slice) {
+			return std::islower(slice.front()); // Don't care about locale, only ASCII chars
+		}
+		);
 
 	return result;
 }

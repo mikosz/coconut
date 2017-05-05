@@ -19,9 +19,6 @@ namespace shader {
 // This reflection mechanism could probably be easily extended to a generic one and moved to tools.
 
 template <class T>
-class ReflectiveInterface;
-
-template <class T>
 class ReflectiveInterfaceBase {
 public:
 
@@ -85,6 +82,14 @@ private:
 };
 
 template <class T>
+class ReflectiveInterface : public ReflectiveInterfaceBase<T> {
+public:
+
+	ReflectiveInterface(); // TODO: make singleton!
+
+};
+
+template <class T>
 class ReflectiveObject {
 public:
 
@@ -125,6 +130,30 @@ void* writeDataProperty(
 }
 
 template <class T>
+void bindResourceProperty(
+	DrawCommand& drawCommand,
+	const ReflectiveObject<T>& object,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	)
+{
+	// TODO: duplicated with write data
+
+	// TODO: replace at()
+	const auto referencedId = id.tail();
+
+	const auto& iface = ReflectiveInterface<T>(); // TODO: singleton
+	const auto& referencedProperty = iface.get(object.object(), referencedId.head().name);
+	return referencedProperty.bindResource(drawCommand, referencedId, type, stage, slot);
+}
+
+template <class T>
+class ReflectiveInterface<std::vector<T>> {
+};
+
+template <class T>
 void* writeDataProperty(
 	void* buffer,
 	const ReflectiveObject<std::vector<T>>& vectorObject,
@@ -150,6 +179,25 @@ void* writeDataProperty(
 	}
 
 	return lastWriteEnd;
+}
+
+template <class T>
+void bindResourceProperty(
+	DrawCommand& drawCommand,
+	const ReflectiveObject<std::vector<T>>& vector,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	)
+{
+	auto oss = std::ostringstream();
+	oss
+		<< id
+		<< " of type "
+		<< typeid(vector).name()
+		<< " cannot be bound as a shader resource";
+	throw coconut_tools::exceptions::RuntimeError(oss.str());
 }
 
 } // namespace shader

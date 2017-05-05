@@ -11,7 +11,7 @@
 #include "coconut/milk/graphics/ShaderType.hpp"
 #include "coconut/milk/graphics/InputLayout.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
-#include "coconut/milk/graphics/Texture.hpp"
+#include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
 #include "coconut/milk/graphics/VertexBuffer.hpp"
 #include "coconut/milk/graphics/IndexBuffer.hpp"
@@ -72,10 +72,6 @@ public:
 		renderState_ = renderState;
 	}
 
-	void addSampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) {
-		samplers_.emplace_back(std::move(sampler), stage, slot);
-	}
-
 	void addConstantBufferData(
 		milk::graphics::ConstantBuffer* constantBuffer,
 		std::uint8_t* data,
@@ -86,15 +82,19 @@ public:
 		constantBuffersData_.emplace_back(constantBuffer, data, size, stage, slot);
 	}
 
-	void addResource(
-		const milk::graphics::Resource* resource,
+	void addTexture(
+		const milk::graphics::Texture2d texture,
 		milk::graphics::ShaderType stage,
 		size_t slot
 		) {
-		resources_.emplace_back(resource, stage, slot);
+		textures2d_.emplace_back(texture, stage, slot);
 	}
 
-	void setRenderTarget(milk::graphics::Texture2d* texture) {
+	void addSampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) {
+		samplers_.emplace_back(std::move(sampler), stage, slot);
+	}
+
+	void setRenderTarget(milk::graphics::Texture2d* texture) { // TODO: pointers
 		renderTarget_ = texture;
 	}
 
@@ -133,23 +133,6 @@ public:
 
 private:
 
-	struct Sampler {
-
-		milk::graphics::Sampler sampler;
-
-		milk::graphics::ShaderType stage;
-
-		size_t slot;
-
-		Sampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) :
-			sampler(sampler),
-			stage(stage),
-			slot(slot)
-		{
-		}
-
-	};
-
 	struct ConstantBufferData {
 
 		using Data = std::vector<std::uint8_t>; // TODO: array? pointer?
@@ -174,14 +157,11 @@ private:
 
 	struct Resource {
 
-		const milk::graphics::Resource* resource; // TODO: pointer
-
 		milk::graphics::ShaderType stage;
 
 		size_t slot;
 
-		Resource(const milk::graphics::Resource* resource, milk::graphics::ShaderType stage, size_t slot) :
-			resource(resource),
+		Resource(milk::graphics::ShaderType stage, size_t slot) :
 			stage(stage),
 			slot(slot)
 		{
@@ -189,11 +169,35 @@ private:
 
 	};
 
-	using Samplers = std::vector<Sampler>; // TODO: use array to avoid allocs
+	struct Texture2d : Resource {
+
+		milk::graphics::Texture2d texture;
+
+		Texture2d(milk::graphics::Texture2d texture, milk::graphics::ShaderType stage, size_t slot) :
+			Resource(stage, slot),
+			texture(texture)
+		{
+		}
+
+	};
+
+	struct Sampler : Resource {
+
+		milk::graphics::Sampler sampler;
+
+		Sampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) :
+			Resource(stage, slot),
+			sampler(sampler)
+		{
+		}
+
+	};
 
 	using ConstantBuffersData = std::vector<ConstantBufferData>; // TODO: ,,
 
-	using Resources = std::vector<Resource>; // TODO: ,,
+	using Textures2d = std::vector<Texture2d>; // TODO: ,,
+
+	using Samplers = std::vector<Sampler>; // TODO: use array to avoid allocs
 
 	// TODO: pointers
 	milk::graphics::Viewport* viewport_ = nullptr;
@@ -220,7 +224,7 @@ private:
 
 	ConstantBuffersData constantBuffersData_;
 
-	Resources resources_;
+	Textures2d textures2d_;
 
 	milk::graphics::VertexBuffer* vertexBuffer_ = nullptr;
 
