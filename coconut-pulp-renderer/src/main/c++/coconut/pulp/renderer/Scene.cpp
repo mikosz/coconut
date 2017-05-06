@@ -76,10 +76,6 @@ void Scene::render(PassContext passContext, CommandBuffer& commandBuffer) {
 		const auto& instance = instanceEntry.second;
 		passContext.actors = &instance.actors;
 
-		assert(instance.actors.size() == 1); // ... because instancing is now broken
-		// TODO: can't bind actor here, could have multiple even without instancing
-		instance.actors[0]->bindShaderProperties(passContext.properties, "actor");
-
 		instance.model->render(commandBuffer, passContext);
 	}
 }

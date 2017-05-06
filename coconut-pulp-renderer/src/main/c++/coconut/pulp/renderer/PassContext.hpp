@@ -36,8 +36,6 @@ public:
 
 	const Scene* scene = nullptr;
 
-	const Actor* actor = nullptr;
-
 	const std::vector<std::shared_ptr<Actor>>* actors = nullptr;
 
 	const Model* model = nullptr;

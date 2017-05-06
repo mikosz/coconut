@@ -156,7 +156,7 @@ void GrassActor::bindShaderProperties(
 	std::string objectId
 	) const
 {
-	properties.bind(std::move(objectId), renderer::shader::makeReflectiveObject(*this));
+	properties.rebind(std::move(objectId), renderer::shader::makeReflectiveObject(*this));
 }
 
 GrassActor::GrassActor(const math::Vec3& patchPosition) :

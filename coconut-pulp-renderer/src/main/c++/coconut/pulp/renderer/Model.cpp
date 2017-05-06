@@ -4,6 +4,8 @@
 #include <iterator>
 #include <numeric>
 
+#include "Actor.hpp"
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
@@ -261,6 +263,8 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 		commandBuffer.add(std::move(drawCommand));
 	} else {
 		for (const auto& actor : *passContext.actors) {
+			actor->bindShaderProperties(passContext.properties, "actor");
+
 			auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
 				// TODO: duplicated code above
 			drawCommand->setRenderState(&material.renderState());
@@ -274,7 +278,6 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 			drawCommand->setIndexCount(indexCount);
 			drawCommand->setPrimitiveTopology(primitiveTopology);
 
-			passContext.actor = actor.get();
 			pass.bind(*drawCommand, passContext.properties);
 
 			drawCommand->setRenderTarget(passContext.backBuffer); // TODO

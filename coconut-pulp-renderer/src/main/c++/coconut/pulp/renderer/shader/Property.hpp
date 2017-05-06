@@ -224,6 +224,11 @@ public:
 		}
 	}
 
+	void rebind(std::string id, Property property) {
+		properties_.erase(id);
+		properties_.emplace(std::move(id), std::move(property));
+	}
+
 private:
 
 	std::unordered_map<std::string, Property> properties_;
