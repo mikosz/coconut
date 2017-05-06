@@ -6,8 +6,10 @@
 #include <functional>
 #include <algorithm>
 
-#include <coconut-tools/utils/Range.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
+#include <coconut-tools/concurrent/fake.hpp>
+#include <coconut-tools/singleton/Singleton.hpp>
+#include <coconut-tools/utils/Range.hpp>
 
 #include "Property.hpp"
 
@@ -82,10 +84,16 @@ private:
 };
 
 template <class T>
-class ReflectiveInterface : public ReflectiveInterfaceBase<T> {
+class ReflectiveInterface :
+	public ReflectiveInterfaceBase<T>,
+	public coconut_tools::singleton::Singleton<ReflectiveInterface<T>, coconut_tools::concurrent::FakeMutex>
+	// TODO: fix Singleton, should be more configurable
+{
 public:
 
-	ReflectiveInterface(); // TODO: make singleton!
+	// TODO: want constructor to be private to avoid unnecessary construction, but Singleton is broken
+	// and this would be unnecessarily complicated
+	ReflectiveInterface();
 
 };
 
@@ -124,7 +132,7 @@ void* writeDataProperty(
 	// TODO: replace at()
 	const auto referencedId = id.tail();
 
-	const auto& iface = ReflectiveInterface<T>(); // TODO: singleton
+	const auto& iface = *ReflectiveInterface<T>::instance();
 	const auto& referencedProperty = iface.get(object.object(), referencedId.head().name);
 	return referencedProperty.writeData(buffer, referencedId, format);
 }
@@ -144,7 +152,7 @@ void bindResourceProperty(
 	// TODO: replace at()
 	const auto referencedId = id.tail();
 
-	const auto& iface = ReflectiveInterface<T>(); // TODO: singleton
+	const auto& iface = *ReflectiveInterface<T>::instance();
 	const auto& referencedProperty = iface.get(object.object(), referencedId.head().name);
 	return referencedProperty.bindResource(drawCommand, referencedId, type, stage, slot);
 }
