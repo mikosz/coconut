@@ -74,7 +74,7 @@ void CommandList::setViewport(Viewport& viewport) {
 	deviceContext_->RSSetViewports(1, &viewport.internalViewport());
 }
 
-void CommandList::setInputLayout(InputLayout* inputLayout) noexcept {
+void CommandList::setInputLayout(const InputLayout* inputLayout) noexcept {
 	deviceContext_->IASetInputLayout(&inputLayout->internalInputLayout());
 }
 

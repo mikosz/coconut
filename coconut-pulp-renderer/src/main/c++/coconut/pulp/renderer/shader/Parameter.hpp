@@ -30,6 +30,14 @@ public:
 			);
 	}
 
+	const Property::DataType dataType() const noexcept {
+		return dataType_;
+	}
+
+	const size_t offset() const noexcept {
+		return offset_;
+	}
+
 private:
 
 	PropertyDescriptor propertyDescriptor_;

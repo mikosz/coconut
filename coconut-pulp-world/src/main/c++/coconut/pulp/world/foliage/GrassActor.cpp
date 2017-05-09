@@ -17,22 +17,6 @@ using namespace std::string_literals;
 
 namespace /* anonymous */ {
 
-std::unique_ptr<renderer::shader::Input::Element> createGrassPatchPositionInputElement(
-	const renderer::shader::InputElementFactoryInstanceDetails& instanceDetails)
-{
-	return std::make_unique<renderer::shader::Input::Element>(
-		instanceDetails.semantic,
-		instanceDetails.semanticIndex,
-		instanceDetails.format,
-		renderer::shader::Input::SlotType::PER_INSTANCE_DATA,
-		1,
-		[](void* buffer, const void* input) {
-			const auto& actor = *reinterpret_cast<const GrassActor*>(input);
-			std::memcpy(buffer, &actor.patchPosition(), sizeof(Vec3));
-		}
-		);
-}
-
 std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
@@ -121,16 +105,6 @@ renderer::shader::ReflectiveInterface<GrassActor>::ReflectiveInterface() {
 	// TODO: don't like taking address of returned value here. Maybe extend size of Property?
 	// TODO: OR make ReflectiveInterface GrassActor's friend and return address of field?
 	emplaceMethod("grassPatchPosition", [](const GrassActor& grassActor) { return &grassActor.patchPosition(); });
-}
-
-void GrassActor::registerShaderInputElements(renderer::shader::InputElementFactory& inputElementFactory) {
-	auto instanceDetails = renderer::shader::InputElementFactoryInstanceDetails("GRASS_PATCH_POSITION", 0);
-	if (!inputElementFactory.isCreatorRegistered(instanceDetails)) {
-		inputElementFactory.registerCreator(
-			instanceDetails,
-			&createGrassPatchPositionInputElement
-			);
-	}
 }
 
 void GrassActor::registerModels(renderer::ModelFactory& modelFactory, const Heightmap& heightmap) {

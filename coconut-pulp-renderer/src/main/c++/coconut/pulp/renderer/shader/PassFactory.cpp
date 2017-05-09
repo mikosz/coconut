@@ -34,11 +34,6 @@ void PassCreator::scanShaderCodeDirectory(
 			const auto shaderName = path.stem();
 
 			if (shaderName.extension() == ".v") {
-				InputCreator::ShaderCodeInfo inputInfo;
-				inputInfo.shaderCodePath = shaderInfo.shaderCodePath;
-				inputInfo.entrypoint = entrypointName;
-				inputFactory_.registerShaderCode(shaderName.string(), inputInfo);
-
 				shaderInfo.shaderType = milk::graphics::ShaderType::VERTEX;
 				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
 			} else if (shaderName.extension() == ".g") {
@@ -77,8 +72,6 @@ void PassCreator::scanCompiledShaderDirectory(
 			const auto shaderName = path.stem();
 
 			if (shaderName.extension() == ".v") {
-				inputFactory_.registerCompiledShader(shaderName.string(), info.compiledShaderPath);
-
 				info.shaderType = milk::graphics::ShaderType::VERTEX;
 				shaderFactory_.registerCompiledShader(shaderName.string(), info);
 			} else if (shaderName.extension() == ".g") {
@@ -125,7 +118,7 @@ auto PassCreator::doCreate(
 
 	return std::make_unique<Pass>(
 		false, // TODO: temp - need to discern between instanced and non instanced shaders
-		inputFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
+		shaderFactory_.createInput(id + ".v", graphicsRenderer, filesystemContext),
 		std::dynamic_pointer_cast<VertexShader>(
 			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),
 		std::move(geometryShader),

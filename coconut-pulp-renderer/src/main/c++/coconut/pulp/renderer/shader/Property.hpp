@@ -30,9 +30,11 @@ namespace shader {
 class Property {
 public:
 
-	struct DataType {
+	struct DataType { // TODO!!!
 		using Class = milk::graphics::ShaderReflection::Type::Class;
 		using ScalarType = milk::graphics::ShaderReflection::Type::ScalarType;
+
+		DataType() = default;
 
 		DataType(Class klass, ScalarType scalarType, size_t columns, size_t rows) :
 			klass(klass),

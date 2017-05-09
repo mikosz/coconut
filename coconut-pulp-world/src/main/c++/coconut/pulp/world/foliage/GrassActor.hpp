@@ -4,7 +4,6 @@
 #include "coconut/milk/fs.hpp"
 
 #include "coconut/pulp/renderer/shader/Property.hpp"
-#include "coconut/pulp/renderer/shader/InputElementFactory.hpp"
 #include "coconut/pulp/renderer/ModelFactory.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
 #include "coconut/pulp/math/Vector.hpp"
@@ -20,8 +19,6 @@ namespace foliage {
 // TODO: fix PropertyHolder to not have to be a superclass
 class GrassActor : public renderer::Actor {
 public:
-
-	static void registerShaderInputElements(renderer::shader::InputElementFactory& inputElementFactory);
 
 	static void registerModels(renderer::ModelFactory& modelFactory, const Heightmap& heightmap);
 

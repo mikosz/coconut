@@ -34,15 +34,15 @@ std::vector<milk::fs::Byte> vertexBufferData(
 {
 	auto data = std::vector<milk::fs::Byte>(); // TODO: this should be a common type
 	data.resize(shaderInput.vertexSize() * totalVertices);
-	auto* bufferPtr = data.data();
+	auto* bufferPtr = reinterpret_cast<void*>(data.data()); // TODO: when above todo is fixed, writeData and all should use it
 
 	std::for_each(submeshIt, submeshEnd, [&shaderInput, &bufferPtr](const auto& submesh) {
+			auto properties = shader::Properties();
 			std::for_each(
 				submesh.vertices().begin(),
 				submesh.vertices().end(),
-				[&shaderInput, &bufferPtr](const auto& vertex) {
-					shaderInput.writeVertex(bufferPtr, &vertex);
-					bufferPtr += shaderInput.vertexSize();
+				[&shaderInput, &bufferPtr, &properties](const auto& vertex) {
+					bufferPtr = shaderInput.writeVertex(bufferPtr, properties);
 				}
 				);
 		});
@@ -234,7 +234,8 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 			auto buffer = std::vector<std::uint8_t>(instanceBufferSize);
 			auto* outputPtr = reinterpret_cast<void*>(buffer.data());
 			for (const auto& actor : *passContext.actors) {
-				outputPtr = pass.input().writeInstance(outputPtr, *actor);
+				actor->bindShaderProperties(passContext.properties, "actor");
+				outputPtr = pass.input().writeInstance(outputPtr, passContext.properties);
 			}
 			
 			auto configuration = milk::graphics::Buffer::Configuration(

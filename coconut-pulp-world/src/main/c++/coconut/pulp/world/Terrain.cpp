@@ -130,7 +130,6 @@ Terrain::Terrain(
 {
 	scene.add(createGridActor(), createGridModel(graphicsRenderer, passFactory, fs, heightmap_));
 
-	foliage::GrassActor::registerShaderInputElements(passFactory.inputFactory().inputElementFactory());
 	foliage::GrassActor::registerModels(modelFactory, heightmap_);
 
 	auto grassModel = modelFactory.create("grass-fakeinst", graphicsRenderer, passFactory, fs);	

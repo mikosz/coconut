@@ -8,7 +8,7 @@ using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
 
 void Pass::bind(DrawCommand& drawCommand, const Properties& properties) const {
-	drawCommand.setInputLayout(&input_->layout());
+	drawCommand.setInputLayout(&input_.layout());
 	drawCommand.setVertexShader(&vertexShader_->shaderData());
 	vertexShader_->bind(drawCommand, properties);
 

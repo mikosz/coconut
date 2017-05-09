@@ -44,7 +44,7 @@ public:
 
 	void submit(milk::graphics::CommandList& commandList);
 
-	void setInputLayout(milk::graphics::InputLayout* inputLayout) { // TODO: POINTERS!!! CONST!
+	void setInputLayout(const milk::graphics::InputLayout* inputLayout) { // TODO: POINTERS!!! CONST!
 		inputLayout_ = inputLayout;
 	}
 
@@ -206,7 +206,7 @@ private:
 
 	milk::graphics::Texture2d* depthStencil_ = nullptr;
 
-	milk::graphics::InputLayout* inputLayout_ = nullptr;
+	const milk::graphics::InputLayout* inputLayout_ = nullptr;
 
 	milk::graphics::VertexShader* vertexShader_ = nullptr;
 
