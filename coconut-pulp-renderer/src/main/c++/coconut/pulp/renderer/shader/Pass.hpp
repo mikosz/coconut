@@ -17,7 +17,7 @@ public:
 
 	Pass(
 		bool isInstanced,
-		InputSharedPtr input,
+		Input input,
 		VertexShaderSharedPtr vertexShader,
 		GeometryShaderSharedPtr geometryShader,
 		HullShaderSharedPtr hullShader,
@@ -34,14 +34,14 @@ public:
 	{
 	}
 
-	void bind(DrawCommand& drawCommand, const PassContext& passContext) const;
+	void bind(DrawCommand& drawCommand, const Properties& properties) const;
 
 	const Input& input() const noexcept {
-		return *input_;
+		return input_;
 	}
 
 	Input& input() noexcept {
-		return *input_;
+		return input_;
 	}
 
 	bool isInstanced() const noexcept {
@@ -84,7 +84,7 @@ private:
 
 	bool isInstanced_;
 
-	InputSharedPtr input_;
+	Input input_;
 
 	VertexShaderSharedPtr vertexShader_;
 

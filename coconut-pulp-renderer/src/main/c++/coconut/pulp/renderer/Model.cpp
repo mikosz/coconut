@@ -4,6 +4,8 @@
 #include <iterator>
 #include <numeric>
 
+#include "Actor.hpp"
+
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
@@ -32,18 +34,32 @@ std::vector<milk::fs::Byte> vertexBufferData(
 {
 	auto data = std::vector<milk::fs::Byte>(); // TODO: this should be a common type
 	data.resize(shaderInput.vertexSize() * totalVertices);
-	auto* bufferPtr = data.data();
+	auto* bufferPtr = reinterpret_cast<void*>(data.data()); // TODO: when above todo is fixed, writeData and all should use it
+	auto* endPtr = reinterpret_cast<void*>(data.data() + data.size());
 
-	std::for_each(submeshIt, submeshEnd, [&shaderInput, &bufferPtr](const auto& submesh) {
+	std::for_each(submeshIt, submeshEnd, [&shaderInput, &bufferPtr, endPtr](const auto& submesh) {
+			auto properties = shader::Properties();
+
 			std::for_each(
 				submesh.vertices().begin(),
 				submesh.vertices().end(),
-				[&shaderInput, &bufferPtr](const auto& vertex) {
-					shaderInput.writeVertex(bufferPtr, &vertex);
-					bufferPtr += shaderInput.vertexSize();
+				[&shaderInput, &bufferPtr, endPtr, &properties](const auto& vertex) {
+					// TODO: should be nicer. Could set something of the sort of "default object"
+					// in properties, and assume that vertex. prefixes each provided property
+					// descriptor. Then bind only vertex and put the interface in a ReflectiveInterface.
+					// Would then allow for polymorphic vertices, or vertices with differing properties.
+					properties.rebind("position0", static_cast<const primitive::Primitive&>(vertex.position));
+					properties.rebind("normal0", static_cast<const primitive::Primitive&>(vertex.normal));
+					properties.rebind("texcoord0", static_cast<const primitive::Primitive&>(vertex.textureCoordinate));
+
+					bufferPtr = shaderInput.writeVertex(bufferPtr, properties);
+
+					assert(bufferPtr <= endPtr);
 				}
 				);
 		});
+
+	assert(bufferPtr == endPtr);
 
 	return data;
 }
@@ -211,6 +227,8 @@ Model::DrawGroup::DrawGroup(
 }
 
 void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passContext) {
+	passContext.properties.bind("material", &material.shaderProperties());
+
 	if (material.shaderPass().isInstanced() && passContext.actors->size() > 1) { // TODO this and next lines
 		auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
 
@@ -230,7 +248,8 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 			auto buffer = std::vector<std::uint8_t>(instanceBufferSize);
 			auto* outputPtr = reinterpret_cast<void*>(buffer.data());
 			for (const auto& actor : *passContext.actors) {
-				outputPtr = pass.input().writeInstance(outputPtr, *actor);
+				actor->bindShaderProperties(passContext.properties, "actor");
+				outputPtr = pass.input().writeInstance(outputPtr, passContext.properties);
 			}
 			
 			auto configuration = milk::graphics::Buffer::Configuration(
@@ -247,7 +266,7 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 				);
 		}
 
-		pass.bind(*drawCommand, passContext);
+		pass.bind(*drawCommand, passContext.properties);
 
 		drawCommand->setInstanceDataBuffer(&instanceDataBuffer);
 		drawCommand->setInstanceCount(passContext.actors->size());
@@ -259,6 +278,8 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 		commandBuffer.add(std::move(drawCommand));
 	} else {
 		for (const auto& actor : *passContext.actors) {
+			actor->bindShaderProperties(passContext.properties, "actor");
+
 			auto drawCommand = std::make_unique<DrawCommand>(); // TODO: these need to be created in a separate class and buffered
 				// TODO: duplicated code above
 			drawCommand->setRenderState(&material.renderState());
@@ -272,8 +293,7 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 			drawCommand->setIndexCount(indexCount);
 			drawCommand->setPrimitiveTopology(primitiveTopology);
 
-			passContext.actor = actor.get();
-			pass.bind(*drawCommand, passContext);
+			pass.bind(*drawCommand, passContext.properties);
 
 			drawCommand->setRenderTarget(passContext.backBuffer); // TODO
 			drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO

@@ -60,7 +60,7 @@ public:
 		const Elements& elements
 		);
 
-	ID3D11InputLayout& internalInputLayout() {
+	ID3D11InputLayout& internalInputLayout() const {
 		return *dxInputLayout_;
 	}
 

@@ -21,26 +21,26 @@ struct PointLight {
 	float4 specularColour;
 };
 
-cbuffer SceneData {
-	float3 eye;
+cbuffer scene {
+	float3 cameraPosition;
 	uint directionalLightsCount;
 	DirectionalLight directionalLights[3];
-	uint pointLightsCount;
-	PointLight pointLights[3];
+	//uint pointLightsCount;
+	//PointLight pointLights[3];
 }
 
-cbuffer GroupData {
+cbuffer MaterialData {
 	Material material;
 }
 
-cbuffer TerrainData {
-	float terrainCellEdgeLength;
-	float terrainWidth;
-	float terrainDepth;
+cbuffer terrain {
+	float cellEdgeLength;
+	float width;
+	float depth;
 };
 
-Texture2D heightmap;
-SamplerState heightmapSampler;
+Texture2D terrain_heightmap;
+SamplerState terrain_heightmapSampler;
 
 void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
 	ambient = mat.ambientColour * l.ambientColour;
@@ -79,24 +79,24 @@ void computePoint(Material mat, PointLight l, float3 position, float3 normal, fl
 
 float4 main(DomainOut pin) : SV_TARGET
 {
-	const float texelCellSpaceU = terrainCellEdgeLength / terrainWidth;
-	const float texelCellSpaceV = terrainCellEdgeLength / terrainDepth;
+	const float texelCellSpaceU = cellEdgeLength / width;
+	const float texelCellSpaceV = cellEdgeLength / depth;
 
 	const float2 leftUV = pin.heightmapTexcoord + float2(-texelCellSpaceU, 0.0f);
 	const float2 rightUV = pin.heightmapTexcoord + float2(texelCellSpaceU, 0.0f);
 	const float2 bottomUV = pin.heightmapTexcoord + float2(0.0f, texelCellSpaceV);
 	const float2 topUV = pin.heightmapTexcoord + float2(0.0f, -texelCellSpaceV);
 
-	const float leftHeight = heightmap.SampleLevel(heightmapSampler, leftUV, 0).r;
-	const float rightHeight = heightmap.SampleLevel(heightmapSampler, rightUV, 0).r;
-	const float bottomHeight = heightmap.SampleLevel(heightmapSampler, bottomUV, 0).r;
-	const float topHeight = heightmap.SampleLevel(heightmapSampler, topUV, 0).r;
+	const float leftHeight = terrain_heightmap.SampleLevel(terrain_heightmapSampler, leftUV, 0).r;
+	const float rightHeight = terrain_heightmap.SampleLevel(terrain_heightmapSampler, rightUV, 0).r;
+	const float bottomHeight = terrain_heightmap.SampleLevel(terrain_heightmapSampler, bottomUV, 0).r;
+	const float topHeight = terrain_heightmap.SampleLevel(terrain_heightmapSampler, topUV, 0).r;
 
-	const float3 tangent = normalize(float3(2.0f * terrainCellEdgeLength, rightHeight - leftHeight, 0.0f));
-	const float3 bitangent = normalize(float3(0.0f, bottomHeight - topHeight, 2.0f * terrainCellEdgeLength));
+	const float3 tangent = normalize(float3(2.0f * cellEdgeLength, rightHeight - leftHeight, 0.0f));
+	const float3 bitangent = normalize(float3(0.0f, bottomHeight - topHeight, 2.0f * cellEdgeLength));
 	const float3 normalW = cross(bitangent, tangent);
 
-	float3 toEye = normalize(eye - pin.posW);
+	float3 toEye = normalize(cameraPosition - pin.posW);
 
 	float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -112,15 +112,15 @@ float4 main(DomainOut pin) : SV_TARGET
 		specular += specularComp;
 	}
 
-	[unroll]
-	for (uint pi = 0; pi < pointLightsCount; ++pi) {
-		float4 ambientComp, diffuseComp, specularComp;
-		computePoint(material, pointLights[pi], pin.posW, normalW, toEye, ambientComp, diffuseComp, specularComp);
+	//[unroll]
+	//for (uint pi = 0; pi < pointLightsCount; ++pi) {
+	//	float4 ambientComp, diffuseComp, specularComp;
+	//	computePoint(material, pointLights[pi], pin.posW, normalW, toEye, ambientComp, diffuseComp, specularComp);
 
-		ambient += ambientComp;
-		diffuse += diffuseComp;
-		specular += specularComp;
-	}
+	//	ambient += ambientComp;
+	//	diffuse += diffuseComp;
+	//	specular += specularComp;
+	//}
 
 	float4 endColour = saturate(ambient + diffuse + specular);
 	endColour.a = diffuse.a;

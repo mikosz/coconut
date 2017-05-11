@@ -1,15 +1,15 @@
-cbuffer ViewTransformations {
-	matrix viewMatrix;
-}
+struct SceneData {
+	matrix view;
+	matrix projection;
+};
 
-cbuffer ProjectionTransformations {
-	matrix projectionMatrix;
-}
+cbuffer SceneBuffer {
+	SceneData scene;
+};
 
 cbuffer TerrainData {
-	float terrainCellEdgeLength;
-	float terrainWidth;
-	float terrainDepth;
+	float terrain_width;
+	float terrain_depth;
 };
 
 struct GIn {
@@ -24,8 +24,8 @@ struct GOut {
 	float3 normalW : NORMAL;
 };
 
-Texture2D heightmap;
-SamplerState heightmapSampler;
+Texture2D terrain_heightmap;
+SamplerState terrain_heightmapSampler;
 
 static const float3 verts[] = {
 	float3(-0.003f, 0.0f, 0.0f),
@@ -54,7 +54,7 @@ void emit(GIn gin, inout GOut gout, inout TriangleStream<GOut> triStream, uint i
 	gout.posW = gin.posW + verts[index];
 	gout.posW.y *= gin.yScale;
 	gout.posW.y += terrainHeight;
-	gout.posH = mul(mul(float4(gout.posW, 1.0f), viewMatrix), projectionMatrix);
+	gout.posH = mul(mul(float4(gout.posW, 1.0f), scene.view), scene.projection);
 	triStream.Append(gout);
 }
 
@@ -64,14 +64,14 @@ void main(point GIn gin[1], inout TriangleStream<GOut> triStream) {
 	gout.normalW = float3(0.0f, 0.0f, -1.0f);
 	gout.tex = float2(0.0f, 0.0f);
 
-	const float halfWidth = terrainWidth * 0.5f;
-	const float halfDepth = terrainDepth * 0.5f;
+	const float halfWidth = terrain_width * 0.5f;
+	const float halfDepth = terrain_depth * 0.5f;
 	const float2 heightmapTexcoord = float2(
-		(gin[0].posW.x + halfWidth) / terrainWidth,
-		(gin[0].posW.z + halfDepth) / terrainDepth
+		(gin[0].posW.x + halfWidth) / terrain_width,
+		(gin[0].posW.z + halfDepth) / terrain_depth
 		);
 
-	float terrainHeight = heightmap.SampleLevel(heightmapSampler, heightmapTexcoord, 0).r;
+	float terrainHeight = terrain_heightmap.SampleLevel(terrain_heightmapSampler, heightmapTexcoord, 0).r;
 
 	[unroll]
 	for (uint segment = 0; segment < SEGMENTS; ++segment) {

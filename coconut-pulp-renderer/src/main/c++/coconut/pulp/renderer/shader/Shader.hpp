@@ -27,13 +27,9 @@ namespace shader {
 class UnknownShader {
 public:
 
-	using SceneData = std::vector<ConstantBufferSharedPtr<Scene>>;
+	using ConstantBuffers = std::vector<ConstantBuffer>;
 
-	using ActorData = std::vector<ConstantBufferSharedPtr<Actor>>;
-
-	using MaterialData = std::vector<ConstantBufferSharedPtr<Material>>;
-
-	using Resources = std::vector<ResourceSharedPtr>;
+	using Resources = std::vector<Resource>;
 
 	virtual ~UnknownShader() = default;
 
@@ -47,13 +43,24 @@ public:
 
 	Shader(
 		GraphicsShaderType shaderData,
-		SceneData sceneData,
-		ActorData actorData,
-		MaterialData materialData,
+		ConstantBuffers constantBuffers,
 		Resources resources
-		);
+		) :
+		shaderData_(std::move(shaderData)),
+		constantBuffers_(std::move(constantBuffers)),
+		resources_(std::move(resources))
+	{
+	}
 
-	void bind(DrawCommand& drawCommand, const PassContext& passContext) const;
+	void bind(DrawCommand& drawCommand, const Properties& properties) {
+		for (auto& buffer : constantBuffers_) {
+			buffer.bind(drawCommand, properties);
+		}
+
+		for (auto resource : resources_) {
+			resource.bind(drawCommand, properties);
+		}
+	}
 
 	GraphicsShaderType& shaderData() {
 		return shaderData_;
@@ -63,11 +70,7 @@ private:
 
 	GraphicsShaderType shaderData_;
 
-	SceneData sceneData_;
-
-	ActorData actorData_;
-
-	MaterialData materialData_;
+	ConstantBuffers constantBuffers_;
 
 	Resources resources_;
 

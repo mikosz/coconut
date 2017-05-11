@@ -1,15 +1,10 @@
 #ifndef _COCONUT_PULP_RENDERER_SHADER_INPUT_HPP_
 #define _COCONUT_PULP_RENDERER_SHADER_INPUT_HPP_
 
-#include <functional>
 #include <vector>
 
-#include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
-
 #include "coconut/milk/graphics/InputLayout.hpp"
-#include "coconut/milk/graphics/Renderer.hpp"
-
-#include "coconut/pulp/mesh/Submesh.hpp"
+#include "Parameter.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -22,51 +17,35 @@ namespace shader {
 class Input {
 public:
 
-	using SlotType = milk::graphics::InputLayout::SlotType;
+	using Parameters = std::vector<Parameter>;
 
-	struct Element : public milk::graphics::InputLayout::Element { // TODO: unsure about this api
-
-		using WriteFunc =
-			std::function<void (void* buffer, const void* input)>; // TODO: input type? vertex or instance...
-
-		Element(
-			std::string semantic,
-			size_t semanticIndex,
-			milk::graphics::PixelFormat format,
-			SlotType inputSlotType,
-			size_t instanceDataStepRate,
-			WriteFunc writeFunc
-			);
-
-		WriteFunc writeFunc;
-
-	};
-
-	using Elements = std::vector<Element>;
-
-	Input(milk::graphics::Renderer& graphicsRenderer, Elements elements);
+	Input(
+		milk::graphics::InputLayout layout,
+		Parameters perVertexParameters,
+		Parameters perInstanceParameters
+		) noexcept;
 
 	size_t vertexSize() const noexcept;
 
-	void* writeVertex(void* buffer, const void* input) const;
+	void* writeVertex(void* buffer, const Properties& properties) const;
 
 	size_t instanceSize() const noexcept;
 
-	void* writeInstance(void* buffer, const Actor& actor) const;
+	void* writeInstance(void* buffer, const Properties& properties) const;
 
-	milk::graphics::InputLayout& layout() {
+	const milk::graphics::InputLayout& layout() const {
 		return layout_;
 	}
 
 private:
 
-	Elements elements_;
-
 	milk::graphics::InputLayout layout_;
 
-};
+	Parameters perVertexParameters_;
 
-CCN_MAKE_POINTER_DEFINITIONS(Input);
+	Parameters perInstanceParameters_;
+
+};
 
 } // namespace shader
 } // namespace renderer

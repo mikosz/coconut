@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_RENDERER_LIGHTING_DIRECTIONALLIGHT_HPP_
 
 #include "coconut/pulp/math/Vector.hpp"
+#include "coconut/pulp/renderer/shader/ReflectiveObject.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -49,6 +50,8 @@ private:
 	pulp::math::Vec4 diffuseColour_;
 
 	pulp::math::Vec4 specularColour_;
+
+	friend class renderer::shader::ReflectiveInterface<DirectionalLight>;
 
 };
 

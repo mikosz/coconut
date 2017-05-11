@@ -77,6 +77,10 @@ public:
 
 		ScalarType scalarType;
 
+		size_t columns;
+
+		size_t rows;
+
 		size_t elements;
 
 		size_t elementOffset;
@@ -100,6 +104,8 @@ public:
 	struct ConstantBufferInfo {
 
 		using Variables = std::vector<Variable>;
+
+		std::string name;
 
 		size_t size;
 

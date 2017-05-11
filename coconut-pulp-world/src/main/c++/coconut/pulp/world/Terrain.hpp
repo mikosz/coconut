@@ -2,13 +2,11 @@
 #define _COCONUT_PULP_WORLD_TERRAIN_HPP_
 
 #include "coconut/milk/graphics/Renderer.hpp"
-
 #include "coconut/milk/fs.hpp"
-
+#include "coconut/pulp/renderer/shader/ReflectiveObject.hpp"
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/ModelFactory.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
-
 #include "Heightmap.hpp"
 
 namespace coconut {
@@ -26,9 +24,16 @@ public:
 		const milk::FilesystemContext& fs
 		);
 
+	void bindShaderProperties(
+		renderer::shader::Properties& properties,
+		std::string objectId
+		) const;
+
 private:
 
 	Heightmap heightmap_;
+
+	friend class renderer::shader::ReflectiveInterface<Terrain>;
 
 };
 

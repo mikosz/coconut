@@ -1,8 +1,8 @@
-cbuffer PatchData : register(b0) {
-	float3 grassPatchPosition;
+cbuffer PatchData {
+	float3 actor_grassPatchPosition;
 };
 
-Texture2D noiseMap : register(t0);
+Texture2D material_noiseMap;
 
 struct VOut {
 	float3 posW : POSITION;
@@ -22,9 +22,9 @@ VOut main(uint bladeId : SV_VertexID)
 	const uint columnId = bladeId % BLADES_PER_ROW;
 	const uint rowId = bladeId / BLADES_PER_ROW;
 	
-	const float4 noise = noiseMap[uint2(rowId % TEXTURE_WIDTH, columnId % TEXTURE_HEIGHT)];
+	const float4 noise = material_noiseMap[uint2(rowId % TEXTURE_WIDTH, columnId % TEXTURE_HEIGHT)];
 	
-	vout.posW = grassPatchPosition;
+	vout.posW = actor_grassPatchPosition;
 	vout.posW.x += (columnId) * OFFSET;
 	vout.posW.z += (rowId) * OFFSET;
 
