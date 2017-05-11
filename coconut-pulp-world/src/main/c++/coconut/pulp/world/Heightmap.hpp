@@ -7,8 +7,8 @@
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
-
 #include "coconut/milk/fs.hpp"
+#include "coconut/pulp/math/Vector.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -19,14 +19,7 @@ public:
 
 	Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::FilesystemContext& fs);
 
-	const milk::graphics::Texture2d& texture() const noexcept {
-		return texture_;
-	}
-
-	// TODO: temp
-	const milk::graphics::Sampler& sampler() const noexcept {
-		return sampler_;
-	}
+	float heightAt(float x, float z) const;
 
 	// TODO: extent type
 	std::tuple<size_t, size_t> cellCount() const noexcept {
@@ -43,6 +36,15 @@ public:
 
 	float cellEdgeLength() const noexcept {
 		return cellEdgeLength_;
+	}
+
+	const milk::graphics::Texture2d& texture() const noexcept {
+		return texture_;
+	}
+
+	// TODO: temp
+	const milk::graphics::Sampler& sampler() const noexcept {
+		return sampler_;
 	}
 
 private:

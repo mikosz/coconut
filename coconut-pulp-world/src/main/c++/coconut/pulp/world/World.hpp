@@ -34,6 +34,10 @@ public:
 		terrain_.bindShaderProperties(properties, "terrain");
 	}
 
+	const Terrain& terrain() const noexcept {
+		return terrain_;
+	}
+
 private:
 
 	Terrain terrain_;

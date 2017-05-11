@@ -14,8 +14,8 @@ size_t graphics::formatSize(PixelFormat format) {
 	case PixelFormat::R32G32B32A32_FLOAT:
 		return 4 * 4;
 	case PixelFormat::R8G8B8A8_UNORM:
-		return 4;
 	case PixelFormat::B8G8R8A8_UNORM:
+	case PixelFormat::B8G8R8X8_UNORM:
 		return 4;
 	case PixelFormat::R32_FLOAT:
 		return 4;

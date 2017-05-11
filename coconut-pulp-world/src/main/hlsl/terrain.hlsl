@@ -16,5 +16,6 @@ struct HullOut {
 struct DomainOut {
 	float4 posH : SV_POSITION;
 	float3 posW : POSITION;
-	float2 heightmapTexcoord : TEXCOORD;
+	float2 heightmapTexcoord : TEXCOORD0;
+	float2 tiledTexcoord : TEXCOORD1;
 };
