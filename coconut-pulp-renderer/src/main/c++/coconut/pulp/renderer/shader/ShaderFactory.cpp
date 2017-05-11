@@ -2,6 +2,10 @@
 
 #include <vector>
 #include <algorithm>
+#include <iterator>
+#include <cctype>
+
+#include <boost/tokenizer.hpp>
 
 #include <coconut-tools/logger.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
@@ -9,7 +13,7 @@
 #include "coconut/milk/graphics/compile-shader.hpp"
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 
-#include "StructuredParameter.hpp"
+#include "Property.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -22,206 +26,252 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.SHADER_FACTORY");
 
 using milk::graphics::ShaderReflection;
 
-std::shared_ptr<Parameter> createParameter(
-	ParameterFactory& parameterFactory,
+PropertyDescriptor::Objects interpretIdentifier(const std::string& name) {
+	auto result = PropertyDescriptor::Objects();
+
+	auto separator = boost::char_separator<char>("_");
+	auto tokenizer = boost::tokenizer<decltype(separator)>(name, separator);
+
+	std::copy_if(
+		std::make_move_iterator(tokenizer.begin()),
+		std::make_move_iterator(tokenizer.end()),
+		std::back_inserter(result),
+		[](const auto& slice) {
+			return std::islower(slice.front()); // Don't care about locale, only ASCII chars
+		}
+		);
+
+	return result;
+}
+
+ConstantBuffer::Parameters createParameters(
 	const std::string& name,
 	const ShaderReflection::Type& type,
 	size_t offset,
-	const std::string& parentType = std::string()
+	PropertyDescriptor::Objects descriptor
 	)
 {
-	CT_LOG_DEBUG << "Creating parameter for variable " << name;
+	auto parameters = ConstantBuffer::Parameters();
 
-	std::shared_ptr<Parameter> result;
+	{
+		auto descriptorTail = interpretIdentifier(name);
 
-	ParameterFactoryInstanceDetails instanceDetails(name);
-
-	instanceDetails.padding = offset + type.offset;
-	instanceDetails.arraySize = type.elements;
-	instanceDetails.arrayElementOffset = type.elementOffset; // TODO: nope
-	instanceDetails.parentType = parentType;
-
-	auto parameter = parameterFactory.create(instanceDetails);
-
-	if (parameter->outputType() == Parameter::OperandType::OBJECT) {
-		if (type.klass != ShaderReflection::Type::Class::STRUCT) {
-#pragma message("!!! TODO: exception + want a common superclass for shader factory exceptions")
-			throw "";
+		if (descriptorTail.empty()) {
+			// TODO: exception
+			throw coconut_tools::exceptions::RuntimeError("Invalid identifier " + name);
 		}
 
-		auto& structuredParameter = dynamic_cast<StructuredParameter&>(*parameter);
+		descriptor.insert(descriptor.end(), descriptorTail.begin(), descriptorTail.end());
 
-		for (const auto& member : type.members) {
-			std::string memberName;
-			ShaderReflection::Type memberType;
-			std::tie(memberName, memberType) = member;
-
-			structuredParameter.addSubparameter(
-				createParameter(parameterFactory, memberName, memberType, type.offset, type.name)
-				);
-		}
-	} else if (parameter->outputType() == Parameter::OperandType::MATRIX) {
-		if (type.klass == ShaderReflection::Type::Class::MATRIX_COLUMN_MAJOR) {
-			ParameterFactoryInstanceDetails instanceDetails("transpose"); // TODO: not elegant really
-			parameter->setNext(parameterFactory.create(instanceDetails));
-			// TODO: remove last if last is transpose
-		}
+		descriptor.back().arraySize = type.elements;
+		descriptor.back().arrayElementOffset = type.elementOffset;
 	}
 
-#pragma message("!!! TODO: verify size and output type before returning") // TODO
+	if (!type.members.empty()) {
 
-	return parameter;
+		for (const auto& member : type.members) {
+			auto memberName = std::string();
+			auto memberType = ShaderReflection::Type();
+			std::tie(memberName, memberType) = member;
+
+			const auto memberParameters =
+				createParameters(memberName, memberType, type.offset + offset, descriptor);
+			parameters.reserve(parameters.size() + memberParameters.size());
+			std::move(memberParameters.begin(), memberParameters.end(), std::back_inserter(parameters));
+		}
+	} else {
+		CT_LOG_DEBUG << "Creating parameter at offset " << (type.offset + offset)
+			<< " reading property " << PropertyDescriptor(descriptor);
+
+		parameters.emplace_back(
+			PropertyDescriptor(std::move(descriptor)),
+			Property::DataType(type.klass, type.scalarType, type.columns, type.rows),
+			type.offset + offset
+			);
+	}
+
+	return parameters;
 }
 
-std::shared_ptr<Resource> createResource(
-	ResourceFactory& resourceFactory,
+Resource createResource(
 	const ShaderReflection::ResourceInfo& resourceInfo,
 	milk::graphics::ShaderType shaderType
 	)
 {
-	switch (resourceInfo.type) {
-		case ShaderReflection::ResourceInfo::Type::TEXTURE: // fallthrough
-		case ShaderReflection::ResourceInfo::Type::SAMPLER:
-			return resourceFactory.create(resourceInfo.name, shaderType, resourceInfo.slot);
-		default:
-			throw "";
-#pragma message("!!! TODO: exception") // TODO
-	}
+	auto descriptor = interpretIdentifier(resourceInfo.name);
+
+	CT_LOG_DEBUG
+		<< "Creating resource of type " << resourceInfo.type
+		<< " for shader type " << shaderType
+		<< " at slot " << resourceInfo.slot
+		<< " reading property " << PropertyDescriptor(descriptor);
+
+	return Resource(std::move(descriptor), resourceInfo.type, shaderType, resourceInfo.slot);
 }
 
 std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
 	milk::graphics::Renderer& graphicsRenderer,
-	ParameterFactory& parameterFactory,
-	ResourceFactory& resourceFactory,
 	std::vector<std::uint8_t> shaderData,
 	milk::graphics::ShaderType shaderType
 	)
 {
 	using milk::graphics::ShaderReflection;
 
-	ShaderReflection reflection(shaderData.data(), shaderData.size());
+	const auto reflection = ShaderReflection(shaderData.data(), shaderData.size());
 
-	UnknownShader::SceneData sceneData;
-	UnknownShader::ActorData actorData;
-	UnknownShader::MaterialData materialData;
-	UnknownShader::Resources resources;
-
+	auto constantBuffers = UnknownShader::ConstantBuffers();
 	for (const auto& constantBuffer : reflection.constantBuffers()) {
-		std::vector<ParameterSharedPtr> parameters;
-		parameters.reserve(constantBuffer.variables.size());
+		CT_LOG_DEBUG << "Building parameters for cbuffer " << constantBuffer.name;
+
+		auto bufferParameters = ConstantBuffer::Parameters();
 
 		for (const auto& variable : constantBuffer.variables) {
-			auto parameter = createParameter(parameterFactory, variable.name, variable.type, variable.offset);
-
-			if (!parameters.empty() && parameters.back()->inputType() != parameter->inputType()) {
-#pragma message("!!! TODO: exception") // TODO
-				throw "";
-			}
-
-			parameters.emplace_back(parameter);
+			auto variableParameters = createParameters(
+				variable.name,
+				variable.type,
+				variable.offset,
+				interpretIdentifier(constantBuffer.name)
+				);
+			std::move(
+				variableParameters.begin(),
+				variableParameters.end(),
+				std::back_inserter(bufferParameters)
+				);
 		}
 
-		if (!parameters.empty()) {
-			switch (parameters.back()->inputType()) {
-			case Parameter::OperandType::SCENE:
-				sceneData.emplace_back(std::make_unique<ConstantBuffer<Scene>>(
-					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
-					));
-				break;
-			case Parameter::OperandType::ACTOR:
-				actorData.emplace_back(std::make_unique<ConstantBuffer<Actor>>(
-					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
-					));
-				break;
-			case Parameter::OperandType::MATERIAL:
-				materialData.emplace_back(std::make_unique<ConstantBuffer<Material>>(
-					graphicsRenderer, shaderType, constantBuffer.size, constantBuffer.slot, std::move(parameters)
-					));
-				break;
-			default:
-				throw "";
-#pragma message("!!! TODO: exception") // TODO
-			}
-		}
+		constantBuffers.emplace_back(
+			graphicsRenderer,
+			shaderType,
+			constantBuffer.size,
+			constantBuffer.slot,
+			std::move(bufferParameters)
+			);
 	}
 
+	auto resources = UnknownShader::Resources();
 	for (const auto& resource : reflection.resources()) {
-		resources.emplace_back(createResource(resourceFactory, resource, shaderType));
+		resources.emplace_back(createResource(resource, shaderType));
 	}
 
 	switch (shaderType) {
 	case milk::graphics::ShaderType::VERTEX:
 	{
 		milk::graphics::VertexShader vs(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<VertexShader>(
-			std::move(vs), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<VertexShader>(std::move(vs), std::move(constantBuffers), std::move(resources));
 	}
 	case milk::graphics::ShaderType::GEOMETRY:
 	{
 		milk::graphics::GeometryShader gs(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<GeometryShader>(
-			std::move(gs), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<GeometryShader>(std::move(gs), std::move(constantBuffers), std::move(resources));
 	}
 	case milk::graphics::ShaderType::HULL:
 	{
 		milk::graphics::HullShader hs(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<HullShader>(
-			std::move(hs), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<HullShader>(std::move(hs), std::move(constantBuffers), std::move(resources));
 	}
 	case milk::graphics::ShaderType::DOMAIN:
 	{
 		milk::graphics::DomainShader ds(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<DomainShader>(
-			std::move(ds), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<DomainShader>(std::move(ds), std::move(constantBuffers), std::move(resources));
 	}
 	case milk::graphics::ShaderType::PIXEL:
 	{
 		milk::graphics::PixelShader ps(graphicsRenderer, shaderData.data(), shaderData.size());
-		return std::make_unique<PixelShader>(
-			std::move(ps), std::move(sceneData), std::move(actorData), std::move(materialData), std::move(resources));
+		return std::make_unique<PixelShader>(std::move(ps), std::move(constantBuffers), std::move(resources));
 	}
 	}
 
 	throw coconut_tools::exceptions::RuntimeError("Unexpected shader type: " + toString(shaderType));
 }
 
-std::unique_ptr<UnknownShader> createShaderFromCompiledShader(
-	milk::graphics::Renderer& graphicsRenderer,
-	const milk::FilesystemContext& filesystemContext,
-	ParameterFactory& parameterFactory,
-	ResourceFactory& resourceFactory,
-	const detail::ShaderCreator::CompiledShaderInfo& compiledShaderInfo
-	)
-{
-	return createShaderFromCompiledShader(
-		graphicsRenderer,
-		parameterFactory,
-		resourceFactory,
-		*filesystemContext.load(compiledShaderInfo.compiledShaderPath),
-		compiledShaderInfo.shaderType
-		);
-}
+Input createShaderInput(milk::graphics::Renderer& graphicsRenderer, std::vector<std::uint8_t> shaderData) {
+	using milk::graphics::ShaderReflection;
+	const auto reflection = ShaderReflection(shaderData.data(), shaderData.size());
 
-std::unique_ptr<UnknownShader> createShaderFromShaderCode(
-	milk::graphics::Renderer& graphicsRenderer,
-	const milk::FilesystemContext& filesystemContext,
-	ParameterFactory& parameterFactory,
-	ResourceFactory& resourceFactory,
-	const detail::ShaderCreator::ShaderCodeInfo& shaderCodeInfo
-	)
-{
-	CT_LOG_INFO << "Compiling shader at " << shaderCodeInfo.shaderCodePath << "::" << shaderCodeInfo.entrypoint;
+	auto inputLayoutElements = milk::graphics::InputLayout::Elements();
+	inputLayoutElements.reserve(reflection.inputParameters().size());
 
-	const auto shaderCode = filesystemContext.load(shaderCodeInfo.shaderCodePath);
-	auto shaderData =
-		milk::graphics::compileShader(*shaderCode, shaderCodeInfo.entrypoint, shaderCodeInfo.shaderType);
+	auto perVertexParameters = Input::Parameters();
+	auto perInstanceParameters = Input::Parameters();
 
-	return createShaderFromCompiledShader(
-		graphicsRenderer,
-		parameterFactory,
-		resourceFactory,
-		shaderData,
-		shaderCodeInfo.shaderType
+	auto offset = 0u;
+
+	const auto& inputParameters = reflection.inputParameters();
+	for (const auto& inputParameter : reflection.inputParameters()) {
+		auto dataType = Property::DataType();
+		auto pixelFormat = milk::graphics::PixelFormat();
+
+		// TODO: TEMP!!! ++
+		switch (inputParameter.dataType) {
+		case ShaderReflection::InputParameterInfo::DataType::FLOAT:
+			dataType.scalarType = Property::DataType::ScalarType::FLOAT;
+			if (inputParameter.elements == 2) {
+				pixelFormat = milk::graphics::PixelFormat::R32G32_FLOAT;
+			} else if (inputParameter.elements == 3) {
+				pixelFormat = milk::graphics::PixelFormat::R32G32B32_FLOAT;
+			} else if (inputParameter.elements == 4) {
+				pixelFormat = milk::graphics::PixelFormat::R32G32B32A32_FLOAT;
+			} else {
+				assert(false);
+			}
+			break;
+		default:
+			assert(false);
+		}
+
+		dataType.columns = inputParameter.elements;
+		dataType.rows = 1u;
+		if (inputParameter.elements > 1) {
+			dataType.klass = Property::DataType::Class::VECTOR;
+		} else {
+			dataType.klass = Property::DataType::Class::SCALAR;
+		}
+		// TODO: TEMP!!! --
+
+		auto identifier = inputParameter.semantic + std::to_string(inputParameter.semanticIndex);
+		std::transform(identifier.begin(), identifier.end(), identifier.begin(), ::tolower); // Don't care about locale, only ASCII chars
+		auto descriptorObjects = interpretIdentifier(identifier);
+
+		if (descriptorObjects.empty()) {
+			// TODO: exception
+			throw coconut_tools::exceptions::RuntimeError("Invalid semantic identifier: " + identifier);
+		}
+
+		auto inputSlot = milk::graphics::InputLayout::SlotType();
+		auto instanceDataStepRate = 0u; 
+
+		if (descriptorObjects.front().name == "instance") {
+			descriptorObjects.erase(descriptorObjects.begin());
+			if (descriptorObjects.empty()) {
+				// TODO: exception
+				throw coconut_tools::exceptions::RuntimeError("Invalid semantic identifier: " + identifier);
+			}
+			perInstanceParameters.emplace_back(std::move(descriptorObjects), dataType, offset);
+			inputSlot = milk::graphics::InputLayout::SlotType::PER_INSTANCE_DATA;
+			instanceDataStepRate = 1u; // TODO
+		} else {
+			perVertexParameters.emplace_back(std::move(descriptorObjects), dataType, offset);
+			inputSlot = milk::graphics::InputLayout::SlotType::PER_VERTEX_DATA;
+		}
+
+		inputLayoutElements.emplace_back(
+			inputParameter.semantic,
+			inputParameter.semanticIndex,
+			pixelFormat,
+			inputSlot,
+			instanceDataStepRate
+			);
+
+		offset += sizeof(float) * inputParameter.elements; // TODO: temp!
+	}
+
+	perVertexParameters.shrink_to_fit();
+	perInstanceParameters.shrink_to_fit();
+
+	return Input(
+		milk::graphics::InputLayout(graphicsRenderer, std::move(inputLayoutElements)),
+		std::move(perVertexParameters),
+		std::move(perInstanceParameters)
 		);
 }
 
@@ -235,27 +285,28 @@ auto detail::ShaderCreator::doCreate(
 {
 	CT_LOG_INFO << "Creating shader: \"" << id << "\"";
 
-	if (shaderCodeInfos_.count(id) != 0) {
-		CT_LOG_DEBUG << "Found \"" << id << "\" registered as shader code";
-		return createShaderFromShaderCode(
-			graphicsRenderer,
-			filesystemContext,
-			parameterFactory_,
-			resourceFactory_,
-			shaderCodeInfos_[id]
-			);
-	} else if (compiledShaderInfos_.count(id) != 0) {
-		CT_LOG_DEBUG << "Found \"" << id << "\" registered as a compiled shader";
-		return createShaderFromCompiledShader(
-			graphicsRenderer,
-			filesystemContext,
-			parameterFactory_,
-			resourceFactory_,
-			compiledShaderInfos_[id]
-			);
-	} else {
-		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
-	}
+	auto shaderCode = shaderCode_(id, filesystemContext);
+	auto& binary = std::get<0>(shaderCode);
+	auto& type = std::get<1>(shaderCode);
+
+	return createShaderFromCompiledShader(graphicsRenderer, std::move(binary), std::move(type));
+}
+
+Input detail::ShaderCreator::createInput(
+	const std::string& id,
+	milk::graphics::Renderer& graphicsRenderer,
+	const milk::FilesystemContext& filesystemContext
+	) const
+{
+	CT_LOG_INFO << "Creating shader input for shader: \"" << id << "\"";
+
+	auto shaderCode = shaderCode_(id, filesystemContext);
+	auto& binary = std::get<0>(shaderCode);
+	auto& type = std::get<1>(shaderCode);
+
+	assert (type == milk::graphics::ShaderType::VERTEX);
+
+	return createShaderInput(graphicsRenderer, std::move(binary));
 }
 
 bool detail::ShaderCreator::hasShader(const std::string& id) const noexcept {
@@ -282,4 +333,31 @@ void detail::ShaderCreator::registerCompiledShader(std::string id, const Compile
 	}
 
 	compiledShaderInfos_.emplace(std::move(id), std::move(compiledShaderInfo));
+}
+
+std::tuple<std::vector<std::uint8_t>, milk::graphics::ShaderType> detail::ShaderCreator::shaderCode_(
+	const std::string& id,
+	const milk::FilesystemContext& filesystemContext
+	) const
+{
+	if (shaderCodeInfos_.count(id) != 0) {
+		const auto& shaderInfo = shaderCodeInfos_.at(id);
+
+		CT_LOG_DEBUG << "Found \"" << id << "\" registered as shader code";
+		CT_LOG_INFO << "Compiling shader at " << shaderInfo.shaderCodePath << "::" << shaderInfo.entrypoint;
+
+		const auto shaderCode = filesystemContext.load(shaderInfo.shaderCodePath);
+		return std::make_tuple(
+			milk::graphics::compileShader(*shaderCode, shaderInfo.entrypoint, shaderInfo.shaderType),
+			shaderInfo.shaderType
+			);
+	} else if (compiledShaderInfos_.count(id) != 0) {
+		const auto& shaderInfo = compiledShaderInfos_.at(id);
+
+		CT_LOG_DEBUG << "Found \"" << id << "\" registered as a compiled shader";
+
+		return std::make_tuple(*filesystemContext.load(shaderInfo.compiledShaderPath), shaderInfo.shaderType);
+	} else {
+		throw coconut_tools::factory::error_policy::NoSuchType<std::string>(id);
+	}
 }

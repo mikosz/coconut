@@ -8,14 +8,13 @@ using namespace coconut::pulp::renderer;
 
 namespace /* anonymous */ {
 
-auto loadTextures(
+void bindResourceProperties(
+	shader::Properties& shaderProperties,
 	milk::graphics::Renderer graphicsRenderer,
 	const milk::fs::FilesystemContext& filesystemContext,
 	mesh::MaterialConfiguration materialConfiguration
 	)
 {
-	auto result = std::unordered_map<std::string, Material::Texture>();
-	
 	auto imageLoader = milk::graphics::ImageLoader();
 	for (auto& textureEntry : materialConfiguration.textures()) {
 		auto name = std::move(textureEntry.first);
@@ -24,15 +23,17 @@ auto loadTextures(
 		auto samplerConfiguration = milk::graphics::Sampler::Configuration();
 		std::tie(path, samplerConfiguration) = textureEntry.second;
 
-		auto texture = milk::graphics::Texture2d(graphicsRenderer, imageLoader.load(filesystemContext, path));
 		auto sampler = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: at the moment
 			// we force that a sampler be provided for all textures - this should not be required, as some
 			// textures are just provided as memory buffers (correctly?)
+		shaderProperties.bind(name + "Sampler", std::move(sampler));
+		// TODO: if we decide to keep samplers always defined for textures, then lets have a texture type
+		// with both texture and sampler specified and name them together. Otherwise should pass name
+		// of sampler through materialConfiguration
 
-		result.emplace(name, std::make_tuple(texture, sampler));
+		auto texture = milk::graphics::Texture2d(graphicsRenderer, imageLoader.load(filesystemContext, path));
+		shaderProperties.bind(std::move(name), std::move(texture));
 	}
-
-	return result;
 }
 
 } // anonymous namespace
@@ -45,30 +46,11 @@ Material::Material(
 	) :
 	passType_(materialConfiguration.passType()),
 	pass_(passFactory.create(materialConfiguration.shaderName(), graphicsRenderer, filesystemContext)),
-	renderState_(graphicsRenderer, materialConfiguration.renderStateConfiguration()),
-	properties_(std::move(materialConfiguration.properties())),
-	textures_(loadTextures(graphicsRenderer, filesystemContext, materialConfiguration))
+	renderState_(graphicsRenderer, materialConfiguration.renderStateConfiguration())
 {
-}
-
-const Primitive& Material::property(const std::string& key) const {
-	auto it = properties_.find(key);
-	if (it == properties_.end()) {
-		throw NoSuchProperty(key);
-	} else {
-		return it->second;
+	for (const auto entry : materialConfiguration.properties()) {
+		shaderProperties_.bind(std::move(entry.first), std::move(entry.second));
 	}
-}
 
-void Material::setTexture(std::string key, Texture texture) {
-	textures_.emplace(std::move(key), std::move(texture));
-}
-
-auto Material::texture(const std::string& key) const -> const Texture& {
-	auto it = textures_.find(key);
-	if (it == textures_.end()) {
-		throw NoSuchProperty(key);
-	} else {
-		return it->second;
-	}
+	bindResourceProperties(shaderProperties_, graphicsRenderer, filesystemContext, materialConfiguration);
 }

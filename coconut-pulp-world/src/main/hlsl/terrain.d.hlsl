@@ -1,15 +1,12 @@
 #include "terrain.hlsl"
 
-cbuffer ViewTransformations {
-	matrix viewMatrix;
-}
+cbuffer scene {
+	matrix view;
+	matrix projection;
+};
 
-cbuffer ProjectionTransformations {
-	matrix projectionMatrix;
-}
-
-Texture2D heightmap;
-SamplerState heightmapSampler;
+Texture2D terrain_heightmap;
+SamplerState terrain_heightmapSampler;
 
 [domain("quad")]
 DomainOut main(
@@ -32,9 +29,9 @@ DomainOut main(
 		uv.y
 		);
 
-	dout.posW.y = heightmap.SampleLevel(heightmapSampler, dout.heightmapTexcoord, 0).r;
+	dout.posW.y = terrain_heightmap.SampleLevel(terrain_heightmapSampler, dout.heightmapTexcoord, 0).r;
 
-	dout.posH = mul(mul(float4(dout.posW, 1.0f), viewMatrix), projectionMatrix);
+	dout.posH = mul(mul(float4(dout.posW, 1.0f), view), projection);
 
 	return dout;
 }

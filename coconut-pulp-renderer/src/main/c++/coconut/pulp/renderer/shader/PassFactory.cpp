@@ -6,6 +6,7 @@ using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
 using namespace coconut::pulp::renderer::shader;
+using namespace coconut::pulp::renderer::shader::detail;
 
 namespace /* anonymous */ {
 
@@ -13,7 +14,7 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.PASS_FACTORY");
 
 } // anonymous namespace
 
-void detail::PassCreator::scanShaderCodeDirectory(
+void PassCreator::scanShaderCodeDirectory(
 	const milk::fs::FilesystemContext& filesystemContext,
 	const milk::fs::Path& directory,
 	const std::string& entrypointName
@@ -27,17 +28,12 @@ void detail::PassCreator::scanShaderCodeDirectory(
 		const auto path = directory / name;
 
 		if (path.extension() == ".hlsl") {
-			detail::ShaderCreator::ShaderCodeInfo shaderInfo; // TODO: must expose this type or use different param to constructor (d'uh)
+			ShaderCreator::ShaderCodeInfo shaderInfo; // TODO: must expose this type or use different param to constructor (d'uh)
 			shaderInfo.shaderCodePath = filesystemContext.makeAbsolute(path);
 
 			const auto shaderName = path.stem();
 
 			if (shaderName.extension() == ".v") {
-				detail::InputCreator::ShaderCodeInfo inputInfo;
-				inputInfo.shaderCodePath = shaderInfo.shaderCodePath;
-				inputInfo.entrypoint = entrypointName;
-				inputFactory_.registerShaderCode(shaderName.string(), inputInfo);
-
 				shaderInfo.shaderType = milk::graphics::ShaderType::VERTEX;
 				shaderFactory_.registerShaderCode(shaderName.string(), shaderInfo);
 			} else if (shaderName.extension() == ".g") {
@@ -57,7 +53,7 @@ void detail::PassCreator::scanShaderCodeDirectory(
 	}
 }
 
-void detail::PassCreator::scanCompiledShaderDirectory(
+void PassCreator::scanCompiledShaderDirectory(
 	const milk::fs::FilesystemContext& filesystemContext,
 	const milk::fs::Path& directory
 	)
@@ -70,14 +66,12 @@ void detail::PassCreator::scanCompiledShaderDirectory(
 		auto path = directory / name;
 		
 		if (path.extension() == ".cso") {
-			detail::ShaderCreator::CompiledShaderInfo info; // TODO: must expose this type or use different param to constructor (d'uh)
+			ShaderCreator::CompiledShaderInfo info; // TODO: must expose this type or use different param to constructor (d'uh)
 			info.compiledShaderPath = filesystemContext.makeAbsolute(path);
 
 			const auto shaderName = path.stem();
 
 			if (shaderName.extension() == ".v") {
-				inputFactory_.registerCompiledShader(shaderName.string(), info.compiledShaderPath);
-
 				info.shaderType = milk::graphics::ShaderType::VERTEX;
 				shaderFactory_.registerCompiledShader(shaderName.string(), info);
 			} else if (shaderName.extension() == ".g") {
@@ -97,7 +91,7 @@ void detail::PassCreator::scanCompiledShaderDirectory(
 	}
 }
 
-auto detail::PassCreator::doCreate(
+auto PassCreator::doCreate(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
 	const milk::fs::FilesystemContext& filesystemContext
@@ -124,7 +118,7 @@ auto detail::PassCreator::doCreate(
 
 	return std::make_unique<Pass>(
 		false, // TODO: temp - need to discern between instanced and non instanced shaders
-		inputFactory_.create(id + ".v", graphicsRenderer, filesystemContext),
+		shaderFactory_.createInput(id + ".v", graphicsRenderer, filesystemContext),
 		std::dynamic_pointer_cast<VertexShader>(
 			shaderFactory_.create(id + ".v", graphicsRenderer, filesystemContext)),
 		std::move(geometryShader),

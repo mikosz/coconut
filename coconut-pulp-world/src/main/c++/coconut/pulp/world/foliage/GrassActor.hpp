@@ -3,8 +3,7 @@
 
 #include "coconut/milk/fs.hpp"
 
-#include "coconut/pulp/renderer/shader/InputElementFactory.hpp"
-#include "coconut/pulp/renderer/shader/ParameterFactory.hpp"
+#include "coconut/pulp/renderer/shader/Property.hpp"
 #include "coconut/pulp/renderer/ModelFactory.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
 #include "coconut/pulp/math/Vector.hpp"
@@ -17,12 +16,9 @@ class Heightmap;
 
 namespace foliage {
 
+// TODO: fix PropertyHolder to not have to be a superclass
 class GrassActor : public renderer::Actor {
 public:
-
-	static void registerShaderInputElements(renderer::shader::InputElementFactory& inputElementFactory);
-
-	static void registerParameters(renderer::shader::ParameterFactory& parameterFactory);
 
 	static void registerModels(renderer::ModelFactory& modelFactory, const Heightmap& heightmap);
 
@@ -31,7 +27,12 @@ public:
 	void update(std::chrono::milliseconds dt) override {
 	}
 
-	const math::Vec3& patchPosition() const noexcept {
+	void bindShaderProperties(
+		renderer::shader::Properties& properties,
+		std::string objectId
+		) const override;
+
+	const math::Vec3& patchPosition() const noexcept { // TODO: could just use Actors position... O__o
 		return patchPosition_;
 	}
 

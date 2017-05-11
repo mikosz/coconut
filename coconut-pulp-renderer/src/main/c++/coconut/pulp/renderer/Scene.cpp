@@ -25,6 +25,14 @@ milk::graphics::Viewport::Configuration viewportConfiguration() {
 
 } // anonymous namespace
 
+shader::ReflectiveInterface<Scene>::ReflectiveInterface() {
+	emplaceMethod("cameraPosition", [](const Scene& scene) { return &scene.camera_->position(); });
+	emplaceMethod("view", [](const Scene& scene) { return &scene.camera_->viewTransformation(); });
+	emplaceMethod("projection", [](const Scene& scene) { return &scene.lens_->projectionTransformation(); });
+	emplaceMethod("directionalLightsCount", [](const Scene& scene) { return scene.directionalLights_.size(); });
+	emplaceMethod("directionalLights", [](const Scene& scene) { return shader::makeReflectiveObject(scene.directionalLights_); });
+}
+
 Scene::Scene(milk::graphics::Renderer& graphicsRenderer) :
 	renderTarget_(&graphicsRenderer.backBuffer()), // TODO
 	depthStencil_(&graphicsRenderer.depthStencil()), // TODO
@@ -54,21 +62,20 @@ void Scene::setLens(LensSharedPtr lens) {
 	lens_ = std::move(lens);
 }
 
-void Scene::render(milk::graphics::Renderer& graphicsRenderer, CommandBuffer& commandBuffer) {
-	PassContext context;
-	context.graphicsRenderer = &graphicsRenderer;
-	context.viewport = &viewport_;
-	context.backBuffer = renderTarget_;
-	context.screenDepthStencil = depthStencil_;
-	context.scene = this;
+void Scene::render(PassContext passContext, CommandBuffer& commandBuffer) {
+	passContext.viewport = &viewport_;
+	passContext.backBuffer = renderTarget_;
+	passContext.screenDepthStencil = depthStencil_;
+	passContext.scene = this;
 
-	context.passType = mesh::MaterialConfiguration::PassType::OPAQUE;
+	passContext.properties.bind("scene", renderer::shader::makeReflectiveObject(*this));
+
+	passContext.passType = mesh::MaterialConfiguration::PassType::OPAQUE;
 
 	for (const auto& instanceEntry : instances_) { // TODO: this is obviously temp
 		const auto& instance = instanceEntry.second;
-		context.model = instance.model.get();
-		context.actors = &instance.actors;
+		passContext.actors = &instance.actors;
 
-		instance.model->render(commandBuffer, context);
+		instance.model->render(commandBuffer, passContext);
 	}
 }

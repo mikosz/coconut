@@ -106,6 +106,14 @@ void Game::loop() {
 		);
 	scene.add(white);
 
+	pulp::renderer::lighting::DirectionalLight red(
+		pulp::math::Vec3(0.0f, 0.0f, 1.0f),
+		pulp::math::Vec4(0.1f, 0.1f, 0.1f, 0.0f),
+		pulp::math::Vec4(1.0f, 0.0f, 0.0f, 1.0f),
+		pulp::math::Vec4(1.0f, 0.0f, 0.0f, 0.0f)
+	);
+	scene.add(red);
+
 	/* pulp::renderer::lighting::PointLight yellow(
 		pulp::math::Vec3(0.0f, 1.5f, -3.5f),
 		pulp::math::Vec3(0.0f, 1.0f, 0.0f),
@@ -146,7 +154,11 @@ void Game::loop() {
 		//camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
 		//camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
-		scene.render(*graphicsRenderer_, commandBuffer);
+		auto passContext = pulp::renderer::PassContext();
+		passContext.graphicsRenderer = graphicsRenderer_.get();
+		world.bindShaderProperties(passContext.properties);
+
+		scene.render(std::move(passContext), commandBuffer);
 
 		commandBuffer.submit(commandList);
 		graphicsRenderer_->submit(commandList);

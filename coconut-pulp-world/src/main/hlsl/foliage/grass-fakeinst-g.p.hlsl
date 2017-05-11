@@ -19,12 +19,12 @@ struct PointLight {
 	float4 specularColour;
 };
 
-cbuffer SceneData {
-	float3 eye;
+cbuffer scene {
+	float3 cameraPosition;
 	uint directionalLightsCount;
 	DirectionalLight directionalLights[3];
-	uint pointLightsCount;
-	PointLight pointLights[3];
+	//uint pointLightsCount;
+	//PointLight pointLights[3];
 }
 
 cbuffer ObjectData {
@@ -80,7 +80,7 @@ float4 main(PIn pin) : SV_TARGET
 {
 	pin.normalW = normalize(pin.normalW);
 
-	float3 toEye = normalize(eye - pin.posW);
+	float3 toEye = normalize(cameraPosition - pin.posW);
 
 	float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -96,15 +96,15 @@ float4 main(PIn pin) : SV_TARGET
 		specular += specularComp;
 	}
 	
-	[unroll]
-	for (uint pi = 0; pi < pointLightsCount; ++pi) {
-		float4 ambientComp, diffuseComp, specularComp;
-		computePoint(material, pointLights[pi], pin.posW, pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
+	//[unroll]
+	//for (uint pi = 0; pi < pointLightsCount; ++pi) {
+	//	float4 ambientComp, diffuseComp, specularComp;
+	//	computePoint(material, pointLights[pi], pin.posW, pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
 
-		ambient += ambientComp;
-		diffuse += diffuseComp;
-		specular += specularComp;
-	}
+	//	ambient += ambientComp;
+	//	diffuse += diffuseComp;
+	//	specular += specularComp;
+	//}
 
 	float4 endColour = saturate(ambient + diffuse + specular);
 	endColour.a = 1.0f;

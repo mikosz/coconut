@@ -123,27 +123,6 @@ renderer::ModelSharedPtr createSkydomeModel(
 	return model;
 }
 
-std::unique_ptr<renderer::shader::Resource> createSkydomeResource(milk::graphics::ShaderType shaderType, size_t slot) {
-	return std::make_unique<renderer::shader::DataResource>(
-		[](const renderer::PassContext& passContext) -> const milk::graphics::Texture* {
-			return &std::get<milk::graphics::Texture2d>(passContext.material->texture("skydome"));
-		},
-		shaderType,
-		slot
-		);
-}
-
-// TODO: duplicated code, generate these using property keys
-std::unique_ptr<renderer::shader::Resource> createSkydomeSamplerResource(milk::graphics::ShaderType shaderType, size_t slot) {
-	return std::make_unique<renderer::shader::SamplerResource>(
-		[](const renderer::PassContext& passContext) -> const milk::graphics::Sampler* {
-			return &std::get<milk::graphics::Sampler>(passContext.material->texture("skydome"));
-		},
-		shaderType,
-		slot
-		);
-}
-
 } // anonymous namespace
 
 Sky::Sky(
@@ -153,16 +132,6 @@ Sky::Sky(
 	const milk::FilesystemContext& fs
 	)
 {
-	auto& resourceFactory = passFactory.shaderFactory().resourceFactory();
-
-	if (!resourceFactory.isCreatorRegistered("skydome")) {
-		resourceFactory.registerCreator("skydome", &createSkydomeResource);
-	}
-
-	if (!resourceFactory.isCreatorRegistered("skydome_sampler")) {
-		resourceFactory.registerCreator("skydome_sampler", &createSkydomeSamplerResource);
-	}
-
 	// TODO: have to be able to tell, that the skydome is to be rendered at the end
 	scene.add(createSkydomeActor(), createSkydomeModel(graphicsRenderer, passFactory, fs));
 }

@@ -9,3 +9,6 @@ set(TEST_LIBRARIES
     )
 
 library_module(coconut-milk-utils "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" ${LIBRARY_TYPE})
+
+cotire(coconut-milk-utils)
+cotire(coconut-milk-utils_unit-test)

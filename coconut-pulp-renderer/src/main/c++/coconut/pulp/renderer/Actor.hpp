@@ -5,6 +5,7 @@
 #include <string>
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
+#include "coconut/pulp/renderer/shader/Property.hpp"
 
 #include "Orientation.hpp"
 
@@ -23,6 +24,13 @@ public:
 	}
 
 	virtual void update(std::chrono::milliseconds dt) {
+	}
+
+	virtual void bindShaderProperties(
+		renderer::shader::Properties& properties,
+		std::string objectId
+		) const
+	{
 	}
 
 	// TODO: move below functions to interface?

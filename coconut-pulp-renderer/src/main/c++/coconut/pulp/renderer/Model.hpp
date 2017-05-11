@@ -42,7 +42,7 @@ public:
 		const milk::FilesystemContext& filesystemContext
 		);
 
-	void render(CommandBuffer& commandBuffer, PassContext PassContext); // TODO: make const
+	void render(CommandBuffer& commandBuffer, PassContext passContext); // TODO: make const
 
 	const std::string& id() const {
 		return id_;

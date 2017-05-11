@@ -3,6 +3,7 @@
 
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/fs.hpp"
+#include "coconut/pulp/renderer/shader/Property.hpp"
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/ModelFactory.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
@@ -18,7 +19,7 @@ public:
 
 	World(
 		milk::graphics::Renderer& graphicsRenderer,
-		renderer::Scene& scene,
+		renderer::Scene& scene, // TODO: don't register renderables in scene permanently?
 		renderer::shader::PassFactory& passFactory, // TODO: inconvenient
 		renderer::ModelFactory& modelFactory, // ,,
 		const milk::FilesystemContext& fs
@@ -26,6 +27,11 @@ public:
 		terrain_(graphicsRenderer, scene, passFactory, modelFactory, fs),
 		sky_(graphicsRenderer, scene, passFactory, fs)
 	{
+	}
+
+	// TODO: temp?
+	void bindShaderProperties(renderer::shader::Properties& properties) const {
+		terrain_.bindShaderProperties(properties, "terrain");
 	}
 
 private:

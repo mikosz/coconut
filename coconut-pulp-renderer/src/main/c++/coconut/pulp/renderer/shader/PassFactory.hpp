@@ -10,7 +10,6 @@
 
 #include "coconut/milk/fs.hpp"
 
-#include "InputFactory.hpp"
 #include "ShaderFactory.hpp"
 #include "Pass.hpp"
 
@@ -36,10 +35,6 @@ public:
 		const milk::fs::Path& directory
 		);
 
-	InputFactory& inputFactory() noexcept {
-		return inputFactory_;
-	}
-
 	ShaderFactory& shaderFactory() noexcept {
 		return shaderFactory_;
 	}
@@ -53,8 +48,6 @@ protected:
 	);
 
 private:
-
-	InputFactory inputFactory_;
 
 	ShaderFactory shaderFactory_;
 

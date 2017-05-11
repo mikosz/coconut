@@ -1,10 +1,10 @@
 #include "terrain.hlsl"
 
-Texture2D heightmap;
-SamplerState heightmapSampler;
+Texture2D terrain_heightmap;
+SamplerState terrain_heightmapSampler;
 
 VertexInOut main(VertexInOut v)
 {
-	v.posW.y = heightmap.SampleLevel(heightmapSampler, v.heightmapTexcoord, 0).r;
+	v.posW.y = terrain_heightmap.SampleLevel(terrain_heightmapSampler, v.heightmapTexcoord, 0).r;
 	return v;
 }

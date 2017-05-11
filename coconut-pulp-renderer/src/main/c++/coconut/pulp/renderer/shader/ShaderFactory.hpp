@@ -10,11 +10,8 @@
 
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
-
 #include "coconut/milk/fs.hpp"
-
-#include "ParameterFactory.hpp"
-#include "ResourceFactory.hpp"
+#include "Input.hpp"
 #include "Shader.hpp"
 
 namespace coconut {
@@ -40,19 +37,17 @@ public:
 		milk::graphics::ShaderType shaderType;
 	};
 
+	Input createInput(
+		const std::string& id,
+		milk::graphics::Renderer& graphicsRenderer,
+		const milk::FilesystemContext& filesystemContext
+		) const;
+
 	bool hasShader(const std::string& id) const noexcept;
 
 	void registerShaderCode(std::string id, const ShaderCodeInfo& shaderCodeInfo);
 
 	void registerCompiledShader(std::string id, const CompiledShaderInfo& compiledShaderInfo);
-
-	ParameterFactory& parameterFactory() noexcept {
-		return parameterFactory_;
-	}
-
-	ResourceFactory& resourceFactory() noexcept {
-		return resourceFactory_;
-	}
 
 protected:
 
@@ -72,9 +67,10 @@ private:
 
 	CompiledShaderInfos compiledShaderInfos_;
 
-	ParameterFactory parameterFactory_;
-
-	ResourceFactory resourceFactory_;
+	std::tuple<std::vector<std::uint8_t>, milk::graphics::ShaderType> shaderCode_(
+		const std::string& id,
+		const milk::FilesystemContext& filesystemContext
+		) const;
 
 };
 
