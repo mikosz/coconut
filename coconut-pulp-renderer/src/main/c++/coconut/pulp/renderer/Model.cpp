@@ -35,17 +35,31 @@ std::vector<milk::fs::Byte> vertexBufferData(
 	auto data = std::vector<milk::fs::Byte>(); // TODO: this should be a common type
 	data.resize(shaderInput.vertexSize() * totalVertices);
 	auto* bufferPtr = reinterpret_cast<void*>(data.data()); // TODO: when above todo is fixed, writeData and all should use it
+	auto* endPtr = reinterpret_cast<void*>(data.data() + data.size());
 
-	std::for_each(submeshIt, submeshEnd, [&shaderInput, &bufferPtr](const auto& submesh) {
+	std::for_each(submeshIt, submeshEnd, [&shaderInput, &bufferPtr, endPtr](const auto& submesh) {
 			auto properties = shader::Properties();
+
 			std::for_each(
 				submesh.vertices().begin(),
 				submesh.vertices().end(),
-				[&shaderInput, &bufferPtr, &properties](const auto& vertex) {
+				[&shaderInput, &bufferPtr, endPtr, &properties](const auto& vertex) {
+					// TODO: should be nicer. Could set something of the sort of "default object"
+					// in properties, and assume that vertex. prefixes each provided property
+					// descriptor. Then bind only vertex and put the interface in a ReflectiveInterface.
+					// Would then allow for polymorphic vertices, or vertices with differing properties.
+					properties.rebind("position0", static_cast<const primitive::Primitive&>(vertex.position));
+					properties.rebind("normal0", static_cast<const primitive::Primitive&>(vertex.normal));
+					properties.rebind("texcoord0", static_cast<const primitive::Primitive&>(vertex.textureCoordinate));
+
 					bufferPtr = shaderInput.writeVertex(bufferPtr, properties);
+
+					assert(bufferPtr <= endPtr);
 				}
 				);
 		});
+
+	assert(bufferPtr == endPtr);
 
 	return data;
 }

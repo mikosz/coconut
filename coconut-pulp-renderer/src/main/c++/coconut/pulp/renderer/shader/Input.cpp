@@ -10,15 +10,17 @@ using namespace coconut::pulp::renderer::shader;
 namespace /* anonymous */ {
 
 size_t elementSize(const Input::Parameters& parameters) noexcept {
-	assert(!parameters.empty());
-	
-	const auto& last = parameters.back();
+	if (parameters.empty()) {
+		return 0u;
+	} else {
+		const auto& last = parameters.back();
 
-	// TODO: TEMP!!! ++
-	const auto size = last.dataType().columns * sizeof(float);
-	// TODO: TEMP!!! --
+		// TODO: TEMP!!! ++
+		const auto size = last.dataType().columns * sizeof(float);
+		// TODO: TEMP!!! --
 
-	return size + last.offset();
+		return size + last.offset();
+	}
 }
 
 void* writeElement(void* buffer, const Properties& properties, const Input::Parameters& parameters) {
@@ -26,7 +28,7 @@ void* writeElement(void* buffer, const Properties& properties, const Input::Para
 	auto end = start;
 	for (const auto& parameter : parameters) {
 		assert(end <= start + parameter.offset());
-		end = reinterpret_cast<std::uint8_t*>(parameter.write(start + parameter.offset(), properties));
+		end = reinterpret_cast<std::uint8_t*>(parameter.write(start, properties));
 	}
 	return end;
 }
