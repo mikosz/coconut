@@ -130,7 +130,5 @@ float4 main(DomainOut pin) : SV_TARGET
 	float4 endColour = saturate(textureColour * (ambient + diffuse) + specular);
 	endColour.a = diffuse.a;
 
-	return float4(0.0f, 0.0f, 0.0f, 1.0f);
-
 	return endColour;
 }

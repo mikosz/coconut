@@ -5,6 +5,7 @@ struct SceneData {
 
 cbuffer SceneBuffer {
 	SceneData scene;
+	float globalTime;
 };
 
 cbuffer TerrainData {
@@ -60,12 +61,14 @@ void emit(
 	inout GOut gout,
 	inout TriangleStream<GOut> triStream,
 	uint index,
-	float terrainHeight
+	float terrainHeight,
+	float3 windFactor
 	)
 {
 	gout.posW = gin.posW + verts[index];
 	gout.posW.y *= gin.yScale;
 	gout.posW.y += terrainHeight;
+	gout.posW += windFactor;
 	gout.posH = mul(mul(float4(gout.posW, 1.0f), scene.view), scene.projection);
 	triStream.Append(gout);
 }
@@ -87,14 +90,16 @@ void main(point GIn gin[1], inout TriangleStream<GOut> triStream) {
 
 	float terrainHeight = terrain_heightmap.SampleLevel(terrain_heightmapSampler, heightmapTexcoord, 0).r;
 
+	float3 windFactor = float3(0.07f, 0.0f, 0.0f) * sin(globalTime * 2.0f);
+
 	[unroll]
 	for (uint segment = 0; segment < SEGMENTS; ++segment) {
 		uint base = segment * 2;
-		emit(gin, gout, triStream, base + 0, terrainHeight);
-		emit(gin, gout, triStream, base + 2, terrainHeight);
-		emit(gin, gout, triStream, base + 1, terrainHeight);
-		emit(gin, gout, triStream, base + 1, terrainHeight);
-		emit(gin, gout, triStream, base + 2, terrainHeight);
-		emit(gin, gout, triStream, base + 3, terrainHeight);
+		emit(gin, gout, triStream, base + 0, terrainHeight, windFactor * 0.0f);
+		emit(gin, gout, triStream, base + 2, terrainHeight, windFactor * 1.0f);
+		emit(gin, gout, triStream, base + 1, terrainHeight, windFactor * 0.0f);
+		emit(gin, gout, triStream, base + 1, terrainHeight, windFactor * 0.0f);
+		emit(gin, gout, triStream, base + 2, terrainHeight, windFactor * 1.0f);
+		emit(gin, gout, triStream, base + 3, terrainHeight, windFactor * 1.0f);
 	}
 }
