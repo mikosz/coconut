@@ -14,6 +14,9 @@ Sampler::Sampler(Renderer& renderer, const Configuration& configuration) {
 	samplerDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(configuration.addressModeU);
 	samplerDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(configuration.addressModeV);
 	samplerDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(configuration.addressModeW);
+	samplerDesc.MinLOD = 0; // TODO: these should be configurable
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerDesc.MipLODBias = 0;
 
 	samplerDesc.Filter = static_cast<D3D11_FILTER>(configuration.filter);
 
