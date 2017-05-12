@@ -81,7 +81,8 @@ Heightmap::Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::Fil
 	// TODO: fix image api. size() makes no sense, rowPitch doesn't tell whether it's in bytes or pixels,
 	// PixelFormat should have some easy-to-use sampler.
 	const auto image = coconut::milk::graphics::ImageLoader().load(fs, "data/terrain/heightmap.bmp");
-	assert(image.pixelFormat() == coconut::milk::graphics::PixelFormat::R8G8B8A8_UNORM); // TODO...
+	assert(image.pixelFormat() == coconut::milk::graphics::PixelFormat::R8G8B8A8_UNORM ||
+		image.pixelFormat() == coconut::milk::graphics::PixelFormat::B8G8R8A8_UNORM); // TODO...
 
 	const auto heightScale = 50.0f;
 	cellEdgeLength_ = 1.0f;
@@ -120,4 +121,35 @@ Heightmap::Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::Fil
 	samplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_LINEAR_MIP_POINT;
 
 	sampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
+}
+
+float Heightmap::heightAt(float x, float z) const {
+	const auto halfWidth = width() * 0.5f;
+	const auto halfDepth = depth() * 0.5f;
+
+	const auto topLeftZ = (z + halfDepth) / cellEdgeLength_;
+	const auto topLeftX = (x + halfWidth) / cellEdgeLength_;
+
+	const auto topLeftRow = static_cast<std::int64_t>(topLeftZ);
+	const auto topLeftColumn = static_cast<std::int64_t>(topLeftX);
+
+	auto average = 0.0f;
+	for (const auto rowIndex : coconut_tools::range(topLeftRow, topLeftRow + 2)) {
+		for (const auto columnIndex : coconut_tools::range(topLeftColumn, topLeftColumn+ 2)) {
+			auto sampleHeight = 0.0f;
+			auto presence = false;
+			std::tie(sampleHeight, presence) = sampleAt(cellHeights_, columnCount_, rowIndex, columnIndex);
+			if (presence) {
+				const auto sampleZ = static_cast<float>(rowIndex) * cellEdgeLength_ - halfDepth;
+				const auto sampleX = static_cast<float>(columnIndex) * cellEdgeLength_ - halfWidth;
+
+				const auto zInfluence = cellEdgeLength_ - std::max(sampleZ, z) + std::min(sampleZ, z);
+				const auto xInfluence = cellEdgeLength_ - std::max(sampleX, x) + std::min(sampleX, x);
+
+				average += zInfluence * xInfluence * sampleHeight;
+			}
+		}
+	}
+
+	return (1.0f / (cellEdgeLength_ * cellEdgeLength_)) * average; // TODO: this won't work on borders?
 }

@@ -2,6 +2,7 @@
 
 #include <coconut-tools/utils/Range.hpp>
 
+#include "coconut/milk/graphics/ImageLoader.hpp"
 #include "foliage/GrassActor.hpp"
 
 using namespace coconut;
@@ -117,6 +118,9 @@ renderer::shader::ReflectiveInterface<Terrain>::ReflectiveInterface() {
 
 	emplaceMethod("heightmap", [](const Terrain& terrain) { return terrain.heightmap_.texture(); });
 	emplaceMethod("heightmapSampler", [](const Terrain& terrain) { return terrain.heightmap_.sampler(); });
+
+	emplaceMethod("tiledTexture", [](const Terrain& terrain) { return terrain.tiledTexture_; });
+	emplaceMethod("tiledTextureSampler", [](const Terrain& terrain) { return terrain.tiledTextureSampler_; });
 }
 
 Terrain::Terrain(
@@ -126,7 +130,8 @@ Terrain::Terrain(
 	renderer::ModelFactory& modelFactory,
 	const milk::FilesystemContext& fs
 	) :
-	heightmap_(graphicsRenderer, fs)
+	heightmap_(graphicsRenderer, fs),
+	tiledTexture_(graphicsRenderer, coconut::milk::graphics::ImageLoader().load(fs, "data/terrain/grass.dds"))
 {
 	scene.add(createGridActor(), createGridModel(graphicsRenderer, passFactory, fs, heightmap_));
 
@@ -139,6 +144,15 @@ Terrain::Terrain(
 			scene.add(grassActor, grassModel);
 		}
 	}
+
+	auto samplerConfiguration = milk::graphics::Sampler::Configuration();
+	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR;
+
+	// TODO: want a sampler factory
+	tiledTextureSampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
 }
 
 void Terrain::bindShaderProperties(

@@ -36,7 +36,7 @@ cbuffer GroupData {
 
 struct PIn {
 	float4 posH : SV_POSITION;
-	float2 tex : TEXCOORD;
+	float4 baseColour : COLOR;
 	float3 posW : POSITION;
 	float3 normalW : NORMAL;
 };
@@ -106,7 +106,7 @@ float4 main(PIn pin) : SV_TARGET
 	//	specular += specularComp;
 	//}
 
-	float4 endColour = saturate(ambient + diffuse + specular);
+	float4 endColour = saturate(pin.baseColour * (ambient + diffuse) + specular);
 	endColour.a = 1.0f;
 	
 	return endColour;

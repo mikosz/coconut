@@ -5,6 +5,7 @@ struct SceneData {
 
 cbuffer SceneBuffer {
 	SceneData scene;
+	float globalTime;
 };
 
 cbuffer TerrainData {
@@ -19,13 +20,18 @@ struct GIn {
 
 struct GOut {
 	float4 posH : SV_POSITION;
-	float2 tex : TEXCOORD;
+	float4 baseColour : COLOR;
 	float3 posW : POSITION;
 	float3 normalW : NORMAL;
 };
 
+static float tiledTextureScale = 50.0f;
+
 Texture2D terrain_heightmap;
 SamplerState terrain_heightmapSampler;
+
+Texture2D terrain_tiledTexture;
+SamplerState terrain_tiledTextureSampler;
 
 static const float3 verts[] = {
 	float3(-0.003f, 0.0f, 0.0f),
@@ -50,20 +56,25 @@ static const float3 verts[] = {
 
 static const uint SEGMENTS = 1;
 
-void emit(GIn gin, inout GOut gout, inout TriangleStream<GOut> triStream, uint index, float terrainHeight) {
+void emit(
+	GIn gin,
+	inout GOut gout,
+	inout TriangleStream<GOut> triStream,
+	uint index,
+	float terrainHeight,
+	float3 windFactor
+	)
+{
 	gout.posW = gin.posW + verts[index];
 	gout.posW.y *= gin.yScale;
 	gout.posW.y += terrainHeight;
+	gout.posW += windFactor;
 	gout.posH = mul(mul(float4(gout.posW, 1.0f), scene.view), scene.projection);
 	triStream.Append(gout);
 }
 
 [maxvertexcount(6 * SEGMENTS)]
 void main(point GIn gin[1], inout TriangleStream<GOut> triStream) {
-	GOut gout;
-	gout.normalW = float3(0.0f, 0.0f, -1.0f);
-	gout.tex = float2(0.0f, 0.0f);
-
 	const float halfWidth = terrain_width * 0.5f;
 	const float halfDepth = terrain_depth * 0.5f;
 	const float2 heightmapTexcoord = float2(
@@ -71,16 +82,24 @@ void main(point GIn gin[1], inout TriangleStream<GOut> triStream) {
 		(gin[0].posW.z + halfDepth) / terrain_depth
 		);
 
+	const float2 tiledTexcoord = heightmapTexcoord * tiledTextureScale;
+
+	GOut gout;
+	gout.normalW = float3(0.0f, 0.0f, -1.0f); // TODO
+	gout.baseColour = terrain_tiledTexture.SampleLevel(terrain_tiledTextureSampler, tiledTexcoord, 0);
+
 	float terrainHeight = terrain_heightmap.SampleLevel(terrain_heightmapSampler, heightmapTexcoord, 0).r;
+
+	float3 windFactor = float3(0.07f, 0.0f, 0.0f) * sin(globalTime * 2.0f);
 
 	[unroll]
 	for (uint segment = 0; segment < SEGMENTS; ++segment) {
 		uint base = segment * 2;
-		emit(gin, gout, triStream, base + 0, terrainHeight);
-		emit(gin, gout, triStream, base + 2, terrainHeight);
-		emit(gin, gout, triStream, base + 1, terrainHeight);
-		emit(gin, gout, triStream, base + 1, terrainHeight);
-		emit(gin, gout, triStream, base + 2, terrainHeight);
-		emit(gin, gout, triStream, base + 3, terrainHeight);
+		emit(gin, gout, triStream, base + 0, terrainHeight, windFactor * 0.0f);
+		emit(gin, gout, triStream, base + 2, terrainHeight, windFactor * 1.0f);
+		emit(gin, gout, triStream, base + 1, terrainHeight, windFactor * 0.0f);
+		emit(gin, gout, triStream, base + 1, terrainHeight, windFactor * 0.0f);
+		emit(gin, gout, triStream, base + 2, terrainHeight, windFactor * 1.0f);
+		emit(gin, gout, triStream, base + 3, terrainHeight, windFactor * 1.0f);
 	}
 }

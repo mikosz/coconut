@@ -42,6 +42,9 @@ cbuffer terrain {
 Texture2D terrain_heightmap;
 SamplerState terrain_heightmapSampler;
 
+Texture2D terrain_tiledTexture;
+SamplerState terrain_tiledTextureSampler;
+
 void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
 	ambient = mat.ambientColour * l.ambientColour;
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -122,7 +125,9 @@ float4 main(DomainOut pin) : SV_TARGET
 	//	specular += specularComp;
 	//}
 
-	float4 endColour = saturate(ambient + diffuse + specular);
+	float4 textureColour = terrain_tiledTexture.Sample(terrain_tiledTextureSampler, pin.tiledTexcoord);
+
+	float4 endColour = saturate(textureColour * (ambient + diffuse) + specular);
 	endColour.a = diffuse.a;
 
 	return endColour;

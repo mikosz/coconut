@@ -83,9 +83,9 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 		filesystemContext.makeAbsolute("data/models/noise.tga"),
 		samplerConfiguration
 		);
-	materialConfiguration.properties().emplace(MaterialConfiguration::AMBIENT_COLOUR_PROPERTY, Colour(0.086f, 0.356f, 0.192f));
-	materialConfiguration.properties().emplace(MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY, Colour(0.086f, 0.356f, 0.192f));
-	materialConfiguration.properties().emplace(MaterialConfiguration::SPECULAR_COLOUR_PROPERTY, Colour(0.05f, 0.05f, 0.05f));
+	materialConfiguration.properties().emplace(MaterialConfiguration::AMBIENT_COLOUR_PROPERTY, Colour(1.0f, 1.0f, 1.0f)); // Colour(0.086f, 0.356f, 0.192f));
+	materialConfiguration.properties().emplace(MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY, Colour(1.0f, 1.0f, 1.0f)); // , Colour(0.086f, 0.356f, 0.192f));
+	materialConfiguration.properties().emplace(MaterialConfiguration::SPECULAR_COLOUR_PROPERTY, Colour(0.05f, 0.05f, 0.05f)); // , Colour(0.05f, 0.05f, 0.05f));
 	materialConfiguration.properties().emplace(MaterialConfiguration::SPECULAR_EXPONENT_PROPERTY, 1.5f);
 
 	auto model = std::make_unique<renderer::Model>(

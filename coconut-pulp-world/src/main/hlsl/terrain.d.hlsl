@@ -8,6 +8,8 @@ cbuffer scene {
 Texture2D terrain_heightmap;
 SamplerState terrain_heightmapSampler;
 
+static float tiledTextureScale = 50.0f;
+
 [domain("quad")]
 DomainOut main(
 	PatchTesselation pt,
@@ -22,6 +24,8 @@ DomainOut main(
 		lerp(quad[2].heightmapTexcoord, quad[3].heightmapTexcoord, uv.x),
 		uv.y
 		);
+
+	dout.tiledTexcoord = dout.heightmapTexcoord * tiledTextureScale;
 
 	dout.posW = lerp(
 		lerp(quad[0].posW, quad[1].posW, uv.x),
