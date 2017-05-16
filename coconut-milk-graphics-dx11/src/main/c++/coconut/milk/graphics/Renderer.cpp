@@ -147,7 +147,7 @@ void createD3DDevice(
 
 	checkDirectXCall(
 		dxgiFactory.CreateSwapChain(
-			*device,
+			device->get(),
 			&swapChainDesc,
 			&swapChain->get()
 			),
@@ -161,17 +161,13 @@ void extractBackBuffer(
 	Texture2d* backBuffer
 	)
 {
-	system::COMWrapper<ID3D11Texture2D> texture;
+	auto texture = system::COMWrapper<ID3D11Texture2D>();
 	checkDirectXCall(
 		swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&texture.get())),
 		"Failed to extract the back buffer texture"
 		);
 
-	backBuffer->initialise(
-		renderer,
-		static_cast<Texture::CreationPurposeFlag>(Texture::CreationPurpose::RENDER_TARGET),
-		texture
-		); // TODO: this interface needs work
+	*backBuffer = Texture2d(texture);
 }
 
 } // anonymous namespace
@@ -188,12 +184,13 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	createD3DDevice(window, *dxgiFactory, configuration, refreshRate, &swapChain_, &d3dDevice_, &immediateContext);
 	immediateCommandList_.initialise(immediateContext);
 
-	extractBackBuffer(*this, swapChain_, &backBuffer_);
+	extractBackBuffer(*this, swapChain_.get(), &backBuffer_);
+	backBufferRTV_ = RenderTargetView(*this, backBuffer_);
 
 	UINT quality;
 	d3dDevice_->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &quality); // TODO: literal in code
 
-	Texture2d::Configuration depthStencilConfig;
+	auto depthStencilConfig = Texture2d::Configuration();
 	depthStencilConfig.width = window.clientWidth();
 	depthStencilConfig.height = window.clientHeight();
 	depthStencilConfig.allowGPUWrite = true;
@@ -202,14 +199,15 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	depthStencilConfig.mipLevels = 1;
 	depthStencilConfig.arraySize = 1;
 	depthStencilConfig.pixelFormat = PixelFormat::D32_FLOAT;
-	depthStencilConfig.purposeFlags = static_cast<std::underlying_type_t<Texture2d::CreationPurpose>>(Texture2d::CreationPurpose::DEPTH_STENCIL);
+	depthStencilConfig.purpose = Texture2d::CreationPurpose::DEPTH_STENCIL;
 
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	auto swapChainDesc = DXGI_SWAP_CHAIN_DESC();
 	checkDirectXCall(swapChain_->GetDesc(&swapChainDesc), "Failed to retrieve the swap chain description");
 	depthStencilConfig.sampleCount = swapChainDesc.SampleDesc.Count;
 	depthStencilConfig.sampleQuality = swapChainDesc.SampleDesc.Quality;
 
-	depthStencil_.initialise(*this, depthStencilConfig);
+	depthStencil_ = Texture2d(*this, depthStencilConfig);
+	depthStencilDSV_ = DepthStencilView(*this, depthStencil_);
 }
 
 CommandList& Renderer::getImmediateCommandList() {
@@ -228,9 +226,9 @@ CommandList Renderer::createDeferredCommandList() {
 void Renderer::beginScene() {
 	// TODO: move to pulp or disperse
 	float colour[] = { 1.0f, 0.0f, 1.0f, 1.0f };
-	immediateCommandList_.internalDeviceContext().ClearRenderTargetView(&backBuffer_.internalRenderTargetView(), colour);
+	immediateCommandList_.internalDeviceContext().ClearRenderTargetView(backBufferRTV_.internal(), colour);
 	immediateCommandList_.internalDeviceContext().ClearDepthStencilView(
-		&depthStencil_.internalDepthStencilView(),
+		depthStencilDSV_.internal(),
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		static_cast<UINT8>(0)
@@ -244,14 +242,14 @@ void Renderer::endScene() {
 Renderer::LockedData Renderer::lock(Resource& data, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
-		immediateCommandList_.internalDeviceContext().Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		immediateCommandList_.internalDeviceContext().Map(data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
 		"Failed to map the provided resource"
 		);
 
 	return LockedData(
 		mappedResource.pData,
-		[&deviceContext = immediateCommandList_, &internalBuffer = data.internalResource()](void*) {
-			deviceContext.internalDeviceContext().Unmap(&internalBuffer, 0);
+		[&deviceContext = immediateCommandList_, internalBuffer = data.internalResource()](void*) {
+			deviceContext.internalDeviceContext().Unmap(internalBuffer, 0);
 		}
 		);
 }

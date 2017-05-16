@@ -8,7 +8,7 @@
 #include <functional>
 
 #include <coconut-tools/exceptions/RuntimeError.hpp>
-#include <coconut-tools/enum.hpp>
+#include <coconut-tools/enums.hpp>
 
 #include "Cache.hpp"
 #include "Mount.hpp"
@@ -23,7 +23,7 @@ namespace fs {
 class Filesystem {
 public:
 
-	CCN_MEMBER_ENUM(
+	CT_MEMBER_ENUM(
 		PredecessorHidingPolicy,
 		(HIDE)
 		(ADD)

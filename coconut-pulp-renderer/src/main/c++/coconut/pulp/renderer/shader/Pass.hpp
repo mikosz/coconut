@@ -98,7 +98,7 @@ private:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(Pass);
+CT_MAKE_POINTER_DEFINITIONS(Pass);
 
 } // namespace shader
 } // namespace renderer

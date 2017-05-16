@@ -8,7 +8,7 @@
 #include <d3dcommon.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
-#include <coconut-tools/enum.hpp>
+#include <coconut-tools/enums.hpp>
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
@@ -21,7 +21,7 @@ public:
 
 	struct InputParameterInfo {
 
-		CCN_MEMBER_ENUM_VALUES(
+		CT_MEMBER_ENUM_VALUES(
 			DataType,
 			(FLOAT)(D3D_REGISTER_COMPONENT_FLOAT32)
 			(UINT)(D3D_REGISTER_COMPONENT_UINT32)
@@ -50,7 +50,7 @@ public:
 
 		using Members = std::vector<Member>;
 
-		CCN_MEMBER_ENUM_VALUES(
+		CT_MEMBER_ENUM_VALUES(
 			Class,
 			(SCALAR)(D3D_SVC_SCALAR)
 			(VECTOR)(D3D_SVC_VECTOR)
@@ -60,7 +60,7 @@ public:
 			(STRUCT)(D3D_SVC_STRUCT)
 			);
 
-		CCN_MEMBER_ENUM_VALUES(
+		CT_MEMBER_ENUM_VALUES(
 			ScalarType,
 			(EMPTY)(D3D_SVT_VOID)
 			(BOOL)(D3D_SVT_BOOL)
@@ -119,13 +119,13 @@ public:
 
 	struct ResourceInfo {
 
-		CCN_MEMBER_ENUM_VALUES(
+		CT_MEMBER_ENUM_VALUES(
 			Type,
 			(SAMPLER)(D3D_SIT_SAMPLER)
 			(TEXTURE)(D3D_SIT_TEXTURE)
 			);
 
-		CCN_MEMBER_ENUM_VALUES(
+		CT_MEMBER_ENUM_VALUES(
 			Dimension,
 			(UNKNOWN)(D3D_SRV_DIMENSION_UNKNOWN)
 			(BUFFER)(D3D_SRV_DIMENSION_BUFFER)

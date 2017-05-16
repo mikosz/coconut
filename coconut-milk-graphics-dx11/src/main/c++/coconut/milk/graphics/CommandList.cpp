@@ -8,6 +8,7 @@
 #include "Renderer.hpp"
 #include "RenderState.hpp"
 #include "Resource.hpp"
+#include "ShaderResourceView.hpp"
 #include "Sampler.hpp"
 #include "DirectXError.hpp"
 #include "ShaderType.hpp"
@@ -18,9 +19,6 @@
 using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
-
-CommandList::CommandList() {
-}
 
 CommandList::CommandList(system::COMWrapper<ID3D11DeviceContext> internalDeviceContext) :
 	deviceContext_(std::move(internalDeviceContext))
@@ -52,21 +50,21 @@ void CommandList::drawIndexedInstanced(size_t vertexCountPerInstance, size_t ins
 CommandList::LockedData CommandList::lock(Resource& data, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
-		deviceContext_->Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		deviceContext_->Map(data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
 		"Failed to map the provided resource"
 		);
 
 	return LockedData(
 		reinterpret_cast<std::uint8_t*>(mappedResource.pData),
-		[deviceContext = deviceContext_, &internalBuffer = data.internalResource()](std::uint8_t*) {
-			deviceContext->Unmap(&internalBuffer, 0);
+		[deviceContext = deviceContext_, internalBuffer = data.internalResource()](std::uint8_t*) {
+			deviceContext->Unmap(internalBuffer, 0);
 		}
 		);
 }
 
-void CommandList::setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil) {
-	auto* renderTargetView = &renderTarget.internalRenderTargetView();
-	auto* depthStencilView = &depthStencil.internalDepthStencilView();
+void CommandList::setRenderTarget(const RenderTargetView& rtv, const DepthStencilView& dsv) {
+	auto* renderTargetView = rtv.internal();
+	auto* depthStencilView = dsv.internal();
 	deviceContext_->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 }
 
@@ -113,7 +111,7 @@ void CommandList::setPixelShader(PixelShader* pixelShader) noexcept {
 }
 
 void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, size_t slot) {
-	auto* buf = buffer.internalBuffer();
+	auto* buf = buffer.internalResource();
 
 	switch (stage) {
 	case ShaderType::VERTEX:
@@ -137,7 +135,7 @@ void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, si
 }
 
 void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset) {
-	auto* buf = buffer.internalBuffer();
+	auto* buf = buffer.internalResource();
 
 	deviceContext_->IASetIndexBuffer(buf, static_cast<DXGI_FORMAT>(buffer.pixelFormat()), static_cast<UINT>(offset));
 }
@@ -145,7 +143,7 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset) {
 void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot) {
 	auto strideParam = static_cast<UINT>(buffer.stride());
 	UINT offsetParam = 0;
-	auto* buf = buffer.internalBuffer();
+	auto* buf = buffer.internalResource();
 
 	deviceContext_->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buf, &strideParam, &offsetParam);
 }
@@ -153,13 +151,13 @@ void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot) {
 void CommandList::setInstanceDataBuffer(VertexBuffer& buffer, size_t slot) {
 	auto strideParam = static_cast<UINT>(buffer.stride());
 	UINT offsetParam = 0;
-	auto* buf = buffer.internalBuffer();
+	auto* buf = buffer.internalResource();
 
 	deviceContext_->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buf, &strideParam, &offsetParam);
 }
 
-void CommandList::setResource(const Resource& resource, ShaderType stage, size_t slot) {
-	auto* srv = &resource.internalShaderResourceView();
+void CommandList::setResource(const ShaderResourceView& resource, ShaderType stage, size_t slot) {
+	auto* srv = resource.internal();
 
 	switch (stage) {
 	case ShaderType::VERTEX:

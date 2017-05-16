@@ -115,14 +115,14 @@ void* shader::writeDataProperty(
 
 void shader::bindResourceProperty(
 	DrawCommand& drawCommand,
-	const milk::graphics::Texture2d& texture,
+	const milk::graphics::ShaderResourceView& srv,
 	const PropertyId& id,
 	milk::graphics::ShaderReflection::ResourceInfo::Type type,
 	milk::graphics::ShaderType stage,
 	size_t slot
 	)
 {
-	drawCommand.addTexture(texture, stage, slot);
+	drawCommand.addResource(srv, stage, slot);
 }
 
 void shader::bindResourceProperty(

@@ -86,9 +86,13 @@ private:
 
 	system::COMWrapper<IDXGISwapChain> swapChain_;
 
-	Texture2d backBuffer_;
+	Texture2d backBuffer_; // TODO: need to hold these?
 
-	Texture2d depthStencil_;
+	RenderTargetView backBufferRTV_;
+
+	Texture2d depthStencil_; // TODO: need to hold these?
+
+	DepthStencilView depthStencilDSV_;
 
 };
 

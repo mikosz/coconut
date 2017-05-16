@@ -12,8 +12,8 @@ public:
 
 	VertexBuffer() = default;
 
-	VertexBuffer(Renderer& renderer, const Configuration& configuration, const void* initialData = 0) :
-		Buffer(renderer, CreationPurpose::VERTEX_BUFFER, configuration, initialData),
+	VertexBuffer(Renderer& renderer, const Configuration& configuration) :
+		Buffer(renderer, configuration, CreationPurpose::VERTEX_BUFFER),
 		stride_(configuration.stride)
 	{
 	}

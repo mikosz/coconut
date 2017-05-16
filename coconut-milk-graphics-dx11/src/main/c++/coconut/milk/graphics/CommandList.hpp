@@ -24,6 +24,9 @@ class ConstantBuffer;
 class IndexBuffer;
 class VertexBuffer;
 class Texture2d;
+class RenderTargetView;
+class DepthStencilView;
+class ShaderResourceView;
 class Sampler;
 class RenderState;
 class InputLayout;
@@ -40,7 +43,7 @@ public:
 		WRITE_NO_OVERWRITE = D3D11_MAP_WRITE_NO_OVERWRITE,
 	};
 
-	CommandList();
+	CommandList() = default;
 
 	CommandList(system::COMWrapper<ID3D11DeviceContext> internalDeviceContext);
 
@@ -53,7 +56,7 @@ public:
 
 	LockedData lock(Resource& data, LockPurpose lockPurpose);
 
-	void setRenderTarget(Texture2d& renderTarget, Texture2d& depthStencil);
+	void setRenderTarget(const RenderTargetView& rtv, const DepthStencilView& dsv);
 
 	void setViewport(Viewport& viewport);
 
@@ -77,7 +80,7 @@ public:
 
 	void setInstanceDataBuffer(VertexBuffer& buffer, size_t slot);
 
-	void setResource(const Resource& resource, ShaderType stage, size_t slot);
+	void setResource(const ShaderResourceView& resource, ShaderType stage, size_t slot);
 
 	void setSampler(Sampler& sampler, ShaderType stage, size_t slot);
 

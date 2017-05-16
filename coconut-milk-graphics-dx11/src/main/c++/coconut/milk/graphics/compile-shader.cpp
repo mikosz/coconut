@@ -60,8 +60,8 @@ std::vector<std::uint8_t> coconut::milk::graphics::compileShader(
 		);
 
 	if (errors) {
-		coconut_tools::logger::Level logLevel;
-		std::string prefix;
+		auto logLevel = coconut_tools::logger::Level();
+		auto prefix = std::string();
 
 		if (FAILED(result)) {
 			prefix = "HLSL compiler error";
@@ -72,9 +72,9 @@ std::vector<std::uint8_t> coconut::milk::graphics::compileShader(
 		}
 
 		const auto* wideErrors = reinterpret_cast<const wchar_t*>(errors->GetBufferPointer());
-		auto errors = std::vector<char>((std::wcslen(wideErrors) * MB_CUR_MAX) + 1, '\0');
-		auto res = std::wcstombs(errors.data(), wideErrors, errors.size());
-		CT_LOG(logLevel) << prefix << ": " << errors;
+		auto errorChars = std::vector<char>((std::wcslen(wideErrors) * MB_CUR_MAX) + 1, '\0');
+		auto res = std::wcstombs(errorChars.data(), wideErrors, errorChars.size());
+		CT_LOG(logLevel) << prefix << ": " << errorChars;
 	}
 
 	if (FAILED(result)) {

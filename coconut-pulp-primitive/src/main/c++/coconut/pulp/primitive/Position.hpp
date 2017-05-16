@@ -85,7 +85,7 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Position, position) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, Position, position) {
 	serialiser(SerialiserType::Label("x"), position.x());
 	serialiser(SerialiserType::Label("y"), position.y());
 	serialiser(SerialiserType::Label("z"), position.z());

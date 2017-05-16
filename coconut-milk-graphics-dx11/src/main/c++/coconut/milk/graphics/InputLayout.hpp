@@ -7,7 +7,7 @@
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
-#include <coconut-tools/enum.hpp>
+#include <coconut-tools/enums.hpp>
 
 #include "coconut/milk/system/COMWrapper.hpp"
 
@@ -24,7 +24,7 @@ class Renderer;
 class InputLayout final {
 public:
 
-	CCN_MEMBER_ENUM_VALUES(
+	CT_MEMBER_ENUM_VALUES(
 		SlotType,
 		(PER_VERTEX_DATA)(D3D11_INPUT_PER_VERTEX_DATA)
 		(PER_INSTANCE_DATA)(D3D11_INPUT_PER_INSTANCE_DATA)

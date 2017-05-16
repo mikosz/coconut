@@ -2,6 +2,9 @@
 
 #include <cstring>
 
+#include <d3d11.h>
+#include "coconut/milk/system/cleanup-windows-macros.hpp"
+
 #include <coconut-tools/utils/Range.hpp>
 
 #include "Renderer.hpp"
@@ -12,33 +15,14 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
-Texture2d::Texture2d(Renderer& renderer, const Configuration& configuration) {
-	initialise(renderer, configuration);
-}
+namespace /* anonymous */ {
 
-Texture2d::Texture2d(Renderer& renderer, const Image& image) {
-	Configuration config;
-	config.width = image.size().first;
-	config.height = image.size().second;
-	config.arraySize = image.arraySize();
-	config.mipLevels = image.mipLevels();
-	config.sampleCount = 1;
-	config.sampleQuality = 0;
-	config.pixelFormat = image.pixelFormat();
-	config.allowModifications = false;
-	config.allowCPURead = false;
-	config.allowGPUWrite = false;
-	config.purposeFlags = static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::SHADER_RESOURCE);
-	config.initialData = image.pixels();
-	config.dataRowPitch = image.rowPitch();
-
-	initialise(renderer, config);
-}
-
-void Texture2d::initialise(Renderer& renderer, const Configuration& configuration) {
-	reset();
-
-	D3D11_TEXTURE2D_DESC desc;
+system::COMWrapper<ID3D11Texture2D> createTexture(
+	Renderer& renderer,
+	const Texture2d::Configuration& configuration
+	)
+{
+	auto desc = D3D11_TEXTURE2D_DESC();
 	std::memset(&desc, 0, sizeof(desc));
 
 	// TODO: extract common configuration elements to superclass (when implementing other texture types)
@@ -49,9 +33,10 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 	desc.Format = static_cast<DXGI_FORMAT>(configuration.pixelFormat);
 	desc.SampleDesc.Count = static_cast<UINT>(configuration.sampleCount);
 	desc.SampleDesc.Quality = static_cast<UINT>(configuration.sampleQuality);
-	desc.BindFlags = static_cast<UINT>(configuration.purposeFlags);
+	desc.BindFlags = configuration.purpose.integralValue();
 	desc.MiscFlags = configuration.arraySize == 6 ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0u; // TODO
 
+	// TODO: duplicated with Buffer
 	if (configuration.allowModifications) {
 		if (configuration.allowCPURead) {
 			desc.Usage = D3D11_USAGE_STAGING;
@@ -73,8 +58,8 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 		}
 	}
 
-	std::vector<D3D11_SUBRESOURCE_DATA> subresourceData;
-	D3D11_SUBRESOURCE_DATA* subresourceDataPtr = nullptr;
+	auto subresourceData = std::vector<D3D11_SUBRESOURCE_DATA>();
+	auto* subresourceDataPtr = static_cast<D3D11_SUBRESOURCE_DATA*>(nullptr);
 
 	if (configuration.initialData) {
 		subresourceData.resize(configuration.arraySize * configuration.mipLevels);
@@ -102,28 +87,64 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 		subresourceDataPtr = subresourceData.data();
 	}
 
-	ID3D11Texture2D* texture;
+	auto texture = system::COMWrapper<ID3D11Texture2D>();
 	checkDirectXCall(
-		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture),
+		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture.get()),
 		"Failed to create a 2D texture"
+	);
+
+	return texture;
+}
+
+Texture2d::Configuration createConfiguration(const Image& image) {
+	auto config = Texture2d::Configuration();
+	config.width = image.size().first;
+	config.height = image.size().second;
+	config.arraySize = image.arraySize();
+	config.mipLevels = image.mipLevels();
+	config.sampleCount = 1;
+	config.sampleQuality = 0;
+	config.pixelFormat = image.pixelFormat();
+	config.allowModifications = false;
+	config.allowCPURead = false;
+	config.allowGPUWrite = false;
+	config.purpose = Texture2d::CreationPurpose::SHADER_RESOURCE;
+	config.initialData = image.pixels();
+	config.dataRowPitch = image.rowPitch();
+
+	return config;
+}
+
+} // anonymous namespace
+
+Texture2d::Texture2d(Renderer& renderer, const Configuration& configuration) :
+	Texture(createTexture(renderer, configuration))
+{
+}
+
+Texture2d::Texture2d(Renderer& renderer, const Image& image) :
+	Texture2d(renderer, createConfiguration(image))
+{
+}
+
+RenderTargetView::RenderTargetView(Renderer& renderer, const Texture2d& texture) {
+	checkDirectXCall(
+		renderer.internalDevice().CreateRenderTargetView(
+			texture.internalResource(),
+			nullptr,
+			&rtv_.get()
+			),
+		"Failed to create a render target view of texture"
 		);
-	texture_.reset(texture); // TODO: wtf???!!! getting a crash when using &texture_.get()
-
-	Texture::initialise(renderer, configuration.purposeFlags);
 }
 
-void Texture2d::initialise(
-	Renderer& renderer,
-	CreationPurposeFlag purposeFlags,
-	system::COMWrapper<ID3D11Texture2D> texture
-	) {
-	reset();
-
-	texture_ = std::move(texture);
-
-	Texture::initialise(renderer, purposeFlags);
-}
-
-void Texture2d::reset() {
-	texture_.reset();
+DepthStencilView::DepthStencilView(Renderer& renderer, const Texture2d& texture) {
+	checkDirectXCall(
+		renderer.internalDevice().CreateDepthStencilView(
+			texture.internalResource(),
+			nullptr,
+			&dsv_.get()
+			),
+		"Failed to create a depth stencil view of texture"
+		);
 }

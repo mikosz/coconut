@@ -12,6 +12,7 @@
 #include "coconut/milk/graphics/InputLayout.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
 #include "coconut/milk/graphics/Texture2d.hpp"
+#include "coconut/milk/graphics/ShaderResourceView.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
 #include "coconut/milk/graphics/VertexBuffer.hpp"
 #include "coconut/milk/graphics/IndexBuffer.hpp"
@@ -82,27 +83,27 @@ public:
 		constantBuffersData_.emplace_back(constantBuffer, data, size, stage, slot);
 	}
 
-	void addTexture(
-		const milk::graphics::Texture2d texture,
+	void addResource(
+		milk::graphics::ShaderResourceView resource,
 		milk::graphics::ShaderType stage,
 		size_t slot
 		) {
-		textures2d_.emplace_back(texture, stage, slot);
+		resources_.emplace_back(std::move(resource), stage, slot);
 	}
 
 	void addSampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) {
 		samplers_.emplace_back(std::move(sampler), stage, slot);
 	}
 
-	void setRenderTarget(milk::graphics::Texture2d* texture) { // TODO: pointers
-		renderTarget_ = texture;
+	void setRenderTarget(milk::graphics::RenderTargetView renderTarget) {
+		renderTarget_ = std::move(renderTarget);
 	}
 
-	void setDepthStencil(milk::graphics::Texture2d* texture) {
-		depthStencil_ = texture;
+	void setDepthStencil(milk::graphics::DepthStencilView depthStencil) {
+		depthStencil_ = std::move(depthStencil);
 	}
 
-	void setViewport(milk::graphics::Viewport* viewport) {
+	void setViewport(milk::graphics::Viewport* viewport) { // TODO: pointers
 		viewport_ = viewport;
 	}
 
@@ -157,11 +158,14 @@ private:
 
 	struct Resource {
 
+		milk::graphics::ShaderResourceView srv;
+
 		milk::graphics::ShaderType stage;
 
 		size_t slot;
 
-		Resource(milk::graphics::ShaderType stage, size_t slot) :
+		Resource(milk::graphics::ShaderResourceView srv, milk::graphics::ShaderType stage, size_t slot) :
+			srv(std::move(srv)),
 			stage(stage),
 			slot(slot)
 		{
@@ -169,25 +173,18 @@ private:
 
 	};
 
-	struct Texture2d : Resource {
-
-		milk::graphics::Texture2d texture;
-
-		Texture2d(milk::graphics::Texture2d texture, milk::graphics::ShaderType stage, size_t slot) :
-			Resource(stage, slot),
-			texture(texture)
-		{
-		}
-
-	};
-
-	struct Sampler : Resource {
+	struct Sampler {
 
 		milk::graphics::Sampler sampler;
 
+		milk::graphics::ShaderType stage;
+
+		size_t slot;
+
 		Sampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) :
-			Resource(stage, slot),
-			sampler(sampler)
+			sampler(std::move(sampler)),
+			stage(stage),
+			slot(slot)
 		{
 		}
 
@@ -195,16 +192,16 @@ private:
 
 	using ConstantBuffersData = std::vector<ConstantBufferData>; // TODO: ,,
 
-	using Textures2d = std::vector<Texture2d>; // TODO: ,,
+	using Resources = std::vector<Resource>; // TODO
 
 	using Samplers = std::vector<Sampler>; // TODO: use array to avoid allocs
 
 	// TODO: pointers
 	milk::graphics::Viewport* viewport_ = nullptr;
 
-	milk::graphics::Texture2d* renderTarget_ = nullptr;
+	milk::graphics::RenderTargetView renderTarget_;
 
-	milk::graphics::Texture2d* depthStencil_ = nullptr;
+	milk::graphics::DepthStencilView depthStencil_;;
 
 	const milk::graphics::InputLayout* inputLayout_ = nullptr;
 
@@ -224,7 +221,7 @@ private:
 
 	ConstantBuffersData constantBuffersData_;
 
-	Textures2d textures2d_;
+	Resources resources_;
 
 	milk::graphics::VertexBuffer* vertexBuffer_ = nullptr;
 
@@ -240,7 +237,7 @@ private:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(DrawCommand);
+CT_MAKE_POINTER_DEFINITIONS(DrawCommand);
 
 } // namespace renderer
 } // namespace pulp

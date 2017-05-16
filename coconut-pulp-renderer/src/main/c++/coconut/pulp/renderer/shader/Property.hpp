@@ -12,7 +12,7 @@
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
 #include "coconut/milk/graphics/PixelFormat.hpp"
-#include "coconut/milk/graphics/Texture2d.hpp"
+#include "coconut/milk/graphics/ShaderResourceView.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/pulp/primitive/Primitive.hpp"
 #include "coconut/pulp/math/Vector.hpp"
@@ -336,7 +336,7 @@ void* writeDataProperty(
 
 void bindResourceProperty(
 	DrawCommand& drawCommand,
-	const milk::graphics::Texture2d& texture,
+	const milk::graphics::ShaderResourceView& srv,
 	const PropertyId& id,
 	milk::graphics::ShaderReflection::ResourceInfo::Type type,
 	milk::graphics::ShaderType stage,

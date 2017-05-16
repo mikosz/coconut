@@ -4,13 +4,13 @@
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
-#include <coconut-tools/enum.hpp>
+#include <coconut-tools/enums.hpp>
 
 namespace coconut {
 namespace milk {
 namespace graphics {
 
-CCN_ENUM_VALUES(
+CT_ENUM_VALUES(
 	PixelFormat,
 	// colour formats
 	(R32G32B32A32_FLOAT)(DXGI_FORMAT_R32G32B32A32_FLOAT)
@@ -31,6 +31,9 @@ CCN_ENUM_VALUES(
 	// index formats
 	(I16_UINT)(DXGI_FORMAT_R16_UINT)
 	(I32_UINT)(DXGI_FORMAT_R32_UINT)
+
+	// typeless formats
+	(R24G8_TYPELESS)(DXGI_FORMAT_R24G8_TYPELESS)
 );
 
 size_t formatSize(PixelFormat format);

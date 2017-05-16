@@ -90,7 +90,7 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector, vector) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector, vector) {
 	serialiser(SerialiserType::Label("x"), vector.x());
 	serialiser(SerialiserType::Label("y"), vector.y());
 	serialiser(SerialiserType::Label("z"), vector.z());

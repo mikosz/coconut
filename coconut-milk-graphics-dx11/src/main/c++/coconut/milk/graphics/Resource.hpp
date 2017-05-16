@@ -4,6 +4,8 @@
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
+#include "coconut/milk/system/COMWrapper.hpp"
+
 namespace coconut {
 namespace milk {
 namespace graphics {
@@ -13,22 +15,20 @@ public:
 
 	Resource() = default;
 
-	virtual ~Resource() = default;
-
-	virtual ID3D11Resource& internalResource() = 0;
-
-	virtual ID3D11ShaderResourceView& internalShaderResourceView() const = 0; // TODO: temp
+	ID3D11Resource* internalResource() const noexcept {
+		return resource_.get();
+	}
 
 protected:
 
-	// TODO: is this how it's supposed to be done?
-	Resource(const Resource&) = default;
+	Resource(system::COMWrapper<ID3D11Resource> resource) :
+		resource_(std::move(resource))
+	{
+	}
 
-	Resource(Resource&&) = default;
+private:
 
-	Resource& operator=(const Resource&) = default;
-
-	Resource& operator=(Resource&&) = default;
+	system::COMWrapper<ID3D11Resource> resource_;
 
 };
 

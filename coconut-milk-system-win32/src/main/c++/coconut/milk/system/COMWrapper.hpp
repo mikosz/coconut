@@ -2,6 +2,8 @@
 #define _COCONUT_MILK_SYSTEM_COMWRAPPER_HPP_
 
 #include <cassert>
+#include <utility>
+#include <type_traits>
 
 namespace coconut {
 namespace milk {
@@ -11,17 +13,17 @@ template <class T>
 class COMWrapper {
 public:
 
-	COMWrapper() :
+	COMWrapper() noexcept :
 		comObject_(nullptr)
 	{
 	}
 
-	COMWrapper(T* comObject) :
+	COMWrapper(T* comObject) noexcept :
 		comObject_(comObject)
 	{
 	}
 
-	COMWrapper(const COMWrapper& other) :
+	COMWrapper(const COMWrapper& other) noexcept :
 		comObject_(other.comObject_)
 	{
 		if (comObject_) {
@@ -29,70 +31,66 @@ public:
 		}
 	}
 
-	COMWrapper(COMWrapper&& other) :
-		comObject_(other.comObject_)
+	COMWrapper(COMWrapper&& other) noexcept :
+		COMWrapper()
 	{
-		other.comObject_ = nullptr;
+		swap(other);
 	}
 
-	~COMWrapper() {
+	template <class U, class = std::enable_if_t<std::is_convertible_v<U*, T*>>>
+	COMWrapper(const COMWrapper<U>& other) noexcept :
+		COMWrapper(other.get())
+	{
+		if (comObject_) {
+			comObject_->AddRef();
+		}
+	}
+
+	~COMWrapper() noexcept {
 		reset();
 	}
 
-	// TODO: use idiom
-	COMWrapper& operator=(const COMWrapper& other) {
-		if (&other != this) {
-			reset();
-			comObject_ = other.comObject_;
-			if (comObject_) {
-				comObject_->AddRef();
-			}
-		}
+	explicit operator bool() const noexcept {
+		return comObject_ != nullptr;
+	}
 
+	void swap(COMWrapper& other) noexcept {
+		using std::swap;
+		swap(comObject_, other.comObject_);
+	}
+
+	COMWrapper& operator=(COMWrapper other) noexcept {
+		swap(other);
 		return *this;
 	}
 
-	COMWrapper& operator=(COMWrapper&& other) {
-		if (&other != this) {
-			reset();
-			comObject_ = other.comObject_;
-			other.comObject_ = nullptr;
-		}
-
-		return *this;
-	}
-
-	T* operator->() const {
+	T* operator->() const noexcept {
 		assert(comObject_ != nullptr);
 		return comObject_;
 	}
 
-	T& operator*() const {
+	T& operator*() const noexcept {
 		assert(comObject_ != nullptr);
 		return *comObject_;
 	}
 
-	operator T*() const {
-		return get();
-	}
-
-	void reset() {
+	void reset() noexcept {
 		if (comObject_) {
 			comObject_->Release();
 			comObject_ = 0;
 		}
 	}
 
-	void reset(T* comObject) {
+	void reset(T* comObject) noexcept {
 		reset();
 		comObject_ = comObject;
 	}
 
-	T*& get() { // TODO: WTF? Texture2D::initialise crashes when doing &get()
+	T*& get() noexcept { // TODO: WTF? Texture2D::initialise crashes when doing &get()
 		return comObject_;
 	}
 
-	T* get() const {
+	T* get() const noexcept {
 		return comObject_;
 	}
 

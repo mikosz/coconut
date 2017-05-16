@@ -34,7 +34,7 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Scalar, scalar) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, Scalar, scalar) {
 	serialiser(SerialiserType::Label("value"), scalar.value());
 }
 

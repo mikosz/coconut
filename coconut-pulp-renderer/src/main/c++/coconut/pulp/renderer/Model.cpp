@@ -12,26 +12,13 @@ using namespace coconut::pulp::renderer;
 
 namespace /* anonymous */ {
 
-milk::graphics::Buffer::Configuration vertexBufferConfiguration(
-	size_t vertexCount,
-	size_t vertexSize
-	) {
-	return milk::graphics::Buffer::Configuration(
-		vertexSize * vertexCount,
-		vertexSize,
-		false,
-		false,
-		false
-		);
-}
-
-std::vector<milk::fs::Byte> vertexBufferData(
+milk::graphics::VertexBuffer createVertexBuffer(
+	milk::graphics::Renderer& graphicsRenderer,
+	size_t totalVertices,
 	const shader::Input& shaderInput,
 	mesh::Mesh::Submeshes::iterator submeshIt,
-	mesh::Mesh::Submeshes::iterator submeshEnd,
-	size_t totalVertices
-	)
-{
+	mesh::Mesh::Submeshes::iterator submeshEnd
+	) {
 	auto data = std::vector<milk::fs::Byte>(); // TODO: this should be a common type
 	data.resize(shaderInput.vertexSize() * totalVertices);
 	auto* bufferPtr = reinterpret_cast<void*>(data.data()); // TODO: when above todo is fixed, writeData and all should use it
@@ -44,24 +31,33 @@ std::vector<milk::fs::Byte> vertexBufferData(
 				submesh.vertices().begin(),
 				submesh.vertices().end(),
 				[&shaderInput, &bufferPtr, endPtr, &properties](const auto& vertex) {
-					// TODO: should be nicer. Could set something of the sort of "default object"
-					// in properties, and assume that vertex. prefixes each provided property
-					// descriptor. Then bind only vertex and put the interface in a ReflectiveInterface.
-					// Would then allow for polymorphic vertices, or vertices with differing properties.
-					properties.rebind("position0", static_cast<const primitive::Primitive&>(vertex.position));
-					properties.rebind("normal0", static_cast<const primitive::Primitive&>(vertex.normal));
-					properties.rebind("texcoord0", static_cast<const primitive::Primitive&>(vertex.textureCoordinate));
+						// TODO: should be nicer. Could set something of the sort of "default object"
+						// in properties, and assume that vertex. prefixes each provided property
+						// descriptor. Then bind only vertex and put the interface in a ReflectiveInterface.
+						// Would then allow for polymorphic vertices, or vertices with differing properties.
+						properties.rebind("position0", static_cast<const primitive::Primitive&>(vertex.position));
+						properties.rebind("normal0", static_cast<const primitive::Primitive&>(vertex.normal));
+						properties.rebind("texcoord0", static_cast<const primitive::Primitive&>(vertex.textureCoordinate));
 
-					bufferPtr = shaderInput.writeVertex(bufferPtr, properties);
+						bufferPtr = shaderInput.writeVertex(bufferPtr, properties);
 
-					assert(bufferPtr <= endPtr);
-				}
+						assert(bufferPtr <= endPtr);
+					}
 				);
 		});
 
 	assert(bufferPtr == endPtr);
+	
+	auto configuration = milk::graphics::Buffer::Configuration(
+		shaderInput.vertexSize() * totalVertices,
+		shaderInput.vertexSize(),
+		false,
+		false,
+		false,
+		data.data()
+		);
 
-	return data;
+	return milk::graphics::VertexBuffer(graphicsRenderer, configuration);
 }
 
 size_t indexBufferStride(size_t totalVertices) {
@@ -196,11 +192,7 @@ Model::DrawGroup::DrawGroup(
 	const auto& shaderInput = material.shaderPass().input();
 
 	if (shaderInput.vertexSize() > 0) {
-		vertexBuffer = milk::graphics::VertexBuffer(
-			graphicsRenderer,
-			vertexBufferConfiguration(totalVertices, shaderInput.vertexSize()),
-			vertexBufferData(shaderInput, submeshIt, submeshEnd, totalVertices).data()
-			);
+		vertexBuffer = createVertexBuffer(graphicsRenderer, totalVertices, shaderInput, submeshIt, submeshEnd);
 	}
 
 	indexCount = std::accumulate(submeshIt, submeshEnd, zero, [](size_t v, const auto& submesh) {

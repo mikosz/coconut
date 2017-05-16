@@ -37,8 +37,8 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 
 	}
 
-	for (auto& texture : textures2d_) {
-		commandList.setResource(texture.texture, texture.stage, texture.slot);
+	for (auto& resource : resources_) {
+		commandList.setResource(resource.srv, resource.stage, resource.slot);
 	}
 
 	commandList.setInputLayout(inputLayout_);
@@ -48,7 +48,7 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	commandList.setDomainShader(domainShader_);
 	commandList.setPixelShader(pixelShader_);
 
-	commandList.setRenderTarget(*renderTarget_, *depthStencil_); // TODO: needs to work with null
+	commandList.setRenderTarget(renderTarget_, depthStencil_); // TODO: needs to work with null
 
 	commandList.setViewport(*viewport_);
 
