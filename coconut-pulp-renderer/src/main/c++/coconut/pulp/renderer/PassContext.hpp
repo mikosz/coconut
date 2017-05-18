@@ -30,9 +30,9 @@ public:
 
 	milk::graphics::Viewport* viewport = nullptr;
 
-	milk::graphics::Texture2d* backBuffer = nullptr;
+	milk::graphics::RenderTargetView* backBuffer = nullptr;
 
-	milk::graphics::Texture2d* screenDepthStencil = nullptr;
+	milk::graphics::DepthStencilView* screenDepthStencil = nullptr;
 
 	const Scene* scene = nullptr;
 

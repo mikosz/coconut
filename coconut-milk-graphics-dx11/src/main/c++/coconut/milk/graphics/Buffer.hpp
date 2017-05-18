@@ -59,6 +59,8 @@ public:
 
 	};
 
+	size_t size() const noexcept;
+
 	ID3D11Buffer* internalResource() const noexcept {
 		return reinterpret_cast<ID3D11Buffer*>(Resource::internalResource());
 	}

@@ -100,8 +100,7 @@ Heightmap::Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::Fil
 	auto textureConfiguration = milk::graphics::Texture2d::Configuration();
 	textureConfiguration.width = image.size().first;
 	textureConfiguration.height = image.size().second;
-	textureConfiguration.purposeFlags =
-		milk::utils::integralValue(milk::graphics::Texture2d::CreationPurpose::SHADER_RESOURCE); // TODO: ugh
+	textureConfiguration.purpose = milk::graphics::Texture2d::CreationPurpose::SHADER_RESOURCE;
 	textureConfiguration.pixelFormat = milk::graphics::PixelFormat::R32_FLOAT;
 	textureConfiguration.sampleCount = 1;
 	textureConfiguration.sampleQuality = 0;
@@ -112,7 +111,7 @@ Heightmap::Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::Fil
 	textureConfiguration.allowGPUWrite = false;
 	textureConfiguration.initialData = cellHeights_.data();
 
-	texture_.initialise(graphicsRenderer, textureConfiguration);
+	texture_ = milk::graphics::Texture2d(graphicsRenderer, textureConfiguration);
 
 	auto samplerConfiguration = milk::graphics::Sampler::Configuration();
 	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::CLAMP;

@@ -60,25 +60,12 @@ milk::graphics::VertexBuffer createVertexBuffer(
 	return milk::graphics::VertexBuffer(graphicsRenderer, configuration);
 }
 
-size_t indexBufferStride(size_t totalVertices) {
-	const auto max2ByteIndex = std::numeric_limits<std::uint16_t>::max();
-	return totalVertices <= max2ByteIndex ? 2 : 4;
+size_t indexBufferStride(size_t maxIndex) {
+	constexpr auto max2ByteIndex = std::numeric_limits<std::uint16_t>::max();
+	return maxIndex <= max2ByteIndex ? 2 : 4;
 }
 
-milk::graphics::Buffer::Configuration indexBufferConfiguration(size_t totalIndices, size_t stride) {
-	auto configuration = milk::graphics::Buffer::Configuration(
-		stride * totalIndices,
-		stride,
-		false,
-		false,
-		false
-		);
-
-	return configuration;
-}
-
-template <class IndexType>
-std::vector<std::uint8_t> indexBufferData(
+std::vector<std::uint32_t> indexBufferData(
 	mesh::Mesh::Submeshes::iterator submeshIt,
 	mesh::Mesh::Submeshes::iterator submeshEnd,
 	size_t totalIndices
@@ -88,33 +75,68 @@ std::vector<std::uint8_t> indexBufferData(
 		(submeshIt->primitiveTopology() == milk::graphics::PrimitiveTopology::TRIANGLE_STRIP);
 	const auto totalDegenerateIndices = std::distance(submeshIt, submeshEnd) - 1;
 
-	auto data = std::vector<std::uint8_t>();
-	data.resize(sizeof(IndexType) * (totalIndices + totalDegenerateIndices));
+	auto data = std::vector<std::uint32_t>();
+	data.resize(totalIndices + totalDegenerateIndices);
+	auto* dataPtr = data.data();
 
-	auto* dataPtr = reinterpret_cast<IndexType*>(data.data());
-
-	auto baseIndex = static_cast<IndexType>(0);
+	auto baseIndex = 0u;
 	std::for_each(
 		submeshIt,
 		submeshEnd,
 		[&dataPtr, &baseIndex, needsDegenerateIndices](const auto& submesh) {
 			if (baseIndex != 0 && needsDegenerateIndices) {
-				*dataPtr++ = milk::graphics::IndexBuffer::degenerateIndex<IndexType>();
+				*dataPtr++ = milk::graphics::IndexBuffer::degenerateIndex<std::uint32_t>();
 			}
 			dataPtr = std::transform(
 				submesh.indices().begin(),
 				submesh.indices().end(),
 				dataPtr,
 				[baseIndex](auto index) {
-					return static_cast<IndexType>(index + baseIndex);
+					return static_cast<std::uint32_t>(index + baseIndex);
 				}
 				);
-			baseIndex += static_cast<IndexType>(submesh.vertices().size());
+			baseIndex += static_cast<std::uint32_t>(submesh.vertices().size());
 		});
 
-	assert(dataPtr - reinterpret_cast<IndexType*>(data.data()) == data.size() / sizeof(IndexType));
+	assert(dataPtr - data.data() == data.size());
 
 	return data;
+}
+
+milk::graphics::IndexBuffer createIndexBuffer(
+	milk::graphics::Renderer& graphicsRenderer,
+	size_t indexCount,
+	const shader::Input& shaderInput,
+	mesh::Mesh::Submeshes::iterator submeshIt,
+	mesh::Mesh::Submeshes::iterator submeshEnd
+)
+{
+	const auto indices32 = indexBufferData(submeshIt, submeshEnd, indexCount);
+	assert(!indices32.empty());
+
+	const auto maxIndex = *std::max_element(indices32.begin(), indices32.end());
+
+	auto indices16 = std::vector<std::uint16_t>();
+	const void* indexData = indices32.data();
+
+	const auto stride = indexBufferStride(maxIndex);
+
+	if (stride == 2) {
+		indices16.reserve(indices32.size());
+		std::copy(indices32.begin(), indices32.end(), std::back_inserter(indices16));
+		indexData = indices32.data();
+	}
+
+	const auto configuration = milk::graphics::Buffer::Configuration(
+		stride * indexCount,
+		stride,
+		false,
+		false,
+		false,
+		indexData
+		);
+
+	return milk::graphics::IndexBuffer(graphicsRenderer, configuration);
 }
 
 } // anonymous namespace
@@ -142,7 +164,7 @@ Model::Model(
 		auto end = mesh::Mesh::Submeshes::iterator();
 		std::tie(it, end) = std::equal_range(it, submeshes.end(), *it, submeshMaterialComparator);
 		if (it != submeshes.end()) {
-			auto drawGroup = DrawGroup(
+			drawGroups_.emplace_back(
 				graphicsRenderer,
 				passFactory,
 				filesystemContext,
@@ -150,16 +172,6 @@ Model::Model(
 				end,
 				mesh.materials()[it->materialId()]
 				);
-			drawGroups_.emplace_back(std::move(drawGroup));
-			// TODO: find out a way to use this without VS getting lost in case of exceptions
-			//drawGroups_.emplace_back(
-			//	graphicsRenderer,
-			//	passFactory,
-			//	filesystemContext,
-			//	it,
-			//	end,
-			//	mesh.materials()[it->materialId()]
-			//	);
 			it = end;
 		}
 	}
@@ -199,22 +211,8 @@ Model::DrawGroup::DrawGroup(
 			return v + submesh.indices().size();
 		});
 
-	// TODO: should be max index, not indexCount
-	const auto indexSize = indexBufferStride((totalVertices > 0) ? totalVertices : indexCount);
-	if (indexSize == 2) {
-		indexBuffer = milk::graphics::IndexBuffer(
-			graphicsRenderer,
-			indexBufferConfiguration(indexCount, indexSize),
-			indexBufferData<std::uint16_t>(submeshIt, submeshEnd, indexCount).data()
-			);
-	} else if (indexSize == 4) {
-		indexBuffer = milk::graphics::IndexBuffer(
-			graphicsRenderer,
-			indexBufferConfiguration(indexCount, indexSize),
-			indexBufferData<std::uint32_t>(submeshIt, submeshEnd, indexCount).data()
-			);
-	} else {
-		assert(!("Unexpected index size: " + std::to_string(indexSize)).c_str());
+	if (indexCount > 0) {
+		indexBuffer = createIndexBuffer(graphicsRenderer, indexCount, shaderInput, submeshIt, submeshEnd);
 	}
 }
 
@@ -236,7 +234,7 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 		drawCommand->setPrimitiveTopology(primitiveTopology);
 		
 		const auto instanceBufferSize = passContext.actors->size() * pass.input().instanceSize();
-		if (instanceBufferSize > instanceDataBuffer.configuration().size) { // TODO: TEMP (update conditionally, not here possibly, but in Scene)
+		if (instanceBufferSize > instanceDataBuffer.size()) { // TODO: TEMP (update conditionally, not here possibly, but in Scene)
 			auto buffer = std::vector<std::uint8_t>(instanceBufferSize);
 			auto* outputPtr = reinterpret_cast<void*>(buffer.data());
 			for (const auto& actor : *passContext.actors) {
@@ -249,12 +247,12 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 				pass.input().instanceSize(),
 				true,
 				false,
-				false
+				false,
+				buffer.data()
 				);
 			instanceDataBuffer = milk::graphics::VertexBuffer(
 				*passContext.graphicsRenderer,
-				configuration,
-				buffer.data()
+				configuration
 				);
 		}
 
@@ -263,8 +261,12 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 		drawCommand->setInstanceDataBuffer(&instanceDataBuffer);
 		drawCommand->setInstanceCount(passContext.actors->size());
 
-		drawCommand->setRenderTarget(passContext.backBuffer); // TODO
-		drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
+		if (passContext.backBuffer) {
+			drawCommand->setRenderTarget(*passContext.backBuffer); // TODO
+		}
+		if (passContext.screenDepthStencil) {
+			drawCommand->setDepthStencil(*passContext.screenDepthStencil); // TODO
+		}
 		drawCommand->setViewport(passContext.viewport); // TODO
 
 		commandBuffer.add(std::move(drawCommand));
@@ -287,8 +289,12 @@ void Model::DrawGroup::render(CommandBuffer& commandBuffer, PassContext passCont
 
 			pass.bind(*drawCommand, passContext.properties);
 
-			drawCommand->setRenderTarget(passContext.backBuffer); // TODO
-			drawCommand->setDepthStencil(passContext.screenDepthStencil); // TODO
+			if (passContext.backBuffer) {
+				drawCommand->setRenderTarget(*passContext.backBuffer); // TODO
+			}
+			if (passContext.screenDepthStencil) {
+				drawCommand->setDepthStencil(*passContext.screenDepthStencil); // TODO
+			}
 			drawCommand->setViewport(passContext.viewport); // TODO
 
 			drawCommand->setInstanceCount(1);

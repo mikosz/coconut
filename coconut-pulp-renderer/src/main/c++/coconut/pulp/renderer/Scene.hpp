@@ -82,9 +82,9 @@ private:
 	
 	LensSharedPtr lens_; // TODO
 
-	milk::graphics::Texture2d* renderTarget_; // TODO
+	milk::graphics::RenderTargetView renderTarget_; // TODO
 
-	milk::graphics::Texture2d* depthStencil_; // TODO
+	milk::graphics::DepthStencilView depthStencil_; // TODO
 
 	milk::graphics::Viewport viewport_; // TODO
 

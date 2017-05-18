@@ -16,6 +16,12 @@ Buffer::Buffer(Renderer& renderer, const Configuration& configuration, CreationP
 {
 }
 
+size_t Buffer::size() const noexcept {
+	auto desc = D3D11_BUFFER_DESC();
+	internalResource()->GetDesc(&desc);
+	return desc.ByteWidth;
+}
+
 system::COMWrapper<ID3D11Resource> Buffer::createResource(
 	Renderer& renderer,
 	const Configuration& configuration,
