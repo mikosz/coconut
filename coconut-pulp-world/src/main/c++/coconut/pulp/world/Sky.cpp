@@ -132,6 +132,6 @@ Sky::Sky(
 	const milk::FilesystemContext& fs
 	)
 {
-	// TODO: have to be able to tell, that the skydome is to be rendered at the end
+	// TODO: have to be able to tell that the skydome is to be rendered at the end
 	scene.add(createSkydomeActor(), createSkydomeModel(graphicsRenderer, passFactory, fs));
 }

@@ -2,7 +2,7 @@
 #define _COCONUT_PULP_WORLD_TERRAIN_HPP_
 
 #include "coconut/milk/graphics/Renderer.hpp"
-#include "coconut/milk/graphics/Texture2d.hpp"
+#include "coconut/milk/graphics/ShaderResourceView.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/milk/fs.hpp"
 #include "coconut/pulp/renderer/shader/ReflectiveObject.hpp"
@@ -39,7 +39,7 @@ private:
 
 	Heightmap heightmap_;
 
-	milk::graphics::Texture2d tiledTexture_;
+	milk::graphics::ShaderResourceView tiledTextureSRV_;
 
 	milk::graphics::Sampler tiledTextureSampler_;
 

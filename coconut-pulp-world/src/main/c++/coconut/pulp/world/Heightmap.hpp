@@ -5,7 +5,7 @@
 #include <tuple>
 
 #include "coconut/milk/graphics/Renderer.hpp"
-#include "coconut/milk/graphics/Texture2d.hpp"
+#include "coconut/milk/graphics/ShaderResourceView.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/milk/fs.hpp"
 #include "coconut/pulp/math/Vector.hpp"
@@ -38,8 +38,8 @@ public:
 		return cellEdgeLength_;
 	}
 
-	const milk::graphics::Texture2d& texture() const noexcept {
-		return texture_;
+	const milk::graphics::ShaderResourceView& texture() const noexcept {
+		return textureSRV_;
 	}
 
 	// TODO: temp
@@ -55,7 +55,7 @@ private:
 
 	std::vector<float> cellHeights_;
 
-	milk::graphics::Texture2d texture_;
+	milk::graphics::ShaderResourceView textureSRV_;
 
 	milk::graphics::Sampler sampler_;
 

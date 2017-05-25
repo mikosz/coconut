@@ -10,8 +10,6 @@
 #include "coconut/milk/fs/FilesystemContext.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/RenderState.hpp"
-#include "coconut/milk/graphics/Texture.hpp"
-#include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/pulp/mesh/MaterialConfiguration.hpp"
 #include "shader/Property.hpp"
 #include "shader/PassFactory.hpp"

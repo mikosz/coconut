@@ -3,6 +3,7 @@
 #include <coconut-tools/utils/Range.hpp>
 
 #include "coconut/milk/graphics/ImageLoader.hpp"
+#include "coconut/milk/graphics/Texture2d.hpp"
 #include "foliage/GrassActor.hpp"
 
 using namespace coconut;
@@ -119,7 +120,7 @@ renderer::shader::ReflectiveInterface<Terrain>::ReflectiveInterface() {
 	emplaceMethod("heightmap", [](const Terrain& terrain) { return terrain.heightmap_.texture(); });
 	emplaceMethod("heightmapSampler", [](const Terrain& terrain) { return terrain.heightmap_.sampler(); });
 
-	emplaceMethod("tiledTexture", [](const Terrain& terrain) { return terrain.tiledTexture_; });
+	emplaceMethod("tiledTexture", [](const Terrain& terrain) { return terrain.tiledTextureSRV_; });
 	emplaceMethod("tiledTextureSampler", [](const Terrain& terrain) { return terrain.tiledTextureSampler_; });
 }
 
@@ -131,7 +132,13 @@ Terrain::Terrain(
 	const milk::FilesystemContext& fs
 	) :
 	heightmap_(graphicsRenderer, fs),
-	tiledTexture_(graphicsRenderer, coconut::milk::graphics::ImageLoader().load(fs, "data/terrain/grass.dds"))
+	tiledTextureSRV_(
+		graphicsRenderer,
+		milk::graphics::Texture2d(
+			graphicsRenderer,
+			coconut::milk::graphics::ImageLoader().load(fs, "data/terrain/grass.dds")
+			)
+		)
 {
 	scene.add(createGridActor(), createGridModel(graphicsRenderer, passFactory, fs, heightmap_));
 

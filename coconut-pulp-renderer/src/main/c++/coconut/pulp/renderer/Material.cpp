@@ -1,6 +1,9 @@
 #include "Material.hpp"
 
 #include "coconut/milk/graphics/ImageLoader.hpp"
+#include "coconut/milk/graphics/Texture.hpp"
+#include "coconut/milk/graphics/Sampler.hpp"
+#include "coconut/milk/graphics/ShaderResourceView.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -31,8 +34,9 @@ void bindResourceProperties(
 		// with both texture and sampler specified and name them together. Otherwise should pass name
 		// of sampler through materialConfiguration
 
-		auto texture = milk::graphics::Texture2d(graphicsRenderer, imageLoader.load(filesystemContext, path));
-		shaderProperties.bind(std::move(name), std::move(texture));
+		const auto texture = milk::graphics::Texture2d(graphicsRenderer, imageLoader.load(filesystemContext, path));
+		auto textureSRV = milk::graphics::ShaderResourceView(graphicsRenderer, texture);
+		shaderProperties.bind(std::move(name), std::move(textureSRV));
 	}
 }
 

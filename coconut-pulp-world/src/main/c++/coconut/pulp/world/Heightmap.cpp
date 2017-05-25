@@ -5,6 +5,7 @@
 
 #include <coconut-tools/utils/Range.hpp>
 
+#include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/ImageLoader.hpp"
 #include "coconut/milk/utils/integralValue.hpp"
 
@@ -111,7 +112,8 @@ Heightmap::Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::Fil
 	textureConfiguration.allowGPUWrite = false;
 	textureConfiguration.initialData = cellHeights_.data();
 
-	texture_ = milk::graphics::Texture2d(graphicsRenderer, textureConfiguration);
+	const auto texture = milk::graphics::Texture2d(graphicsRenderer, textureConfiguration);
+	textureSRV_ = milk::graphics::ShaderResourceView(graphicsRenderer, texture);
 
 	auto samplerConfiguration = milk::graphics::Sampler::Configuration();
 	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::CLAMP;
@@ -119,7 +121,7 @@ Heightmap::Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::Fil
 	samplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::CLAMP;
 	samplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_LINEAR_MIP_POINT;
 
-	sampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
+	sampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration);
 }
 
 float Heightmap::heightAt(float x, float z) const {

@@ -124,7 +124,7 @@ milk::graphics::IndexBuffer createIndexBuffer(
 	if (stride == 2) {
 		indices16.reserve(indices32.size());
 		std::copy(indices32.begin(), indices32.end(), std::back_inserter(indices16));
-		indexData = indices32.data();
+		indexData = indices16.data();
 	}
 
 	const auto configuration = milk::graphics::Buffer::Configuration(
