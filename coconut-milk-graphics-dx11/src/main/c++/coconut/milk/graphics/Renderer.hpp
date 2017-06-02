@@ -62,12 +62,12 @@ public:
 
 	LockedData lock(Resource& data, LockPurpose lockPurpose);
 
-	Texture2d& backBuffer() {
-		return backBuffer_;
+	RenderTargetView& backBuffer() {
+		return backBufferRTV_;
 	}
 
-	Texture2d& depthStencil() {
-		return depthStencil_;
+	DepthStencilView& depthStencil() {
+		return depthStencilDSV_;
 	}
 
 	ID3D11Device& internalDevice() {
@@ -86,11 +86,7 @@ private:
 
 	system::COMWrapper<IDXGISwapChain> swapChain_;
 
-	Texture2d backBuffer_; // TODO: need to hold these?
-
 	RenderTargetView backBufferRTV_;
-
-	Texture2d depthStencil_; // TODO: need to hold these?
 
 	DepthStencilView depthStencilDSV_;
 

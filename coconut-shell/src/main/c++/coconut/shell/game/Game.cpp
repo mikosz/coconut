@@ -18,10 +18,12 @@
 #include "coconut/pulp/renderer/Model.hpp"
 #include "coconut/pulp/renderer/ModelFactory.hpp"
 #include "coconut/pulp/renderer/PerspectiveLens.hpp"
+#include "coconut/pulp/renderer/OrthographicLens.hpp"
 #include "coconut/pulp/renderer/OrientedCamera.hpp"
 #include "coconut/pulp/renderer/Scene.hpp"
 #include "coconut/pulp/renderer/Actor.hpp"
 #include "coconut/pulp/renderer/CommandBuffer.hpp"
+#include "coconut/pulp/renderer/lighting/ShadowMap.hpp"
 #include "coconut/pulp/renderer/shader/PassFactory.hpp"
 
 #include "coconut/pulp/world/foliage/GrassActor.hpp"
@@ -106,6 +108,19 @@ void Game::loop() {
 		);
 	scene.add(white);
 
+	pulp::renderer::OrientedCameraSharedPtr lightCamera(new pulp::renderer::OrientedCamera);
+	lightCamera->translate(pulp::math::Vec3(0.0f, 25.0f, 0.0f));
+
+	pulp::renderer::LensSharedPtr lightLens(
+		std::make_unique<pulp::renderer::OrthographicLens>(
+			pulp::math::Handedness::LEFT,
+			100.0f,
+			100.0f,
+			0.001f,
+			1000.0f
+			)
+		);
+
 	/*pulp::renderer::lighting::DirectionalLight red(
 		pulp::math::Vec3(0.0f, 0.0f, 1.0f),
 		pulp::math::Vec4(0.1f, 0.1f, 0.1f, 0.0f),
@@ -131,6 +146,9 @@ void Game::loop() {
 
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;
+
+	pulp::renderer::lighting::ShadowMap shadowMap(*graphicsRenderer_, 800, 600);
+	pulp::renderer::lighting::ShadowMap fukk(*graphicsRenderer_, 800, 600);
 
 	const auto start = std::chrono::steady_clock::now();
 	for (;;) {
@@ -162,10 +180,33 @@ void Game::loop() {
 		
 		auto passContext = pulp::renderer::PassContext();
 		passContext.graphicsRenderer = graphicsRenderer_.get();
-		world.bindShaderProperties(passContext.properties);
 
+		world.bindShaderProperties(passContext.properties);
 		passContext.properties.bind("globalTime", secs);
 
+		commandList.clear(shadowMap.depthDSV(), 1.0f);
+
+		passContext.properties.bind("shadowMap", fukk.depthSRV()); // TODO: supertemp
+
+		passContext.backBuffer = nullptr;
+		passContext.screenDepthStencil = &shadowMap.depthDSV();
+
+		//scene.setCamera(lightCamera);
+		//scene.setLens(lightLens);
+		scene.setCamera(camera);
+		scene.setLens(lens);
+		scene.render(std::move(passContext), commandBuffer);
+
+		passContext.backBuffer = &graphicsRenderer_->backBuffer();
+		passContext.screenDepthStencil = &graphicsRenderer_->depthStencil();
+
+		world.bindShaderProperties(passContext.properties); // TODO: why again?
+		passContext.properties.bind("globalTime", secs);
+
+		passContext.properties.bind("shadowMap", shadowMap.depthSRV());
+
+		scene.setCamera(camera);
+		scene.setLens(lens);
 		scene.render(std::move(passContext), commandBuffer);
 
 		commandBuffer.submit(commandList);

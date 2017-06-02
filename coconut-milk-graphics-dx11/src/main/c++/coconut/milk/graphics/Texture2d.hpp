@@ -78,9 +78,19 @@ private:
 class DepthStencilView {
 public:
 
+	struct Configuration {
+
+		PixelFormat pixelFormat;
+
+		size_t mipSlice = 0u;
+
+	};
+
 	DepthStencilView() = default;
 
 	DepthStencilView(Renderer& renderer, const Texture2d& texture);
+
+	DepthStencilView(Renderer& renderer, const Texture2d& texture, Configuration configuration);
 
 	ID3D11DepthStencilView* internal() const noexcept {
 		return dsv_.get();

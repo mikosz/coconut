@@ -18,9 +18,21 @@ class Buffer;
 class ShaderResourceView {
 public:
 
+	struct Configuration {
+
+		PixelFormat pixelFormat;
+
+		size_t mipLevels = 1u;
+
+		size_t mostDetailedMip = 0u;
+
+	};
+
 	ShaderResourceView() = default;
 
 	ShaderResourceView(Renderer& renderer, const Texture& texture);
+
+	ShaderResourceView(Renderer& renderer, const Texture& texture, Configuration configuration);
 
 	ShaderResourceView(Renderer& renderer, const Buffer& buffer, PixelFormat elementFormat);
 

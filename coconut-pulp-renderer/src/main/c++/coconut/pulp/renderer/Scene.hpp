@@ -55,6 +55,10 @@ public:
 		return pointLights_;
 	}
 
+	milk::graphics::Viewport& viewport() noexcept {
+		return viewport_;
+	}
+
 private:
 
 	struct Instance {
@@ -81,10 +85,6 @@ private:
 	CameraSharedPtr camera_; // TODO
 	
 	LensSharedPtr lens_; // TODO
-
-	milk::graphics::RenderTargetView renderTarget_; // TODO
-
-	milk::graphics::DepthStencilView depthStencil_; // TODO
 
 	milk::graphics::Viewport viewport_; // TODO
 

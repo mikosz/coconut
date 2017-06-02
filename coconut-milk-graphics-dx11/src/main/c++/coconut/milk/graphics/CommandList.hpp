@@ -56,6 +56,12 @@ public:
 
 	LockedData lock(Resource& data, LockPurpose lockPurpose);
 
+	void clearState();
+
+	void clear(const RenderTargetView& rtv, float r, float g, float b, float a);
+
+	void clear(const DepthStencilView& dsv, float d);
+
 	void setRenderTarget(const RenderTargetView& rtv, const DepthStencilView& dsv);
 
 	void setViewport(Viewport& viewport);

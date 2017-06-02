@@ -45,6 +45,9 @@ SamplerState terrain_heightmapSampler;
 Texture2D terrain_tiledTexture;
 SamplerState terrain_tiledTextureSampler;
 
+Texture2D shadowMap;
+//SamplerState shadowMapSampler;
+
 void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
 	ambient = mat.ambientColour * l.ambientColour;
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -129,6 +132,10 @@ float4 main(DomainOut pin) : SV_TARGET
 
 	float4 endColour = saturate(textureColour * (ambient + diffuse) + specular);
 	endColour.a = diffuse.a;
+
+	if (shadowMap[uint2(0, 0)].r > 0.5f) {
+		endColour.r = 1.0f;
+	}
 
 	return endColour;
 }

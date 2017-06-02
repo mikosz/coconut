@@ -18,7 +18,22 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 	assert(vertexBuffer_ != nullptr);
 	assert(primitiveTopology_ != milk::graphics::PrimitiveTopology::INVALID);
 
+	commandList.clearState();
+
+	commandList.setRenderTarget(renderTarget_, depthStencil_); // TODO: needs to work with null
+	commandList.setViewport(*viewport_);
+
 	commandList.setRenderState(*renderState_);
+	
+	commandList.setInputLayout(inputLayout_);
+	commandList.setVertexShader(vertexShader_);
+	commandList.setGeometryShader(geometryShader_);
+	commandList.setHullShader(hullShader_);
+	commandList.setDomainShader(domainShader_);
+	commandList.setPixelShader(pixelShader_);
+
+	commandList.setVertexBuffer(*vertexBuffer_, 0);
+	commandList.setIndexBuffer(*indexBuffer_, 0);
 	
 	for (auto& sampler: samplers_) {
 		commandList.setSampler(sampler.sampler, sampler.stage, sampler.slot);
@@ -34,27 +49,12 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 			constantBufferData.stage,
 			constantBufferData.slot
 			);
-
 	}
 
 	for (auto& resource : resources_) {
 		commandList.setResource(resource.srv, resource.stage, resource.slot);
 	}
 
-	commandList.setInputLayout(inputLayout_);
-	commandList.setVertexShader(vertexShader_);
-	commandList.setGeometryShader(geometryShader_);
-	commandList.setHullShader(hullShader_);
-	commandList.setDomainShader(domainShader_);
-	commandList.setPixelShader(pixelShader_);
-
-	commandList.setRenderTarget(renderTarget_, depthStencil_); // TODO: needs to work with null
-
-	commandList.setViewport(*viewport_);
-
-	commandList.setVertexBuffer(*vertexBuffer_, 0);
-	commandList.setIndexBuffer(*indexBuffer_, 0);
-	
 	if (instanceCount_ > 1) {
 		if (instanceDataBuffer_ != nullptr) {
 			commandList.setVertexBuffer(*instanceDataBuffer_, 1);

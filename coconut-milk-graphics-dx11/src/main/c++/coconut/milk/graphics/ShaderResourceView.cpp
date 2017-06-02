@@ -20,6 +20,30 @@ ShaderResourceView::ShaderResourceView(Renderer& renderer, const Texture& textur
 		);
 }
 
+ShaderResourceView::ShaderResourceView(
+	Renderer& renderer,
+	const Texture& texture,
+	Configuration configuration
+	)
+{
+	auto desc = D3D11_SHADER_RESOURCE_VIEW_DESC();
+	std::memset(&desc, 0, sizeof(desc));
+
+	desc.Format = static_cast<DXGI_FORMAT>(configuration.pixelFormat);
+	desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	desc.Texture2D.MipLevels = configuration.mipLevels;
+	desc.Texture2D.MostDetailedMip = configuration.mostDetailedMip;
+
+	checkDirectXCall(
+		renderer.internalDevice().CreateShaderResourceView(
+			texture.internalResource(),
+			&desc,
+			&srv_.get()
+			),
+		"Failed to create a shader resource view of texture"
+		);
+}
+
 ShaderResourceView::ShaderResourceView(Renderer& renderer, const Buffer& buffer, PixelFormat elementFormat) {
 	auto* bufferInterface = reinterpret_cast<ID3D11Buffer*>(buffer.internalResource());
 	auto bufferDesc = D3D11_BUFFER_DESC();

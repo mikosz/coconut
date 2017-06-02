@@ -39,6 +39,8 @@ public:
 
 		bool frontCounterClockwise;
 
+		bool depthClipEnable = true;
+
 	};
 
 	RenderState(Renderer& renderer, const Configuration& configuration);
@@ -47,9 +49,15 @@ public:
 		return *rasteriserState_;
 	}
 
+	ID3D11DepthStencilState& internalDepthStencilState() const {
+		return *depthStencilState_;
+	}
+
 private:
 
 	system::COMWrapper<ID3D11RasterizerState> rasteriserState_;
+
+	system::COMWrapper<ID3D11DepthStencilState> depthStencilState_;
 
 };
 

@@ -148,3 +148,26 @@ DepthStencilView::DepthStencilView(Renderer& renderer, const Texture2d& texture)
 		"Failed to create a depth stencil view of texture"
 		);
 }
+
+DepthStencilView::DepthStencilView(
+	Renderer& renderer,
+	const Texture2d& texture,
+	Configuration configuration
+	)
+{
+	auto desc = D3D11_DEPTH_STENCIL_VIEW_DESC();
+	std::memset(&desc, 0, sizeof(desc));
+
+	desc.Format = static_cast<DXGI_FORMAT>(configuration.pixelFormat);
+	desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	desc.Texture2D.MipSlice = configuration.mipSlice;
+
+	checkDirectXCall(
+		renderer.internalDevice().CreateDepthStencilView(
+			texture.internalResource(),
+			&desc,
+			&dsv_.get()
+			),
+		"Failed to create a depth stencil view of texture"
+		);
+}

@@ -34,8 +34,6 @@ shader::ReflectiveInterface<Scene>::ReflectiveInterface() {
 }
 
 Scene::Scene(milk::graphics::Renderer& graphicsRenderer) :
-	renderTarget_(graphicsRenderer, graphicsRenderer.backBuffer()), // TODO
-	depthStencil_(graphicsRenderer, graphicsRenderer.depthStencil()), // TODO
 	viewport_(viewportConfiguration()) // TODO
 {
 }
@@ -64,8 +62,6 @@ void Scene::setLens(LensSharedPtr lens) {
 
 void Scene::render(PassContext passContext, CommandBuffer& commandBuffer) {
 	passContext.viewport = &viewport_;
-	passContext.backBuffer = &renderTarget_;
-	passContext.screenDepthStencil = &depthStencil_;
 	passContext.scene = this;
 
 	passContext.properties.bind("scene", renderer::shader::makeReflectiveObject(*this));

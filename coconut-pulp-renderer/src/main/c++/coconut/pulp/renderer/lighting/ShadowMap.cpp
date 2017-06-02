@@ -1,7 +1,5 @@
 #include "ShadowMap.hpp"
 
-#include "coconut/milk/utils/integralValue.hpp"
-
 using namespace coconut;
 using namespace coconut::pulp;
 using namespace coconut::pulp::renderer;
@@ -20,7 +18,7 @@ milk::graphics::Texture2d::Configuration depthTextureConfiguration(size_t width,
 	result.pixelFormat = milk::graphics::PixelFormat::R24G8_TYPELESS;
 	result.allowCPURead = false;
 	result.allowGPUWrite = true;
-	result.allowModifications = true;
+	result.allowModifications = false;
 	result.purpose =
 		milk::graphics::Texture::CreationPurpose::DEPTH_STENCIL |
 		milk::graphics::Texture::CreationPurpose::SHADER_RESOURCE;
@@ -45,7 +43,16 @@ milk::graphics::Viewport::Configuration viewportConfiguration(size_t width, size
 ShadowMap::ShadowMap(milk::graphics::Renderer& graphicsRenderer, size_t width, size_t height) :
 	width_(width),
 	height_(height),
-	depthTexture_(graphicsRenderer, depthTextureConfiguration(width, height)),
 	viewport_(viewportConfiguration(width, height))
 {
+	const auto depthTexture =
+		milk::graphics::Texture2d(graphicsRenderer, depthTextureConfiguration(width, height));
+
+	auto dsvConfiguration = milk::graphics::DepthStencilView::Configuration();
+	dsvConfiguration.pixelFormat = milk::graphics::PixelFormat::D24_UNORM_S8_UINT;
+	depthTextureDSV_ = milk::graphics::DepthStencilView(graphicsRenderer, depthTexture, dsvConfiguration);
+
+	auto srvConfiguration = milk::graphics::ShaderResourceView::Configuration();
+	srvConfiguration.pixelFormat = milk::graphics::PixelFormat::R24_UNORM_X8_TYPELESS;
+	depthTextureSRV_ = milk::graphics::ShaderResourceView(graphicsRenderer, depthTexture, srvConfiguration);
 }

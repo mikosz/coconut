@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <functional>
 
+#include <DirectXMath.h> // TODO: temp
+#include <cassert>
+
 #include <boost/operators.hpp>
 
 #include "coconut-tools/utils/InfixOstreamIterator.hpp"
@@ -237,18 +240,30 @@ public:
 		static_assert(ROWS_ == ROWS, "Rows count changed");
 		static_assert(COLUMNS_ == COLUMNS, "Columns count changed");
 
+		// TODO: temp
+		assert(handedness == Handedness::LEFT);
+		auto m = DirectX::XMFLOAT4X4();
+		DirectX::XMStoreFloat4x4(&m, DirectX::XMMatrixOrthographicOffCenterLH(left, right, bottom, top, near, far));
+
 		auto matrix = Matrix();
-		matrix[0][0] = Scalar(2) / (right - left);
-		matrix[1][1] = Scalar(2) / (top - bottom);
-		if (handedness == Handedness::RIGHT) {
-			matrix[2][2] = -Scalar(2) / (far - near);
-		} else {
-			matrix[2][2] = Scalar(2) / (far - near);
+		for (size_t row = 0; row < 4; ++row) {
+			for (size_t column = 0; column < 4; ++column) {
+				matrix[row][column] = m(row, column);
+			}
 		}
-		matrix[0][3] = -(right + left) / (right - left);
-		matrix[1][3] = -(top + bottom) / (top - bottom);
-		matrix[2][3] = -(far + near) / (far - near);
-		matrix[3][3] = Scalar(1);
+
+		//auto matrix = Matrix();
+		//matrix[0][0] = Scalar(2) / (right - left);
+		//matrix[1][1] = Scalar(2) / (top - bottom);
+		//if (handedness == Handedness::RIGHT) {
+		//	matrix[2][2] = -Scalar(2) / (far - near);
+		//} else {
+		//	matrix[2][2] = Scalar(2) / (far - near);
+		//}
+		//matrix[0][3] = -(right + left) / (right - left);
+		//matrix[1][3] = -(top + bottom) / (top - bottom);
+		//matrix[2][3] = -(far + near) / (far - near);
+		//matrix[3][3] = Scalar(1);
 
 		return matrix;
 	}

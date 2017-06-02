@@ -30,9 +30,9 @@ public:
 
 	milk::graphics::Viewport* viewport = nullptr;
 
-	milk::graphics::RenderTargetView* backBuffer = nullptr;
+	const milk::graphics::RenderTargetView* backBuffer = nullptr; // TODO: rename
 
-	milk::graphics::DepthStencilView* screenDepthStencil = nullptr;
+	const milk::graphics::DepthStencilView* screenDepthStencil = nullptr; // TODO: rename
 
 	const Scene* scene = nullptr;
 

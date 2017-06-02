@@ -62,6 +62,19 @@ CommandList::LockedData CommandList::lock(Resource& data, LockPurpose lockPurpos
 		);
 }
 
+void CommandList::clearState() {
+	deviceContext_->ClearState();
+}
+
+void CommandList::clear(const RenderTargetView& rtv, float r, float g, float b, float a) {
+	float rgba[] = { r, g, b, a };
+	deviceContext_->ClearRenderTargetView(rtv.internal(), rgba);
+}
+
+void CommandList::clear(const DepthStencilView& dsv, float d) {
+	deviceContext_->ClearDepthStencilView(dsv.internal(), D3D11_CLEAR_DEPTH, d, 0u); // TODO: add stencil clear
+}
+
 void CommandList::setRenderTarget(const RenderTargetView& rtv, const DepthStencilView& dsv) {
 	auto* renderTargetView = rtv.internal();
 	auto* depthStencilView = dsv.internal();
@@ -206,4 +219,5 @@ void CommandList::setSampler(Sampler& sampler, ShaderType stage, size_t slot) {
 
 void CommandList::setRenderState(const RenderState& renderState) {
 	deviceContext_->RSSetState(&renderState.internalRasteriserState());
+	deviceContext_->OMSetDepthStencilState(&renderState.internalDepthStencilState(), 0u);
 }

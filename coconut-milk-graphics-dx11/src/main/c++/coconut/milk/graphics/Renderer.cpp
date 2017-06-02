@@ -184,8 +184,9 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	createD3DDevice(window, *dxgiFactory, configuration, refreshRate, &swapChain_, &d3dDevice_, &immediateContext);
 	immediateCommandList_.initialise(immediateContext);
 
-	extractBackBuffer(*this, swapChain_.get(), &backBuffer_);
-	backBufferRTV_ = RenderTargetView(*this, backBuffer_);
+	auto backBuffer = Texture2d();
+	extractBackBuffer(*this, swapChain_.get(), &backBuffer);
+	backBufferRTV_ = RenderTargetView(*this, backBuffer);
 
 	UINT quality;
 	d3dDevice_->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &quality); // TODO: literal in code
@@ -206,8 +207,8 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	depthStencilConfig.sampleCount = swapChainDesc.SampleDesc.Count;
 	depthStencilConfig.sampleQuality = swapChainDesc.SampleDesc.Quality;
 
-	depthStencil_ = Texture2d(*this, depthStencilConfig);
-	depthStencilDSV_ = DepthStencilView(*this, depthStencil_);
+	auto depthStencil = Texture2d(*this, depthStencilConfig);
+	depthStencilDSV_ = DepthStencilView(*this, depthStencil);
 }
 
 CommandList& Renderer::getImmediateCommandList() {
