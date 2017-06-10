@@ -20,8 +20,8 @@ BOOST_AUTO_TEST_CASE(ConstructsValidOrthographicProjection) {
 	const auto expectedLH = Matrix4x4(
 		{ 0.2f, 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 0.4f, 0.0f, 0.0f },
-		{ 0.0f, 0.0f, 0.00999f, 0.0f },
-		{ 0.0f, 0.0f, 0.000999f, 1.0f }
+		{ 0.0f, 0.0f, 0.00999f, 0.000999f },
+		{ 0.0f, 0.0f, 0.0f, 1.0f }
 		);
 
 	BOOST_CHECK_EQUAL(orthoLH.matrix(), expectedLH);
@@ -30,8 +30,8 @@ BOOST_AUTO_TEST_CASE(ConstructsValidOrthographicProjection) {
 	const auto expectedRH = Matrix4x4(
 		{ 0.2f, 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 0.4f, 0.0f, 0.0f },
-		{ 0.0f, 0.0f, -0.0199800f, 0.0f },
-		{ 0.0f, 0.0f, -0.9980019f, 1.0f }
+		{ 0.0f, 0.0f, -0.0199800f, -0.9980019f },
+		{ 0.0f, 0.0f, 0.0f, 1.0f }
 		);
 
 	BOOST_CHECK_EQUAL(orthoRH.matrix(), expectedRH);
@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE(ConstructsExpectedPerspectiveProjectionMatrix) {
 	const auto expectedLH = Matrix4x4(
 		{ 7.958290f, 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 10.611053f, 0.0f, 0.0f },
-		{ 0.0f, 0.0f, 1.001001f, 1.0f },
-		{ 0.0f, 0.0f, -0.100100f, 0.0f }
+		{ 0.0f, 0.0f, 1.001001f, -0.100100f },
+		{ 0.0f, 0.0f, 1.0f, 0.0f }
 		);
 
 	BOOST_CHECK_EQUAL(perspectiveLH.matrix(), expectedLH);
@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE(ConstructsExpectedPerspectiveProjectionMatrix) {
 	const auto expectedRH = Matrix4x4(
 		{ 7.958290f, 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 10.611053f, 0.0f, 0.0f },
-		{ 0.0f, 0.0f, -1.002001f, -1.0f },
-		{ 0.0f, 0.0f, -0.200200f, 0.0f }
+		{ 0.0f, 0.0f, -1.002001f, -0.200200f },
+		{ 0.0f, 0.0f, -1.0f, 0.0f }
 		);
 
 	BOOST_CHECK_EQUAL(perspectiveRH.matrix(), expectedRH);

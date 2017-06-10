@@ -27,9 +27,9 @@ Transform Transform::orthographicProjection(
 	} else {
 		matrix[2][2] = (1.0f - ndcNear) / (far - near);
 	}
-	matrix[3][0] = -(right + left) / (right - left);
-	matrix[3][1] = -(top + bottom) / (top - bottom);
-	matrix[3][2] = (near - (far * ndcNear)) / (near - far);
+	matrix[0][3] = -(right + left) / (right - left);
+	matrix[1][3] = -(top + bottom) / (top - bottom);
+	matrix[2][3] = (near - (far * ndcNear)) / (near - far);
 	matrix[3][3] = 1.0f;
 
 	return Transform(matrix);
@@ -50,14 +50,14 @@ Transform Transform::perspectiveProjection(
 	auto matrix = Matrix4x4();
 	matrix[0][0] = focalLength;
 	matrix[1][1] = focalLength / aspectRatio;
+	matrix[2][3] = -((1 - ndcNear) * far * near) / (far - near);
 	if (handedness == Handedness::RIGHT) {
 		matrix[2][2] = -((-ndcNear * near) + far) / (far - near);
-		matrix[2][3] = -1.0f;
+		matrix[3][2] = -1.0f;
 	} else {
 		matrix[2][2] = ((-ndcNear * near) + far) / (far - near);
-		matrix[2][3] = 1.0f;
+		matrix[3][2] = 1.0f;
 	}
-	matrix[3][2] = -((1 - ndcNear) * far * near) / (far - near);
 
 	return Transform(matrix);
 }
@@ -78,9 +78,9 @@ Transform Transform::perspectiveProjection(
 
 Transform Transform::translation(const Vec3& vector) noexcept {
 	auto matrix = Matrix4x4::IDENTITY;
-	matrix[3][0] = vector.x();
-	matrix[3][1] = vector.y();
-	matrix[3][2] = vector.z();
+	matrix[0][3] = vector.x();
+	matrix[1][3] = vector.y();
+	matrix[2][3] = vector.z();
 
 	return Transform(matrix);
 }
@@ -111,13 +111,13 @@ Transform Transform::rotation(Vec3 around, Angle by) noexcept {
 
 	auto matrix = Matrix4x4();
 	matrix[0][0] = xSq + (1.0f - xSq) * cos;
-	matrix[0][1] = xy * (1.0f - cos) + z * sin;
-	matrix[0][2] = xz * (1.0f - cos) - y * sin;
-	matrix[1][0] = xy * (1.0f - cos) - z * sin;
+	matrix[1][0] = xy * (1.0f - cos) + z * sin;
+	matrix[2][0] = xz * (1.0f - cos) - y * sin;
+	matrix[0][1] = xy * (1.0f - cos) - z * sin;
 	matrix[1][1] = ySq + (1.0f - ySq) * cos;
-	matrix[1][2] = yz * (1.0f - cos) + x * sin;
-	matrix[2][0] = xz * (1.0f - cos) + y * sin;
-	matrix[2][1] = yz * (1.0f - cos) - x * sin;
+	matrix[2][1] = yz * (1.0f - cos) + x * sin;
+	matrix[0][2] = xz * (1.0f - cos) + y * sin;
+	matrix[1][2] = yz * (1.0f - cos) - x * sin;
 	matrix[2][2] = zSq + (1.0f - zSq) * cos;
 	matrix[3][3] = 1.0f;
 

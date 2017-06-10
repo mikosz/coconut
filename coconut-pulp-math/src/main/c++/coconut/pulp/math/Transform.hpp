@@ -80,18 +80,16 @@ public:
 	}
 
 	HomogeneousCoordinates apply(const HomogeneousCoordinates& coords) const noexcept {
-		// TODO: this is ineffective. Need matrix data to be stored in columns rather than rows, OR better yet,
-		// multiply by rows, like everyone in maths does (as does OpenGL).
 		return Vec4(
-			matrix_.column(0).dot(coords),
-			matrix_.column(1).dot(coords),
-			matrix_.column(2).dot(coords),
-			matrix_.column(3).dot(coords)
+			matrix_.row(0).dot(coords),
+			matrix_.row(1).dot(coords),
+			matrix_.row(2).dot(coords),
+			matrix_.row(3).dot(coords)
 			);
 	}
 
 	Transform& append(const Transform& next) noexcept {
-		matrix_ *= next.matrix_;
+		matrix_ = next.matrix_ * matrix_;
 		return *this;
 	}
 
