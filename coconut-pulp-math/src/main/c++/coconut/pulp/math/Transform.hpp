@@ -1,7 +1,7 @@
 #ifndef _COCONUT_PULP_MATH_TRANSFORM_HPP_
 #define _COCONUT_PULP_MATH_TRANSFORM_HPP_
 
-#include "HomogeneousCoords.hpp"
+#include "homogeneous.hpp"
 #include "Matrix.hpp"
 
 namespace coconut {
@@ -13,7 +13,7 @@ public:
 
 	/**
 	 * Creates a perspective projection transformation. Positions within the view frustum are mapped into
-	 * the homogeneous clip-space <[-1, 1], [-1, 1], [0, 1], 1> (DirectX style).
+	 * the homogeneous clip-space <[-1, 1], [-1, 1], [ndcNear, 1], 1>
 	 */
 	static Transform orthographicProjection(
 		Handedness handedness,
@@ -22,21 +22,48 @@ public:
 		float top,
 		float bottom,
 		float near,
-		float far
+		float far,
+		float ndcNear
 		) noexcept;
 
-	// TODO: change clipping coords to [-1, 1] uniformly
-	// TODO: use horizontalFOV
 	/**
 	 * Creates a perspective projection transformation. Positions within the view frustum are mapped into
-	 * the homogeneous clip-space <[-1, 1], [-1, 1], [0, 1], 1> * w (DirectX style).
+	 * the homogeneous clip-space <[-1, 1], [-1, 1], [ndcNear, 1], 1> * w
+	 *
+	 * @param handedness - handedness of the camera's coordinate system
+	 * @param focalLength - distance from the camera to the projection plane
+	 * @param aspectRatio - screen height divided by screen width
+	 * @param near - distance to the near clipping plane
+	 * @param far - distance to the far clipping plane
+	 * @param ndcNear - normalised device coordinates near value (this will be -1 for OpenGL and 0 for DirectX)
 	 */
 	static Transform perspectiveProjection(
 		Handedness handedness,
-		Angle verticalFOV,
+		float focalLength,
 		float aspectRatio,
 		float near,
-		float far
+		float far,
+		float ndcNear
+		) noexcept;
+
+	/**
+	 * Creates a perspective projection transformation. Positions within the view frustum are mapped into
+	 * the homogeneous clip-space <[-1, 1], [-1, 1], [ndcNear, 1], 1> * w
+	 *
+	 * @param handedness - handedness of the camera's coordinate system
+	 * @param horizontalFOV - horizontal field-of-view angle
+	 * @param aspectRatio - screen height divided by screen width
+	 * @param near - distance to the near clipping plane
+	 * @param far - distance to the far clipping plane
+	 * @param ndcNear - normalised device coordinates near value (this will be -1 for OpenGL and 0 for DirectX)
+	 */
+	static Transform perspectiveProjection(
+		Handedness handedness,
+		Angle horizontalFOV,
+		float aspectRatio,
+		float near,
+		float far,
+		float ndcNear
 		) noexcept;
 
 	static Transform translation(const Vec3& vector) noexcept;
@@ -52,7 +79,7 @@ public:
 	{
 	}
 
-	HomogeneousCoords apply(const HomogeneousCoords& coords) const noexcept {
+	HomogeneousCoordinates apply(const HomogeneousCoordinates& coords) const noexcept {
 		// TODO: this is ineffective. Need matrix data to be stored in columns rather than rows, OR better yet,
 		// multiply by rows, like everyone in maths does (as does OpenGL).
 		return Vec4(

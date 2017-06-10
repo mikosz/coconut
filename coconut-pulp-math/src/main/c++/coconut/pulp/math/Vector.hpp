@@ -15,7 +15,6 @@
 #include <boost/operators.hpp>
 
 #include "coconut-tools/utils/InfixOstreamIterator.hpp"
-
 #include "ScalarEqual.hpp"
 
 namespace coconut {

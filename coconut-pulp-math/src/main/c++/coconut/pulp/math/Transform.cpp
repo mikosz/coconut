@@ -15,20 +15,21 @@ Transform Transform::orthographicProjection(
 	float top,
 	float bottom,
 	float near,
-	float far
+	float far,
+	float ndcNear
 	) noexcept
 {
 	auto matrix = Matrix4x4();
 	matrix[0][0] = 2.0f / (right - left);
 	matrix[1][1] = 2.0f / (top - bottom);
 	if (handedness == Handedness::RIGHT) {
-		matrix[2][2] = -1.0f / (far - near);
+		matrix[2][2] = (1.0f - ndcNear) / (near - far);
 	} else {
-		matrix[2][2] = 1.0f / (far - near);
+		matrix[2][2] = (1.0f - ndcNear) / (far - near);
 	}
 	matrix[3][0] = -(right + left) / (right - left);
 	matrix[3][1] = -(top + bottom) / (top - bottom);
-	matrix[3][2] = near / (near - far);
+	matrix[3][2] = (near - (far * ndcNear)) / (near - far);
 	matrix[3][3] = 1.0f;
 
 	return Transform(matrix);
@@ -36,30 +37,43 @@ Transform Transform::orthographicProjection(
 
 Transform Transform::perspectiveProjection(
 	Handedness handedness,
-	Angle verticalFOV,
+	float focalLength,
 	float aspectRatio,
 	float near,
-	float far
+	float far,
+	float ndcNear
 	) noexcept
 {
 	assert(near > 0.0f);
 	assert(near < far);
 
-	const auto scale = 1.0f / std::tan(verticalFOV.radians() / 2.0f);
-
 	auto matrix = Matrix4x4();
-	matrix[0][0] = (1.0f / aspectRatio) * scale;
-	matrix[1][1] = scale;
+	matrix[0][0] = focalLength;
+	matrix[1][1] = focalLength / aspectRatio;
 	if (handedness == Handedness::RIGHT) {
-		matrix[2][2] = -far / (far - near);
+		matrix[2][2] = -((-ndcNear * near) + far) / (far - near);
 		matrix[2][3] = -1.0f;
 	} else {
-		matrix[2][2] = far / (far - near);
+		matrix[2][2] = ((-ndcNear * near) + far) / (far - near);
 		matrix[2][3] = 1.0f;
 	}
-	matrix[3][2] = -far * near / (far - near);
+	matrix[3][2] = -((1 - ndcNear) * far * near) / (far - near);
 
 	return Transform(matrix);
+}
+
+Transform Transform::perspectiveProjection(
+	Handedness handedness,
+	Angle horizontalFOV,
+	float aspectRatio,
+	float near,
+	float far,
+	float ndcNear
+	) noexcept
+{
+	const auto focalLength = 1.0f / std::tan(horizontalFOV.radians() / 2.0f);
+
+	return perspectiveProjection(handedness, focalLength, aspectRatio, near, far, ndcNear);
 }
 
 Transform Transform::translation(const Vec3& vector) noexcept {

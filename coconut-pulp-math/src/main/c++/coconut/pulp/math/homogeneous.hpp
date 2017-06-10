@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_MATH_HOMOGENEOUSCOORDS_HPP_
-#define _COCONUT_PULP_MATH_HOMOGENEOUSCOORDS_HPP_
+#ifndef _COCONUT_PULP_MATH_HOMOGENEOUS_HPP_
+#define _COCONUT_PULP_MATH_HOMOGENEOUS_HPP_
 
 #include "Vector.hpp"
 #include "ScalarEqual.hpp"
@@ -8,32 +8,10 @@ namespace coconut {
 namespace pulp {
 namespace math {
 
-class HomogeneousCoords {
-private:
-
-	struct Point {
-	};
-
-	struct Vector {
-	};
-
+class HomogeneousCoordinates {
 public:
 
-	static constexpr Point POINT{};
-
-	static constexpr Vector VECTOR{};
-
-	constexpr HomogeneousCoords(Vec3 point, Point) noexcept : // TODO: there's a bit too much typing to get this
-		vector_(point, 1.0f)
-	{
-	}
-
-	constexpr HomogeneousCoords(Vec3 vector, Vector) noexcept :
-		vector_(vector, 0.0f)
-	{
-	}
-
-	constexpr HomogeneousCoords(Vec4 vector) noexcept :
+	constexpr HomogeneousCoordinates(Vec4 vector) noexcept :
 		vector_(std::move(vector))
 	{
 	}
@@ -68,11 +46,28 @@ private:
 
 };
 
+class HomogeneousPoint : public HomogeneousCoordinates {
+public:
+
+	explicit constexpr HomogeneousPoint(Vec3 point) noexcept :
+		HomogeneousCoordinates(Vec4(point, 1.0f))
+	{
+	}
+
+};
+
+class HomogeneousVector : public HomogeneousCoordinates {
+public:
+
+	explicit constexpr HomogeneousVector(Vec3 vector) noexcept :
+		HomogeneousCoordinates(Vec4(vector, 0.0f))
+	{
+	}
+
+};
+
 } // namespace math
-
-using math::HomogeneousCoords;
-
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_MATH_HOMOGENEOUSCOORDS_HPP_ */
+#endif /* _COCONUT_PULP_MATH_HOMOGENEOUS_HPP_ */

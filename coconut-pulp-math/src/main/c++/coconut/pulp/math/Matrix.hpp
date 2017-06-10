@@ -307,6 +307,18 @@ public:
 		return *this;
 	}
 
+	friend Vector<Scalar, ROWS, ScalarEqualityFunc> operator*(
+		const Matrix& matrix,
+		const Vector<Scalar, ROWS, ScalarEqualityFunc>& vector
+		) noexcept
+	{
+		auto result = Vector<Scalar, ROWS, ScalarEqualityFunc>();
+		for (auto columnIndex = 0u; columnIndex < COLUMNS; ++columnIndex) {
+			result[columnIndex] = dot(matrix.column(columnIndex), vector);
+		}
+		return result;
+	}
+
 	Matrix& operator/=(Scalar scalar) noexcept {
 		std::transform(elements_.begin(), elements_.end(), elements_.begin(), [scalar](auto element) {
 			return element / scalar;
