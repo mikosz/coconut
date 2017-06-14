@@ -15,28 +15,11 @@
 #include <boost/operators.hpp>
 
 #include "coconut-tools/utils/InfixOstreamIterator.hpp"
+#include "ScalarEqual.hpp"
 
 namespace coconut {
 namespace pulp {
 namespace math {
-
-template <class ScalarType>
-struct ScalarEqual {
-
-	constexpr bool operator()(ScalarType lhs, ScalarType rhs) const noexcept {
-		return std::equal_to<ScalarType>()(lhs, rhs);
-	}
-
-};
-
-template <>
-struct ScalarEqual<float> {
-
-	constexpr bool operator()(float lhs, float rhs) const noexcept {
-		return std::abs(lhs - rhs) < (1.0f / 10000.0f);
-	}
-
-};
 
 template <class ScalarType, size_t DIMENSIONS_PARAM, class ScalarEqualityFunc = ScalarEqual<ScalarType>>
 class Vector :
@@ -51,21 +34,40 @@ public:
 
 	static const auto DIMENSIONS = DIMENSIONS_PARAM;
 
+	using Elements = std::array<Scalar, DIMENSIONS>;
+
 	// --- CONSTRUCTORS AND OPERATORS
 
-	template <class... CompatibleTypes>
-	explicit constexpr Vector(CompatibleTypes&&... values) noexcept {
-		static_assert(sizeof...(values) <= DIMENSIONS, "Too many values");
-		elements_ = { std::forward<CompatibleTypes>(values)... };
-		std::uninitialized_fill(
-			elements_.begin() + sizeof...(values),
-			elements_.end(),
-			Scalar(0)
-			);
+	template <
+		class... CompatibleTypes,
+		class = std::enable_if_t<sizeof...(CompatibleTypes) == DIMENSIONS || sizeof...(CompatibleTypes) == 0>
+		>
+	explicit constexpr Vector(CompatibleTypes&&... values) noexcept :
+		elements_{ std::forward<CompatibleTypes>(values)... }
+	{
+		static_assert(sizeof...(values) == DIMENSIONS || sizeof...(values) == 0, "Bad number of arguments");
 	}
 
+	template <
+		class CompatibleScalarType,
+		size_t OTHER_DIMENSIONS,
+		class OtherScalarEqualityFunc,
+		class... TailTypes,
+		class = std::enable_if_t<sizeof...(TailTypes) + OTHER_DIMENSIONS == DIMENSIONS>
+		>
+	explicit constexpr Vector(
+		const Vector<CompatibleScalarType, OTHER_DIMENSIONS, OtherScalarEqualityFunc>& other,
+		TailTypes&&... tail
+		)
+	{
+		std::copy(other.elements().begin(), other.elements().end(), elements_.begin());
+		setTail_(elements_, OTHER_DIMENSIONS, std::forward<TailTypes>(tail)...);
+	}
+
+	// TODO: consider removing std::initializer_list constructor, as the number of values cannot be
+	// checked at compile-time
 	constexpr Vector(std::initializer_list<Scalar> values) noexcept {
-		assert(values.size() <= DIMENSIONS);
+		assert(values.size() == DIMENSIONS || values.size() == 0);
 		std::copy(values.begin(), values.end(), elements_.begin());
 		std::uninitialized_fill(
 			elements_.begin() + values.size(),
@@ -128,28 +130,33 @@ public:
 
 	// --- VECTOR-SPECIFIC OPERATIONS
 
-	friend Scalar dot(const Vector& lhs, const Vector& rhs) noexcept {
-		return std::inner_product(lhs.elements_.begin(), lhs.elements_.end(), rhs.elements_.begin(), Scalar(0));
+	Scalar dot(const Vector& other) const noexcept {
+		return std::inner_product(elements_.begin(), elements_.end(), other.elements_.begin(), Scalar(0));
 	}
 
-	Vector& crossEq(const Vector& other) noexcept {
-		*this = cross(*this, other);
-		return *this;
+	template <size_t DIMENSIONS_PARAM_ = DIMENSIONS_PARAM>
+	constexpr std::enable_if_t<(DIMENSIONS_PARAM_ == 3), Vector> cross(const Vector& other) const noexcept {
+		static_assert(DIMENSIONS_PARAM_ == DIMENSIONS_PARAM, "Dimensions changed");
+		return {
+			(y() * other.z()) - (z() * other.y()),
+			(z() * other.x()) - (x() * other.z()),
+			(x() * other.y()) - (y() * other.x())
+			};
 	}
 
 	Scalar length() const noexcept {
 		using std::sqrt;
-		return sqrt(dot(*this, *this));
+		return sqrt(lengthSq());
 	}
 
 	Scalar lengthSq() const noexcept {
-		using std::sqrt;
-		return dot(*this, *this);
+		return dot(*this);
 	}
 
 	Vector& normalise() noexcept {
-		if (lengthSq() > Scalar(0)) {
-			*this /= length();
+		const auto l = length();
+		if (l > Scalar(0)) {
+			*this /= l;
 		}
 		return *this;
 	}
@@ -229,21 +236,41 @@ public:
 		return get<3>();
 	}
 
+	constexpr const Elements& elements() const noexcept {
+		return elements_;
+	}
+
 private:
 
-	std::array<Scalar, DIMENSIONS> elements_;
+	Elements elements_;
+
+	template <class HeadType, class... TailTypes>
+	static constexpr void setTail_(
+		Elements& elems,
+		size_t index,
+		HeadType&& head,
+		TailTypes&&... tailTypes
+		) noexcept
+	{
+		elems[index] = std::forward<HeadType>(head);
+		setTail_(elems, index + 1, std::forward<TailTypes>(tailTypes)...);
+	}
+
+	static constexpr void setTail_(Elements&, size_t) noexcept {
+	}
 
 };
 
-template <class VectorType>
-constexpr std::enable_if_t<VectorType::DIMENSIONS == 3, VectorType>
-	cross(const VectorType& lhs, const VectorType& rhs) noexcept
+template <class S, size_t D, class SEF>
+S dot(const Vector<S, D, SEF>& lhs, const Vector<S, D, SEF>& rhs) noexcept {
+	return lhs.dot(rhs);
+}
+
+template <class S, size_t D, class SEF>
+constexpr std::enable_if_t<D == 3, Vector<S, D, SEF>>
+	cross(const Vector<S, D, SEF>& lhs, const Vector<S, D, SEF>& rhs) noexcept
 {
-	return VectorType{
-		(lhs.y() * rhs.z()) - (lhs.z() * rhs.y()),
-		(lhs.z() * rhs.x()) - (lhs.x() * rhs.z()),
-		(lhs.x() * rhs.y()) - (lhs.y() * rhs.x())
-	};
+	return lhs.cross(rhs);
 }
 
 using Vec2 = Vector<float, 2>;
@@ -260,6 +287,8 @@ static_assert(std::is_trivially_copyable<Vec4>::value, "Vector is not trivially 
 
 } // namespace math
 
+// TODO: re-enable when primitive::Vector is removed
+// using math::Vector;
 using math::Vec2;
 using math::Vec3;
 using math::Vec4;

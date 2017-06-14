@@ -26,6 +26,12 @@ class Device;
 class Renderer {
 public:
 
+	constexpr static auto NDC_NEAR = -1.0f;
+
+	constexpr static auto VECTOR_IS_SINGLE_ROW_MATRIX = true;
+
+	constexpr static auto VECTOR_IS_SINGLE_COLUMN_MATRIX = false;
+
 	using LockedData = std::unique_ptr<void, std::function<void(void*)>>;
 
 	enum class LockPurpose {

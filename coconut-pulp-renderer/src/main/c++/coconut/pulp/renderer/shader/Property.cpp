@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+#include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/pulp/renderer/DrawCommand.hpp"
 
 using namespace coconut;
@@ -65,18 +66,31 @@ void* shader::writeDataProperty(
 {
 	static_assert(std::is_trivially_copyable_v<pulp::math::Matrix4x4>, "Matrix is not trivially copyable");
 
-	// TODO: handle row-major matrices
-	if (format.klass != Property::DataType::Class::MATRIX_COLUMN_MAJOR) {
-		throw IncompatibleDataType("Matrices are not writeable to class " + toString(format.klass));
-	}
-
 	if (format.scalarType != Property::DataType::ScalarType::FLOAT) {
 		throw IncompatibleDataType("Matrices are not writeable to scalar type " + toString(format.scalarType));
 	}
 
+	auto needsTranspose = false;
+
+	if (format.klass == Property::DataType::Class::MATRIX_COLUMN_MAJOR) {
+		needsTranspose = math::Matrix4x4::IS_ROW_MAJOR;
+	} else if (format.klass == Property::DataType::Class::MATRIX_ROW_MAJOR) {
+		needsTranspose = math::Matrix4x4::IS_COLUMN_MAJOR;
+	} else {
+		throw IncompatibleDataType("Matrices are not writeable to class " + toString(format.klass));
+	}
+
+	if (math::Matrix4x4::VECTOR_IS_SINGLE_ROW_MATRIX != milk::graphics::Renderer::VECTOR_IS_SINGLE_ROW_MATRIX) {
+		needsTranspose = !needsTranspose;
+	}
+
 	auto* target = reinterpret_cast<pulp::math::Matrix4x4*>(buffer);
-	// TODO: don't transpose if same majority
-	*target = matrix.transpose();
+
+	if (needsTranspose) {
+		*target = transpose(matrix.view());
+	} else {
+		*target = matrix;
+	}
 
 	return target + 1;
 }

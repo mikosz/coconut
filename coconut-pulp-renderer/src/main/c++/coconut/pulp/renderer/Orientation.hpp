@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include "coconut/pulp/math/Matrix.hpp"
+#include "coconut/pulp/math/Transform.hpp"
 #include "coconut/pulp/math/Vector.hpp"
 #include "coconut/milk/utils/Lazy.hpp"
 
@@ -77,12 +77,13 @@ private:
 	void calculateWorldTransformation(Matrix4x4& matrix) {
 		matrix = Matrix4x4::IDENTITY;
 		matrix =
-			Matrix4x4::rotation(Vec3(1.0f, 0.0f, 0.0f), radians(rotation_.x())) * // Vec3 constants for unit vectors
-			Matrix4x4::rotation(Vec3(0.0f, 1.0f, 0.0f), radians(rotation_.y())) *
-			Matrix4x4::rotation(Vec3(0.0f, 0.0f, 1.0f), radians(rotation_.z())) *
-			Matrix4x4::scale(scale_) *
-			Matrix4x4::translation(translation_)
-			;
+			(
+				Transform::rotation(Vec3(1.0f, 0.0f, 0.0f), radians(rotation_.x())) << // Vec3 constants for unit vectors
+				Transform::rotation(Vec3(0.0f, 1.0f, 0.0f), radians(rotation_.y())) <<
+				Transform::rotation(Vec3(0.0f, 0.0f, 1.0f), radians(rotation_.z())) <<
+				Transform::scale(scale_) <<
+				Transform::translation(translation_)
+			).matrix();
 	}
 
 };
