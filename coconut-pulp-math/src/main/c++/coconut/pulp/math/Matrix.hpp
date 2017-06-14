@@ -219,6 +219,14 @@ public:
 
 	using Column = Vector<ScalarType, ROWS, ScalarEqualityFunc>;
 
+	static constexpr auto IS_ROW_MAJOR = true;
+
+	static constexpr auto IS_COLUMN_MAJOR = !IS_ROW_MAJOR;
+
+	static constexpr auto VECTOR_IS_SINGLE_ROW_MATRIX = false;
+
+	static constexpr auto VECTOR_IS_SINGLE_COLUMN_MATRIX = !VECTOR_IS_SINGLE_ROW_MATRIX;
+
 	// --- CONSTRUCTORS AND OPERATORS
 
 	template <class... CompatibleVectorType>
