@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(PlaneIsConstructibleFromNormalAndDistanceFromOrigin) {
 	BOOST_CHECK_CLOSE(p.signedDistanceToOrigin(), 3.0f, 0.01f);
 }
 
-BOOST_AUTO_TEST_CASE(CanTestPointPositionComparedToPlane) {
+BOOST_AUTO_TEST_CASE(CanTestPointPositionWithRespectToPlane) {
 	const auto p = Plane({ 1.0f, 1.0f, 0.1f }, { -1.0f, -1.0f, 1.0f });
 
 	BOOST_CHECK_CLOSE_FRACTION(p.signedDistanceToPoint({ 1.0f, 0.0f, 1.0f }), 2.116036f, 0.01f);

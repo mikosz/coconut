@@ -47,7 +47,7 @@ public:
 		const auto v1 = v();
 		const auto v2 = other.v();
 
-		const auto s = s1 * s2 - dot(v1, v2);
+		const auto s = s1 * s2 - ::dot(v1, v2);
 		const auto v = s1 * v2 + s2 * v1 + cross(v1, v2);
 
 		*this = Quaternion(s, v);
@@ -108,6 +108,10 @@ public:
 		return conjugate() / n;
 	}
 
+	Scalar dot(const Quaternion& other) const noexcept {
+		return elements_.dot(other.elements_);
+	}
+
 	// --- ACCESSORS
 
 	constexpr const ScalarPart s() const noexcept {
@@ -161,6 +165,11 @@ private:
 	Elements elements_;
 
 };
+
+template <class S, class SEF>
+S dot(const Quaternion<S, SEF>& lhs, const Quaternion<S, SEF>& rhs) noexcept {
+	return lhs.dot(rhs);
+}
 
 using Quat = Quaternion<float>;
 

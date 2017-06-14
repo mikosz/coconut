@@ -94,7 +94,7 @@ public:
 	}
 
 	Transform then(const Transform& next) const noexcept {
-		return Transform(*this).append(next.matrix_);
+		return Transform(*this).append(next);
 	}
 
 	const Matrix4x4& matrix() const {
