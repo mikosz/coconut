@@ -91,14 +91,14 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Submesh, submesh) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, Submesh, submesh) {
 	serialiser(SerialiserType::Label("vertices"), submesh.vertices());
 	serialiser(SerialiserType::Label("indices"), submesh.indices());
 	serialiser(SerialiserType::Label("materialId"), submesh.materialId());
 	serialiser(SerialiserType::Label("primitiveTopology"), submesh.primitiveTopology());
 }
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Submesh::Vertex, vertex) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, Submesh::Vertex, vertex) {
 	serialiser(SerialiserType::Label("position"), vertex.position);
 	serialiser(SerialiserType::Label("normal"), vertex.normal);
 	serialiser(SerialiserType::Label("textureCoordinate"), vertex.textureCoordinate);

@@ -18,8 +18,8 @@ public:
 
 	OrientedCamera() :
 		position_([this](Vec3& position) {
-				position = transformation_.inverse()[3].xyz();
-			}) // TODO: could be done with fewer temporaries
+				position = transform_.matrix().transpose().inverse()[3].xyz();
+			}) // TODO: check if inverse / transposed needed. Use view.
 	{
 	}
 
@@ -54,7 +54,7 @@ private:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(OrientedCamera);
+CT_MAKE_POINTER_DEFINITIONS(OrientedCamera);
 
 } // namespace renderer
 } // namespace pulp

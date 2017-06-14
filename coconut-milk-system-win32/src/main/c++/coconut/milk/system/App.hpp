@@ -87,7 +87,7 @@ private:
 } // namespace milk
 } // namespace coconut
 
-#define CCN_BEGIN_MAIN() \
+#define CT_BEGIN_MAIN() \
 	int CALLBACK WinMain(HINSTANCE instance__, HINSTANCE, LPSTR cmdLine__, int cmdShow__) { \
 		{ \
 			coconut::milk::system::GlobalMainArguments::setInstance( \
@@ -96,6 +96,6 @@ private:
 				); \
 		}
 
-#define CCN_END_MAIN() }
+#define CT_END_MAIN() }
 
 #endif /* _COCONUT_MILK_SYSTEM_WIN32_APP_HPP_ */

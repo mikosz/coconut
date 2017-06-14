@@ -26,6 +26,8 @@ class Device;
 class Renderer {
 public:
 
+	constexpr static auto NDC_NEAR = -1.0f;
+
 	using LockedData = std::unique_ptr<void, std::function<void(void*)>>;
 
 	enum class LockPurpose {

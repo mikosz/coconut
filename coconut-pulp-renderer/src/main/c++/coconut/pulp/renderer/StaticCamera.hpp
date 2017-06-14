@@ -16,7 +16,7 @@ public:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(StaticCamera);
+CT_MAKE_POINTER_DEFINITIONS(StaticCamera);
 
 } // namespace renderer
 } // namespace pulp

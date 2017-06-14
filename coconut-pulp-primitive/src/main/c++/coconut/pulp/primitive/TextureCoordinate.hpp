@@ -39,7 +39,7 @@ public:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, TextureCoordinate, textureCoordinate) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, TextureCoordinate, textureCoordinate) {
 	serialiser(SerialiserType::Label("u"), textureCoordinate.u());
 	serialiser(SerialiserType::Label("v"), textureCoordinate.v());
 }

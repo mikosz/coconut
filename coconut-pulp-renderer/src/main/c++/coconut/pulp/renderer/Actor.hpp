@@ -74,7 +74,7 @@ private:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(Actor);
+CT_MAKE_POINTER_DEFINITIONS(Actor);
 
 } // namespace renderer
 } // namespace pulp

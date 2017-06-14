@@ -240,7 +240,7 @@ private:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(DrawCommand);
+CT_MAKE_POINTER_DEFINITIONS(DrawCommand);
 
 } // namespace renderer
 } // namespace pulp

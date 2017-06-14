@@ -76,7 +76,7 @@ void* shader::writeDataProperty(
 
 	auto* target = reinterpret_cast<pulp::math::Matrix4x4*>(buffer);
 	// TODO: don't transpose if same majority
-	*target = matrix.transpose();
+	*target = matrix;//.transpose();
 
 	return target + 1;
 }

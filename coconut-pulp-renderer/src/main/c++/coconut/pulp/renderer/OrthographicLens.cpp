@@ -1,5 +1,6 @@
 #include "OrthographicLens.hpp"
 
+#include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/pulp/math/Transform.hpp"
 
 #include <functional>
@@ -22,7 +23,8 @@ OrthographicLens::OrthographicLens(
 		-viewHeight * 0.5f,
 		viewHeight * 0.5f,
 		nearZ,
-		farZ
+		farZ,
+		milk::graphics::Renderer::NDC_NEAR
 		).matrix())
 {
 }
