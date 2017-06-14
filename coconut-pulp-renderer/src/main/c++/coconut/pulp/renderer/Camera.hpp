@@ -11,7 +11,7 @@ namespace renderer {
 class Camera {
 public:
 
-	virtual const Matrix4x4& viewTransformation() const = 0;
+	virtual const Matrix4x4& viewTransform() const = 0;
 
 	virtual const Vec3& position() const = 0;
 
@@ -22,7 +22,7 @@ protected:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(Camera);
+CT_MAKE_POINTER_DEFINITIONS(Camera);
 
 } // namespace renderer
 } // namespace pulp

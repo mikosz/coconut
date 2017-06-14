@@ -20,7 +20,7 @@ protected:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(Lens);
+CT_MAKE_POINTER_DEFINITIONS(Lens);
 
 } // namespace renderer
 } // namespace pulp

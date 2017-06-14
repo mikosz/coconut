@@ -9,7 +9,9 @@ using namespace coconut::pulp::math;
 
 namespace /* anonymous */ {
 
-BOOST_AUTO_TEST_SUITE(MilkMathAngleTestSuite);
+BOOST_AUTO_TEST_SUITE(PulpTestSuite);
+BOOST_AUTO_TEST_SUITE(PulpMathTestSuite);
+BOOST_AUTO_TEST_SUITE(PulpMathAngleTestSuite);
 
 BOOST_AUTO_TEST_CASE(AngleIsConstructibleWithRadians) {
 	Angle a(3.0_rad);
@@ -53,6 +55,8 @@ BOOST_AUTO_TEST_CASE(AnglesAreComparable) {
 	BOOST_CHECK_GE(radians(4.0f), degrees(180.0f));
 }
 
-BOOST_AUTO_TEST_SUITE_END(/* MilkMathAngleTestSuite */);
+BOOST_AUTO_TEST_SUITE_END(/* PulpMathAngleTestSuite */);
+BOOST_AUTO_TEST_SUITE_END(/* PulpMathTestSuite */);
+BOOST_AUTO_TEST_SUITE_END(/* PulpTestSuite */);
 
 } // anonymous namespace

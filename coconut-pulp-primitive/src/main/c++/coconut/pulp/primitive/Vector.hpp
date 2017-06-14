@@ -48,7 +48,7 @@ public:
 	Vector cross(const Vector& rhs) const {
 		auto lhsV3 = pulp::math::Vec3(x(), y(), z());
 		const auto rhsV3 = pulp::math::Vec3(rhs.x(), rhs.y(), rhs.z());
-		lhsV3.crossEq(rhsV3);
+		lhsV3 = lhsV3.cross(rhsV3);
 		return Vector(lhsV3.x(), lhsV3.y(), lhsV3.z());
 	}
 
@@ -90,7 +90,7 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector, vector) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, Vector, vector) {
 	serialiser(SerialiserType::Label("x"), vector.x());
 	serialiser(SerialiserType::Label("y"), vector.y());
 	serialiser(SerialiserType::Label("z"), vector.z());

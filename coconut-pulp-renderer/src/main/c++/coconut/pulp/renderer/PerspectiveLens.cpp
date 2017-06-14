@@ -1,6 +1,7 @@
 #include "PerspectiveLens.hpp"
 
-#include <functional>
+#include "coconut/milk/graphics/Renderer.hpp"
+#include "coconut/pulp/math/Transform.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
@@ -14,7 +15,14 @@ PerspectiveLens::PerspectiveLens(
 	float farZ
 	) :
 	projectionMatrix_(
-		Matrix4x4::perspectiveProjection(handedness, fov, aspectRatio, nearZ, farZ)
+		Transform::perspectiveProjection(
+			handedness,
+			fov,
+			aspectRatio,
+			nearZ,
+			farZ,
+			milk::graphics::Renderer::NDC_NEAR
+			).matrix()
 		)
 {
 }

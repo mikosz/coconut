@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-#include <coconut-tools/enum.hpp>
+#include <coconut-tools/enums.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
 #include "coconut/milk/utils/integralValue.hpp"
@@ -13,7 +13,7 @@ using namespace coconut::pulp::primitive;
 
 namespace /* anonymous */ {
 
-CCN_ENUM(
+CT_ENUM(
 	PrimitiveDataType,
 	(SCALAR)
 	(POSITION)

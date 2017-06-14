@@ -1,3 +1,4 @@
+# TODO: move finding DirectXTex to a find module
 if(DEFINED DirectXTex_ROOT)
   set(DirectXTex_ALL_HINT ${DirectXTex_ROOT})
   set(DirectXTex_INCLUDE_HINT ${DirectXTex_ROOT})
@@ -48,4 +49,3 @@ set(TEST_LIBRARIES
 library_module(coconut-milk-graphics-dx11 "${TEST_LIBRARIES}" "${DEPENDENCY_LIBRARIES}" ${LIBRARY_TYPE})
 
 cotire(coconut-milk-graphics-dx11)
-cotire(coconut-milk-graphics-dx11_unit-test)

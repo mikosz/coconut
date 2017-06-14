@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
-#include <coconut-tools/enum.hpp>
+#include <coconut-tools/enums.hpp>
 #include <coconut-tools/serialisation.hpp>
 
 #include "coconut/milk/system/COMWrapper.hpp"
@@ -18,14 +18,14 @@ class Renderer;
 class RenderState {
 public:
 
-	CCN_MEMBER_ENUM_VALUES(
+	CT_MEMBER_ENUM_VALUES(
 		CullMode,
 		(BACK)(D3D11_CULL_BACK)
 		(FRONT)(D3D11_CULL_FRONT)
 		(NONE)(D3D11_CULL_NONE)
 		);
 
-	CCN_MEMBER_ENUM_VALUES(
+	CT_MEMBER_ENUM_VALUES(
 		FillMode,
 		(SOLID)(D3D11_FILL_SOLID)
 		(WIREFRAME)(D3D11_FILL_WIREFRAME)
@@ -53,7 +53,7 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, RenderState::Configuration, renderStateConfiguration) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, RenderState::Configuration, renderStateConfiguration) {
 	serialiser(SerialiserType::Label("cullMode"), renderStateConfiguration.cullMode);
 	serialiser(SerialiserType::Label("fillMode"), renderStateConfiguration.fillMode);
 	serialiser(SerialiserType::Label("frontCounterClockwise"), renderStateConfiguration.frontCounterClockwise);

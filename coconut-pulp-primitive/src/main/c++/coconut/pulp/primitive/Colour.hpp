@@ -55,7 +55,7 @@ public:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Colour, colour) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, Colour, colour) {
 	serialiser(SerialiserType::Label("r"), colour.r());
 	serialiser(SerialiserType::Label("g"), colour.g());
 	serialiser(SerialiserType::Label("b"), colour.b());

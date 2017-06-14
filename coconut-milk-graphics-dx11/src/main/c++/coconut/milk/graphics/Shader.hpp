@@ -46,11 +46,11 @@ using HullShader = detail::Shader<ID3D11HullShader>;
 using DomainShader = detail::Shader<ID3D11DomainShader>;
 using PixelShader = detail::Shader<ID3D11PixelShader>;
 
-CCN_MAKE_POINTER_DEFINITIONS(VertexShader);
-CCN_MAKE_POINTER_DEFINITIONS(GeometryShader);
-CCN_MAKE_POINTER_DEFINITIONS(HullShader);
-CCN_MAKE_POINTER_DEFINITIONS(DomainShader);
-CCN_MAKE_POINTER_DEFINITIONS(PixelShader);
+CT_MAKE_POINTER_DEFINITIONS(VertexShader);
+CT_MAKE_POINTER_DEFINITIONS(GeometryShader);
+CT_MAKE_POINTER_DEFINITIONS(HullShader);
+CT_MAKE_POINTER_DEFINITIONS(DomainShader);
+CT_MAKE_POINTER_DEFINITIONS(PixelShader);
 
 } // namespace graphics
 } // namespace milk

@@ -5,13 +5,13 @@
 
 #include <D3DCommon.h>
 
-#include <coconut-tools/enum.hpp>
+#include <coconut-tools/enums.hpp>
 
 namespace coconut {
 namespace milk {
 namespace graphics {
 
-CCN_ENUM_VALUES(
+CT_ENUM_VALUES(
 	PrimitiveTopology,
 	(INVALID)(D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED)
 	(POINT_LIST)(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST)
