@@ -26,7 +26,7 @@ class Device;
 class Renderer {
 public:
 
-	constexpr static auto NDC_NEAR = -1.0f;
+	constexpr static auto NDC_NEAR = 0.0f;
 
 	constexpr static auto VECTOR_IS_SINGLE_ROW_MATRIX = true;
 

@@ -147,8 +147,8 @@ void Game::loop() {
 	auto& commandList = graphicsRenderer_->getImmediateCommandList(); // TODO: access to immediate context as command list
 	pulp::renderer::CommandBuffer commandBuffer;
 
-	pulp::renderer::lighting::ShadowMap shadowMap(*graphicsRenderer_, 800, 600);
-	pulp::renderer::lighting::ShadowMap fukk(*graphicsRenderer_, 800, 600);
+	pulp::renderer::lighting::ShadowMap fukk(*graphicsRenderer_, 800, 800);
+	pulp::renderer::lighting::ShadowMap shadowMap(*graphicsRenderer_, 800, 800);
 
 	const auto start = std::chrono::steady_clock::now();
 	for (;;) {
@@ -191,10 +191,8 @@ void Game::loop() {
 		passContext.backBuffer = nullptr;
 		passContext.screenDepthStencil = &shadowMap.depthDSV();
 
-		//scene.setCamera(lightCamera);
-		//scene.setLens(lightLens);
-		scene.setCamera(camera);
-		scene.setLens(lens);
+		scene.setCamera(lightCamera);
+		scene.setLens(lightLens);
 		scene.render(std::move(passContext), commandBuffer);
 
 		passContext.backBuffer = &graphicsRenderer_->backBuffer();
