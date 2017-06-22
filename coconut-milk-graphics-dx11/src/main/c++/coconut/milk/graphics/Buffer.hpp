@@ -94,7 +94,7 @@ private:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(Buffer);
+CT_MAKE_POINTER_DEFINITIONS(Buffer);
 
 } // namespace graphics
 } // namespace milk

@@ -34,7 +34,7 @@ protected:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(Importer);
+CT_MAKE_POINTER_DEFINITIONS(Importer);
 
 } // namespace mesh
 } // namespace pulp

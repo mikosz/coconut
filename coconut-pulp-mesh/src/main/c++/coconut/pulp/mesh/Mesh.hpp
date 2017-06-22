@@ -54,7 +54,7 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, Mesh, mesh) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, Mesh, mesh) {
 	serialiser(SerialiserType::Label("submeshes"), mesh.submeshes());
 	serialiser(SerialiserType::Label("materials"), mesh.materials());
 }

@@ -188,7 +188,7 @@ private:
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(Parser);
+CT_MAKE_POINTER_DEFINITIONS(Parser);
 
 } // namespace obj
 } // namespace mesh

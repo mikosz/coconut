@@ -13,7 +13,7 @@ using namespace coconut::shell;
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
 
-CCN_BEGIN_MAIN();
+CT_BEGIN_MAIN();
 	//try {
 		auto app = std::make_shared<milk::system::App>(*milk::system::GlobalMainArguments::instance());
 		game::Game theGame(app);
@@ -24,4 +24,4 @@ CCN_BEGIN_MAIN();
 	//	CT_LOG_CRITICAL << "Caught exception: " << e.what();
 	//	return 1;
 	//}
-CCN_END_MAIN();
+CT_END_MAIN();

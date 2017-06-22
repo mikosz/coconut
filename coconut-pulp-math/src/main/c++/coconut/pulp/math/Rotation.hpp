@@ -1,54 +1,72 @@
 #ifndef _COCONUT_MILK_MATH_ROTATION_HPP_
 #define _COCONUT_MILK_MATH_ROTATION_HPP_
 
-#include "Angle.hpp"
+#include "Quaternion.hpp"
 #include "Vector.hpp"
 
-#include <DirectXMath.h>
-
 namespace coconut {
-namespace milk {
+namespace pulp {
 namespace math {
 
-#pragma message("TODO: rewrite!")
+class Angle;
+
 class Rotation {
 public:
 
-	Rotation(const Angle& angle, const Vec3& axis);
+	Rotation(const Vec3& axis, const Angle& angle);
 
-	Rotation(const Vec4& quaternion) :
+	Rotation(const Quat& quaternion) :
 		rotationQuaternion_(quaternion)
 	{
 	}
 
-	Rotation interpolate(const Rotation& other, float factor) const;
+	Vec3 apply(const Vec3& vector) const;
 
-	Vec3 rotate(const Vec3& vector) const;
+	Rotation lerp(const Rotation& other, float factor) const;
 
-	const Vec4& rotationQuaternion() const {
+	Rotation slerp(const Rotation& other, float factor) const;
+
+	Rotation& append(const Rotation& next) noexcept {
+		rotationQuaternion_ = next.rotationQuaternion_ * rotationQuaternion_;
+		return *this;
+	}
+
+	Rotation then(const Rotation& next) const noexcept {
+		return Rotation(*this).append(next);
+	}
+
+	const Quat& rotationQuaternion() const {
 		return rotationQuaternion_;
 	}
 
 private:
 
-	Vec4 rotationQuaternion_;
+	Quat rotationQuaternion_;
 
 };
 
-inline Rotation interpolate(const Rotation& lhs, const Rotation& rhs, float factor) {
-	return lhs.interpolate(rhs, factor);
+inline Rotation operator<<(const Rotation& first, const Rotation& second) {
+	return first.then(second);
+}
+
+inline Rotation lerp(const Rotation& lhs, const Rotation& rhs, float factor) {
+	return lhs.lerp(rhs, factor);
+}
+
+inline Rotation slerp(const Rotation& lhs, const Rotation& rhs, float factor) {
+	return lhs.slerp(rhs, factor);
 }
 
 inline Vec3 rotated(const Vec3& vector, const Rotation& rotation) {
-	return rotation.rotate(vector);
+	return rotation.apply(vector);
 }
 
 inline void rotate(Vec3& vector, const Rotation& rotation) {
-	vector = rotation.rotate(vector);
+	vector = rotation.apply(vector);
 }
 
 } // namespace math
-} // namespace milk
+} // namespace pulp
 } // namespace coconut
 
 #endif /* _COCONUT_MILK_MATH_ROTATION_HPP_ */

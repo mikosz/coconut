@@ -1,7 +1,7 @@
 #ifndef _COCONUT_MILK_GRAPHICS_DX11_SHADERTYPE_HPP_
 #define _COCONUT_MILK_GRAPHICS_DX11_SHADERTYPE_HPP_
 
-#include <coconut-tools/enum.hpp>
+#include <coconut-tools/enums.hpp>
 
 struct ID3D11VertexShader;
 struct ID3D11GeometryShader;
@@ -13,7 +13,7 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-CCN_ENUM(ShaderType,
+CT_ENUM(ShaderType,
 	(VERTEX)
 	(GEOMETRY)
 	(HULL)

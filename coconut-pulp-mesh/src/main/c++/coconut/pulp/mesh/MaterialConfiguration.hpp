@@ -8,7 +8,7 @@
 #include <boost/any.hpp>
 
 #include <coconut-tools/serialisation.hpp>
-#include <coconut-tools/enum.hpp>
+#include <coconut-tools/enums.hpp>
 
 #include <coconut-tools/utils/Range.hpp>
 
@@ -27,7 +27,7 @@ namespace mesh {
 class MaterialConfiguration {
 public:
 
-	CCN_MEMBER_ENUM(PassType,
+	CT_MEMBER_ENUM(PassType,
 		(OPAQUE)
 		(TRANSPARENT)
 	);
@@ -110,7 +110,7 @@ private:
 
 };
 
-CCN_MAKE_SERIALISABLE(SerialiserType, serialiser, MaterialConfiguration, materialConfiguration) {
+CT_MAKE_SERIALISABLE(SerialiserType, serialiser, MaterialConfiguration, materialConfiguration) {
 	serialiser(SerialiserType::Label("passType"), materialConfiguration.passType());
 	serialiser(SerialiserType::Label("shaderName"), materialConfiguration.shaderName());
 	serialiser(SerialiserType::Label("renderStateConfiguration"), materialConfiguration.renderStateConfiguration());

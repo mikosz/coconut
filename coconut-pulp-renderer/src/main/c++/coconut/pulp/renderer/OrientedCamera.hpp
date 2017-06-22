@@ -1,7 +1,7 @@
 #ifndef _COCONUT_PULP_RENDERER_ORIENTEDCAMERA_HPP_
 #define _COCONUT_PULP_RENDERER_ORIENTEDCAMERA_HPP_
 
-#include "coconut/pulp/math/Matrix.hpp"
+#include "coconut/pulp/math/Transform.hpp"
 #include "coconut/pulp/math/Vector.hpp"
 
 #include "coconut/milk/utils/Lazy.hpp"
@@ -12,19 +12,19 @@ namespace coconut {
 namespace pulp {
 namespace renderer {
 
+// TODO: humbug
 class OrientedCamera : public Camera {
 public:
 
 	OrientedCamera() :
-		transformation_(Matrix4x4::IDENTITY),
 		position_([this](Vec3& position) {
-				position = transformation_.inverse()[3].xyz();
-			}) // TODO: could be done with fewer temporaries
+				position = transform_.matrix().transpose().inverse()[3].xyz();
+			}) // TODO: check if inverse / transposed needed. Use view.
 	{
 	}
 
-	const Matrix4x4& viewTransformation() const override {
-		return transformation_;
+	const Matrix4x4& viewTransform() const override {
+		return transform_.matrix();
 	}
 
 	const Vec3& position() const override {
@@ -32,29 +32,29 @@ public:
 	}
 
 	void reset() {
-		transformation_ = Matrix4x4::IDENTITY;
+		transform_ = Transform();
 		position_.invalidate();
 	}
 
 	void translate(const Vec3& translation) {
-		transformation_ *= Matrix4x4::translation(-translation);
+		transform_.append(Transform::translation(-translation));
 		position_.invalidate();
 	}
 
 	void rotate(const Vec3& around, Angle by) {
-		transformation_ *= Matrix4x4::rotation(around, -by);
+		transform_.append(Transform::rotation(around, -by));
 		position_.invalidate();
 	}
 
 private:
 
-	Matrix4x4 transformation_;
+	Transform transform_;
 
 	milk::utils::Lazy<Vec3> position_;
 
 };
 
-CCN_MAKE_POINTER_DEFINITIONS(OrientedCamera);
+CT_MAKE_POINTER_DEFINITIONS(OrientedCamera);
 
 } // namespace renderer
 } // namespace pulp
