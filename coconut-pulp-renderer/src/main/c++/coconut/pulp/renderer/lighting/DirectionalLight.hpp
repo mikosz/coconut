@@ -2,6 +2,7 @@
 #define _COCONUT_PULP_RENDERER_LIGHTING_DIRECTIONALLIGHT_HPP_
 
 #include "coconut/pulp/math/Vector.hpp"
+#include "coconut/pulp/math/Transform.hpp"
 #include "coconut/pulp/renderer/shader/ReflectiveObject.hpp"
 
 namespace coconut {
@@ -24,6 +25,8 @@ public:
 		specularColour_(specularColour)
 	{
 	}
+
+	math::Transform viewProjection() const;
 
 	const pulp::math::Vec3& direction() const {
 		return direction_;

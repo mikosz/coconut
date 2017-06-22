@@ -13,3 +13,11 @@ shader::ReflectiveInterface<DirectionalLight>::ReflectiveInterface() {
 	emplaceMethod("diffuseColour", [](const DirectionalLight& light) { return &light.diffuseColour(); });
 	emplaceMethod("specularColour", [](const DirectionalLight& light) { return &light.specularColour(); });
 }
+
+math::Transform DirectionalLight::viewProjection() const {
+	const auto view = math::Transform();
+
+	const auto projection = math::Transform::OrthographicProjection();
+
+	return view << projection;
+}
