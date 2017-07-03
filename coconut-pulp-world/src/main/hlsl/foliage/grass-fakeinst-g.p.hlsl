@@ -36,6 +36,7 @@ cbuffer GroupData {
 
 Texture2D material_diffuseMap;
 Texture2D material_alphaMap;
+Texture2D material_subsurfaceMap;
 SamplerState material_diffuseMapSampler;
 
 struct PIn {
@@ -46,10 +47,20 @@ struct PIn {
 	float2 tex : TEXCOORD;
 };
 
-void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
+void computeDirectional(
+	Material mat,
+	DirectionalLight l,
+	float3 normal,
+	float3 toEye,
+	out float4 ambient,
+	out float4 diffuse,
+	out float4 specular,
+	out float4 subsurface
+	) {
 	ambient = mat.ambientColour * l.ambientColour;
 	diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	subsurface = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	float3 lightVec = -l.direction;
 	float diffuseFactor = dot(lightVec, normal);
@@ -59,6 +70,11 @@ void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 
 
 		diffuse = diffuseFactor * mat.diffuseColour * l.diffuseColour;
 		specular = specularFactor * mat.specularColour * l.specularColour;
+	}
+
+	float subsurfaceFactor = -diffuseFactor;
+	if (subsurfaceFactor > 0.0f) {
+		subsurface = subsurfaceFactor * mat.diffuseColour * l.diffuseColour;
 	}
 }
 
@@ -90,15 +106,17 @@ float4 main(PIn pin) : SV_TARGET
 	float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	float4 subsurface = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	[unroll]
 	for (uint di = 0; di < directionalLightsCount; ++di) {
-		float4 ambientComp, diffuseComp, specularComp;
-		computeDirectional(material, directionalLights[di], pin.normalW, toEye, ambientComp, diffuseComp, specularComp);
+		float4 ambientComp, diffuseComp, specularComp, subsurfaceComp;
+		computeDirectional(material, directionalLights[di], pin.normalW, toEye, ambientComp, diffuseComp, specularComp, subsurfaceComp);
 
 		ambient += ambientComp;
 		diffuse += diffuseComp;
 		specular += specularComp;
+		subsurface += subsurfaceComp;
 	}
 	
 	//[unroll]
@@ -118,7 +136,13 @@ float4 main(PIn pin) : SV_TARGET
 	float diffuseNoise = 1.0f - (frac(pin.noiseVal * 10.0f) * 0.2f);
 
 	float4 textureColour = material_diffuseMap.Sample(material_diffuseMapSampler, pin.tex);
-	float4 endColour = saturate(textureColour * diffuseNoise * (ambient + diffuse) + specular);
+	float4 subsurfaceColour = material_subsurfaceMap.Sample(material_diffuseMapSampler, pin.tex);
+	
+	float4 endColour = saturate(
+		textureColour * diffuseNoise * (ambient + diffuse)
+		+ subsurfaceColour * subsurface
+		+ specular
+		);
 
 	float alpha = material_alphaMap.Sample(material_diffuseMapSampler, pin.tex).r;
 	endColour.a = alpha; // * diffuse.a;

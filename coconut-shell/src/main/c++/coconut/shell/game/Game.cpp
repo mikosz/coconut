@@ -99,7 +99,7 @@ void Game::loop() {
 	scene.setLens(lens);
 
 	pulp::renderer::lighting::DirectionalLight white(
-		pulp::math::Vec3(-0.5f, -1.0f, 1.0f).normalised(),
+		pulp::math::Vec3(-0.0f, -0.0f, -1.0f).normalised(),
 		pulp::math::Vec4(0.1f, 0.1f, 0.1f, 0.0f),
 		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
 		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 0.0f)

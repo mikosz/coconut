@@ -96,10 +96,15 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 		diffuseSamplerConfiguration
 		);
 	materialConfiguration.addTexture(
+		"subsurfaceMap",
+		filesystemContext.makeAbsolute("data/models/grassSubsurface.png"),
+		diffuseSamplerConfiguration
+	);
+	materialConfiguration.addTexture(
 		"alphaMap",
 		filesystemContext.makeAbsolute("data/models/grassAlpha.png"),
 		diffuseSamplerConfiguration
-	);
+		);
 	materialConfiguration.properties().emplace(MaterialConfiguration::AMBIENT_COLOUR_PROPERTY, Colour(1.0f, 1.0f, 1.0f)); // Colour(0.086f, 0.356f, 0.192f));
 	materialConfiguration.properties().emplace(MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY, Colour(1.0f, 1.0f, 1.0f)); // , Colour(0.086f, 0.356f, 0.192f));
 	materialConfiguration.properties().emplace(MaterialConfiguration::SPECULAR_COLOUR_PROPERTY, Colour(0.05f, 0.05f, 0.05f)); // , Colour(0.05f, 0.05f, 0.05f));
