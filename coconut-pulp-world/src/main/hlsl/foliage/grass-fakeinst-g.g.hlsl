@@ -15,14 +15,15 @@ cbuffer TerrainData {
 
 struct GIn {
 	float3 posW : POSITION;
-	float yScale : BLADE_HEIGHT_SCALE;
+	float noiseVal : NOISE;
 };
 
 struct GOut {
 	float4 posH : SV_POSITION;
-	float4 baseColour : COLOR;
 	float3 posW : POSITION;
+	float noiseVal : NOISE;
 	float3 normalW : NORMAL;
+	float2 tex : TEXCOORD;
 };
 
 static float tiledTextureScale = 50.0f;
@@ -34,10 +35,17 @@ Texture2D terrain_tiledTexture;
 SamplerState terrain_tiledTextureSampler;
 
 static const float3 verts[] = {
-	float3(-0.003f, 0.0f, 0.0f),
-	float3(0.003f, 0.0f, 0.0f),
-	float3(-0.003f, 0.15f, 0.0f),
-	float3(0.003f, 0.15f, 0.0f),
+	float3(-0.005f, 0.0f, 0.0f),
+	float3(0.005f, 0.0f, 0.0f),
+	float3(-0.005f, 0.40f, 0.0f),
+	float3(0.005f, 0.40f, 0.0f),
+};
+
+static const float2 texcoords[] = {
+	float2(0.0f, 1.0f),
+	float2(1.0f, 1.0f),
+	float2(0.0f, 0.0f),
+	float2(1.0f, 0.0f),
 };
 
 //static const float y_step = 0.15f * 0.25f;
@@ -65,8 +73,9 @@ void emit(
 	float3 windFactor
 	)
 {
+	gout.tex = texcoords[index];
 	gout.posW = gin.posW + verts[index];
-	gout.posW.y *= gin.yScale;
+	gout.posW.y *= 1.0f + (gin.noiseVal * 0.05f);
 	gout.posW.y += terrainHeight;
 	gout.posW += windFactor;
 	gout.posH = mul(mul(float4(gout.posW, 1.0f), scene.view), scene.projection);
@@ -86,7 +95,8 @@ void main(point GIn gin[1], inout TriangleStream<GOut> triStream) {
 
 	GOut gout;
 	gout.normalW = float3(0.0f, 0.0f, -1.0f); // TODO
-	gout.baseColour = terrain_tiledTexture.SampleLevel(terrain_tiledTextureSampler, tiledTexcoord, 0);
+	gout.noiseVal = gin[0].noiseVal;
+	//gout.baseColour = terrain_tiledTexture.SampleLevel(terrain_tiledTextureSampler, tiledTexcoord, 0);
 
 	float terrainHeight = terrain_heightmap.SampleLevel(terrain_heightmapSampler, heightmapTexcoord, 0).r;
 

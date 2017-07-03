@@ -74,6 +74,19 @@ Image ImageLoader::load(const FilesystemContext& filesystemContext, const Path& 
 					),
 				"Failed to load a bmp file"
 				);
+		} else if (extension == ".png") {
+			system::checkWindowsCall(
+				DirectX::LoadFromWICMemory( // TODO: definitely refactor
+					imageData->data(),
+					imageData->size(),
+					DirectX::WIC_CODEC_PNG,
+					&metadata,
+					scratchImage
+					),
+				"Failed to load a png file"
+				);
+		} else {
+			throw std::runtime_error("Unsupported image format extension: " + extension);
 		}
 
 		auto pixels = std::vector<std::uint8_t>();

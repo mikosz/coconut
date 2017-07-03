@@ -34,11 +34,16 @@ cbuffer GroupData {
 	Material material;
 }
 
+Texture2D material_diffuseMap;
+Texture2D material_alphaMap;
+SamplerState material_diffuseMapSampler;
+
 struct PIn {
 	float4 posH : SV_POSITION;
-	float4 baseColour : COLOR;
 	float3 posW : POSITION;
+	float noiseVal : NOISE;
 	float3 normalW : NORMAL;
+	float2 tex : TEXCOORD;
 };
 
 void computeDirectional(Material mat, DirectionalLight l, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 specular) {
@@ -106,8 +111,17 @@ float4 main(PIn pin) : SV_TARGET
 	//	specular += specularComp;
 	//}
 
-	float4 endColour = saturate(pin.baseColour * (ambient + diffuse) + specular);
-	endColour.a = 1.0f;
+
+	//float4 endColour = saturate(pin.baseColour * (ambient + diffuse) + specular);
+	//endColour.a = 1.0f;
+	
+	float diffuseNoise = 1.0f - (frac(pin.noiseVal * 10.0f) * 0.2f);
+
+	float4 textureColour = material_diffuseMap.Sample(material_diffuseMapSampler, pin.tex);
+	float4 endColour = saturate(textureColour * diffuseNoise * (ambient + diffuse) + specular);
+
+	float alpha = material_alphaMap.Sample(material_diffuseMapSampler, pin.tex).r;
+	endColour.a = alpha; // * diffuse.a;
 	
 	return endColour;
 }

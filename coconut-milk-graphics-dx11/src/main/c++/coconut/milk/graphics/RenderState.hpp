@@ -33,11 +33,13 @@ public:
 
 	struct Configuration {
 
-		CullMode cullMode;
+		CullMode cullMode = CullMode::BACK;
 
-		FillMode fillMode;
+		FillMode fillMode = FillMode::SOLID;
 
-		bool frontCounterClockwise;
+		bool frontCounterClockwise = false;
+
+		bool blendingEnabled = false;
 
 	};
 
@@ -47,9 +49,15 @@ public:
 		return *rasteriserState_;
 	}
 
+	ID3D11BlendState& internalBlendState() const {
+		return *blendState_;
+	}
+
 private:
 
 	system::COMWrapper<ID3D11RasterizerState> rasteriserState_;
+
+	system::COMWrapper<ID3D11BlendState> blendState_;
 
 };
 

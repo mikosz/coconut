@@ -208,4 +208,5 @@ void CommandList::setSampler(Sampler& sampler, ShaderType stage, size_t slot) {
 
 void CommandList::setRenderState(const RenderState& renderState) {
 	deviceContext_->RSSetState(&renderState.internalRasteriserState());
+	deviceContext_->OMSetBlendState(&renderState.internalBlendState(), 0, 0xffffffff); // TODO: args
 }
