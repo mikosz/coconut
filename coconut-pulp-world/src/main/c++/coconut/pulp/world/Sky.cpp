@@ -108,7 +108,7 @@ renderer::ModelSharedPtr createSkydomeModel(
 	materialConfiguration.renderStateConfiguration() = renderStateConfiguration;
 	materialConfiguration.addTexture(
 		"skydome",
-		fs.makeAbsolute("data/terrain/grass-skydome.dds"),
+		fs.makeAbsolute("terrain/grass-skydome.dds"),
 		skydomeSamplerConfiguration
 		);
 

@@ -131,7 +131,7 @@ Terrain::Terrain(
 	const milk::FilesystemContext& fs
 	) :
 	heightmap_(graphicsRenderer, fs),
-	tiledTexture_(graphicsRenderer, coconut::milk::graphics::ImageLoader().load(fs, "data/terrain/grass.dds"))
+	tiledTexture_(graphicsRenderer, coconut::milk::graphics::ImageLoader().load(fs, "terrain/grass.dds"))
 {
 	scene.add(createGridActor(), createGridModel(graphicsRenderer, passFactory, fs, heightmap_));
 

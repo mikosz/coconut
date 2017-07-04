@@ -87,22 +87,22 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 	materialConfiguration.renderStateConfiguration() = renderStateConfiguration;
 	materialConfiguration.addTexture(
 		MaterialConfiguration::NOISE_MAP_TEXTURE,
-		filesystemContext.makeAbsolute("data/models/noise.tga"),
+		filesystemContext.makeAbsolute("terrain/foliage/noise.tga"),
 		noiseMapSamplerConfiguration
 		);
 	materialConfiguration.addTexture(
 		MaterialConfiguration::DIFFUSE_MAP_TEXTURE,
-		filesystemContext.makeAbsolute("data/models/grassDiffuse.png"),
+		filesystemContext.makeAbsolute("terrain/foliage/grassDiffuse.png"),
 		diffuseSamplerConfiguration
 		);
 	materialConfiguration.addTexture(
 		"subsurfaceMap",
-		filesystemContext.makeAbsolute("data/models/grassSubsurface.png"),
+		filesystemContext.makeAbsolute("terrain/foliage/grassSubsurface.png"),
 		diffuseSamplerConfiguration
 	);
 	materialConfiguration.addTexture(
 		"alphaMap",
-		filesystemContext.makeAbsolute("data/models/grassAlpha.png"),
+		filesystemContext.makeAbsolute("terrain/foliage/grassAlpha.png"),
 		diffuseSamplerConfiguration
 		);
 	materialConfiguration.properties().emplace(MaterialConfiguration::AMBIENT_COLOUR_PROPERTY, Colour(1.0f, 1.0f, 1.0f)); // Colour(0.086f, 0.356f, 0.192f));

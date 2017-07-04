@@ -80,7 +80,7 @@ Heightmap::Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::Fil
 
 	// TODO: fix image api. size() makes no sense, rowPitch doesn't tell whether it's in bytes or pixels,
 	// PixelFormat should have some easy-to-use sampler.
-	const auto image = coconut::milk::graphics::ImageLoader().load(fs, "data/terrain/heightmap.bmp");
+	const auto image = coconut::milk::graphics::ImageLoader().load(fs, "terrain/heightmap.bmp");
 	assert(image.pixelFormat() == coconut::milk::graphics::PixelFormat::R8G8B8A8_UNORM ||
 		image.pixelFormat() == coconut::milk::graphics::PixelFormat::B8G8R8A8_UNORM); // TODO...
 
