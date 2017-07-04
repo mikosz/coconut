@@ -128,7 +128,7 @@ float4 main(DomainOut pin) : SV_TARGET
 	float4 textureColour = terrain_tiledTexture.Sample(terrain_tiledTextureSampler, pin.tiledTexcoord);
 
 	float4 endColour = saturate(textureColour * (ambient + diffuse) + specular);
-	endColour.a = diffuse.a;
+	endColour.a = 1.0f; // diffuse.a;
 
 	return endColour;
 }

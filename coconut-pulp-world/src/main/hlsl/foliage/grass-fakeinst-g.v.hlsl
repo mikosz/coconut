@@ -6,7 +6,7 @@ Texture2D material_noiseMap;
 
 struct VOut {
 	float3 posW : POSITION;
-	float yScale : BLADE_HEIGHT_SCALE;
+	float noiseVal : NOISE;
 };
 
 VOut main(uint bladeId : SV_VertexID)
@@ -33,7 +33,7 @@ VOut main(uint bladeId : SV_VertexID)
 	vout.posW.x += noise.x * OFFSET;
 	vout.posW.z += noise.z * OFFSET;
 
-	vout.yScale = 1.0f + noise.y;
+	vout.noiseVal = noise.y;
 
 	return vout;
 }

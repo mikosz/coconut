@@ -66,12 +66,19 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 	renderStateConfiguration.cullMode = milk::graphics::RenderState::CullMode::NONE;
 	renderStateConfiguration.fillMode = milk::graphics::RenderState::FillMode::SOLID;
 	renderStateConfiguration.frontCounterClockwise = false;
+	renderStateConfiguration.blendingEnabled = true;
 
-	auto samplerConfiguration = milk::graphics::Sampler::Configuration();
-	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
-	samplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
-	samplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
-	samplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_POINT;
+	auto noiseMapSamplerConfiguration = milk::graphics::Sampler::Configuration();
+	noiseMapSamplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
+	noiseMapSamplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
+	noiseMapSamplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
+	noiseMapSamplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_POINT;
+
+	auto diffuseSamplerConfiguration = milk::graphics::Sampler::Configuration();
+	diffuseSamplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::CLAMP;
+	diffuseSamplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::CLAMP;
+	diffuseSamplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::CLAMP;
+	diffuseSamplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_LINEAR_MIP_POINT;
 
 	// TODO: shouldn't be hardcoded
 	materialConfiguration.passType() = MaterialConfiguration::PassType::OPAQUE;
@@ -81,7 +88,22 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 	materialConfiguration.addTexture(
 		MaterialConfiguration::NOISE_MAP_TEXTURE,
 		filesystemContext.makeAbsolute("data/models/noise.tga"),
-		samplerConfiguration
+		noiseMapSamplerConfiguration
+		);
+	materialConfiguration.addTexture(
+		MaterialConfiguration::DIFFUSE_MAP_TEXTURE,
+		filesystemContext.makeAbsolute("data/models/grassDiffuse.png"),
+		diffuseSamplerConfiguration
+		);
+	materialConfiguration.addTexture(
+		"subsurfaceMap",
+		filesystemContext.makeAbsolute("data/models/grassSubsurface.png"),
+		diffuseSamplerConfiguration
+	);
+	materialConfiguration.addTexture(
+		"alphaMap",
+		filesystemContext.makeAbsolute("data/models/grassAlpha.png"),
+		diffuseSamplerConfiguration
 		);
 	materialConfiguration.properties().emplace(MaterialConfiguration::AMBIENT_COLOUR_PROPERTY, Colour(1.0f, 1.0f, 1.0f)); // Colour(0.086f, 0.356f, 0.192f));
 	materialConfiguration.properties().emplace(MaterialConfiguration::DIFFUSE_COLOUR_PROPERTY, Colour(1.0f, 1.0f, 1.0f)); // , Colour(0.086f, 0.356f, 0.192f));
