@@ -74,12 +74,8 @@ void Game::loop() {
 	auto fs = milk::FilesystemContext(filesystem_);
 
 	pulp::renderer::shader::PassFactory passFactory;
-	// TODO: temp
-#ifdef NDEBUG
-	passFactory.scanCompiledShaderDirectory(fs, "Release");
-#else
-	passFactory.scanCompiledShaderDirectory(fs, "Debug");
-#endif
+	passFactory.scanShaderCodeDirectory(fs, "shaders");
+	passFactory.scanShaderCodeDirectory(fs, "shaders/foliage"); // TODO: why is it not recursive?
 
 	auto scene = pulp::renderer::Scene(*graphicsRenderer_);
 

@@ -347,8 +347,21 @@ std::tuple<std::vector<std::uint8_t>, milk::graphics::ShaderType> detail::Shader
 		CT_LOG_INFO << "Compiling shader at " << shaderInfo.shaderCodePath << "::" << shaderInfo.entrypoint;
 
 		const auto shaderCode = filesystemContext.load(shaderInfo.shaderCodePath);
+
+		const auto shaderDir = shaderInfo.shaderCodePath.parent();
+		const auto includeFSContext = filesystemContext.createContext(shaderDir);
+		auto shaderIncludeHandler = [&includeFSContext](const auto& path) {
+				return includeFSContext.load(path);
+			};
+		auto shaderBytecode = milk::graphics::compileShader(
+			*shaderCode,
+			shaderInfo.entrypoint,
+			shaderInfo.shaderType,
+			std::move(shaderIncludeHandler)
+			);
+
 		return std::make_tuple(
-			milk::graphics::compileShader(*shaderCode, shaderInfo.entrypoint, shaderInfo.shaderType),
+			std::move(shaderBytecode),
 			shaderInfo.shaderType
 			);
 	} else if (compiledShaderInfos_.count(id) != 0) {

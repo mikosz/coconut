@@ -3,8 +3,12 @@
 
 #include <d3dcommon.h>
 
+#include <functional>
 #include <vector>
 #include <cstddef>
+#include <memory>
+#include <iosfwd>
+#include <string>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include "coconut/milk/system/COMWrapper.hpp"
@@ -15,10 +19,14 @@ namespace coconut {
 namespace milk {
 namespace graphics {
 
-std::vector<std::uint8_t> compileShader(
-	const std::vector<std::uint8_t>& shaderData,
+using ShaderData = const std::vector<std::uint8_t>;
+using ShaderIncludeHandler = std::function<std::shared_ptr<ShaderData>(const std::string&)>;
+
+ShaderData compileShader(
+	const std::vector<std::uint8_t>& shaderCode,
 	const std::string& entrypoint,
-	ShaderType shaderType
+	ShaderType shaderType,
+	ShaderIncludeHandler includeHandler
 	);
 
 } // namespace graphics

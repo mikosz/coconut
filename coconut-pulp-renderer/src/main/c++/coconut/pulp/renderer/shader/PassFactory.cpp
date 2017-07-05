@@ -30,6 +30,7 @@ void PassCreator::scanShaderCodeDirectory(
 		if (path.extension() == ".hlsl") {
 			ShaderCreator::ShaderCodeInfo shaderInfo; // TODO: must expose this type or use different param to constructor (d'uh)
 			shaderInfo.shaderCodePath = filesystemContext.makeAbsolute(path);
+			shaderInfo.entrypoint = "main"; // TODO
 
 			const auto shaderName = path.stem();
 

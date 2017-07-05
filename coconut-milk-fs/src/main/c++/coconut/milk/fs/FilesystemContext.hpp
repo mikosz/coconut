@@ -17,6 +17,8 @@ public:
 
 	FilesystemContext(std::shared_ptr<Filesystem> filesystem);
 
+	FilesystemContext createContext(const Path& workingDirectory) const; // TODO: API
+
 	void changeWorkingDirectory(const Path& path);
 
 	void mount(

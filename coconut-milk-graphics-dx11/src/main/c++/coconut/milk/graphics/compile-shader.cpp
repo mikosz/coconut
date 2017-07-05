@@ -27,6 +27,12 @@ std::string featureLevel(ShaderType shaderType) {
 	switch (shaderType) {
 	case ShaderType::VERTEX:
 		return "vs_5_0"s;
+	case ShaderType::GEOMETRY:
+		return "gs_5_0"s;
+	case ShaderType::HULL:
+		return "hs_5_0"s;
+	case ShaderType::DOMAIN:
+		return "ds_5_0"s;
 	case ShaderType::PIXEL:
 		return "ps_5_0"s;
 	default:
@@ -35,22 +41,59 @@ std::string featureLevel(ShaderType shaderType) {
 	}
 }
 
+class Includer : public ID3DInclude {
+public:
+
+	Includer(ShaderIncludeHandler handler) :
+		handler_(std::move(handler))
+	{
+	}
+
+	HRESULT Open(
+		D3D_INCLUDE_TYPE includeType,
+		LPCSTR fileName,
+		LPCVOID parentData,
+		LPCVOID* data,
+		UINT* bytes
+		) override
+	{
+		data_.emplace_back(handler_(fileName));
+		*data = data_.back()->data();
+		*bytes = data_.back()->size();
+		return S_OK;
+	}
+
+	HRESULT Close(LPCVOID data) override {
+		return S_OK;
+	}
+
+private:
+
+	ShaderIncludeHandler handler_;
+
+	std::vector<std::shared_ptr<ShaderData>> data_;
+
+};
+
 } // anonymous namespace
 
-std::vector<std::uint8_t> coconut::milk::graphics::compileShader(
-	const std::vector<std::uint8_t>& shaderData,
+ShaderData coconut::milk::graphics::compileShader(
+	const std::vector<std::uint8_t>& shaderCode,
 	const std::string& entrypoint,
-	ShaderType shaderType
+	ShaderType shaderType,
+	ShaderIncludeHandler includeHandler
 	)
 {
+	auto includer = Includer(includeHandler);
+
 	system::COMWrapper<ID3DBlob> code;
 	system::COMWrapper<ID3DBlob> errors;
 	auto result = D3DCompile(
-		shaderData.data(),
-		shaderData.size(),
+		shaderCode.data(),
+		shaderCode.size(),
+		nullptr, // TODO: shader name
 		nullptr,
-		nullptr,
-		nullptr,
+		&includer,
 		entrypoint.c_str(),
 		featureLevel(shaderType).c_str(),
 		0,
@@ -71,10 +114,7 @@ std::vector<std::uint8_t> coconut::milk::graphics::compileShader(
 			logLevel = coconut_tools::logger::Level::WARNING;
 		}
 
-		const auto* wideErrors = reinterpret_cast<const wchar_t*>(errors->GetBufferPointer());
-		auto errors = std::vector<char>((std::wcslen(wideErrors) * MB_CUR_MAX) + 1, '\0');
-		auto res = std::wcstombs(errors.data(), wideErrors, errors.size());
-		CT_LOG(logLevel) << prefix << ": " << errors;
+		CT_LOG(logLevel) << prefix << ": " << reinterpret_cast<const char*>(errors->GetBufferPointer());
 	}
 
 	if (FAILED(result)) {
