@@ -13,6 +13,12 @@ FilesystemContext::FilesystemContext(std::shared_ptr<Filesystem> filesystem) :
 	assert(filesystem_);
 }
 
+FilesystemContext FilesystemContext::createContext(const Path& workingDirectory) const {
+	auto result = FilesystemContext(filesystem_);
+	result.changeWorkingDirectory(makeAbsolute(workingDirectory));
+	return result;
+}
+
 void FilesystemContext::changeWorkingDirectory(const Path& path) {
 	currentWorkingDirectory_ = makeAbsolute(path);
 }

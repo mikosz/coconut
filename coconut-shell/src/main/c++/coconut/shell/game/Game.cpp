@@ -44,8 +44,8 @@ Game::Game(std::shared_ptr<milk::system::App> app) :
 		filesystem_->mount("/", std::move(currentMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
 
 		// TODO: readOnly is ignored!
-		auto worldMount = std::make_unique<milk::DirectoryMount>("../coconut-pulp-world", true);
-		filesystem_->mount("/", std::move(worldMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
+		auto assetsMount = std::make_unique<milk::DirectoryMount>("../../coconut/coconut-assets", true);
+		filesystem_->mount("/", std::move(assetsMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
 	}
 
 	{
@@ -74,12 +74,8 @@ void Game::loop() {
 	auto fs = milk::FilesystemContext(filesystem_);
 
 	pulp::renderer::shader::PassFactory passFactory;
-	// TODO: temp
-#ifdef NDEBUG
-	passFactory.scanCompiledShaderDirectory(fs, "Release");
-#else
-	passFactory.scanCompiledShaderDirectory(fs, "Debug");
-#endif
+	passFactory.scanShaderCodeDirectory(fs, "shaders");
+	passFactory.scanShaderCodeDirectory(fs, "shaders/foliage"); // TODO: why is it not recursive?
 
 	auto scene = pulp::renderer::Scene(*graphicsRenderer_);
 
@@ -124,8 +120,8 @@ void Game::loop() {
 	scene.add(yellow); */
 
 	pulp::renderer::ModelFactory modelFactory;
-	modelFactory.scanSourceDirectory(fs, "data/models");
-	modelFactory.scanModelDirectory(fs, "data/models");
+	modelFactory.scanSourceDirectory(fs, "models");
+	modelFactory.scanModelDirectory(fs, "models");
 
 	auto world = pulp::world::World(*graphicsRenderer_, scene, passFactory, modelFactory, fs);
 
