@@ -137,7 +137,7 @@ Terrain::Terrain(
 
 	foliage::GrassActor::registerModels(modelFactory, heightmap_);
 
-	auto grassModel = modelFactory.create("grass-fakeinst", graphicsRenderer, passFactory, fs);	
+	auto grassModel = modelFactory.create("grass", graphicsRenderer, passFactory, fs);	
 	for (float x = -20.0f; x < 20.0f; x += 20.0f) {
 		for (float z = -20.0f; z < 100.0f; z += 20.0f) {
 			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });

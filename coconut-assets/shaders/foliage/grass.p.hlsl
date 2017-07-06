@@ -1,3 +1,5 @@
+#include "grass-common.hlsl"
+
 struct Material {
 	float4 ambientColour;
 	float4 diffuseColour;
@@ -38,14 +40,6 @@ Texture2D material_diffuseMap;
 Texture2D material_alphaMap;
 Texture2D material_subsurfaceMap;
 SamplerState material_diffuseMapSampler;
-
-struct PIn {
-	float4 posH : SV_POSITION;
-	float3 posW : POSITION;
-	float noiseVal : NOISE;
-	float3 normalW : NORMAL;
-	float2 tex : TEXCOORD;
-};
 
 void computeDirectional(
 	Material mat,
