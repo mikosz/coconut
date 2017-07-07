@@ -1,6 +1,7 @@
 #include "grass-common.hlsl"
 
 static const uint GS_INPUT_VERTEX_COUNT = 1;
+static const float WIND_OSCILLATION_AMPLITUDE = 0.05f;
 static const float BLADE_WIDTH = 0.01f;
 static const float BLADE_HEIGHT = 0.4f;
 static const int SEGMENT_COUNT_PER_LOD[3] = { 5, 3, 2 };
@@ -21,13 +22,20 @@ struct SceneData {
 
 cbuffer SceneBuffer {
 	SceneData scene;
+    float globalTime;
 };
 	
 struct BladeParams {
 	float3 rootPosW;
 };
 	
-// side is -1 (left) or 1 (right)
+void oscillateWind(inout float2 windDir) {
+    const float amount = (sin(7.0f * globalTime) + 1.0f) / 2.0f;
+    const float2 leftWindBound = windDir * (1.0 - WIND_OSCILLATION_AMPLITUDE);
+    const float2 rightWindBound = windDir * (1.0 + WIND_OSCILLATION_AMPLITUDE);
+    windDir = lerp(leftWindBound, rightWindBound, amount);
+}
+
 PIn getBladeVertex(BladeParams blade, uint lod, uint segment, Side side) {
 	PIn result = (PIn) 0;
 	
@@ -39,10 +47,14 @@ PIn getBladeVertex(BladeParams blade, uint lod, uint segment, Side side) {
 	result.posW.x += side * BLADE_WIDTH * 0.5f;
 	
 	const float windCoefficient = LOD_SEGMENT_WIND_COEFFICIENT[lod][segment];
-	const float2 windDir = float2(0.002f, 0.0f);
+	float2 windDir = float2(0.1f, 0.0f);
+	
+    // Oscillate wind
+    oscillateWind(windDir);
+
 	const float windForce = length(windDir);
 	
-	result.posW.y += -windCoefficient * (windForce * 0.5);
+    result.posW.y += -windCoefficient * (windForce * 0.5);
 	result.posW.xz += windDir.xy * windCoefficient;
 
 	result.tex.x = (side + 1.0) * 0.5;
@@ -79,8 +91,8 @@ void buildBlade(float3 rootPosW, uint lod, inout TriangleStream<PIn> triangles) 
 		};
 	
 	for (i = 0; i < segmentCount; ++i) {
-		vertices[i * 2] = getBladeVertex(bladeParams, 2, i, LEFT);
-		vertices[i * 2 + 1] = getBladeVertex(bladeParams, 2, i, RIGHT);
+		vertices[i * 2] = getBladeVertex(bladeParams, 0, i, LEFT);
+		vertices[i * 2 + 1] = getBladeVertex(bladeParams, 0, i, RIGHT);
 	}
 
 	for (i = 0; i < segmentCount - 1; ++i) {	
