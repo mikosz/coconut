@@ -2,6 +2,9 @@
 
 static const uint GS_INPUT_VERTEX_COUNT = 1;
 static const float WIND_OSCILLATION_AMPLITUDE = 0.05f;
+static const float2 WIND_FORCE_RANDOM_AMPLITUDE = { 0.7f, 1.0f };
+static const float2 WIND_DIRECTION_RANDOM_AMPLITUDE = { 0.0f, 0.025f };
+static const float HEIGHT_SKEW_AMPLITUDE = 0.1f;
 static const float BLADE_WIDTH = 0.01f;
 static const float BLADE_HEIGHT = 0.4f;
 static const int SEGMENT_COUNT_PER_LOD[3] = { 5, 3, 2 };
@@ -27,38 +30,53 @@ cbuffer SceneBuffer {
 	
 struct BladeParams {
 	float3 rootPosW;
+    float randomSeed;
+    float heightSkew;
 };
 	
-void oscillateWind(inout float2 windDir) {
-    const float amount = (sin(7.0f * globalTime) + 1.0f) / 2.0f;
+void randomiseWindForce(inout float2 windDir, float randomSeed) {
+    windDir *= lerp(WIND_FORCE_RANDOM_AMPLITUDE.x, WIND_FORCE_RANDOM_AMPLITUDE.y, 1.0f - randomSeed);
+}
+
+void oscillateWind(inout float2 windDir, float randomSeed) {
+    const float amount = (sin(7.0f * globalTime + randomSeed) + 1.0f) / 2.0f;
     const float2 leftWindBound = windDir * (1.0 - WIND_OSCILLATION_AMPLITUDE);
     const float2 rightWindBound = windDir * (1.0 + WIND_OSCILLATION_AMPLITUDE);
     windDir = lerp(leftWindBound, rightWindBound, amount);
+}
+
+void randomiseWindDirection(inout float2 windDir, float randomSeed) {
+    const float randomAngle = lerp(-3.14f, 3.14f, randomSeed);
+	const float2 randomWindDir = float2(sin(randomAngle), cos(randomAngle));
+	const float randomForce = lerp(WIND_DIRECTION_RANDOM_AMPLITUDE.x, WIND_DIRECTION_RANDOM_AMPLITUDE.y, randomSeed);
+	windDir += randomWindDir * randomForce;
 }
 
 PIn getBladeVertex(BladeParams blade, uint lod, uint segment, Side side) {
 	PIn result = (PIn) 0;
 	
 	const int segmentCount = SEGMENT_COUNT_PER_LOD[lod];
-	const float segmentHeightNorm = float(segment) / segmentCount;
+	const float segmentHeightNorm = float(segment) / (segmentCount - 1);
 	
 	result.posW = blade.rootPosW;
-	result.posW.y += segmentHeightNorm * BLADE_HEIGHT;
+	result.posW.y += segmentHeightNorm * (BLADE_HEIGHT + blade.heightSkew);
 	result.posW.x += side * BLADE_WIDTH * 0.5f;
 	
 	const float windCoefficient = LOD_SEGMENT_WIND_COEFFICIENT[lod][segment];
-	float2 windDir = float2(0.1f, 0.0f);
+	float2 windDir = float2(0.1f, 0.1f);
 	
     // Oscillate wind
-    oscillateWind(windDir);
+    randomiseWindForce(windDir, blade.randomSeed);
+    oscillateWind(windDir, blade.randomSeed);
+    randomiseWindDirection(windDir, blade.randomSeed);
 
 	const float windForce = length(windDir);
 	
     result.posW.y += -windCoefficient * (windForce * 0.5);
 	result.posW.xz += windDir.xy * windCoefficient;
 
-	result.tex.x = (side + 1.0) * 0.5;
-	result.tex.y = 1.0 - segmentHeightNorm;
+	result.tex.x = (side + 1.0f) * 0.5f;
+	result.tex.y = 1.0f - segmentHeightNorm;
 	
 	return result;
 }
@@ -74,22 +92,25 @@ void generateNormal(inout PIn v0, inout PIn v1, inout PIn v2) {
 	v2.normalW += normal;
 }
 
-void prepareForPS(inout PIn v) {
+void prepareForPS(inout PIn v, GIn root) {
 	v.posH = mul(mul(float4(v.posW, 1.0f), scene.view), scene.projection);
+    v.noiseVal = root.noiseVal;
 }
 	
-void buildBlade(float3 rootPosW, uint lod, inout TriangleStream<PIn> triangles) {
+void buildBlade(GIn root, uint lod, inout TriangleStream<PIn> triangles) {
 	uint i = 0;
 	
 	const uint segmentCount = SEGMENT_COUNT_PER_LOD[0 /*lod*/]; // TODO: fixme: won't work, cause lod not literal
-	const int vertexCount = segmentCount * 2;
+	const uint vertexCount = segmentCount * 2;
 	
 	PIn vertices[vertexCount];
 	
 	BladeParams bladeParams = {
-		rootPosW
+		root.posW,
+        root.noiseVal,
+        HEIGHT_SKEW_AMPLITUDE * cos(root.posW.x + root.posW.y) // heightSkew
 		};
-	
+
 	for (i = 0; i < segmentCount; ++i) {
 		vertices[i * 2] = getBladeVertex(bladeParams, 0, i, LEFT);
 		vertices[i * 2 + 1] = getBladeVertex(bladeParams, 0, i, RIGHT);
@@ -102,7 +123,7 @@ void buildBlade(float3 rootPosW, uint lod, inout TriangleStream<PIn> triangles) 
 	}
 	
 	for (i = 0; i < vertexCount; ++i) {	
-		prepareForPS(vertices[i]);
+		prepareForPS(vertices[i], root);
 		triangles.Append(vertices[i]);
 	}
 }
@@ -118,7 +139,7 @@ void main(
 	[unroll]
 	for (uint i = 0; i < GS_INPUT_VERTEX_COUNT; ++i)
 	{
-		buildBlade(input[i].posW, 0, triangles);
+		buildBlade(input[i], 0, triangles);
 		triangles.RestartStrip();
 	}
 }
