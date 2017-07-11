@@ -121,6 +121,9 @@ renderer::shader::ReflectiveInterface<Terrain>::ReflectiveInterface() {
 
 	emplaceMethod("tiledTexture", [](const Terrain& terrain) { return terrain.tiledTexture_; });
 	emplaceMethod("tiledTextureSampler", [](const Terrain& terrain) { return terrain.tiledTextureSampler_; });
+
+	emplaceMethod("windmap", [](const Terrain& terrain) { return terrain.windmap_; });
+	emplaceMethod("windmapSampler", [](const Terrain& terrain) { return terrain.windmapSampler_; });
 }
 
 Terrain::Terrain(
@@ -153,6 +156,24 @@ Terrain::Terrain(
 
 	// TODO: want a sampler factory
 	tiledTextureSampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
+
+	auto windmapConfiguration = milk::graphics::Texture2d::Configuration();
+	windmapConfiguration.width = 100u;
+	windmapConfiguration.height = 100u;
+	windmapConfiguration.pixelFormat = milk::graphics::PixelFormat::R32G32_FLOAT;
+	windmapConfiguration.allowModifications = false;
+	windmapConfiguration.allowCPURead = false;
+	windmapConfiguration.allowGPUWrite = true;
+	windmapConfiguration.purposeFlags =
+		milk::graphics::Texture::CreationPurpose::RENDER_TARGET |
+		milk::graphics::Texture::CreationPurpose::SHADER_RESOURCE;
+	windmapConfiguration.initialData = this; // TODO: temp!
+	windmapConfiguration.dataRowPitch = 100u * sizeof(float);
+
+	windmap_ = milk::graphics::Texture2d(graphicsRenderer, windmapConfiguration);
+
+	// TODO: still want a sampler factory. Probably want CLAMP address mode here
+	windmapSampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
 }
 
 void Terrain::bindShaderProperties(

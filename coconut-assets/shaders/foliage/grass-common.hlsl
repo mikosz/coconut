@@ -1,6 +1,7 @@
 struct GIn {
 	float3 posW : POSITION;
 	float noiseVal : NOISE;
+	float2 windDir : WIND_DIR;
 };
 
 struct PIn {

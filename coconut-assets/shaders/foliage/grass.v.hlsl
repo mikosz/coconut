@@ -14,6 +14,9 @@ Texture2D material_noiseMap;
 Texture2D terrain_heightmap;
 SamplerState terrain_heightmapSampler;
 
+Texture2D terrain_windmap;
+SamplerState terrain_windmapSampler;
+
 GIn main(uint bladeId : SV_VertexID)
 {
 	static const float OFFSET = 0.05f;
@@ -35,17 +38,19 @@ GIn main(uint bladeId : SV_VertexID)
 
 	const float halfWidth = terrain_width * 0.5f;
 	const float halfDepth = terrain_depth * 0.5f;
-	const float2 heightmapTexcoord = float2(
+	const float2 terrainTexcoord = float2(
 		(vout.posW.x + halfWidth) / terrain_width,
 		(vout.posW.z + halfDepth) / terrain_depth
 		);
-	vout.posW.y += terrain_heightmap.SampleLevel(terrain_heightmapSampler, heightmapTexcoord, 0).r;
+	vout.posW.y += terrain_heightmap.SampleLevel(terrain_heightmapSampler, terrainTexcoord, 0).r;
 
 	//vout.posW.x += noise.x * HALF_OFFSET;
 	//vout.posW.z += noise.z * HALF_OFFSET;
 	vout.posW.x += noise.x * OFFSET;
 	vout.posW.z += noise.z * OFFSET;
 
+	vout.windDir = terrain_windmap.SampleLevel(terrain_windmapSampler, terrainTexcoord, 0).rg;
+	
 	vout.noiseVal = noise.y;
 
 	return vout;

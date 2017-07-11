@@ -6,6 +6,8 @@
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
+#include <coconut-tools/enums/Mask.hpp>
+
 #include "coconut/milk/system/COMWrapper.hpp"
 
 #include "coconut/milk/utils/MakePointerDefinitionsMacro.hpp"
@@ -22,15 +24,14 @@ class Renderer;
 class Texture : public Resource {
 public:
 
-	enum class CreationPurpose {
-		SHADER_RESOURCE = D3D11_BIND_SHADER_RESOURCE,
-		RENDER_TARGET = D3D11_BIND_RENDER_TARGET,
-		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
-	};
+	CT_FLAG_VALUES(
+		CreationPurpose,
+		(SHADER_RESOURCE)(D3D11_BIND_SHADER_RESOURCE)
+		(RENDER_TARGET)(D3D11_BIND_RENDER_TARGET)
+		(DEPTH_STENCIL)(D3D11_BIND_DEPTH_STENCIL)
+		);
 
-	using CreationPurposeFlag = std::underlying_type_t<CreationPurpose>; // TODO: create a general flag type
-
-	void initialise(Renderer& renderer, CreationPurposeFlag purposeFlags);
+	void initialise(Renderer& renderer, coconut_tools::Mask<CreationPurpose> purposeFlags);
 
 	void reset();
 
