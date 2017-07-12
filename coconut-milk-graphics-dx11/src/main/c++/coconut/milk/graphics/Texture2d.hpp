@@ -41,7 +41,7 @@ public:
 
 		bool allowGPUWrite;
 
-		CreationPurposeFlag purposeFlags;
+		coconut_tools::Mask<CreationPurpose> purposeFlags;
 
 		const void* initialData;
 		
@@ -71,7 +71,11 @@ public:
 
 	void initialise(Renderer& renderer, const Configuration& configuration);
 
-	void initialise(Renderer& renderer, CreationPurposeFlag purposeFlags, system::COMWrapper<ID3D11Texture2D> texture);
+	void initialise(
+        Renderer& renderer,
+        coconut_tools::Mask<CreationPurpose> purposeFlags,
+        system::COMWrapper<ID3D11Texture2D> texture
+        );
 
 	void reset();
 

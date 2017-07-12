@@ -94,7 +94,8 @@ std::vector<std::uint8_t> createDummyVertexShader(const InputLayout::Elements& e
 	std::copy(shaderText.begin(), shaderText.end(), std::back_inserter(shaderData));
 	shaderData.emplace_back('\0');
 
-	return compileShader(shaderData, "main", ShaderType::VERTEX, ShaderIncludeHandler());
+	return ShaderCompiler(ShaderCompiler::IncludeHandler()).compile(
+        shaderData, "-- input layout generated --", "main", ShaderType::VERTEX);
 }
 
 } // anonymous namespace

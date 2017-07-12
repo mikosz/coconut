@@ -24,7 +24,7 @@ class Renderer;
 class Texture : public Resource {
 public:
 
-	CT_FLAG_VALUES(
+	CT_MEMBER_FLAG_VALUES(
 		CreationPurpose,
 		(SHADER_RESOURCE)(D3D11_BIND_SHADER_RESOURCE)
 		(RENDER_TARGET)(D3D11_BIND_RENDER_TARGET)

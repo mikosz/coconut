@@ -32,6 +32,7 @@ cbuffer SceneBuffer {
 struct BladeParams {
     float3 faceDir;
 	float3 rootPosW;
+	float2 windDir;
     float randomSeed;
     float heightSkew;
     float heightScale;
@@ -69,11 +70,11 @@ PIn getBladeVertex(BladeParams blade, uint lod, uint segment, Side side) {
 	result.posW.xyz += blade.faceDir * side * bladeWidth * 0.5f;
 	
 	const float windCoefficient = LOD_SEGMENT_WIND_COEFFICIENT[lod][segment];
-	float2 windDir = float2(0.1f, 0.1f);
+	float2 windDir = blade.windDir;
 	
-    randomiseWindForce(windDir, blade.randomSeed);
-    oscillateWind(windDir, blade.randomSeed);
-    randomiseWindDirection(windDir, blade.randomSeed);
+    // randomiseWindForce(windDir, blade.randomSeed);
+    // oscillateWind(windDir, blade.randomSeed);
+    // randomiseWindDirection(windDir, blade.randomSeed);
 
     result.posW.y += -windCoefficient * (length(windDir) * 0.5);
 	result.posW.xz += windDir.xy * windCoefficient;
@@ -115,6 +116,7 @@ void buildBlade(GIn root, uint lod, inout TriangleStream<PIn> triangles) {
         { sin(root.posW.y + root.noiseVal), 0.0f, cos(root.posW.y + root.noiseVal) }, // face direction // TODO: bad name, bad usage
 		root.posW,
         root.noiseVal,
+		root.windDir,
         HEIGHT_SKEW_AMPLITUDE * cos(root.posW.x + root.posW.y), // heightSkew
         heightScale
 		};

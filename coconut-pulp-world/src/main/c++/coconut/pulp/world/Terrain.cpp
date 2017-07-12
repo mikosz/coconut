@@ -1,5 +1,7 @@
 #include "Terrain.hpp"
 
+#include <ctime> // TODO: temp!
+
 #include <coconut-tools/utils/Range.hpp>
 
 #include "coconut/milk/graphics/ImageLoader.hpp"
@@ -157,6 +159,13 @@ Terrain::Terrain(
 	// TODO: want a sampler factory
 	tiledTextureSampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
 
+    auto windmap_data = std::array<float, 100u * 100u * 2u>(); // TODO: temp!
+    std::srand(std::time(0));
+    std::generate(windmap_data.begin(), windmap_data.end(), []() {
+            return 1.0f;
+            // return static_cast<float>(std::rand()) / std::numeric_limits<decltype(std::rand())>::max();
+        });
+
 	auto windmapConfiguration = milk::graphics::Texture2d::Configuration();
 	windmapConfiguration.width = 100u;
 	windmapConfiguration.height = 100u;
@@ -165,10 +174,11 @@ Terrain::Terrain(
 	windmapConfiguration.allowCPURead = false;
 	windmapConfiguration.allowGPUWrite = true;
 	windmapConfiguration.purposeFlags =
+        coconut_tools::Mask<milk::graphics::Texture::CreationPurpose>() |
 		milk::graphics::Texture::CreationPurpose::RENDER_TARGET |
 		milk::graphics::Texture::CreationPurpose::SHADER_RESOURCE;
-	windmapConfiguration.initialData = this; // TODO: temp!
-	windmapConfiguration.dataRowPitch = 100u * sizeof(float);
+	windmapConfiguration.initialData = windmap_data.data();
+	windmapConfiguration.dataRowPitch = 100u * 2u * sizeof(float);
 
 	windmap_ = milk::graphics::Texture2d(graphicsRenderer, windmapConfiguration);
 
