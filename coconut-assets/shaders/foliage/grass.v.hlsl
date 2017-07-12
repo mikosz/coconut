@@ -1,5 +1,7 @@
 #include "grass-common.hlsl"
 
+static const float WIND_SCALE = 0.2f;
+
 cbuffer PatchData {
 	float3 actor_grassPatchPosition;
 };
@@ -49,7 +51,7 @@ GIn main(uint bladeId : SV_VertexID)
 	vout.posW.x += noise.x * OFFSET;
 	vout.posW.z += noise.z * OFFSET;
 
-	vout.windDir = terrain_windmap.SampleLevel(terrain_windmapSampler, terrainTexcoord, 0).rg;
+	vout.windDir = WIND_SCALE * terrain_windmap.SampleLevel(terrain_windmapSampler, terrainTexcoord, 0).rg;
 	
 	vout.noiseVal = noise.y;
 

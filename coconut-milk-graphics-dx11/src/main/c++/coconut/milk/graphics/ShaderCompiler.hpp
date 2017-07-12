@@ -49,7 +49,7 @@ public:
     	ShaderType type,
         IncludeHandler includeHandler,
         CompilerFlags instanceFlags = CompilerFlags()
-        );
+        ) const;
 
 private:
 

@@ -4,7 +4,7 @@
 
 #include "DirectXError.hpp"
 #include "Renderer.hpp"
-#include "compile-shader.hpp"
+#include "ShaderCompiler.hpp"
 
 using namespace coconut;
 using namespace coconut::milk;
@@ -94,8 +94,13 @@ std::vector<std::uint8_t> createDummyVertexShader(const InputLayout::Elements& e
 	std::copy(shaderText.begin(), shaderText.end(), std::back_inserter(shaderData));
 	shaderData.emplace_back('\0');
 
-	return ShaderCompiler(ShaderCompiler::IncludeHandler()).compile(
-        shaderData, "-- input layout generated --", "main", ShaderType::VERTEX);
+	return ShaderCompiler().compile(
+        shaderData,
+		"-- input layout generated --",
+		"main",
+		ShaderType::VERTEX,
+		ShaderCompiler::IncludeHandler()
+		);
 }
 
 } // anonymous namespace

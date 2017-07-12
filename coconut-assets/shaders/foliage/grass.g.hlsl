@@ -1,7 +1,7 @@
 #include "grass-common.hlsl"
 
 static const uint GS_INPUT_VERTEX_COUNT = 1;
-static const float WIND_OSCILLATION_AMPLITUDE = 0.05f;
+static const float WIND_OSCILLATION_AMPLITUDE = 0.2f;
 static const float2 WIND_FORCE_RANDOM_AMPLITUDE = { 0.7f, 1.0f };
 static const float2 WIND_DIRECTION_RANDOM_AMPLITUDE = { 0.0f, 0.025f };
 static const float HEIGHT_SKEW_AMPLITUDE = 0.1f;
@@ -72,9 +72,9 @@ PIn getBladeVertex(BladeParams blade, uint lod, uint segment, Side side) {
 	const float windCoefficient = LOD_SEGMENT_WIND_COEFFICIENT[lod][segment];
 	float2 windDir = blade.windDir;
 	
-    // randomiseWindForce(windDir, blade.randomSeed);
-    // oscillateWind(windDir, blade.randomSeed);
-    // randomiseWindDirection(windDir, blade.randomSeed);
+    randomiseWindForce(windDir, blade.randomSeed);
+    oscillateWind(windDir, blade.randomSeed);
+    randomiseWindDirection(windDir, blade.randomSeed);
 
     result.posW.y += -windCoefficient * (length(windDir) * 0.5);
 	result.posW.xz += windDir.xy * windCoefficient;
@@ -115,8 +115,8 @@ void buildBlade(GIn root, uint lod, inout TriangleStream<PIn> triangles) {
 	BladeParams bladeParams = {
         { sin(root.posW.y + root.noiseVal), 0.0f, cos(root.posW.y + root.noiseVal) }, // face direction // TODO: bad name, bad usage
 		root.posW,
-        root.noiseVal,
 		root.windDir,
+        root.noiseVal,
         HEIGHT_SKEW_AMPLITUDE * cos(root.posW.x + root.posW.y), // heightSkew
         heightScale
 		};

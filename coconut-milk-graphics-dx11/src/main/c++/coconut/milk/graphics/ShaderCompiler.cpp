@@ -81,7 +81,7 @@ ShaderCompiler::ShaderData ShaderCompiler::compile(
     ShaderType type,
     IncludeHandler includeHandler,
     CompilerFlags instanceFlags
-    )
+    ) const
 {
 	auto includer = Includer(includeHandler);
 

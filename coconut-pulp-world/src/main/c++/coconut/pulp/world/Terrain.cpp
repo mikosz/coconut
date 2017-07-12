@@ -162,8 +162,7 @@ Terrain::Terrain(
     auto windmap_data = std::array<float, 100u * 100u * 2u>(); // TODO: temp!
     std::srand(std::time(0));
     std::generate(windmap_data.begin(), windmap_data.end(), []() {
-            return 1.0f;
-            // return static_cast<float>(std::rand()) / std::numeric_limits<decltype(std::rand())>::max();
+            return static_cast<float>(std::rand() % 255) / 255.0f;
         });
 
 	auto windmapConfiguration = milk::graphics::Texture2d::Configuration();
