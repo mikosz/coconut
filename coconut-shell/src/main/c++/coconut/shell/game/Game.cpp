@@ -35,17 +35,28 @@ using namespace coconut::shell::game;
 
 using namespace coconut::pulp::math_literals;
 
-Game::Game(std::shared_ptr<milk::system::App> app) :
+Game::Game(
+	std::shared_ptr<milk::system::App> app,
+	const coconut_tools::configuration::hierarchical::HierarchicalConfigurationSharedPtr& configuration
+	) :
 	app_(app),
 	filesystem_(std::make_unique<milk::Filesystem>())
 {
-	{
-		auto currentMount = std::make_unique<milk::DirectoryMount>(".", false);
-		filesystem_->mount("/", std::move(currentMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
+	auto mountConfigs = coconut_tools::configuration::hierarchical::HierarchicalConfiguration::Nodes();
+	configuration->getAll("mounts/mount", &mountConfigs);
+	for (const auto& mountConfig : mountConfigs) {
+		const auto mountPoint = mountConfig->getAs<std::string>("mount-point");
+		const auto filesystemPath = mountConfig->getAs<std::string>("filesystem-path");
+		const auto readOnly = mountConfig->getAs<bool>("read-only");
+		const auto hidingPolicyStr = mountConfig->getAs<std::string>("hiding-policy");
+		
+		auto hidingPolicy = milk::Filesystem::PredecessorHidingPolicy();
+		fromString(hidingPolicy, hidingPolicyStr);
 
 		// TODO: readOnly is ignored!
-		auto assetsMount = std::make_unique<milk::DirectoryMount>("../../coconut/coconut-assets", true);
-		filesystem_->mount("/", std::move(assetsMount), milk::Filesystem::PredecessorHidingPolicy::ADD);
+		// TODO: hidingPolicy could be passed to mount's constructor?
+		auto mount = std::make_unique<milk::DirectoryMount>(filesystemPath, readOnly);
+		filesystem_->mount(mountPoint, std::move(mount), hidingPolicy);
 	}
 
 	{

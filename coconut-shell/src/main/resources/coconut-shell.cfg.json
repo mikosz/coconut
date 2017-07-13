@@ -1,0 +1,16 @@
+{
+  "mounts": [
+    {
+      "mount-point": "/",
+      "filesystem-path": ".",
+      "read-only": false,
+      "hiding-policy": "add"
+    },
+    {
+      "mount-point": "/",
+      "filesystem-path": "../../coconut/coconut-assets",
+      "read-only": true,
+      "hiding-policy": "add"
+    }
+  ]
+}

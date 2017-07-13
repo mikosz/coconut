@@ -2,6 +2,7 @@
   <level>debug</level>
   <appenders>
 	<appender>debug-window</appender>
+	<appender>file</appender>
   </appenders>
 </root-logger>
 <loggers>
@@ -17,6 +18,13 @@
     <type>coconut_tools::logger::appender::DebugWindowAppender</type>
     <layout>basic</layout>
   </appender>
+  <appender>
+    <id>file</id>
+    <level>trace</level>
+    <type>coconut_tools::logger::appender::FileAppender</type>
+    <layout>basic</layout>
+	<log-file>log</log-file>
+  </appender>
 </appenders>
 <layouts>
   <layout>
@@ -31,3 +39,10 @@
     </configuration>
   </layout>
 </layouts>
+<log-files>
+  <log-file>
+    <id>log</id>
+    <path>coconut.log</path>
+    <overwrite>1</overwrite>
+  </log-file>
+</log-files>

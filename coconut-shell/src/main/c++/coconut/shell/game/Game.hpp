@@ -6,6 +6,8 @@
 #include <windows.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
 
+#include <coconut-tools/configuration/hierarchical/HierarchicalConfiguration.hpp>
+
 #include "coconut/milk/system/App.hpp"
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/fs/Filesystem.hpp"
@@ -17,7 +19,10 @@ namespace game {
 class Game {
 public:
 
-	Game(std::shared_ptr<milk::system::App> app);
+	Game(
+		std::shared_ptr<milk::system::App> app,
+		const coconut_tools::configuration::hierarchical::HierarchicalConfigurationSharedPtr& configuration
+		);
 
 	void loop();
 
