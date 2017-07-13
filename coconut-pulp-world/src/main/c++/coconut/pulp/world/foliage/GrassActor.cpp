@@ -17,7 +17,7 @@ using namespace std::string_literals;
 
 namespace /* anonymous */ {
 
-std::unique_ptr<renderer::Model> createGrassFakeinstModel(
+std::unique_ptr<renderer::Model> createGrassModel(
 	const std::string& id,
 	milk::graphics::Renderer& graphicsRenderer,
 	renderer::shader::PassFactory& passFactory,
@@ -82,8 +82,7 @@ std::unique_ptr<renderer::Model> createGrassFakeinstModel(
 
 	// TODO: shouldn't be hardcoded
 	materialConfiguration.passType() = MaterialConfiguration::PassType::OPAQUE;
-	//materialConfiguration.shaderName() = "grass-fakeinst"s;
-	materialConfiguration.shaderName() = "grass-fakeinst-g"s;
+	materialConfiguration.shaderName() = "grass"s;
 	materialConfiguration.renderStateConfiguration() = renderStateConfiguration;
 	materialConfiguration.addTexture(
 		MaterialConfiguration::NOISE_MAP_TEXTURE,
@@ -130,7 +129,7 @@ renderer::shader::ReflectiveInterface<GrassActor>::ReflectiveInterface() {
 }
 
 void GrassActor::registerModels(renderer::ModelFactory& modelFactory, const Heightmap& heightmap) {
-	const auto name = "grass-fakeinst";
+	const auto name = "grass";
 	if (!modelFactory.hasGenerator(name)) {
 		modelFactory.registerGenerator(
 			name,
@@ -141,7 +140,7 @@ void GrassActor::registerModels(renderer::ModelFactory& modelFactory, const Heig
 				const milk::fs::FilesystemContext& filesystemContext
 				)
 			{
-				return createGrassFakeinstModel(id, graphicsRenderer, passFactory, filesystemContext, heightmap);
+				return createGrassModel(id, graphicsRenderer, passFactory, filesystemContext, heightmap);
 			}
 			);
 	}

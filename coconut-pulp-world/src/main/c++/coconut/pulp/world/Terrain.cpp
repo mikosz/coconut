@@ -1,5 +1,7 @@
 #include "Terrain.hpp"
 
+#include <ctime> // TODO: temp!
+
 #include <coconut-tools/utils/Range.hpp>
 
 #include "coconut/milk/graphics/ImageLoader.hpp"
@@ -121,6 +123,9 @@ renderer::shader::ReflectiveInterface<Terrain>::ReflectiveInterface() {
 
 	emplaceMethod("tiledTexture", [](const Terrain& terrain) { return terrain.tiledTexture_; });
 	emplaceMethod("tiledTextureSampler", [](const Terrain& terrain) { return terrain.tiledTextureSampler_; });
+
+	emplaceMethod("windmap", [](const Terrain& terrain) { return terrain.windmap_; });
+	emplaceMethod("windmapSampler", [](const Terrain& terrain) { return terrain.windmapSampler_; });
 }
 
 Terrain::Terrain(
@@ -137,7 +142,7 @@ Terrain::Terrain(
 
 	foliage::GrassActor::registerModels(modelFactory, heightmap_);
 
-	auto grassModel = modelFactory.create("grass-fakeinst", graphicsRenderer, passFactory, fs);	
+	auto grassModel = modelFactory.create("grass", graphicsRenderer, passFactory, fs);	
 	for (float x = -20.0f; x < 20.0f; x += 20.0f) {
 		for (float z = -20.0f; z < 100.0f; z += 20.0f) {
 			auto grassActor = std::make_shared<pulp::world::foliage::GrassActor>(pulp::Vec3{ x, 0.0, z });
@@ -153,6 +158,31 @@ Terrain::Terrain(
 
 	// TODO: want a sampler factory
 	tiledTextureSampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
+
+    auto windmap_data = std::array<float, 100u * 100u * 2u>(); // TODO: temp!
+    std::srand(std::time(0));
+    std::generate(windmap_data.begin(), windmap_data.end(), []() {
+            return static_cast<float>(std::rand() % 255) / 255.0f;
+        });
+
+	auto windmapConfiguration = milk::graphics::Texture2d::Configuration();
+	windmapConfiguration.width = 100u;
+	windmapConfiguration.height = 100u;
+	windmapConfiguration.pixelFormat = milk::graphics::PixelFormat::R32G32_FLOAT;
+	windmapConfiguration.allowModifications = false;
+	windmapConfiguration.allowCPURead = false;
+	windmapConfiguration.allowGPUWrite = true;
+	windmapConfiguration.purposeFlags =
+        coconut_tools::Mask<milk::graphics::Texture::CreationPurpose>() |
+		milk::graphics::Texture::CreationPurpose::RENDER_TARGET |
+		milk::graphics::Texture::CreationPurpose::SHADER_RESOURCE;
+	windmapConfiguration.initialData = windmap_data.data();
+	windmapConfiguration.dataRowPitch = 100u * 2u * sizeof(float);
+
+	windmap_ = milk::graphics::Texture2d(graphicsRenderer, windmapConfiguration);
+
+	// TODO: still want a sampler factory. Probably want CLAMP address mode here
+	windmapSampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
 }
 
 void Terrain::bindShaderProperties(

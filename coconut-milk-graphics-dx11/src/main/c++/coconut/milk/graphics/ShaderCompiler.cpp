@@ -1,10 +1,7 @@
-#include "compile-shader.hpp"
+#include "ShaderCompiler.hpp"
 
 #include <algorithm>
 #include <cstdlib>
-
-#include <d3dcompiler.h>
-#include "coconut/milk/system/cleanup-windows-macros.hpp"
 
 #include "DirectXError.hpp"
 
@@ -44,7 +41,7 @@ std::string featureLevel(ShaderType shaderType) {
 class Includer : public ID3DInclude {
 public:
 
-	Includer(ShaderIncludeHandler handler) :
+	Includer(ShaderCompiler::IncludeHandler handler) :
 		handler_(std::move(handler))
 	{
 	}
@@ -69,36 +66,38 @@ public:
 
 private:
 
-	ShaderIncludeHandler handler_;
+	ShaderCompiler::IncludeHandler handler_;
 
-	std::vector<std::shared_ptr<ShaderData>> data_;
+	std::vector<std::shared_ptr<ShaderCompiler::ShaderData>> data_;
 
 };
 
 } // anonymous namespace
 
-ShaderData coconut::milk::graphics::compileShader(
-	const std::vector<std::uint8_t>& shaderCode,
+ShaderCompiler::ShaderData ShaderCompiler::compile(
+    const std::vector<std::uint8_t>& code,
+    const std::string& name,
 	const std::string& entrypoint,
-	ShaderType shaderType,
-	ShaderIncludeHandler includeHandler
-	)
+    ShaderType type,
+    IncludeHandler includeHandler,
+    CompilerFlags instanceFlags
+    ) const
 {
 	auto includer = Includer(includeHandler);
 
-	system::COMWrapper<ID3DBlob> code;
+	system::COMWrapper<ID3DBlob> codeBlob;
 	system::COMWrapper<ID3DBlob> errors;
 	auto result = D3DCompile(
-		shaderCode.data(),
-		shaderCode.size(),
+		code.data(),
+		code.size(),
 		nullptr, // TODO: shader name
 		nullptr,
 		&includer,
 		entrypoint.c_str(),
-		featureLevel(shaderType).c_str(),
+		featureLevel(type).c_str(),
+		(globalCompilerFlags_ | instanceFlags).integralValue(),
 		0,
-		0,
-		&code.get(),
+		&codeBlob.get(),
 		&errors.get()
 		);
 
@@ -122,10 +121,10 @@ ShaderData coconut::milk::graphics::compileShader(
 	}
 
 	std::vector<std::uint8_t> data;
-	data.reserve(code->GetBufferSize());
+	data.reserve(codeBlob->GetBufferSize());
 	std::copy(
-		reinterpret_cast<const std::uint8_t*>(code->GetBufferPointer()),
-		reinterpret_cast<const std::uint8_t*>(code->GetBufferPointer()) + code->GetBufferSize(),
+		reinterpret_cast<const std::uint8_t*>(codeBlob->GetBufferPointer()),
+		reinterpret_cast<const std::uint8_t*>(codeBlob->GetBufferPointer()) + codeBlob->GetBufferSize(),
 		std::back_inserter(data)
 		);
 

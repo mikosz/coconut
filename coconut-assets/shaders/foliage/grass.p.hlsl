@@ -1,3 +1,5 @@
+#include "grass-common.hlsl"
+
 struct Material {
 	float4 ambientColour;
 	float4 diffuseColour;
@@ -38,14 +40,6 @@ Texture2D material_diffuseMap;
 Texture2D material_alphaMap;
 Texture2D material_subsurfaceMap;
 SamplerState material_diffuseMapSampler;
-
-struct PIn {
-	float4 posH : SV_POSITION;
-	float3 posW : POSITION;
-	float noiseVal : NOISE;
-	float3 normalW : NORMAL;
-	float2 tex : TEXCOORD;
-};
 
 void computeDirectional(
 	Material mat,
@@ -133,7 +127,7 @@ float4 main(PIn pin) : SV_TARGET
 	//float4 endColour = saturate(pin.baseColour * (ambient + diffuse) + specular);
 	//endColour.a = 1.0f;
 	
-	float diffuseNoise = 1.0f - (frac(pin.noiseVal * 10.0f) * 0.2f);
+    float diffuseNoise = 1.0f - (frac(pin.noiseVal * 10.0f) * 0.2f);
 
 	float4 textureColour = material_diffuseMap.Sample(material_diffuseMapSampler, pin.tex);
 	float4 subsurfaceColour = material_subsurfaceMap.Sample(material_diffuseMapSampler, pin.tex);

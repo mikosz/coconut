@@ -28,7 +28,7 @@ Texture2d::Texture2d(Renderer& renderer, const Image& image) {
 	config.allowModifications = false;
 	config.allowCPURead = false;
 	config.allowGPUWrite = false;
-	config.purposeFlags = static_cast<std::underlying_type_t<CreationPurpose>>(CreationPurpose::SHADER_RESOURCE);
+	config.purposeFlags = CreationPurpose::SHADER_RESOURCE;
 	config.initialData = image.pixels();
 	config.dataRowPitch = image.rowPitch();
 
@@ -49,7 +49,7 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 	desc.Format = static_cast<DXGI_FORMAT>(configuration.pixelFormat);
 	desc.SampleDesc.Count = static_cast<UINT>(configuration.sampleCount);
 	desc.SampleDesc.Quality = static_cast<UINT>(configuration.sampleQuality);
-	desc.BindFlags = static_cast<UINT>(configuration.purposeFlags);
+	desc.BindFlags = configuration.purposeFlags.integralValue();
 	desc.MiscFlags = configuration.arraySize == 6 ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0u; // TODO
 
 	if (configuration.allowModifications) {
@@ -113,10 +113,11 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 }
 
 void Texture2d::initialise(
-	Renderer& renderer,
-	CreationPurposeFlag purposeFlags,
-	system::COMWrapper<ID3D11Texture2D> texture
-	) {
+    Renderer& renderer,
+    coconut_tools::Mask<CreationPurpose> purposeFlags,
+    system::COMWrapper<ID3D11Texture2D> texture
+    )
+{
 	reset();
 
 	texture_ = std::move(texture);

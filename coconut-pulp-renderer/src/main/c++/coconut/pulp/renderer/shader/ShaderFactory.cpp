@@ -10,7 +10,6 @@
 #include <coconut-tools/logger.hpp>
 #include <coconut-tools/exceptions/RuntimeError.hpp>
 
-#include "coconut/milk/graphics/compile-shader.hpp"
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 
 #include "Property.hpp"
@@ -277,19 +276,16 @@ Input createShaderInput(milk::graphics::Renderer& graphicsRenderer, std::vector<
 
 } // anonymous namespace
 
-auto detail::ShaderCreator::doCreate(
-	const std::string& id,
-	milk::graphics::Renderer& graphicsRenderer,
-	const milk::FilesystemContext& filesystemContext
-	) -> Instance
+detail::ShaderCreator::ShaderCreator() :
+	// TODO: temp, take as param, need to have separate files for debug and release
+    shaderCompiler_(
+		// TODO: idea - could have a shorter function returning some AnyMask type which
+		// has a | and & operator
+		milk::graphics::ShaderCompiler::CompilerFlags() |
+		milk::graphics::ShaderCompiler::CompilerFlag::DEBUG |
+		milk::graphics::ShaderCompiler::CompilerFlag::SKIP_OPTIMISATION
+		)
 {
-	CT_LOG_INFO << "Creating shader: \"" << id << "\"";
-
-	auto shaderCode = shaderCode_(id, filesystemContext);
-	auto& binary = std::get<0>(shaderCode);
-	auto& type = std::get<1>(shaderCode);
-
-	return createShaderFromCompiledShader(graphicsRenderer, std::move(binary), std::move(type));
 }
 
 Input detail::ShaderCreator::createInput(
@@ -335,6 +331,21 @@ void detail::ShaderCreator::registerCompiledShader(std::string id, const Compile
 	compiledShaderInfos_.emplace(std::move(id), std::move(compiledShaderInfo));
 }
 
+auto detail::ShaderCreator::doCreate(
+	const std::string& id,
+	milk::graphics::Renderer& graphicsRenderer,
+	const milk::FilesystemContext& filesystemContext
+	) -> Instance
+{
+	CT_LOG_INFO << "Creating shader: \"" << id << "\"";
+
+	auto shaderCode = shaderCode_(id, filesystemContext);
+	auto& binary = std::get<0>(shaderCode);
+	auto& type = std::get<1>(shaderCode);
+
+	return createShaderFromCompiledShader(graphicsRenderer, std::move(binary), std::move(type));
+}
+
 std::tuple<std::vector<std::uint8_t>, milk::graphics::ShaderType> detail::ShaderCreator::shaderCode_(
 	const std::string& id,
 	const milk::FilesystemContext& filesystemContext
@@ -353,8 +364,9 @@ std::tuple<std::vector<std::uint8_t>, milk::graphics::ShaderType> detail::Shader
 		auto shaderIncludeHandler = [&includeFSContext](const auto& path) {
 				return includeFSContext.load(path);
 			};
-		auto shaderBytecode = milk::graphics::compileShader(
+		auto shaderBytecode = shaderCompiler_.compile(
 			*shaderCode,
+            shaderInfo.shaderCodePath.string(),
 			shaderInfo.entrypoint,
 			shaderInfo.shaderType,
 			std::move(shaderIncludeHandler)

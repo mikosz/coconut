@@ -167,11 +167,7 @@ void extractBackBuffer(
 		"Failed to extract the back buffer texture"
 		);
 
-	backBuffer->initialise(
-		renderer,
-		static_cast<Texture::CreationPurposeFlag>(Texture::CreationPurpose::RENDER_TARGET),
-		texture
-		); // TODO: this interface needs work
+	backBuffer->initialise(renderer, Texture::CreationPurpose::RENDER_TARGET, texture); // TODO: this interface needs work
 }
 
 } // anonymous namespace
@@ -202,7 +198,7 @@ Renderer::Renderer(system::Window& window, const Configuration& configuration) :
 	depthStencilConfig.mipLevels = 1;
 	depthStencilConfig.arraySize = 1;
 	depthStencilConfig.pixelFormat = PixelFormat::D32_FLOAT;
-	depthStencilConfig.purposeFlags = static_cast<std::underlying_type_t<Texture2d::CreationPurpose>>(Texture2d::CreationPurpose::DEPTH_STENCIL);
+	depthStencilConfig.purposeFlags = Texture::CreationPurpose::DEPTH_STENCIL;
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	checkDirectXCall(swapChain_->GetDesc(&swapChainDesc), "Failed to retrieve the swap chain description");
