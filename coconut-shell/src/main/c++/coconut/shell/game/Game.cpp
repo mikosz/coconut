@@ -95,7 +95,7 @@ void Game::loop() {
 	scene.setLens(lens);
 
 	pulp::renderer::lighting::DirectionalLight white(
-		pulp::math::Vec3(-0.0f, -0.0f, -1.0f).normalised(),
+		pulp::math::Vec3(-1.0f, -1.0f, 1.0f).normalised(),
 		pulp::math::Vec4(0.1f, 0.1f, 0.1f, 0.0f),
 		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
 		pulp::math::Vec4(1.0f, 1.0f, 1.0f, 0.0f)
@@ -145,16 +145,14 @@ void Game::loop() {
 
 		const auto camX = 0.0f;
 		const auto camY = 1.0f; // 4.0f + 0.25f * secs;
-		const auto camZ = 0.5f * secs;
+        const auto camZ = 0.5f * secs;
+        //const auto camZ = 0.0f;
 
 		const auto terrainHeight = world.terrain().heightmap().heightAt(camX, camZ);
 
 		camera->reset();
-		// camera->rotate(pulp::math::Vec3(0.0f, 0.09f * 3.14f * secs, 0.0f));
 		camera->translate(pulp::math::Vec3(camX, camY + terrainHeight, camZ));
 		camera->rotate(pulp::math::Vec3(0.0f, 1.0f, 0.0f), pulp::math::radians(0.03f * secs));
-		//camera->rotate(pulp::math::Vec3(1.0f, 0.0f, 0.0f), 0.25_rad);
-		//camera->translate(pulp::math::Vec3(0.0f, 0.0f, -5.0f));
 		
 		auto passContext = pulp::renderer::PassContext();
 		passContext.graphicsRenderer = graphicsRenderer_.get();

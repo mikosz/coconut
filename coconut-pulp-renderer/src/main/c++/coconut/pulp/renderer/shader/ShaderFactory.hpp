@@ -10,6 +10,7 @@
 
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
+#include "coconut/milk/graphics/ShaderCompiler.hpp"
 #include "coconut/milk/fs.hpp"
 #include "Input.hpp"
 #include "Shader.hpp"
@@ -37,6 +38,8 @@ public:
 		milk::graphics::ShaderType shaderType;
 	};
 
+    ShaderCreator();
+
 	Input createInput(
 		const std::string& id,
 		milk::graphics::Renderer& graphicsRenderer,
@@ -62,6 +65,8 @@ private:
 	using ShaderCodeInfos = std::unordered_map<std::string, ShaderCodeInfo>;
 
 	using CompiledShaderInfos = std::unordered_map<std::string, CompiledShaderInfo>;
+
+    milk::graphics::ShaderCompiler shaderCompiler_;
 
 	ShaderCodeInfos shaderCodeInfos_;
 
