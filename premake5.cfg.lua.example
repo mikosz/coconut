@@ -1,0 +1,8 @@
+BOOST_INCLUDE_DIR = "E:/tools/Boost/boost_1_64_0"
+BOOST_LIB_DIR = "E:/tools/Boost/boost_1_64_0/stage/lib"
+BOOST_USE_STATIC_LIBS = true
+BOOST_VERSION = "1_64"
+BOOST_TOOLSET = "vc141"
+BOOST_MULTITHREADED = true
+
+GMOCK_DIR = "E:/work/gmock-1.7.0"
