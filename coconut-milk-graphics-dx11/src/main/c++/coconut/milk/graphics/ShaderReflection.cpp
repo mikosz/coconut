@@ -87,7 +87,6 @@ ShaderReflection::Type buildTypeInfo(ID3D11ShaderReflectionType& typeInfo, size_
 		size_t memberSize; // hehehe
 
 		if (memberIdx < desc.Members - 1) {
-			auto* nextMemberType = typeInfo.GetMemberTypeByIndex(memberIdx + 1);
 			auto nextMemberTypeDesc = D3D11_SHADER_TYPE_DESC();
 			checkDirectXCall(typeInfo.GetDesc(&nextMemberTypeDesc), "Failed to get member type desc");
 			memberSize = nextMemberTypeDesc.Offset - memberTypeDesc.Offset;

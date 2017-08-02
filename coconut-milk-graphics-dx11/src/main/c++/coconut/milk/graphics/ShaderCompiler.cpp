@@ -47,20 +47,20 @@ public:
 	}
 
 	HRESULT Open(
-		D3D_INCLUDE_TYPE includeType,
+		D3D_INCLUDE_TYPE /*includeType*/,
 		LPCSTR fileName,
-		LPCVOID parentData,
+		LPCVOID /*parentData*/,
 		LPCVOID* data,
 		UINT* bytes
 		) override
 	{
 		data_.emplace_back(handler_(fileName));
 		*data = data_.back()->data();
-		*bytes = data_.back()->size();
+		*bytes = static_cast<UINT>(data_.back()->size());
 		return S_OK;
 	}
 
-	HRESULT Close(LPCVOID data) override {
+	HRESULT Close(LPCVOID /*data*/) override {
 		return S_OK;
 	}
 
@@ -90,7 +90,7 @@ ShaderCompiler::ShaderData ShaderCompiler::compile(
 	auto result = D3DCompile(
 		code.data(),
 		code.size(),
-		nullptr, // TODO: shader name
+		name.c_str(),
 		nullptr,
 		&includer,
 		entrypoint.c_str(),

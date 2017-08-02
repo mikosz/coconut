@@ -252,7 +252,7 @@ Renderer::LockedData Renderer::lock(Resource& data, LockPurpose lockPurpose) {
 		);
 }
 
-void Renderer::submit(CommandList& commandList) {
+void Renderer::submit(CommandList& /*commandList*/) {
 	/*system::COMWrapper<ID3D11CommandList> d3dCommandList;
 	checkDirectXCall(
 		commandList.internalDeviceContext().FinishCommandList(false, &d3dCommandList.get()),
