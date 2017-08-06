@@ -193,9 +193,8 @@ Input createShaderInput(milk::graphics::Renderer& graphicsRenderer, std::vector<
 	auto perVertexParameters = Input::Parameters();
 	auto perInstanceParameters = Input::Parameters();
 
-	auto offset = 0u;
+	auto offset = size_t(0);
 
-	const auto& inputParameters = reflection.inputParameters();
 	for (const auto& inputParameter : reflection.inputParameters()) {
 		auto dataType = Property::DataType();
 		auto pixelFormat = milk::graphics::PixelFormat();
@@ -228,7 +227,9 @@ Input createShaderInput(milk::graphics::Renderer& graphicsRenderer, std::vector<
 		// TODO: TEMP!!! --
 
 		auto identifier = inputParameter.semantic + std::to_string(inputParameter.semanticIndex);
-		std::transform(identifier.begin(), identifier.end(), identifier.begin(), ::tolower); // Don't care about locale, only ASCII chars
+		std::transform(identifier.begin(), identifier.end(), identifier.begin(), [](char c) {
+				return static_cast<char>(::tolower(c)); // Don't care about locale, only ASCII chars
+			});
 		auto descriptorObjects = interpretIdentifier(identifier);
 
 		if (descriptorObjects.empty()) {

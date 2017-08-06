@@ -116,7 +116,10 @@ std::vector<std::uint8_t> indexBufferData(
 			baseIndex += static_cast<IndexType>(submesh.vertices().size());
 		});
 
-	assert(dataPtr - reinterpret_cast<IndexType*>(data.data()) == data.size() / sizeof(IndexType));
+	assert(
+		static_cast<size_t>(dataPtr - reinterpret_cast<IndexType*>(data.data())) ==
+		data.size() / sizeof(IndexType)
+		);
 
 	return data;
 }

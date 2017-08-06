@@ -91,11 +91,13 @@ Primitive::IncompatiblePixelFormat::IncompatiblePixelFormat(milk::graphics::Pixe
 }
 
 void Primitive::storeAs(void* buffer, milk::graphics::PixelFormat pixelFormat) const {
-	data_.apply_visitor(StoreAsVisitor(buffer, pixelFormat));
+	auto visitor = StoreAsVisitor(buffer, pixelFormat);
+	data_.apply_visitor(visitor);
 }
 
 void primitive::serialise(coconut_tools::Serialiser& serialiser, const Primitive& aPrimitive) {
-	aPrimitive.data_.apply_visitor(SerialiseVisitor(serialiser));
+	auto visitor = SerialiseVisitor(serialiser);
+	aPrimitive.data_.apply_visitor(visitor);
 }
 
 void primitive::serialise(coconut_tools::Deserialiser& deserialiser, Primitive& aPrimitive) {

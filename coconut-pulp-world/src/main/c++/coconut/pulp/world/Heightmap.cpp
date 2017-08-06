@@ -23,9 +23,9 @@ std::tuple<float, float> sampleAt(
 {
 	if (
 		rowIndex < 0 ||
-		rowIndex >= cellHeights.size() / columnCount ||
+		static_cast<size_t>(rowIndex) >= cellHeights.size() / columnCount ||
 		columnIndex < 0 ||
-		columnIndex >= columnCount
+		static_cast<size_t>(columnIndex) >= columnCount
 		)
 	{
 		return std::make_tuple(0.0f, 0.0f);

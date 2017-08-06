@@ -160,7 +160,7 @@ Terrain::Terrain(
 	tiledTextureSampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
 
     auto windmap_data = std::array<float, 100u * 100u * 2u>(); // TODO: temp!
-    std::srand(std::time(0));
+    std::srand(static_cast<unsigned int>(std::time(0)));
     std::generate(windmap_data.begin(), windmap_data.end(), []() {
             return static_cast<float>(std::rand() % 255) / 255.0f;
         });

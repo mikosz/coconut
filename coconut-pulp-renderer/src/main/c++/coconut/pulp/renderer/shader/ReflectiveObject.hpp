@@ -191,12 +191,12 @@ void* writeDataProperty(
 
 template <class T>
 void bindResourceProperty(
-	DrawCommand& drawCommand,
+	DrawCommand& /*drawCommand*/,
 	const ReflectiveObject<std::vector<T>>& vector,
 	const PropertyId& id,
-	milk::graphics::ShaderReflection::ResourceInfo::Type type,
-	milk::graphics::ShaderType stage,
-	size_t slot
+	milk::graphics::ShaderReflection::ResourceInfo::Type /*type*/,
+	milk::graphics::ShaderType /*stage*/,
+	size_t /*slot*/
 	)
 {
 	auto oss = std::ostringstream();

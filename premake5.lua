@@ -62,11 +62,11 @@ workspace "coconut"
 	include "coconut-milk-system-win32"
 	include "coconut-milk-utils"
 	include "coconut-pulp-math"
-	-- include "coconut-pulp-mesh"
-	-- include "coconut-pulp-primitive"
-	-- include "coconut-pulp-renderer"
-	-- include "coconut-pulp-world"
-	-- include "coconut-pulp-shell"
+	include "coconut-pulp-mesh"
+	include "coconut-pulp-primitive"
+	include "coconut-pulp-renderer"
+	include "coconut-pulp-world"
+	include "coconut-shell"
 
 	structure.create_install_project()
 	structure.create_run_tests_project()

@@ -23,11 +23,11 @@ public:
 	{
 	}
 
-	virtual void update(std::chrono::milliseconds dt) {
+	virtual void update(std::chrono::milliseconds /*dt*/) {
 	}
 
 	virtual void bindShaderProperties(
-		renderer::shader::Properties& properties,
+		renderer::shader::Properties& /*properties*/,
 		std::string objectId
 		) const
 	{

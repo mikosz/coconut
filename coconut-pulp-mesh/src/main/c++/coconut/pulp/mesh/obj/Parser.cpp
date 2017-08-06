@@ -1,10 +1,16 @@
 #include "coconut-tools/system/platform.hpp"
 
 #if defined(CT_COMPILER_VISUAL_CXX)
+#	pragma warning(push)
 #	pragma warning(disable: 4244) // boost spirit spews conversion warnings
+#	pragma warning(disable: 4459) // boost spirit spews "hides global declarations" warnings
 #endif /* CT_COMPILER_VISUAL_CXX */
 
 #include "Parser.hpp"
+
+#if defined(CT_COMPILER_VISUAL_CXX)
+#	pragma warning(pop)
+#endif /* CT_COMPILER_VISUAL_CXX */
 
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/bind.hpp>
