@@ -91,9 +91,9 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 
 				subresourceData[subresourceIndex].pSysMem = data;
 				// TODO: this will not work for compressed formats
-				subresourceData[subresourceIndex].SysMemPitch = pixelSize * textureWidth;
+				subresourceData[subresourceIndex].SysMemPitch = static_cast<UINT>(pixelSize * textureWidth);
 				subresourceData[subresourceIndex].SysMemSlicePitch =
-					subresourceData[mipIndex].SysMemPitch * textureHeight;
+					static_cast<UINT>(subresourceData[mipIndex].SysMemPitch * textureHeight);
 
 				data += textureWidth * textureHeight * pixelSize;
 			}

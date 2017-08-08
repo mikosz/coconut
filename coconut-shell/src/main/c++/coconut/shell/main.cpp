@@ -16,8 +16,9 @@ using namespace coconut::shell;
 
 CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.OBJ_MODEL_PARSER");
 
-CT_BEGIN_MAIN();
-	try {
+// CT_BEGIN_MAIN();
+int main() {
+	//try {
 		auto app = std::make_shared<milk::system::App>(*milk::system::GlobalMainArguments::instance());
 
 		auto config = coconut_tools::configuration::hierarchical::HierarchicalConfiguration::create();
@@ -32,8 +33,8 @@ CT_BEGIN_MAIN();
 		theGame.loop();
 
 		return 0;
-	} catch (const std::exception& e) {
-		CT_LOG_CRITICAL << "Caught exception: " << e.what();
-		return 1;
-	}
+	//} catch (const std::exception& e) {
+	//	CT_LOG_CRITICAL << "Caught exception: " << e.what();
+	//	return 1;
+	//}
 CT_END_MAIN();

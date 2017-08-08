@@ -14,7 +14,7 @@ public:
 
 	Scalar() = default;
 
-	/* implicit */ Scalar(float value)
+	/* implicit */ Scalar(float /*value*/)
 	{
 	}
 
