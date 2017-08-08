@@ -80,9 +80,8 @@ void* shader::writeDataProperty(
 		throw IncompatibleDataType("Matrices are not writeable to class " + toString(format.klass));
 	}
 
-	static const auto SHADER_AND_MATH_MATRICES_COMPATIBLE =
-		(math::Matrix4x4::VECTOR_IS_SINGLE_ROW_MATRIX == milk::graphics::Renderer::VECTOR_IS_SINGLE_ROW_MATRIX);
-	if (SHADER_AND_MATH_MATRICES_COMPATIBLE) {
+#pragma warning(suppress: 4127)
+	if (math::Matrix4x4::VECTOR_IS_SINGLE_ROW_MATRIX != milk::graphics::Renderer::VECTOR_IS_SINGLE_ROW_MATRIX) {
 		needsTranspose = !needsTranspose;
 	}
 
