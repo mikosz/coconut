@@ -1,8 +1,15 @@
-BOOST_INCLUDE_DIR = "E:/tools/Boost/boost_1_64_0"
-BOOST_LIB_DIR = "E:/tools/Boost/boost_1_64_0/stage/lib"
+BOOST_INCLUDE_DIR = "D:/tools/boost_1_64_0"
+BOOST_LIB_DIR = BOOST_INCLUDE_DIR.."/lib64-msvc-14.1"
 BOOST_USE_STATIC_LIBS = true
 BOOST_VERSION = "1_64"
 BOOST_TOOLSET = "vc141"
 BOOST_MULTITHREADED = true
 
-GMOCK_DIR = "E:/work/gmock-1.7.0"
+GMOCK_DIR = "D:/tools/googletest/googlemock"
+GTEST_DIR = "D:/tools/googletest/googletest"
+
+DIRECTX_TEX_ROOT = "E:/private/DirectXTex"
+
+USR_DIR = "E:/private/usr"
+
+COCONUT_TOOLS_USE_STATIC_LIBS = true

@@ -279,7 +279,7 @@ Input createShaderInput(milk::graphics::Renderer& graphicsRenderer, std::vector<
 
 detail::ShaderCreator::ShaderCreator() :
 	// TODO: temp, take as param, need to have separate files for debug and release
-    shaderCompiler_(
+	shaderCompiler_(
 		// TODO: idea - could have a shorter function returning some AnyMask type which
 		// has a | and & operator
 		milk::graphics::ShaderCompiler::CompilerFlags() |
@@ -299,9 +299,8 @@ Input detail::ShaderCreator::createInput(
 
 	auto shaderCode = shaderCode_(id, filesystemContext);
 	auto& binary = std::get<0>(shaderCode);
-	auto& type = std::get<1>(shaderCode);
 
-	assert (type == milk::graphics::ShaderType::VERTEX);
+	assert(std::get<1>(shaderCode) == milk::graphics::ShaderType::VERTEX);
 
 	return createShaderInput(graphicsRenderer, std::move(binary));
 }
@@ -367,7 +366,7 @@ std::tuple<std::vector<std::uint8_t>, milk::graphics::ShaderType> detail::Shader
 			};
 		auto shaderBytecode = shaderCompiler_.compile(
 			*shaderCode,
-            shaderInfo.shaderCodePath.string(),
+			shaderInfo.shaderCodePath.string(),
 			shaderInfo.entrypoint,
 			shaderInfo.shaderType,
 			std::move(shaderIncludeHandler)

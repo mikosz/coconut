@@ -1,0 +1,14 @@
+<mounts>
+  <mount>
+    <mount-point>/</mount-point>
+	<filesystem-path>.</filesystem-path>
+	<read-only>0</read-only>
+	<hiding-policy>ADD</hiding-policy>
+  </mount>
+  <mount>
+    <mount-point>/</mount-point>
+	<filesystem-path>../coconut-assets/</filesystem-path>
+	<read-only>1</read-only>
+	<hiding-policy>ADD</hiding-policy>
+  </mount>
+</mounts>
