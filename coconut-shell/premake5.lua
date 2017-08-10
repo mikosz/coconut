@@ -1,6 +1,7 @@
 structure.executable_project("coconut-shell", true)
 
 project "coconut-shell"
+	debugdir("../coconut-assets")
 	links {
 		"coconut-milk-graphics",
 		"coconut-milk-fs",
