@@ -177,7 +177,6 @@ Terrain::Terrain(
 		milk::graphics::Texture::CreationPurpose::RENDER_TARGET |
 		milk::graphics::Texture::CreationPurpose::SHADER_RESOURCE;
 	windmapConfiguration.initialData = windmap_data.data();
-	windmapConfiguration.dataRowPitch = 100u * 2u * sizeof(float);
 
 	windmap_ = milk::graphics::Texture2d(graphicsRenderer, windmapConfiguration);
 

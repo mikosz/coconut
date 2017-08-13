@@ -33,9 +33,15 @@ CT_ENUM_VALUES(
 	// index formats
 	(I16_UINT)(DXGI_FORMAT_R16_UINT)
 	(I32_UINT)(DXGI_FORMAT_R32_UINT)
+
+	// compressed formats
+	(BC1_UNORM)(DXGI_FORMAT_BC1_UNORM)
 );
 
+// TODO: refactor me, please
 size_t formatSize(PixelFormat format);
+size_t formatRowPitch(PixelFormat format, size_t width);
+size_t formatSlicePitch(PixelFormat format, size_t height, size_t rowPitch);
 const char* const formatHLSLType(PixelFormat format);
 
 } // namespace graphics

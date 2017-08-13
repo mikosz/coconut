@@ -26,10 +26,6 @@ public:
 		return size_;
 	}
 
-	size_t rowPitch() const {
-		return rowPitch_;
-	}
-
 	size_t arraySize() const noexcept {
 		return arraySize_;
 	}
@@ -47,14 +43,12 @@ private:
 	Image(
 		std::vector<std::uint8_t> pixels,
 		Dimensions size,
-		size_t rowPitch,
 		size_t arraySize,
 		size_t mipLevels,
 		PixelFormat pixelFormat
 		) :
 		pixels_(std::move(pixels)),
 		size_(size),
-		rowPitch_(rowPitch),
 		arraySize_(arraySize),
 		mipLevels_(mipLevels),
 		pixelFormat_(pixelFormat)
@@ -64,8 +58,6 @@ private:
 	std::vector<std::uint8_t> pixels_;
 
 	Dimensions size_;
-
-	size_t rowPitch_;
 
 	size_t arraySize_;
 

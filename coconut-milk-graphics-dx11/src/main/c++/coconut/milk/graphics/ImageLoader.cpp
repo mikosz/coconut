@@ -104,7 +104,6 @@ Image ImageLoader::load(const FilesystemContext& filesystemContext, const Path& 
 		return Image(
 			std::move(pixels),
 			{ metadata.width, metadata.height },
-			formatSize(static_cast<PixelFormat>(metadata.format)) * metadata.width, // TODO? Handle compressed types?
 			metadata.arraySize,
 			metadata.mipLevels,
 			static_cast<PixelFormat>(metadata.format)

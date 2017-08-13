@@ -105,7 +105,6 @@ Heightmap::Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::Fil
 	textureConfiguration.sampleCount = 1;
 	textureConfiguration.sampleQuality = 0;
 	textureConfiguration.mipLevels = 1; // TODO: 0 or -1 or what
-	textureConfiguration.dataRowPitch = columnCount_ * 4u;
 	textureConfiguration.allowModifications = false;
 	textureConfiguration.allowCPURead = false;
 	textureConfiguration.allowGPUWrite = false;
