@@ -60,24 +60,24 @@ Game::Game(
 	}
 
 	{
-		milk::system::Window::Configuration configuration;
-		configuration.className = "coconut::milk::graphics::device::Window";
-		configuration.fullscreen = false;
-		configuration.width = 800;
-		configuration.height = 600;
-		configuration.title = "Game window";
+		auto windowConf = milk::system::Window::Configuration();
+		windowConf.className = "coconut::milk::graphics::device::Window";
+		windowConf.fullscreen = false;
+		windowConf.width = 800;
+		windowConf.height = 600;
+		windowConf.title = "Game window";
 
-		window_.reset(new milk::system::Window(configuration, app_));
+		window_.reset(new milk::system::Window(windowConf, app_));
 	}
 
 	{
-		milk::graphics::Renderer::Configuration configuration;
-		configuration.debugDevice = DEBUG;
-		configuration.vsync = false;
-		configuration.sampleCount = std::numeric_limits<std::uint32_t>::max();
-		configuration.sampleQuality = std::numeric_limits<std::uint32_t>::max();
+		auto rendererConf = milk::graphics::Renderer::Configuration();
+		rendererConf.debugDevice = DEBUG;
+		rendererConf.vsync = false;
+		rendererConf.sampleCount = std::numeric_limits<std::uint32_t>::max();
+		rendererConf.sampleQuality = std::numeric_limits<std::uint32_t>::max();
 
-		graphicsRenderer_.reset(new milk::graphics::Renderer(*window_, configuration));
+		graphicsRenderer_.reset(new milk::graphics::Renderer(*window_, rendererConf));
 	}
 }
 
@@ -156,8 +156,8 @@ void Game::loop() {
 
 		const auto camX = 0.0f;
 		const auto camY = 1.0f; // 4.0f + 0.25f * secs;
-        const auto camZ = 0.5f * secs;
-        //const auto camZ = 0.0f;
+		const auto camZ = 0.5f * secs;
+		//const auto camZ = 0.0f;
 
 		const auto terrainHeight = world.terrain().heightmap().heightAt(camX, camZ);
 

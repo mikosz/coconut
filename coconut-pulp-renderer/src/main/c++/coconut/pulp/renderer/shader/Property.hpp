@@ -162,10 +162,10 @@ public:
 
 template <class T>
 inline std::enable_if_t<!std::is_arithmetic_v<T>, void*> writeDataProperty(
-	void* buffer,
+	void* /*buffer*/,
 	const T& property,
 	const PropertyId& id,
-	const Property::DataType& format
+	const Property::DataType& /*format*/
 	)
 {
 	auto oss = std::ostringstream();
@@ -179,12 +179,12 @@ inline std::enable_if_t<!std::is_arithmetic_v<T>, void*> writeDataProperty(
 
 template <class T>
 inline void bindResourceProperty(
-	DrawCommand& drawCommand,
+	DrawCommand& /*drawCommand*/,
 	const T& property,
 	const PropertyId& id,
-	milk::graphics::ShaderReflection::ResourceInfo::Type type,
-	milk::graphics::ShaderType stage,
-	size_t slot
+	milk::graphics::ShaderReflection::ResourceInfo::Type /*type*/,
+	milk::graphics::ShaderType /*stage*/,
+	size_t /*slot*/
 	)
 {
 	auto oss = std::ostringstream();
@@ -263,7 +263,7 @@ template <class I>
 inline std::enable_if_t<std::is_integral_v<I>, void*> writeDataProperty(
 	void* buffer,
 	I i,
-	const PropertyId& id,
+	const PropertyId& /*id*/,
 	const Property::DataType& format
 	)
 {
@@ -288,7 +288,7 @@ template <class F>
 inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeDataProperty(
 	void* buffer,
 	F f,
-	const PropertyId& id,
+	const PropertyId& /*id*/,
 	const Property::DataType& format
 	)
 {

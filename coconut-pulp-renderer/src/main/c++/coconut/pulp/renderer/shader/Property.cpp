@@ -13,7 +13,7 @@ using namespace coconut::pulp::renderer::shader;
 void* shader::writeDataProperty(
 	void* buffer,
 	const math::Vec3& vec3,
-	const PropertyId& id,
+	const PropertyId& /*id*/,
 	const Property::DataType& format
 	)
 {
@@ -38,7 +38,7 @@ void* shader::writeDataProperty(
 void* shader::writeDataProperty(
 	void* buffer,
 	const math::Vec4& vec4,
-	const PropertyId& id,
+	const PropertyId& /*id*/,
 	const Property::DataType& format
 	)
 {
@@ -60,7 +60,7 @@ void* shader::writeDataProperty(
 void* shader::writeDataProperty(
 	void* buffer,
 	const math::Matrix4x4& matrix,
-	const PropertyId& id,
+	const PropertyId& /*id*/, // TODO: is this ever used?
 	const Property::DataType& format
 	)
 {
@@ -80,6 +80,7 @@ void* shader::writeDataProperty(
 		throw IncompatibleDataType("Matrices are not writeable to class " + toString(format.klass));
 	}
 
+#pragma warning(suppress: 4127)
 	if (math::Matrix4x4::VECTOR_IS_SINGLE_ROW_MATRIX != milk::graphics::Renderer::VECTOR_IS_SINGLE_ROW_MATRIX) {
 		needsTranspose = !needsTranspose;
 	}
@@ -130,8 +131,8 @@ void* shader::writeDataProperty(
 void shader::bindResourceProperty(
 	DrawCommand& drawCommand,
 	const milk::graphics::Texture2d& texture,
-	const PropertyId& id,
-	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	const PropertyId& /*id*/,
+	milk::graphics::ShaderReflection::ResourceInfo::Type /*type*/,
 	milk::graphics::ShaderType stage,
 	size_t slot
 	)
@@ -142,8 +143,8 @@ void shader::bindResourceProperty(
 void shader::bindResourceProperty(
 	DrawCommand& drawCommand,
 	const milk::graphics::Sampler& sampler,
-	const PropertyId& id,
-	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	const PropertyId& /*id*/,
+	milk::graphics::ShaderReflection::ResourceInfo::Type /*type*/,
 	milk::graphics::ShaderType stage,
 	size_t slot
 	)

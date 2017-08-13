@@ -95,11 +95,11 @@ inline const Angle degrees(float degrees) noexcept {
 }
 
 inline const Angle operator""_rad(long double r) noexcept {
-	return radians(r);
+	return radians(static_cast<float>(r));
 }
 
 inline const Angle operator""_deg(long double d) noexcept {
-	return degrees(d);
+	return degrees(static_cast<float>(d));
 }
 
 } // namespace math

@@ -17,7 +17,7 @@ CT_LOGGER_CATEGORY("COCONUT.PULP.RENDERER.SHADER.PASS_FACTORY");
 void PassCreator::scanShaderCodeDirectory(
 	const milk::fs::FilesystemContext& filesystemContext,
 	const milk::fs::Path& directory,
-	const std::string& entrypointName
+	const std::string& /*entrypointName*/
 	)
 {
 	CT_LOG_INFO << "Scanning shader code directory: " << directory;

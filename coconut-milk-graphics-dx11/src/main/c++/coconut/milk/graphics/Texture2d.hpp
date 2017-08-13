@@ -45,8 +45,6 @@ public:
 
 		const void* initialData;
 		
-		size_t dataRowPitch;
-
 		Configuration() {
 			std::memset(this, 0, sizeof(decltype(*this))); // TODO: TEMP TEMP TEMP
 			mipLevels = 1;

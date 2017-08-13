@@ -23,9 +23,9 @@ std::tuple<float, float> sampleAt(
 {
 	if (
 		rowIndex < 0 ||
-		rowIndex >= cellHeights.size() / columnCount ||
+		static_cast<size_t>(rowIndex) >= cellHeights.size() / columnCount ||
 		columnIndex < 0 ||
-		columnIndex >= columnCount
+		static_cast<size_t>(columnIndex) >= columnCount
 		)
 	{
 		return std::make_tuple(0.0f, 0.0f);
@@ -105,7 +105,6 @@ Heightmap::Heightmap(milk::graphics::Renderer& graphicsRenderer, const milk::Fil
 	textureConfiguration.sampleCount = 1;
 	textureConfiguration.sampleQuality = 0;
 	textureConfiguration.mipLevels = 1; // TODO: 0 or -1 or what
-	textureConfiguration.dataRowPitch = columnCount_ * 4u;
 	textureConfiguration.allowModifications = false;
 	textureConfiguration.allowCPURead = false;
 	textureConfiguration.allowGPUWrite = false;

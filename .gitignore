@@ -1,10 +1,6 @@
-/cmake.cfg
-
-# visual-studio files
-.vs/
-*.suo
-*.sln
-*.pyproj
+build/
+obj/
+premake5.cfg.lua
 
 # renderdoc .cap files
 *.cap

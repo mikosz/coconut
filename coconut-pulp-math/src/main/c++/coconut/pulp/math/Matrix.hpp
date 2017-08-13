@@ -34,7 +34,7 @@ public:
 	static const auto COLUMNS = GetElementFunc::COLUMNS;
 
 	constexpr MatrixView(NextViewType nextView, GetElementFunc getElementFunc = GetElementFunc()) :
-		next_(std::move(nextView)),
+		next_(nextView), // TODO: can't use std::move here when NextViewType is a reference. Figure out this view type better.
 		getElementFunc_(std::move(getElementFunc))
 	{
 	}

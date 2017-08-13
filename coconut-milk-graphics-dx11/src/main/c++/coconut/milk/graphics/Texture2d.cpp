@@ -30,7 +30,6 @@ Texture2d::Texture2d(Renderer& renderer, const Image& image) {
 	config.allowGPUWrite = false;
 	config.purposeFlags = CreationPurpose::SHADER_RESOURCE;
 	config.initialData = image.pixels();
-	config.dataRowPitch = image.rowPitch();
 
 	initialise(renderer, config);
 }
@@ -88,14 +87,15 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 				const auto subresourceIndex = textureIndex * configuration.mipLevels + mipIndex;
 				const auto textureWidth = configuration.width >> mipIndex;
 				const auto textureHeight = configuration.height >> mipIndex;
+				const auto rowPitch = formatRowPitch(configuration.pixelFormat, textureWidth);
+				const auto slicePitch = formatSlicePitch(configuration.pixelFormat, textureHeight, rowPitch);
 
 				subresourceData[subresourceIndex].pSysMem = data;
 				// TODO: this will not work for compressed formats
-				subresourceData[subresourceIndex].SysMemPitch = pixelSize * textureWidth;
-				subresourceData[subresourceIndex].SysMemSlicePitch =
-					subresourceData[mipIndex].SysMemPitch * textureHeight;
+				subresourceData[subresourceIndex].SysMemPitch = static_cast<UINT>(rowPitch);
+				subresourceData[subresourceIndex].SysMemSlicePitch = static_cast<UINT>(slicePitch);
 
-				data += textureWidth * textureHeight * pixelSize;
+				data += slicePitch;
 			}
 		}
 

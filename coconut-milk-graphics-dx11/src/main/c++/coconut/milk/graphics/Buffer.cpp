@@ -54,16 +54,16 @@ Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, Configuration config
 		"Failed to create a buffer");
 
 	if (purpose == CreationPurpose::SHADER_RESOURCE) { // TODO: duplicated with Texture
-		auto desc = D3D11_SHADER_RESOURCE_VIEW_DESC();
-		std::memset(&desc, 0, sizeof(decltype(desc)));
+		auto srvDesc = D3D11_SHADER_RESOURCE_VIEW_DESC();
+		std::memset(&srvDesc, 0, sizeof(decltype(srvDesc)));
 
-		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-		desc.Format = static_cast<DXGI_FORMAT>(configuration_.elementFormat);
-		desc.Buffer.ElementOffset = 0;
-		desc.Buffer.NumElements = configuration_.size / formatSize(configuration_.elementFormat);
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		srvDesc.Format = static_cast<DXGI_FORMAT>(configuration_.elementFormat);
+		srvDesc.Buffer.ElementOffset = 0;
+		srvDesc.Buffer.NumElements = static_cast<UINT>(configuration_.size / formatSize(configuration_.elementFormat));
 
 		checkDirectXCall(
-			renderer.internalDevice().CreateShaderResourceView(buffer_, &desc, &shaderResourceView_.get()),
+			renderer.internalDevice().CreateShaderResourceView(buffer_, &srvDesc, &shaderResourceView_.get()),
 			"Failed to create a shader resource view of buffer"
 		);
 	}

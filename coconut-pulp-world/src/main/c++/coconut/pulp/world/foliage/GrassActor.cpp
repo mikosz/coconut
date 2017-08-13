@@ -22,7 +22,7 @@ std::unique_ptr<renderer::Model> createGrassModel(
 	milk::graphics::Renderer& graphicsRenderer,
 	renderer::shader::PassFactory& passFactory,
 	const milk::fs::FilesystemContext& filesystemContext,
-	const Heightmap& heightmap
+	const Heightmap& /*heightmap*/
 	)
 {
 	auto submeshes = Mesh::Submeshes();

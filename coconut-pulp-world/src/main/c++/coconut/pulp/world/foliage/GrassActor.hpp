@@ -24,7 +24,7 @@ public:
 
 	GrassActor(const math::Vec3& patchPosition);
 
-	void update(std::chrono::milliseconds dt) override {
+	void update(std::chrono::milliseconds /*dt*/) override {
 	}
 
 	void bindShaderProperties(
