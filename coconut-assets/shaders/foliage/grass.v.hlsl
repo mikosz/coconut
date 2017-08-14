@@ -16,8 +16,8 @@ Texture2D material_noiseMap;
 Texture2D terrain_heightmap;
 SamplerState terrain_heightmapSampler;
 
-Texture2D terrain_windmap;
-SamplerState terrain_windmapSampler;
+Texture2D windmap_texture;
+SamplerState windmap_sampler;
 
 GIn main(uint bladeId : SV_VertexID)
 {
@@ -51,7 +51,7 @@ GIn main(uint bladeId : SV_VertexID)
 	vout.posW.x += noise.x * OFFSET;
 	vout.posW.z += noise.z * OFFSET;
 
-	vout.windDir = WIND_SCALE * terrain_windmap.SampleLevel(terrain_windmapSampler, terrainTexcoord, 0).rg;
+	vout.windDir = WIND_SCALE * windmap_texture.SampleLevel(windmap_sampler, terrainTexcoord, 0).rg;
 	
 	vout.noiseVal = noise.y;
 

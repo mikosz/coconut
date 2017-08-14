@@ -154,6 +154,8 @@ void Game::loop() {
 		auto dt = now - start;
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;
 
+		world.update(std::chrono::duration_cast<std::chrono::milliseconds>(dt), *graphicsRenderer_);
+
 		const auto camX = 0.0f;
 		const auto camY = 1.0f; // 4.0f + 0.25f * secs;
 		const auto camZ = 0.5f * secs;

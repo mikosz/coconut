@@ -1,6 +1,8 @@
 #ifndef _COCONUT_PULP_WORLD_WORLD_HPP_
 #define _COCONUT_PULP_WORLD_WORLD_HPP_
 
+#include <chrono>
+
 #include "coconut/milk/graphics/Renderer.hpp"
 #include "coconut/milk/fs.hpp"
 #include "coconut/pulp/renderer/shader/Property.hpp"
@@ -9,6 +11,7 @@
 #include "coconut/pulp/renderer/Actor.hpp"
 #include "Terrain.hpp"
 #include "Sky.hpp"
+#include "Windmap.hpp"
 
 namespace coconut {
 namespace pulp {
@@ -24,13 +27,24 @@ public:
 		renderer::ModelFactory& modelFactory, // ,,
 		const milk::FilesystemContext& fs
 		) :
+		windmap_(graphicsRenderer),
 		terrain_(graphicsRenderer, scene, passFactory, modelFactory, fs),
 		sky_(graphicsRenderer, scene, passFactory, fs)
 	{
 	}
 
+	void update(
+		std::chrono::milliseconds dt,
+		milk::graphics::Renderer& graphicsRenderer
+		)
+	{
+		windmap_.update(dt, graphicsRenderer);
+	}
+
 	// TODO: temp?
 	void bindShaderProperties(renderer::shader::Properties& properties) const {
+		// TODO: shouldn't create windmap each call
+		properties.bind("windmap", renderer::shader::makeReflectiveObject(windmap_));
 		terrain_.bindShaderProperties(properties, "terrain");
 	}
 
@@ -40,6 +54,8 @@ public:
 
 private:
 
+	Windmap windmap_;
+	
 	Terrain terrain_;
 
 	Sky sky_;

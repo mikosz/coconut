@@ -43,10 +43,6 @@ private:
 
 	milk::graphics::Sampler tiledTextureSampler_;
 
-	milk::graphics::Texture2d windmap_;
-
-	milk::graphics::Sampler windmapSampler_;
-
 	friend class renderer::shader::ReflectiveInterface<Terrain>;
 
 };
