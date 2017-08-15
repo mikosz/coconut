@@ -27,18 +27,14 @@ public:
 		renderer::ModelFactory& modelFactory, // ,,
 		const milk::FilesystemContext& fs
 		) :
-		windmap_(graphicsRenderer),
+		windmap_(graphicsRenderer, 256, 256),
 		terrain_(graphicsRenderer, scene, passFactory, modelFactory, fs),
 		sky_(graphicsRenderer, scene, passFactory, fs)
 	{
 	}
 
-	void update(
-		std::chrono::milliseconds dt,
-		milk::graphics::Renderer& graphicsRenderer
-		)
-	{
-		windmap_.update(dt, graphicsRenderer);
+	void update(std::chrono::milliseconds dt) {
+		windmap_.update(dt);
 	}
 
 	// TODO: temp?

@@ -4,11 +4,11 @@
 #include <random>
 #include <cmath>
 
-#include "coconut/pulp/math/common.hpp"
+#include "common.hpp"
 
 using namespace coconut;
 using namespace coconut::pulp;
-using namespace coconut::pulp::world;
+using namespace coconut::pulp::math;
 
 /*
  * Perlin-noise implementation based on https://github.com/sol-prog/Perlin_Noise
@@ -23,7 +23,7 @@ float fade(float t) {
 }
 
 float grad(size_t hash, float x, float y, float z) {
-	size_t h = hash & 15;
+	auto h = static_cast<int>(hash & 15);
 	
 	float u = h < 8 ? x : y;
 	float v = h < 4 ? y : (h == 12 || h == 14) ? x : z;
@@ -67,12 +67,12 @@ float PerlinNoise::sample(const Vec3& where) const {
 	const auto result = lerp(
 		fadeZ,
 		lerp(fadeY,
-			lerp(fadeX, grad(data_[aa], cubeX, cubeY, cubeZ), grad(data_[ba], cubeX - 1, cubeY, cubeZ)),
-			lerp(fadeX, grad(data_[ab], cubeX, cubeY - 1, cubeZ), grad(data_[bb], cubeX - 1, cubeY - 1, cubeZ))
+			lerp(grad(data_[aa], cubeX, cubeY, cubeZ), grad(data_[ba], cubeX - 1, cubeY, cubeZ), fadeX),
+			lerp(grad(data_[ab], cubeX, cubeY - 1, cubeZ), grad(data_[bb], cubeX - 1, cubeY - 1, cubeZ), fadeX)
 			),
 		lerp(fadeY,
-			lerp(fadeX, grad(data_[aa + 1], cubeX, cubeY, cubeZ - 1), grad(data_[ba + 1], cubeX - 1, cubeY, cubeZ - 1)),
-			lerp(fadeX, grad(data_[ab + 1], cubeX, cubeY-1, cubeZ - 1), grad(data_[bb + 1], cubeX - 1, cubeY - 1, cubeZ - 1))
+			lerp(grad(data_[aa + 1], cubeX, cubeY, cubeZ - 1), grad(data_[ba + 1], cubeX - 1, cubeY, cubeZ - 1), fadeX),
+			lerp(grad(data_[ab + 1], cubeX, cubeY-1, cubeZ - 1), grad(data_[bb + 1], cubeX - 1, cubeY - 1, cubeZ - 1), fadeX)
 			)
 		);
 	return (result + 1.0f) / 2.0f;

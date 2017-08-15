@@ -14,12 +14,12 @@ BOOST_AUTO_TEST_SUITE(PulpMathTestSuite);
 BOOST_AUTO_TEST_SUITE(PulpMathCommonTestSuite);
 
 BOOST_AUTO_TEST_CASE(LerpLinearlyInterpolatesBetweenValues) {
-	BOOST_CHECK_EQUAL(lerp(0.25f, 0.0f, 4.0f), 1.0f);
-	BOOST_CHECK_EQUAL(lerp(0.75f, 4.0f, 0.0f), 1.0f);
-	BOOST_CHECK_EQUAL(lerp(0.75f, 0.0f, 4.0f), 3.0f);
+	BOOST_CHECK_EQUAL(lerp(0.0f, 4.0f, 0.25f), 1.0f);
+	BOOST_CHECK_EQUAL(lerp(4.0f, 0.0f, 0.75f), 1.0f);
+	BOOST_CHECK_EQUAL(lerp(0.0f, 4.0f, 0.75f), 3.0f);
 
-	BOOST_CHECK_EQUAL(lerp(0.0, 0.0, 4.0), 0.0);
-	BOOST_CHECK_EQUAL(lerp(1.0, 0.0, 4.0), 4.0);
+	BOOST_CHECK_EQUAL(lerp(0.0, 4.0, 0.0f), 0.0);
+	BOOST_CHECK_EQUAL(lerp(0.0, 4.0, 1.0f), 4.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END(/* PulpMathCommonTestSuite */);

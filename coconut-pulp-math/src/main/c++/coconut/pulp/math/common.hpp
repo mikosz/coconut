@@ -6,8 +6,8 @@ namespace pulp {
 namespace math {
 
 template <class T>
-T lerp(T level, T from, T to) { 
-	return level * to + (T(1.0) - level) * from; 
+inline T lerp(T from, T to, float factor) { 
+	return (1.0f - factor) * from + factor * to; 
 }
 
 } // namespace math

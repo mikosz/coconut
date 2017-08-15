@@ -1,7 +1,5 @@
 #include "grass-common.hlsl"
 
-static const float WIND_SCALE = 0.2f;
-
 cbuffer PatchData {
 	float3 actor_grassPatchPosition;
 };
@@ -9,6 +7,9 @@ cbuffer PatchData {
 cbuffer TerrainData {
 	float terrain_width;
 	float terrain_depth;
+	float2 windmap_primaryDir;
+	float2 windmap_secondaryDir;
+	float2 windmap_texcoordOffset;
 };
 
 Texture2D material_noiseMap;
@@ -51,7 +52,8 @@ GIn main(uint bladeId : SV_VertexID)
 	vout.posW.x += noise.x * OFFSET;
 	vout.posW.z += noise.z * OFFSET;
 
-	vout.windDir = WIND_SCALE * windmap_texture.SampleLevel(windmap_sampler, terrainTexcoord, 0).rg;
+	const float2 windIntensity = windmap_texture.SampleLevel(windmap_sampler, terrainTexcoord + windmap_texcoordOffset, 0).rg;
+	vout.windDir = windIntensity.x * windmap_primaryDir + windIntensity.y * windmap_secondaryDir;
 	
 	vout.noiseVal = noise.y;
 

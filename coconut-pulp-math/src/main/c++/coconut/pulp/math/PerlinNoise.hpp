@@ -1,5 +1,5 @@
-#ifndef _COCONUT_PULP_WORLD_PERLINNOISE_HPP_
-#define _COCONUT_PULP_WORLD_PERLINNOISE_HPP_
+#ifndef _COCONUT_PULP_MATH_PERLINNOISE_HPP_
+#define _COCONUT_PULP_MATH_PERLINNOISE_HPP_
 
 #include <vector>
 
@@ -7,7 +7,7 @@
 
 namespace coconut {
 namespace pulp {
-namespace world {
+namespace math {
 
 // TODO: put me somewhere else
 
@@ -27,8 +27,8 @@ private:
 
 };
 
-} // namespace world
+} // namespace math
 } // namespace pulp
 } // namespace coconut
 
-#endif /* _COCONUT_PULP_WORLD_PERLINNOISE_HPP_ */
+#endif /* _COCONUT_PULP_MATH_PERLINNOISE_HPP_ */

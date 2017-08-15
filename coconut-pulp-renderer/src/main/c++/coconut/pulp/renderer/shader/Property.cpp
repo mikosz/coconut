@@ -12,6 +12,31 @@ using namespace coconut::pulp::renderer::shader;
 
 void* shader::writeDataProperty(
 	void* buffer,
+	const math::Vec2& vec2,
+	const PropertyId& /*id*/,
+	const Property::DataType& format
+	)
+{
+	static_assert(std::is_trivially_copyable_v<pulp::math::Vec2>, "Vec2 is not trivially copyable");
+
+	if (format.klass != Property::DataType::Class::VECTOR) {
+		throw IncompatibleDataType("Vec2s are not writeable to class " + toString(format.klass));
+	}
+
+	if (format.scalarType != Property::DataType::ScalarType::FLOAT) {
+		throw IncompatibleDataType("Vec2s are not writeable to scalar type " + toString(format.scalarType));
+	}
+
+	// TODO: check if columns <= 2?
+	// TODO: merge with Vec4
+
+	const auto size = sizeof(float) * format.columns;
+	std::memcpy(buffer, &vec2, size);
+	return reinterpret_cast<std::uint8_t*>(buffer) + size;
+}
+
+void* shader::writeDataProperty(
+	void* buffer,
 	const math::Vec3& vec3,
 	const PropertyId& /*id*/,
 	const Property::DataType& format

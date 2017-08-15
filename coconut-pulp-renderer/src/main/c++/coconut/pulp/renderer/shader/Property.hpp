@@ -307,6 +307,13 @@ inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeDataProperty(
 
 void* writeDataProperty(
 	void* buffer,
+	const math::Vec2& vec2,
+	const PropertyId& id,
+	const Property::DataType& format
+	);
+
+void* writeDataProperty(
+	void* buffer,
 	const math::Vec3& vec3,
 	const PropertyId& id,
 	const Property::DataType& format
