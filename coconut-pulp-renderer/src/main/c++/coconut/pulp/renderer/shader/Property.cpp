@@ -155,6 +155,18 @@ void* shader::writeDataProperty(
 
 void shader::bindResourceProperty(
 	DrawCommand& drawCommand,
+	const milk::graphics::Texture1d& texture,
+	const PropertyId& /*id*/,
+	milk::graphics::ShaderReflection::ResourceInfo::Type /*type*/,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	)
+{
+	drawCommand.addTexture(texture, stage, slot);
+}
+
+void shader::bindResourceProperty(
+	DrawCommand& drawCommand,
 	const milk::graphics::Texture2d& texture,
 	const PropertyId& /*id*/,
 	milk::graphics::ShaderReflection::ResourceInfo::Type /*type*/,

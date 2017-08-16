@@ -4,7 +4,7 @@
 #include <chrono>
 
 #include "coconut/milk/graphics/Renderer.hpp"
-#include "coconut/milk/graphics/Texture2d.hpp"
+#include "coconut/milk/graphics/Texture1d.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/pulp/renderer/shader/ReflectiveObject.hpp"
 #include "coconut/pulp/math/Vector.hpp"
@@ -17,25 +17,23 @@ namespace world {
 class Windmap {
 public:
 
-	Windmap(milk::graphics::Renderer& graphicsRenderer, size_t width, size_t height);
+	Windmap(milk::graphics::Renderer& graphicsRenderer);
 
 	void update(std::chrono::milliseconds dt);
 
 private:
 
-	size_t width_;
-
-	size_t height_;
-
-	Vec2 primaryDir_;
-
-	Vec2 secondaryDir_;
-
-	Vec2 texcoordOffset_;
+	Vec2 windDir_;
 
 	pulp::math::PerlinNoise perlin_;
 
-	milk::graphics::Texture2d texture_;
+	float basePower_;
+
+	float texcoordOffset_;
+
+	milk::graphics::Texture1d powerTexture_;
+
+	milk::graphics::Texture1d secondaryPowerTexture_;
 
 	milk::graphics::Sampler sampler_;
 

@@ -343,6 +343,15 @@ void* writeDataProperty(
 
 void bindResourceProperty(
 	DrawCommand& drawCommand,
+	const milk::graphics::Texture1d& texture,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
+	);
+
+void bindResourceProperty(
+	DrawCommand& drawCommand,
 	const milk::graphics::Texture2d& texture,
 	const PropertyId& id,
 	milk::graphics::ShaderReflection::ResourceInfo::Type type,

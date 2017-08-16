@@ -7,9 +7,8 @@ cbuffer PatchData {
 cbuffer TerrainData {
 	float terrain_width;
 	float terrain_depth;
-	float2 windmap_primaryDir;
-	float2 windmap_secondaryDir;
-	float2 windmap_texcoordOffset;
+	float2 windmap_windDir;
+	float windmap_texcoordOffset;
 };
 
 Texture2D material_noiseMap;
@@ -17,7 +16,8 @@ Texture2D material_noiseMap;
 Texture2D terrain_heightmap;
 SamplerState terrain_heightmapSampler;
 
-Texture2D windmap_texture;
+Texture1D windmap_powerTexture;
+Texture1D windmap_secondaryPowerTexture;
 SamplerState windmap_sampler;
 
 GIn main(uint bladeId : SV_VertexID)
@@ -52,8 +52,13 @@ GIn main(uint bladeId : SV_VertexID)
 	vout.posW.x += noise.x * OFFSET;
 	vout.posW.z += noise.z * OFFSET;
 
-	const float2 windIntensity = windmap_texture.SampleLevel(windmap_sampler, terrainTexcoord + windmap_texcoordOffset, 0).rg;
-	vout.windDir = windIntensity.x * windmap_primaryDir + windIntensity.y * windmap_secondaryDir;
+	const float primaryWindIntensity = windmap_powerTexture.SampleLevel(
+		windmap_sampler, terrainTexcoord.x + windmap_texcoordOffset, 0).r;
+	const float secondaryWindIntensity = windmap_secondaryPowerTexture.SampleLevel(
+		windmap_sampler, terrainTexcoord.x + windmap_texcoordOffset, 0).r;
+	const float windIntensity = primaryWindIntensity + 0.1f * secondaryWindIntensity;
+	
+	vout.windDir = windIntensity * windmap_windDir;
 	
 	vout.noiseVal = noise.y;
 

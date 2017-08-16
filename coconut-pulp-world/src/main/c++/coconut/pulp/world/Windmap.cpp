@@ -9,54 +9,55 @@ using namespace coconut::pulp;
 using namespace coconut::pulp::world;
 
 renderer::shader::ReflectiveInterface<Windmap>::ReflectiveInterface() {
-	emplaceMethod("primaryDir", [](const Windmap& windmap) { return windmap.primaryDir_; });
-	emplaceMethod("secondaryDir", [](const Windmap& windmap) { return windmap.secondaryDir_; });
+	emplaceMethod("windDir", [](const Windmap& windmap) { return windmap.windDir_; });
+	emplaceMethod("basePower", [](const Windmap& windmap) { return windmap.basePower_; });
 	emplaceMethod("texcoordOffset", [](const Windmap& windmap) { return windmap.texcoordOffset_; });
-	emplaceMethod("texture", [](const Windmap& windmap) { return &windmap.texture_; });
+	emplaceMethod("powerTexture", [](const Windmap& windmap) { return &windmap.powerTexture_; });
+	emplaceMethod("secondaryPowerTexture", [](const Windmap& windmap) { return &windmap.secondaryPowerTexture_; });
 	emplaceMethod("sampler", [](const Windmap& windmap) { return &windmap.sampler_; });
 }
 
-Windmap::Windmap(milk::graphics::Renderer& graphicsRenderer, size_t width, size_t height) :
-	width_(width),
-	height_(height),
-	primaryDir_(1.0f, 0.0f),
-	secondaryDir_(0.0f, 0.2f),
+Windmap::Windmap(milk::graphics::Renderer& graphicsRenderer) :
+	windDir_(1.0f, 0.0f),
+	basePower_(1.0f),
+	texcoordOffset_(0.0f),
 	perlin_(42u)
 {
 	// TODO: a lot of this is hard-coded and temp
 
-	auto windData = std::vector<float>(2 * width_ * height_);
-	for (const auto rowIdx : coconut_tools::range<size_t>(0, height_)) {
-		for (const auto colIdx : coconut_tools::range<size_t>(0, width_)) {
-			const auto primaryIdx = rowIdx * width + colIdx;
-			const auto secondaryIdx = primaryIdx + 1;
+	const auto powerSamples = 1024u;
 
-			const auto x = static_cast<float>(colIdx) / static_cast<float>(width_);
-			const auto y = static_cast<float>(rowIdx) / static_cast<float>(height_);
+	auto powerData = std::vector<float>(powerSamples);
+	auto secondaryPowerData = std::vector<float>(powerSamples);
 
-			windData[primaryIdx] = perlin_.sample({ x, y, 0.0f });
-			windData[secondaryIdx] = perlin_.sample({ x, y, 0.1f });
-		}
+	for (const auto i : coconut_tools::range<size_t>(0, powerSamples)) {
+		const auto x = static_cast<float>(i) / static_cast<float>(powerSamples);
+
+		powerData[i] = perlin_.sample({ x * 0.1f, 0.33f, 0.33f });
+		secondaryPowerData[i] = perlin_.sample({ x, 0.66f, 0.66f });
 	}
 
-	auto textureConfiguration = milk::graphics::Texture2d::Configuration();
-	textureConfiguration.width = width_;
-	textureConfiguration.height = height_;
-	textureConfiguration.pixelFormat = milk::graphics::PixelFormat::R32G32_FLOAT;
-	textureConfiguration.allowModifications = false;
+	auto textureConfiguration = milk::graphics::Texture1d::Configuration();
+	textureConfiguration.width = powerSamples;
+	textureConfiguration.pixelFormat = milk::graphics::PixelFormat::R32_FLOAT;
+	textureConfiguration.allowModifications = true;
 	textureConfiguration.allowCPURead = false;
 	textureConfiguration.allowGPUWrite = false;
 	textureConfiguration.purposeFlags =
 		coconut_tools::Mask<milk::graphics::Texture::CreationPurpose>() |
 		milk::graphics::Texture::CreationPurpose::SHADER_RESOURCE;
-	textureConfiguration.initialData = windData.data();
+	textureConfiguration.initialData = powerData.data();
 
-	texture_ = milk::graphics::Texture2d(graphicsRenderer, textureConfiguration);
+	powerTexture_ = milk::graphics::Texture1d(graphicsRenderer, textureConfiguration);
+
+	textureConfiguration.initialData = secondaryPowerData.data();
+
+	secondaryPowerTexture_ = milk::graphics::Texture1d(graphicsRenderer, textureConfiguration);
 
 	auto samplerConfiguration = milk::graphics::Sampler::Configuration();
-	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::WRAP;
-	samplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::WRAP;
-	samplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::WRAP;
+	samplerConfiguration.addressModeU = milk::graphics::Sampler::AddressMode::CLAMP;
+	samplerConfiguration.addressModeV = milk::graphics::Sampler::AddressMode::CLAMP;
+	samplerConfiguration.addressModeW = milk::graphics::Sampler::AddressMode::CLAMP;
 	samplerConfiguration.filter = milk::graphics::Sampler::Filter::MIN_MAG_MIP_LINEAR;
 
 	sampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy

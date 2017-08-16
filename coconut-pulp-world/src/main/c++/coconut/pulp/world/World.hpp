@@ -27,7 +27,7 @@ public:
 		renderer::ModelFactory& modelFactory, // ,,
 		const milk::FilesystemContext& fs
 		) :
-		windmap_(graphicsRenderer, 256, 256),
+		windmap_(graphicsRenderer),
 		terrain_(graphicsRenderer, scene, passFactory, modelFactory, fs),
 		sky_(graphicsRenderer, scene, passFactory, fs)
 	{
