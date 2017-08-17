@@ -95,12 +95,12 @@ void Texture1d::initialise(Renderer& renderer, const Configuration& configuratio
 		subresourceDataPtr = subresourceData.data();
 	}
 
-	ID3D11Texture1D* texture;
+	auto texture = system::COMWrapper<ID3D11Texture1D>();
 	checkDirectXCall(
-		renderer.internalDevice().CreateTexture1D(&desc, subresourceDataPtr, &texture),
+		renderer.internalDevice().CreateTexture1D(&desc, subresourceDataPtr, &texture.get()),
 		"Failed to create a 1D texture"
 	);
-	texture_.reset(texture); // TODO: wtf???!!! getting a crash when using &texture_.get()
+	resource_ = std::move(texture);
 
 	Texture::initialise(renderer, configuration.purposeFlags);
 }
@@ -113,11 +113,7 @@ void Texture1d::initialise(
 {
 	reset();
 
-	texture_ = std::move(texture);
+	resource_ = std::move(texture);
 
 	Texture::initialise(renderer, purposeFlags);
-}
-
-void Texture1d::reset() {
-	texture_.reset();
 }

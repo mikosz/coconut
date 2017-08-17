@@ -2,6 +2,7 @@
 #define _COCONUT_MILK_SYSTEM_COMWRAPPER_HPP_
 
 #include <cassert>
+#include <type_traits>
 
 namespace coconut {
 namespace milk {
@@ -21,6 +22,15 @@ public:
 	{
 	}
 
+	template <class CompatibleT>
+	COMWrapper(const COMWrapper<CompatibleT>& other) :
+		comObject_(other.get())
+	{
+		if (comObject_) {
+			comObject_->AddRef();
+		}
+	}
+
 	COMWrapper(const COMWrapper& other) :
 		comObject_(other.comObject_)
 	{
@@ -30,35 +40,17 @@ public:
 	}
 
 	COMWrapper(COMWrapper&& other) :
-		comObject_(other.comObject_)
+		COMWrapper()
 	{
-		other.comObject_ = nullptr;
+		swap(other);
 	}
 
 	~COMWrapper() {
 		reset();
 	}
 
-	// TODO: use idiom
-	COMWrapper& operator=(const COMWrapper& other) {
-		if (&other != this) {
-			reset();
-			comObject_ = other.comObject_;
-			if (comObject_) {
-				comObject_->AddRef();
-			}
-		}
-
-		return *this;
-	}
-
-	COMWrapper& operator=(COMWrapper&& other) {
-		if (&other != this) {
-			reset();
-			comObject_ = other.comObject_;
-			other.comObject_ = nullptr;
-		}
-
+	COMWrapper& operator=(COMWrapper other) {
+		swap(other);
 		return *this;
 	}
 
@@ -88,6 +80,10 @@ public:
 		comObject_ = comObject;
 	}
 
+	void swap(COMWrapper& other) {
+		std::swap(comObject_, other.comObject_);
+	}
+
 	T*& get() { // TODO: WTF? Texture2D::initialise crashes when doing &get()
 		return comObject_;
 	}
@@ -101,6 +97,11 @@ private:
 	T* comObject_;
 
 };
+
+template <class T>
+void swap(COMWrapper<T> lhs, COMWrapper<T> rhs) {
+	lhs.swap(rhs);
+}
 
 } // namespace system
 } // namespace milk

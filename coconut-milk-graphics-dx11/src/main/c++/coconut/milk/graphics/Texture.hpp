@@ -43,17 +43,11 @@ public:
 		return *depthStencilView_;
 	}
 
-	ID3D11ShaderResourceView& internalShaderResourceView() const override {
-		return *shaderResourceView_;
-	}
-
 private:
 
 	system::COMWrapper<ID3D11RenderTargetView> renderTargetView_;
 
 	system::COMWrapper<ID3D11DepthStencilView> depthStencilView_;
-
-	system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_;
 
 };
 

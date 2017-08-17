@@ -52,14 +52,14 @@ void CommandList::drawIndexedInstanced(size_t vertexCountPerInstance, size_t ins
 CommandList::LockedData CommandList::lock(Resource& data, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
-		deviceContext_->Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		deviceContext_->Map(data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
 		"Failed to map the provided resource"
 		);
 
 	return LockedData(
 		reinterpret_cast<std::uint8_t*>(mappedResource.pData),
-		[deviceContext = deviceContext_, &internalBuffer = data.internalResource()](std::uint8_t*) {
-			deviceContext->Unmap(&internalBuffer, 0);
+		[deviceContext = deviceContext_, internalBuffer = data.internalResource()](std::uint8_t*) {
+			deviceContext->Unmap(internalBuffer, 0);
 		}
 		);
 }
@@ -113,7 +113,7 @@ void CommandList::setPixelShader(PixelShader* pixelShader) noexcept {
 }
 
 void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, size_t slot) {
-	auto* buf = buffer.internalBuffer();
+	auto* buf = reinterpret_cast<ID3D11Buffer*>(buffer.internalResource().get());
 
 	switch (stage) {
 	case ShaderType::VERTEX:
@@ -137,7 +137,7 @@ void CommandList::setConstantBuffer(ConstantBuffer& buffer, ShaderType stage, si
 }
 
 void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset) {
-	auto* buf = buffer.internalBuffer();
+	auto* buf = reinterpret_cast<ID3D11Buffer*>(buffer.internalResource().get());
 
 	deviceContext_->IASetIndexBuffer(buf, static_cast<DXGI_FORMAT>(buffer.pixelFormat()), static_cast<UINT>(offset));
 }
@@ -145,7 +145,7 @@ void CommandList::setIndexBuffer(IndexBuffer& buffer, size_t offset) {
 void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot) {
 	auto strideParam = static_cast<UINT>(buffer.stride());
 	UINT offsetParam = 0;
-	auto* buf = buffer.internalBuffer();
+	auto* buf = reinterpret_cast<ID3D11Buffer*>(buffer.internalResource().get());
 
 	deviceContext_->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buf, &strideParam, &offsetParam);
 }
@@ -153,13 +153,13 @@ void CommandList::setVertexBuffer(VertexBuffer& buffer, size_t slot) {
 void CommandList::setInstanceDataBuffer(VertexBuffer& buffer, size_t slot) {
 	auto strideParam = static_cast<UINT>(buffer.stride());
 	UINT offsetParam = 0;
-	auto* buf = buffer.internalBuffer();
+	auto* buf = reinterpret_cast<ID3D11Buffer*>(buffer.internalResource().get());
 
 	deviceContext_->IASetVertexBuffers(static_cast<UINT>(slot), 1, &buf, &strideParam, &offsetParam);
 }
 
 void CommandList::setResource(const Resource& resource, ShaderType stage, size_t slot) {
-	auto* srv = &resource.internalShaderResourceView();
+	auto* srv = resource.internalShaderResourceView().get();
 
 	switch (stage) {
 	case ShaderType::VERTEX:

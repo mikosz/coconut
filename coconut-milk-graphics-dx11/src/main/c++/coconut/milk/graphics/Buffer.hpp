@@ -72,25 +72,9 @@ public:
 		return configuration_;
 	}
 
-	ID3D11Buffer* internalBuffer() {
-		return buffer_;
-	}
-
-	ID3D11Resource& internalResource() override {
-		return *buffer_;
-	}
-
-	ID3D11ShaderResourceView& internalShaderResourceView() const override {
-		return *shaderResourceView_;
-	}
-
 private:
 
 	Configuration configuration_;
-
-	system::COMWrapper<ID3D11Buffer> buffer_;
-
-	system::COMWrapper<ID3D11ShaderResourceView> shaderResourceView_; // TODO: duplicated with texture
 
 };
 

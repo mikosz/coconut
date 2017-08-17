@@ -33,8 +33,8 @@ public:
 	{
 	}
 
-	void update(std::chrono::milliseconds dt) {
-		windmap_.update(dt);
+	void update(milk::graphics::Renderer& graphicsRenderer, std::chrono::milliseconds dt) {
+		windmap_.update(graphicsRenderer, dt);
 	}
 
 	// TODO: temp?

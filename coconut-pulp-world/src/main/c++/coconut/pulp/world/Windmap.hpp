@@ -19,17 +19,19 @@ public:
 
 	Windmap(milk::graphics::Renderer& graphicsRenderer);
 
-	void update(std::chrono::milliseconds dt);
+	void update(milk::graphics::Renderer& graphicsRenderer, std::chrono::milliseconds dt);
 
 private:
 
-	Vec2 windDir_;
-
 	pulp::math::PerlinNoise perlin_;
 
-	float basePower_;
+	Vec2 windDir_;
 
-	float texcoordOffset_;
+	float baseIntensity_;
+
+	float intensityAmplitude_;
+
+	float textureOffset_;
 
 	milk::graphics::Texture1d powerTexture_;
 

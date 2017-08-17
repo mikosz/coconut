@@ -54,9 +54,9 @@ public:
 
 	Texture1d(Renderer& renderer, const Image& image);
 
-	Texture1d(system::COMWrapper<ID3D11Texture1D> texture) :
-		texture_(texture)
+	Texture1d(system::COMWrapper<ID3D11Texture1D> texture)
 	{
+		resource_.reset(texture.get());
 	}
 
 	void initialise(Renderer& renderer, const Configuration& configuration);
@@ -66,16 +66,6 @@ public:
 		coconut_tools::Mask<CreationPurpose> purposeFlags,
 		system::COMWrapper<ID3D11Texture1D> texture
 	);
-
-	void reset();
-
-	ID3D11Resource& internalResource() override {
-		return *texture_;
-	}
-
-private:
-
-	system::COMWrapper<ID3D11Texture1D> texture_;
 
 };
 

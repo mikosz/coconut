@@ -12,6 +12,9 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
+// TODO: this whole setup with Resource/Buffer/Texture/Texture1d/Texture2d is messy and
+// unnecessary
+
 Texture2d::Texture2d(Renderer& renderer, const Configuration& configuration) {
 	initialise(renderer, configuration);
 }
@@ -102,12 +105,12 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 		subresourceDataPtr = subresourceData.data();
 	}
 
-	ID3D11Texture2D* texture;
+	auto texture = system::COMWrapper<ID3D11Texture2D>();
 	checkDirectXCall(
-		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture),
+		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture.get()),
 		"Failed to create a 2D texture"
 		);
-	texture_.reset(texture); // TODO: wtf???!!! getting a crash when using &texture_.get()
+	resource_ = std::move(texture);
 
 	Texture::initialise(renderer, configuration.purposeFlags);
 }
@@ -120,11 +123,7 @@ void Texture2d::initialise(
 {
 	reset();
 
-	texture_ = std::move(texture);
+	resource_ = std::move(texture);
 
 	Texture::initialise(renderer, purposeFlags);
-}
-
-void Texture2d::reset() {
-	texture_.reset();
 }

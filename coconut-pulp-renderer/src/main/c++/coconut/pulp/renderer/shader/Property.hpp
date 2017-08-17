@@ -12,6 +12,7 @@
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
 #include "coconut/milk/graphics/PixelFormat.hpp"
+#include "coconut/milk/graphics/Texture1d.hpp"
 #include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/pulp/primitive/Primitive.hpp"
