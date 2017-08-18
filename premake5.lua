@@ -56,18 +56,25 @@ workspace "coconut"
 	filter "action:vs*"
 		defines { "_SCL_SECURE_NO_WARNINGS" }
 	filter {}
+			
+	structure.set_group "core"
+		include "coconut-pulp-math"
+		include "coconut-pulp-mesh"
+		include "coconut-pulp-primitive"
+		include "coconut-pulp-renderer"
 	
-	include "coconut-milk-fs"
-	include "coconut-milk-graphics-dx11"
-	include "coconut-milk-system-win32"
-	include "coconut-milk-utils"
-	include "coconut-pulp-math"
-	include "coconut-pulp-mesh"
-	include "coconut-pulp-primitive"
-	include "coconut-pulp-renderer"
-	include "coconut-pulp-world"
-	include "coconut-shell"
-
+	structure.set_group "core/wrappers"
+		include "coconut-milk-fs"
+		include "coconut-milk-graphics-dx11"
+		include "coconut-milk-system-win32"
+		include "coconut-milk-utils"
+	
+	structure.set_group "gameplay"
+		include "coconut-pulp-world"
+	
+	structure.set_group ""
+		include "coconut-shell"
+		
 	structure.create_install_project()
 	structure.create_run_tests_project()
 	
