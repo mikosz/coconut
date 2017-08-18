@@ -53,10 +53,12 @@ GIn main(uint bladeId : SV_VertexID)
 	vout.posW.x += noise.x * OFFSET;
 	vout.posW.z += noise.z * OFFSET;
 
+	const float sampleTexcoord = abs(dot(normalize(windmap_windDir), terrainTexcoord));
+	
 	const float primaryWindIntensity = windmap_powerTexture.SampleLevel(
-		windmap_sampler, terrainTexcoord.x, 0).r * windmap_intensityAmplitude;
+		windmap_sampler, sampleTexcoord, 0).r * windmap_intensityAmplitude;
 	const float secondaryWindIntensity = windmap_secondaryPowerTexture.SampleLevel(
-		windmap_sampler, terrainTexcoord.x, 0).r * windmap_intensityAmplitude;
+		windmap_sampler, sampleTexcoord, 0).r * windmap_intensityAmplitude;
 	const float windIntensity = saturate(windmap_baseIntensity + primaryWindIntensity + 0.1f * secondaryWindIntensity);
 	
 	vout.windDir = windIntensity * windmap_windDir;
