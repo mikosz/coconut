@@ -21,6 +21,10 @@ Texture1D windmap_powerTexture;
 Texture1D windmap_secondaryPowerTexture;
 SamplerState windmap_sampler;
 
+static const float tiledTextureScale = 50.0f;
+Texture2D terrain_tiledTexture;
+SamplerState terrain_tiledTextureSampler;
+ 
 GIn main(uint bladeId : SV_VertexID)
 {
 	static const float OFFSET = 0.05f;
@@ -48,6 +52,9 @@ GIn main(uint bladeId : SV_VertexID)
 		);
 	vout.posW.y += terrain_heightmap.SampleLevel(terrain_heightmapSampler, terrainTexcoord, 0).r;
 
+	const float2 tiledTexcoord = terrainTexcoord * tiledTextureScale;
+	vout.baseColour = terrain_tiledTexture.SampleLevel(terrain_tiledTextureSampler, tiledTexcoord, 0);
+
 	//vout.posW.x += noise.x * HALF_OFFSET;
 	//vout.posW.z += noise.z * HALF_OFFSET;
 	vout.posW.x += noise.x * OFFSET;
@@ -64,6 +71,6 @@ GIn main(uint bladeId : SV_VertexID)
 	vout.windDir = windIntensity * windmap_windDir;
 	
 	vout.noiseVal = noise.y;
-
+	
 	return vout;
 }

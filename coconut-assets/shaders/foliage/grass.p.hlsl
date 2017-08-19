@@ -123,17 +123,13 @@ float4 main(PIn pin) : SV_TARGET
 	//	specular += specularComp;
 	//}
 
+    // float diffuseNoise = 1.0f - (frac(pin.noiseVal * 10.0f) * 0.2f);
 
-	//float4 endColour = saturate(pin.baseColour * (ambient + diffuse) + specular);
-	//endColour.a = 1.0f;
-	
-    float diffuseNoise = 1.0f - (frac(pin.noiseVal * 10.0f) * 0.2f);
-
-	float4 textureColour = material_diffuseMap.Sample(material_diffuseMapSampler, pin.tex);
+	// float4 textureColour = material_diffuseMap.Sample(material_diffuseMapSampler, pin.tex);
 	float4 subsurfaceColour = material_subsurfaceMap.Sample(material_diffuseMapSampler, pin.tex);
 	
 	float4 endColour = saturate(
-		textureColour * diffuseNoise * (ambient + diffuse)
+		/* textureColour */ pin.baseColour /** diffuseNoise*/ * (ambient + diffuse)
 		+ subsurfaceColour * subsurface
 		+ specular
 		);

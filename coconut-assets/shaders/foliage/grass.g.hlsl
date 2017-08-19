@@ -36,6 +36,7 @@ struct BladeParams {
     float randomSeed;
     float heightSkew;
     float heightScale;
+	float4 baseColour;
 };
 	
 void randomiseWindForce(inout float2 windDir, float randomSeed) {
@@ -82,6 +83,8 @@ PIn getBladeVertex(BladeParams blade, uint lod, uint segment, Side side) {
 	result.tex.x = (side + 1.0f) * 0.5f;
 	result.tex.y = 1.0f - segmentHeightNorm;
 	
+	result.baseColour = blade.baseColour;
+	
 	return result;
 }
 	
@@ -118,7 +121,8 @@ void buildBlade(GIn root, uint lod, inout TriangleStream<PIn> triangles) {
 		root.windDir,
         root.noiseVal,
         HEIGHT_SKEW_AMPLITUDE * cos(root.posW.x + root.posW.y), // heightSkew
-        heightScale
+        heightScale,
+		root.baseColour
 		};
 
 	for (i = 0; i < segmentCount; ++i) {
