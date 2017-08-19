@@ -125,9 +125,12 @@ float4 main(DomainOut pin) : SV_TARGET
 	//	specular += specularComp;
 	//}
 
-	float4 textureColour = terrain_tiledTexture.Sample(terrain_tiledTextureSampler, pin.tiledTexcoord);
+	static const float4 groundColour = { 0.24f, 0.21f, 0.16f, 1.0f };
+	const float4 textureColour = terrain_tiledTexture.Sample(terrain_tiledTextureSampler, pin.tiledTexcoord);
 
-	float4 endColour = saturate(textureColour * (ambient + diffuse) + specular);
+	const float4 unlitColour = lerp(groundColour, textureColour, saturate(length(pin.posW - cameraPosition) / 20.0f));
+	
+	float4 endColour = saturate(unlitColour * (ambient + diffuse) + specular);
 	endColour.a = 1.0f; // diffuse.a;
 
 	return endColour;

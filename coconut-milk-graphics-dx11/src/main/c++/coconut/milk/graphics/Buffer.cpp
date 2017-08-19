@@ -50,8 +50,10 @@ Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, Configuration config
 		dataPtr = &data;
 	}
 
-	checkDirectXCall(renderer.internalDevice().CreateBuffer(&desc, dataPtr, &buffer_.get()),
+	auto buffer = system::COMWrapper<ID3D11Buffer>();
+	checkDirectXCall(renderer.internalDevice().CreateBuffer(&desc, dataPtr, &buffer.get()),
 		"Failed to create a buffer");
+	resource_ = std::move(buffer);
 
 	if (purpose == CreationPurpose::SHADER_RESOURCE) { // TODO: duplicated with Texture
 		auto srvDesc = D3D11_SHADER_RESOURCE_VIEW_DESC();
@@ -63,7 +65,7 @@ Buffer::Buffer(Renderer& renderer, CreationPurpose purpose, Configuration config
 		srvDesc.Buffer.NumElements = static_cast<UINT>(configuration_.size / formatSize(configuration_.elementFormat));
 
 		checkDirectXCall(
-			renderer.internalDevice().CreateShaderResourceView(buffer_, &srvDesc, &shaderResourceView_.get()),
+			renderer.internalDevice().CreateShaderResourceView(resource_.get(), &srvDesc, &shaderResourceView_.get()),
 			"Failed to create a shader resource view of buffer"
 		);
 	}

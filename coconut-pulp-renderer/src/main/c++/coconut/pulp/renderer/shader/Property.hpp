@@ -12,6 +12,7 @@
 #include "coconut/milk/graphics/ShaderReflection.hpp"
 #include "coconut/milk/graphics/ShaderType.hpp"
 #include "coconut/milk/graphics/PixelFormat.hpp"
+#include "coconut/milk/graphics/Texture1d.hpp"
 #include "coconut/milk/graphics/Texture2d.hpp"
 #include "coconut/milk/graphics/Sampler.hpp"
 #include "coconut/pulp/primitive/Primitive.hpp"
@@ -307,6 +308,13 @@ inline std::enable_if_t<std::is_floating_point_v<F>, void*> writeDataProperty(
 
 void* writeDataProperty(
 	void* buffer,
+	const math::Vec2& vec2,
+	const PropertyId& id,
+	const Property::DataType& format
+	);
+
+void* writeDataProperty(
+	void* buffer,
 	const math::Vec3& vec3,
 	const PropertyId& id,
 	const Property::DataType& format
@@ -332,6 +340,15 @@ void* writeDataProperty(
 	const Primitive& primitive,
 	const PropertyId& /* id */,
 	const Property::DataType& format
+	);
+
+void bindResourceProperty(
+	DrawCommand& drawCommand,
+	const milk::graphics::Texture1d& texture,
+	const PropertyId& id,
+	milk::graphics::ShaderReflection::ResourceInfo::Type type,
+	milk::graphics::ShaderType stage,
+	size_t slot
 	);
 
 void bindResourceProperty(

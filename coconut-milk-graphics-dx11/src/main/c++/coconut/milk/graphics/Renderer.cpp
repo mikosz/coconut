@@ -240,14 +240,14 @@ void Renderer::endScene() {
 Renderer::LockedData Renderer::lock(Resource& data, LockPurpose lockPurpose) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	checkDirectXCall(
-		immediateCommandList_.internalDeviceContext().Map(&data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
+		immediateCommandList_.internalDeviceContext().Map(data.internalResource(), 0, static_cast<D3D11_MAP>(lockPurpose), 0, &mappedResource),
 		"Failed to map the provided resource"
 		);
 
 	return LockedData(
 		mappedResource.pData,
-		[&deviceContext = immediateCommandList_, &internalBuffer = data.internalResource()](void*) {
-			deviceContext.internalDeviceContext().Unmap(&internalBuffer, 0);
+		[&deviceContext = immediateCommandList_, internalBuffer = data.internalResource()](void*) {
+			deviceContext.internalDeviceContext().Unmap(internalBuffer, 0);
 		}
 		);
 }

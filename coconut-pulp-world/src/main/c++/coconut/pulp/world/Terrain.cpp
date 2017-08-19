@@ -123,9 +123,6 @@ renderer::shader::ReflectiveInterface<Terrain>::ReflectiveInterface() {
 
 	emplaceMethod("tiledTexture", [](const Terrain& terrain) { return terrain.tiledTexture_; });
 	emplaceMethod("tiledTextureSampler", [](const Terrain& terrain) { return terrain.tiledTextureSampler_; });
-
-	emplaceMethod("windmap", [](const Terrain& terrain) { return terrain.windmap_; });
-	emplaceMethod("windmapSampler", [](const Terrain& terrain) { return terrain.windmapSampler_; });
 }
 
 Terrain::Terrain(
@@ -158,30 +155,6 @@ Terrain::Terrain(
 
 	// TODO: want a sampler factory
 	tiledTextureSampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
-
-    auto windmap_data = std::array<float, 100u * 100u * 2u>(); // TODO: temp!
-    std::srand(static_cast<unsigned int>(std::time(0)));
-    std::generate(windmap_data.begin(), windmap_data.end(), []() {
-            return static_cast<float>(std::rand() % 255) / 255.0f;
-        });
-
-	auto windmapConfiguration = milk::graphics::Texture2d::Configuration();
-	windmapConfiguration.width = 100u;
-	windmapConfiguration.height = 100u;
-	windmapConfiguration.pixelFormat = milk::graphics::PixelFormat::R32G32_FLOAT;
-	windmapConfiguration.allowModifications = false;
-	windmapConfiguration.allowCPURead = false;
-	windmapConfiguration.allowGPUWrite = true;
-	windmapConfiguration.purposeFlags =
-        coconut_tools::Mask<milk::graphics::Texture::CreationPurpose>() |
-		milk::graphics::Texture::CreationPurpose::RENDER_TARGET |
-		milk::graphics::Texture::CreationPurpose::SHADER_RESOURCE;
-	windmapConfiguration.initialData = windmap_data.data();
-
-	windmap_ = milk::graphics::Texture2d(graphicsRenderer, windmapConfiguration);
-
-	// TODO: still want a sampler factory. Probably want CLAMP address mode here
-	windmapSampler_ = milk::graphics::Sampler(graphicsRenderer, samplerConfiguration); // TODO: api - initialise, or copy
 }
 
 void Terrain::bindShaderProperties(

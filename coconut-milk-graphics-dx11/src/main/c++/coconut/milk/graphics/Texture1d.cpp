@@ -1,4 +1,4 @@
-#include "Texture2d.hpp"
+#include "Texture1d.hpp"
 
 #include <cstring>
 
@@ -12,21 +12,15 @@ using namespace coconut;
 using namespace coconut::milk;
 using namespace coconut::milk::graphics;
 
-// TODO: this whole setup with Resource/Buffer/Texture/Texture1d/Texture2d is messy and
-// unnecessary
-
-Texture2d::Texture2d(Renderer& renderer, const Configuration& configuration) {
+Texture1d::Texture1d(Renderer& renderer, const Configuration& configuration) {
 	initialise(renderer, configuration);
 }
 
-Texture2d::Texture2d(Renderer& renderer, const Image& image) {
+Texture1d::Texture1d(Renderer& renderer, const Image& image) {
 	Configuration config;
 	config.width = image.size().first;
-	config.height = image.size().second;
 	config.arraySize = image.arraySize();
 	config.mipLevels = image.mipLevels();
-	config.sampleCount = 1;
-	config.sampleQuality = 0;
 	config.pixelFormat = image.pixelFormat();
 	config.allowModifications = false;
 	config.allowCPURead = false;
@@ -37,20 +31,17 @@ Texture2d::Texture2d(Renderer& renderer, const Image& image) {
 	initialise(renderer, config);
 }
 
-void Texture2d::initialise(Renderer& renderer, const Configuration& configuration) {
+void Texture1d::initialise(Renderer& renderer, const Configuration& configuration) {
 	reset();
 
-	D3D11_TEXTURE2D_DESC desc;
+	D3D11_TEXTURE1D_DESC desc;
 	std::memset(&desc, 0, sizeof(desc));
 
 	// TODO: extract common configuration elements to superclass (when implementing other texture types)
 	desc.Width = static_cast<UINT>(configuration.width);
-	desc.Height = static_cast<UINT>(configuration.height);
 	desc.MipLevels = static_cast<UINT>(configuration.mipLevels);
 	desc.ArraySize = static_cast<UINT>(configuration.arraySize);
 	desc.Format = static_cast<DXGI_FORMAT>(configuration.pixelFormat);
-	desc.SampleDesc.Count = static_cast<UINT>(configuration.sampleCount);
-	desc.SampleDesc.Quality = static_cast<UINT>(configuration.sampleQuality);
 	desc.BindFlags = configuration.purposeFlags.integralValue();
 	desc.MiscFlags = configuration.arraySize == 6 ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0u; // TODO
 
@@ -89,9 +80,8 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 			for (const auto mipIndex : coconut_tools::range(size_t(0), configuration.mipLevels)) {
 				const auto subresourceIndex = textureIndex * configuration.mipLevels + mipIndex;
 				const auto textureWidth = configuration.width >> mipIndex;
-				const auto textureHeight = configuration.height >> mipIndex;
 				const auto rowPitch = formatRowPitch(configuration.pixelFormat, textureWidth);
-				const auto slicePitch = formatSlicePitch(configuration.pixelFormat, textureHeight, rowPitch);
+				const auto slicePitch = formatSlicePitch(configuration.pixelFormat, 1u, rowPitch);
 
 				subresourceData[subresourceIndex].pSysMem = data;
 				// TODO: this will not work for compressed formats
@@ -105,21 +95,21 @@ void Texture2d::initialise(Renderer& renderer, const Configuration& configuratio
 		subresourceDataPtr = subresourceData.data();
 	}
 
-	auto texture = system::COMWrapper<ID3D11Texture2D>();
+	auto texture = system::COMWrapper<ID3D11Texture1D>();
 	checkDirectXCall(
-		renderer.internalDevice().CreateTexture2D(&desc, subresourceDataPtr, &texture.get()),
-		"Failed to create a 2D texture"
-		);
+		renderer.internalDevice().CreateTexture1D(&desc, subresourceDataPtr, &texture.get()),
+		"Failed to create a 1D texture"
+	);
 	resource_ = std::move(texture);
 
 	Texture::initialise(renderer, configuration.purposeFlags);
 }
 
-void Texture2d::initialise(
-    Renderer& renderer,
-    coconut_tools::Mask<CreationPurpose> purposeFlags,
-    system::COMWrapper<ID3D11Texture2D> texture
-    )
+void Texture1d::initialise(
+	Renderer& renderer,
+	coconut_tools::Mask<CreationPurpose> purposeFlags,
+	system::COMWrapper<ID3D11Texture1D> texture
+)
 {
 	reset();
 

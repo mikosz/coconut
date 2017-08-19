@@ -140,6 +140,7 @@ void Game::loop() {
 	pulp::renderer::CommandBuffer commandBuffer;
 
 	const auto start = std::chrono::steady_clock::now();
+	auto lastFrameStart = start;
 	for (;;) {
 		auto now = std::chrono::steady_clock::now();
 
@@ -154,16 +155,18 @@ void Game::loop() {
 		auto dt = now - start;
 		auto secs = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count()) / 1000000000.0f;
 
+		world.update(*graphicsRenderer_, std::chrono::duration_cast<std::chrono::milliseconds>(now - lastFrameStart));
+
 		const auto camX = 0.0f;
 		const auto camY = 1.0f; // 4.0f + 0.25f * secs;
-		const auto camZ = 0.5f * secs;
+		const auto camZ = 0.5f; // * secs;
 		//const auto camZ = 0.0f;
 
 		const auto terrainHeight = world.terrain().heightmap().heightAt(camX, camZ);
 
 		camera->reset();
 		camera->translate(pulp::math::Vec3(camX, camY + terrainHeight, camZ));
-		camera->rotate(pulp::math::Vec3(0.0f, 1.0f, 0.0f), pulp::math::radians(0.03f * secs));
+		//camera->rotate(pulp::math::Vec3(0.0f, 1.0f, 0.0f), pulp::math::radians(0.03f * secs));
 		
 		auto passContext = pulp::renderer::PassContext();
 		passContext.graphicsRenderer = graphicsRenderer_.get();
@@ -177,5 +180,7 @@ void Game::loop() {
 		graphicsRenderer_->submit(commandList);
 
 		graphicsRenderer_->endScene();
+
+		lastFrameStart = now;
 	}
 }

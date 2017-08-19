@@ -11,7 +11,7 @@
 #include "coconut/milk/graphics/ShaderType.hpp"
 #include "coconut/milk/graphics/InputLayout.hpp"
 #include "coconut/milk/graphics/Shader.hpp"
-#include "coconut/milk/graphics/Texture2d.hpp"
+#include "coconut/milk/graphics/Texture.hpp"
 #include "coconut/milk/graphics/Viewport.hpp"
 #include "coconut/milk/graphics/VertexBuffer.hpp"
 #include "coconut/milk/graphics/IndexBuffer.hpp"
@@ -83,11 +83,12 @@ public:
 	}
 
 	void addTexture(
-		const milk::graphics::Texture2d texture,
+		milk::graphics::Texture texture,
 		milk::graphics::ShaderType stage,
 		size_t slot
-		) {
-		textures2d_.emplace_back(texture, stage, slot);
+		)
+	{
+		textures_.emplace_back(std::move(texture), stage, slot);
 	}
 
 	void addSampler(milk::graphics::Sampler sampler, milk::graphics::ShaderType stage, size_t slot) {
@@ -169,11 +170,11 @@ private:
 
 	};
 
-	struct Texture2d : Resource {
+	struct Texture : Resource {
 
-		milk::graphics::Texture2d texture;
+		milk::graphics::Texture texture;
 
-		Texture2d(milk::graphics::Texture2d texture, milk::graphics::ShaderType stage, size_t slot) :
+		Texture(milk::graphics::Texture texture, milk::graphics::ShaderType stage, size_t slot) :
 			Resource(stage, slot),
 			texture(texture)
 		{
@@ -195,7 +196,7 @@ private:
 
 	using ConstantBuffersData = std::vector<ConstantBufferData>; // TODO: ,,
 
-	using Textures2d = std::vector<Texture2d>; // TODO: ,,
+	using Textures = std::vector<Texture>; // TODO: ,,
 
 	using Samplers = std::vector<Sampler>; // TODO: use array to avoid allocs
 
@@ -224,7 +225,7 @@ private:
 
 	ConstantBuffersData constantBuffersData_;
 
-	Textures2d textures2d_;
+	Textures textures_;
 
 	milk::graphics::VertexBuffer* vertexBuffer_ = nullptr;
 

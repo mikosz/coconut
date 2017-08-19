@@ -37,7 +37,7 @@ void DrawCommand::submit(milk::graphics::CommandList& commandList) {
 
 	}
 
-	for (auto& texture : textures2d_) {
+	for (auto& texture : textures_) {
 		commandList.setResource(texture.texture, texture.stage, texture.slot);
 	}
 

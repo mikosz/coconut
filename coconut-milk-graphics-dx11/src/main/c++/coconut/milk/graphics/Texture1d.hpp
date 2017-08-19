@@ -1,5 +1,5 @@
-#ifndef _COCONUT_MILK_GRAPHICS_DX11_TEXTURE2D_HPP_
-#define _COCONUT_MILK_GRAPHICS_DX11_TEXTURE2D_HPP_
+#ifndef _COCONUT_MILK_GRAPHICS_DX11_TEXTURE1D_HPP_
+#define _COCONUT_MILK_GRAPHICS_DX11_TEXTURE1D_HPP_
 
 #include <d3d11.h>
 #include "coconut/milk/system/cleanup-windows-macros.hpp"
@@ -16,24 +16,18 @@ namespace graphics {
 class Renderer;
 class Image;
 
-class Texture2d : public Texture {
+class Texture1d : public Texture {
 public:
 
 	struct Configuration {
 
 		size_t width;
 
-		size_t height;
-
 		size_t arraySize;
 
 		size_t mipLevels;
 
 		PixelFormat pixelFormat;
-
-		size_t sampleCount;
-
-		size_t sampleQuality;
 
 		bool allowModifications;
 
@@ -44,25 +38,23 @@ public:
 		coconut_tools::Mask<CreationPurpose> purposeFlags;
 
 		const void* initialData;
-		
+
 		Configuration() {
 			std::memset(this, 0, sizeof(decltype(*this))); // TODO: TEMP TEMP TEMP
 			mipLevels = 1;
-			sampleCount = 1;
-			sampleQuality = 0;
 			arraySize = 1;
 		}
 
 	};
 
-	Texture2d() {
+	Texture1d() {
 	}
 
-	Texture2d(Renderer& renderer, const Configuration& configuration);
+	Texture1d(Renderer& renderer, const Configuration& configuration);
 
-	Texture2d(Renderer& renderer, const Image& image);
+	Texture1d(Renderer& renderer, const Image& image);
 
-	Texture2d(system::COMWrapper<ID3D11Texture2D> texture)
+	Texture1d(system::COMWrapper<ID3D11Texture1D> texture)
 	{
 		resource_.reset(texture.get());
 	}
@@ -70,17 +62,17 @@ public:
 	void initialise(Renderer& renderer, const Configuration& configuration);
 
 	void initialise(
-        Renderer& renderer,
-        coconut_tools::Mask<CreationPurpose> purposeFlags,
-        system::COMWrapper<ID3D11Texture2D> texture
-        );
+		Renderer& renderer,
+		coconut_tools::Mask<CreationPurpose> purposeFlags,
+		system::COMWrapper<ID3D11Texture1D> texture
+	);
 
 };
 
-CT_MAKE_POINTER_DEFINITIONS(Texture2d);
+CT_MAKE_POINTER_DEFINITIONS(Texture1d);
 
 } // namespace graphics
 } // namespace milk
 } // namespace coconut
 
-#endif /* _COCONUT_MILK_GRAPHICS_DX11_TEXTURE2D_HPP_ */
+#endif /* _COCONUT_MILK_GRAPHICS_DX11_TEXTURE1D_HPP_ */

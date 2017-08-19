@@ -1,7 +1,5 @@
 #include "grass-common.hlsl"
 
-static const float WIND_SCALE = 0.2f;
-
 cbuffer PatchData {
 	float3 actor_grassPatchPosition;
 };
@@ -9,6 +7,9 @@ cbuffer PatchData {
 cbuffer TerrainData {
 	float terrain_width;
 	float terrain_depth;
+	float windmap_baseIntensity;
+	float windmap_intensityAmplitude;
+	float2 windmap_windDir;
 };
 
 Texture2D material_noiseMap;
@@ -16,9 +17,14 @@ Texture2D material_noiseMap;
 Texture2D terrain_heightmap;
 SamplerState terrain_heightmapSampler;
 
-Texture2D terrain_windmap;
-SamplerState terrain_windmapSampler;
+Texture1D windmap_powerTexture;
+Texture1D windmap_secondaryPowerTexture;
+SamplerState windmap_sampler;
 
+static const float tiledTextureScale = 50.0f;
+Texture2D terrain_tiledTexture;
+SamplerState terrain_tiledTextureSampler;
+ 
 GIn main(uint bladeId : SV_VertexID)
 {
 	static const float OFFSET = 0.05f;
@@ -46,14 +52,25 @@ GIn main(uint bladeId : SV_VertexID)
 		);
 	vout.posW.y += terrain_heightmap.SampleLevel(terrain_heightmapSampler, terrainTexcoord, 0).r;
 
+	const float2 tiledTexcoord = terrainTexcoord * tiledTextureScale;
+	vout.baseColour = terrain_tiledTexture.SampleLevel(terrain_tiledTextureSampler, tiledTexcoord, 0);
+
 	//vout.posW.x += noise.x * HALF_OFFSET;
 	//vout.posW.z += noise.z * HALF_OFFSET;
 	vout.posW.x += noise.x * OFFSET;
 	vout.posW.z += noise.z * OFFSET;
 
-	vout.windDir = WIND_SCALE * terrain_windmap.SampleLevel(terrain_windmapSampler, terrainTexcoord, 0).rg;
+	const float sampleTexcoord = abs(dot(normalize(windmap_windDir), terrainTexcoord));
+	
+	const float primaryWindIntensity = windmap_powerTexture.SampleLevel(
+		windmap_sampler, sampleTexcoord, 0).r * windmap_intensityAmplitude;
+	const float secondaryWindIntensity = windmap_secondaryPowerTexture.SampleLevel(
+		windmap_sampler, sampleTexcoord, 0).r * windmap_intensityAmplitude;
+	const float windIntensity = saturate(windmap_baseIntensity + primaryWindIntensity + 0.1f * secondaryWindIntensity);
+	
+	vout.windDir = windIntensity * windmap_windDir;
 	
 	vout.noiseVal = noise.y;
-
+	
 	return vout;
 }
