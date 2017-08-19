@@ -72,9 +72,9 @@ PIn getBladeVertex(BladeParams blade, uint lod, uint segment, Side side) {
 	const float windCoefficient = LOD_SEGMENT_WIND_COEFFICIENT[lod][segment];
 	float2 windDir = blade.windDir;
 	
-    randomiseWindForce(windDir, blade.randomSeed);
-    oscillateWind(windDir, blade.randomSeed);
-    randomiseWindDirection(windDir, blade.randomSeed);
+	randomiseWindForce(windDir, blade.randomSeed);
+	oscillateWind(windDir, blade.randomSeed);
+	randomiseWindDirection(windDir, blade.randomSeed);
 
     result.posW.y += -windCoefficient * (length(windDir) * 0.5);
 	result.posW.xz += windDir.xy * windCoefficient;

@@ -1,6 +1,7 @@
 #include "Windmap.hpp"
 
 #include <vector>
+#include <algorithm>
 
 #include <coconut-tools/utils/Range.hpp>
 
@@ -27,8 +28,8 @@ Windmap::Windmap(milk::graphics::Renderer& graphicsRenderer) :
 	perlin_(42u),
 	windDir_(0.707f, 0.707f),
 	baseIntensity_(0.1f),
-	intensityAmplitude_(0.02f),
-	textureOffset_(0.0f)
+	intensityAmplitude_(0.05f),
+	noiseArgumentOffset_(0.0f)
 {
 	// TODO: a lot of this is hard-coded and temp
 	auto textureConfiguration = milk::graphics::Texture1d::Configuration();
@@ -59,12 +60,16 @@ void Windmap::update(milk::graphics::Renderer& graphicsRenderer, std::chrono::mi
 	auto data = graphicsRenderer.lock(powerTexture_, milk::graphics::Renderer::LockPurpose::WRITE_DISCARD);
 	auto* samplePtr = reinterpret_cast<float*>(data.get());
 
-	textureOffset_ += 0.01f * baseIntensity_ * static_cast<float>(dt.count()) / 1000.0f;
+	const auto noiseArgumentCalc = [this](float x) {
+			return noiseArgumentOffset_ + (20.0f * PI * x);
+		};
 
 	for (const auto i : coconut_tools::range<size_t>(0, POWER_SAMPLES)) {
-		const auto x = textureOffset_ + static_cast<float>(i) / static_cast<float>(POWER_SAMPLES);
+		const auto x = static_cast<float>(i) / static_cast<float>(POWER_SAMPLES);
 
 		// samplePtr[i] = perlin_.sample({ x, 0.33f, 0.33f });
-		samplePtr[i] = std::sin(x);
+		samplePtr[i] = std::min(((std::sin(noiseArgumentCalc(x))) + 1.0f), 1.0f);
 	}
+
+	noiseArgumentOffset_ = noiseArgumentCalc(-baseIntensity_ * (static_cast<float>(dt.count()) * 0.001f));
 }

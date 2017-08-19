@@ -31,7 +31,7 @@ private:
 
 	float intensityAmplitude_;
 
-	float textureOffset_;
+	float noiseArgumentOffset_;
 
 	milk::graphics::Texture1d powerTexture_;
 
