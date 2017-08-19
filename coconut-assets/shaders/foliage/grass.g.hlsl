@@ -84,6 +84,7 @@ PIn getBladeVertex(BladeParams blade, uint lod, uint segment, Side side) {
 	result.tex.y = 1.0f - segmentHeightNorm;
 	
 	result.baseColour = blade.baseColour;
+	result.terrainHeightW = blade.rootPosW.y;
 	
 	return result;
 }

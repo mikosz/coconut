@@ -123,17 +123,19 @@ float4 main(PIn pin) : SV_TARGET
 	//	specular += specularComp;
 	//}
 
-    // float diffuseNoise = 1.0f - (frac(pin.noiseVal * 10.0f) * 0.2f);
-
-	// float4 textureColour = material_diffuseMap.Sample(material_diffuseMapSampler, pin.tex);
 	float4 subsurfaceColour = material_subsurfaceMap.Sample(material_diffuseMapSampler, pin.tex);
+
+	static const float4 groundColour = { 0.14f, 0.11f, 0.06f, 1.0f };
+	float4 unlitColour = pin.baseColour;
+
+	unlitColour = lerp(groundColour, unlitColour, saturate((pin.posW.y - pin.terrainHeightW) / 0.05f));
 	
 	float4 endColour = saturate(
-		/* textureColour */ pin.baseColour /** diffuseNoise*/ * (ambient + diffuse)
+		unlitColour * (ambient + diffuse)
 		+ subsurfaceColour * subsurface
 		+ specular
 		);
-
+		
 	float alpha = material_alphaMap.Sample(material_diffuseMapSampler, pin.tex).r;
 	endColour.a = alpha; // * diffuse.a;
 	
